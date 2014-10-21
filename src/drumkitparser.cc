@@ -265,8 +265,8 @@ void DrumKitParser::endTag(std::string name)
 
     meta.instruments.push_back(std::pair<std::string, std::string>(instr_name, instr_description));
 
-    in_instrument = false;
     channelmap.clear();
+    in_instrument = false;
   }
 }
 
