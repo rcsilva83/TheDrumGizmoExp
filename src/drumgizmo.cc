@@ -69,6 +69,11 @@ bool DrumGizmo::loadkit(std::string file)
     return false;
   }
 
+  DrumkitInfoMessage *msg = new DrumkitInfoMessage();
+  MetaData metadata = parser.getMetaData();
+  msg->metadata = metadata;
+  msghandler.sendMessage(MSGRCV_UI, msg);
+
   loader.loadKit(&kit);
 
   DEBUG(loadkit, "loadkit: Success\n");

@@ -228,6 +228,12 @@ void PluginGUI::handleMessage(Message *msg)
       }
     }
     break;
+  case Message::DrumkitInfoMessage:
+    {
+      DrumkitInfoMessage *dim = (DrumkitInfoMessage*)msg;
+      drumkitinfo->setText(dim->metadata.version);
+    }
+    break;
   case Message::EngineSettingsMessage:
     {
       EngineSettingsMessage *settings = (EngineSettingsMessage *)msg;
@@ -308,7 +314,10 @@ void PluginGUI::init()
   window->eventHandler()->registerCloseHandler(closeEventHandler,
                                                (void*)&closing);
 
-  window->setFixedSize(370, 330);
+#define WINDOWXSIZE 670
+#define WINDOWYSIZE 330
+//  window->setFixedSize(370, 330);
+  window->setFixedSize(670, 330);
   window->setCaption("DrumGizmo v"VERSION);
 
   GUI::Label *lbl_title = new GUI::Label(window);
@@ -318,7 +327,8 @@ void PluginGUI::init()
   
   GUI::VerticalLine *l1 = new GUI::VerticalLine(window);
   l1->move(20, 30);
-  l1->resize(window->width() - 40, 2);
+//  l1->resize(window->width() - 40, 2);
+  l1->resize(window->width() - 300 - 40, 2);
 
 #define OFFSET1 17
 #define OFFSET2 38
@@ -348,12 +358,14 @@ void PluginGUI::init()
     y += OFFSET2;
     progress = new GUI::ProgressBar(window);
     progress->move(XOFFSET, y);
-    progress->resize(window->width() - 2*XOFFSET, 11);
+//    progress->resize(window->width() - 2*XOFFSET, 11);
+    progress->resize(window->width() - 300 - 2*XOFFSET, 11);
 
     y += OFFSET3;
     GUI::VerticalLine *l = new GUI::VerticalLine(window);
     l->move(XOFFSET, y);
-    l->resize(window->width() - 2*XOFFSET, 2);
+//    l->resize(window->width() - 2*XOFFSET, 2);
+    l->resize(window->width() - 300 - 2*XOFFSET, 2);
   }
 
   // Midimap file
@@ -379,12 +391,14 @@ void PluginGUI::init()
     y += OFFSET2;
     progress2 = new GUI::ProgressBar(window);
     progress2->move(XOFFSET, y);
-    progress2->resize(window->width() - 2*XOFFSET, 11);
+//    progress2->resize(window->width() - 2*XOFFSET, 11);
+    progress2->resize(window->width() - 300 - 2*XOFFSET, 11);
 
     y += OFFSET3;
     GUI::VerticalLine *l = new GUI::VerticalLine(window);
     l->move(XOFFSET, y);
-    l->resize(window->width() - 2*XOFFSET, 2);
+//    l->resize(window->width() - 2*XOFFSET, 2);
+    l->resize(window->width() - 300 - 2*XOFFSET, 2);
   }
 
   {
@@ -432,12 +446,14 @@ void PluginGUI::init()
 
   GUI::VerticalLine *l2 = new GUI::VerticalLine(window);
   l2->move(20, 310 - 15 - 9);
-  l2->resize(window->width() - 40, 2);
+//  l2->resize(window->width() - 40, 2);
+  l2->resize(window->width() - 300 - 40, 2);
 
   GUI::Label *lbl_version = new GUI::Label(window);
   lbl_version->setText(".::. v"VERSION"  .::.  http://www.drumgizmo.org  .::.  GPLv3 .::.");
   lbl_version->move(16, 300);
-  lbl_version->resize(window->width(), 20);
+//  lbl_version->resize(window->width(), 20);
+  lbl_version->resize(window->width() - 300, 20);
   /*
   {
     GUI::ComboBox *cmb = new GUI::ComboBox(window);
@@ -447,12 +463,20 @@ void PluginGUI::init()
     cmb->resize(70, 30);
   }
   */
+
+  drumkitinfo = new GUI::TextEdit(window);
+//  textedit->setText("Hello World\ten\tto\ttre fire fem seks syv otte ni ti elleve tolv tretten fjorten femten seksten sytten atten nitten \nHello World\nHello World\n");
+  drumkitinfo->move(370, 25);
+  drumkitinfo->resize(300, 300);
+
+
   // Create filebrowser
   filebrowser = new GUI::FileBrowser(window);
   filebrowser->move(0, 0);
   filebrowser->resize(window->width() - 1, window->height() - 1);
   filebrowser->hide();
   fb = filebrowser;
+
 
   // Enable quit button
 //  GUI::Button *btn_quit = new GUI::Button(window);

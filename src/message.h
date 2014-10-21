@@ -29,6 +29,8 @@
 
 #include <string>
 
+#include "drumkitparser.h"
+
 class MessageHandler;
 
 class Message {
@@ -43,6 +45,7 @@ public:
     LoadMidimap, // Signal engine to load midimap.
     EngineSettingsMessage, // Request or receive engine settings.
     ChangeSettingMessage, // Update named setting in engine.
+    DrumkitInfoMessage // Drumkit information
   } type_t;
 
   typedef enum {
@@ -66,21 +69,27 @@ public:
 };
 
 class LoadStatusMessageMidimap : public Message {
-public:
-  type_t type() { return Message::LoadStatusMidimap; }
-  bool success;
+  public:
+    type_t type() { return Message::LoadStatusMidimap; }
+    bool success;
 };
 
 class LoadDrumKitMessage : public Message {
-public:
-  type_t type() { return Message::LoadDrumKit; }
-  std::string drumkitfile;
+  public:
+    type_t type() { return Message::LoadDrumKit; }
+    std::string drumkitfile;
 };
 
 class LoadMidimapMessage : public Message {
-public:
-  type_t type() { return Message::LoadMidimap; }
-  std::string midimapfile;
+  public:
+    type_t type() { return Message::LoadMidimap; }
+    std::string midimapfile;
+};
+
+class DrumkitInfoMessage : public Message {
+  public:
+    type_t type() { return Message::DrumkitInfoMessage; }
+    MetaData metadata;
 };
 
 class EngineSettingsMessage : public Message {
