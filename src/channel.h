@@ -37,9 +37,11 @@
 
 class Channel {
 public:
-  Channel(std::string name = "");
+  Channel(std::string id = "");
 
+  std::string id;
   std::string name;
+  std::string microphone;
   channel_t num;
 };
 

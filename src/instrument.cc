@@ -121,9 +121,9 @@ void Instrument::finalise()
   }
 }
 
-std::string Instrument::name()
+std::string Instrument::id()
 {
-  return _name;
+  return _id;
 }
 
 std::string Instrument::description()

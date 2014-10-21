@@ -45,7 +45,7 @@ public:
 
   Sample *sample(level_t level, size_t pos);
 
-  std::string name();
+  std::string id();
   std::string description();
   std::string group();
 
@@ -60,9 +60,9 @@ public:
 private:
   void *magic;
 
-  std::string _group;
-  std::string _name;
+  std::string _id;
   std::string _description;
+  std::string _group;
 
   VersionStr version;
 

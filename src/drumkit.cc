@@ -72,6 +72,26 @@ std::string DrumKit::description()
   return _description;
 }
 
+std::string DrumKit::notes()
+{
+  return _notes;
+}
+
+std::string DrumKit::author()
+{
+  return _author;
+}
+
+std::string DrumKit::email()
+{
+  return _email;
+}
+
+std::string DrumKit::website()
+{
+  return _website;
+}
+
 #ifdef TEST_DRUMKIT
 //Additional dependency files
 //deps:

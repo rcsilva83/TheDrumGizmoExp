@@ -36,7 +36,8 @@ public:
   ~DrumKitParser();
 
   void startTag(std::string name,
-                std::map< std::string, std::string> attributes);
+                std::map< std::string, std::string> attributes,
+                std::string &data);
   void endTag(std::string name);
 
 protected:
@@ -52,6 +53,9 @@ private:
   std::string instr_file;
   std::string instr_name;
   std::string instr_group;
+  bool in_metadata;
+  bool in_channel;
+  bool in_instrument;
 };
 
 #endif/*__DRUMGIZMO_DRUMKITPARSER_H__*/

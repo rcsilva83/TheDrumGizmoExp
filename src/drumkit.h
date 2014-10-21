@@ -45,6 +45,10 @@ public:
 
   std::string name();
   std::string description();
+  std::string notes();
+  std::string author();
+  std::string email();
+  std::string website();
   
   Instruments instruments;
   Channels channels;
@@ -60,6 +64,10 @@ private:
 
   std::string _name;
   std::string _description;
+  std::string _notes;
+  std::string _author;
+  std::string _email;
+  std::string _website;
 
   VersionStr _version;
 };

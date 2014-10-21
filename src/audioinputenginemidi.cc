@@ -54,7 +54,7 @@ bool AudioInputEngineMidi::loadMidiMap(std::string f, Instruments &instruments)
   mmap.midimap = p.midimap;
 
   for(size_t i = 0; i < instruments.size(); i++) {
-    mmap.instrmap[instruments[i]->name()] = i;
+    mmap.instrmap[instruments[i]->id()] = i;
   }
 
   file = f;

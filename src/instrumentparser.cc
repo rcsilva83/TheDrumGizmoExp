@@ -52,8 +52,8 @@ void InstrumentParser::startTag(std::string name,
                                 std::map<std::string, std::string> attr)
 {
   if(name == "instrument") {
-    if(attr.find("name") != attr.end())
-      instrument._name = attr["name"];
+    if(attr.find("id") != attr.end())
+      instrument._id = attr["id"];
 
     if(attr.find("description") != attr.end())
       instrument._description = attr["description"];

@@ -36,6 +36,10 @@
 DrumKitParser::DrumKitParser(const std::string &kitfile, DrumKit &k)
   : kit(k)
 {
+  in_metadata = false;
+  in_channel = false;
+  in_instrument = false;
+
   //  instr = NULL;
   path = getPath(kitfile);
 
@@ -54,15 +58,17 @@ DrumKitParser::~DrumKitParser()
 }
 
 void DrumKitParser::startTag(std::string name,
-                             std::map<std::string, std::string> attr)
+                             std::map<std::string, std::string> attr,
+                             std::string &data)
 {
   if(name == "drumkit") {
+    /*
     if(attr.find("name") != attr.end())
       kit._name = attr["name"];
 
     if(attr.find("description") != attr.end())
       kit._description = attr["description"];
-
+    */
     if(attr.find("version") != attr.end()) {
       try {
         kit._version = VersionStr(attr["version"]);
@@ -73,6 +79,19 @@ void DrumKitParser::startTag(std::string name,
     } else {
       WARN(kitparser, "Missing version number, assuming 1.0\n");
       kit._version = VersionStr(1,0,0);
+    }
+  }
+
+  if(name == "metadata") {
+    in_metadata = true;
+  }
+
+  if(in_metadata) {
+    if(name == "name") {
+      if(data != "") {
+        kit._name = data;
+        printf("TEST!\n");
+      }
     }
   }
 

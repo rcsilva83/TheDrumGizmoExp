@@ -26,9 +26,9 @@
  */
 #include "channel.h"
 
-Channel::Channel(std::string name)
+Channel::Channel(std::string id)
 {
-  this->name = name;
+  this->id = id;
   num = NO_CHANNEL;
 }
 
@@ -41,11 +41,11 @@ Channel::Channel(std::string name)
 TEST_BEGIN;
 
 Channel c1;
-TEST_EQUAL_STR(c1.name, "", "Empty name?");
+TEST_EQUAL_STR(c1.id, "", "Empty id?");
 TEST_EQUAL_INT(c1.num, NO_CHANNEL, "No physical channel assigned?");
 
 Channel c2("ch2");
-TEST_EQUAL_STR(c2.name, "ch2", "Nonempty name?");
+TEST_EQUAL_STR(c2.id, "ch2", "Nonempty id?");
 TEST_EQUAL_INT(c2.num, NO_CHANNEL, "No physical channel assigned?");
 
 Channels channels;
