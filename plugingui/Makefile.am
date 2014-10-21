@@ -37,6 +37,7 @@ EXTRA_DIST = \
 	label.h \
 	led.h \
 	lineedit.h \
+	textedit.h \
 	listbox.h \
 	listboxbasic.h \
 	listboxthin.h \
