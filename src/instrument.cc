@@ -141,6 +141,11 @@ void Instrument::setGroup(std::string g)
   _group = g;
 }
 
+void Instrument::setName(std::string n)
+{
+  _name = n;
+}
+
 void Instrument::setDescription(std::string d)
 {
   _description = d;

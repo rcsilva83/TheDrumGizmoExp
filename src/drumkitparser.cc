@@ -232,6 +232,7 @@ void DrumKitParser::endTag(std::string name)
 
   if(name == "instrument") {
     Instrument *i = new Instrument();
+    i->setName(instr_name);
     i->setDescription(instr_description);
     i->setGroup(instr_group);
     //    Instrument &i = kit.instruments[kit.instruments.size() - 1];
