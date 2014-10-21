@@ -50,6 +50,7 @@ public:
   std::string group();
 
   void setGroup(std::string group);
+  void setDescription(std::string description);
 
   //  std::map<std::string, std::string> channelmap;
 

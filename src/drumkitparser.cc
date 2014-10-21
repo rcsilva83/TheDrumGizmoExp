@@ -62,13 +62,6 @@ void DrumKitParser::startTag(std::string name,
                              std::string &data)
 {
   if(name == "drumkit") {
-    /*
-    if(attr.find("name") != attr.end())
-      kit._name = attr["name"];
-
-    if(attr.find("description") != attr.end())
-      kit._description = attr["description"];
-    */
     if(attr.find("version") != attr.end()) {
       try {
         kit._version = VersionStr(attr["version"]);
@@ -80,6 +73,7 @@ void DrumKitParser::startTag(std::string name,
       WARN(kitparser, "Missing version number, assuming 1.0\n");
       kit._version = VersionStr(1,0,0);
     }
+    meta.version = kit._version;
   }
 
   if(name == "metadata") {
@@ -90,29 +84,86 @@ void DrumKitParser::startTag(std::string name,
     if(name == "name") {
       if(data != "") {
         kit._name = data;
-        printf("TEST!\n");
+      } else {
+        kit._name = "No drumkit " + name + " found";
       }
+      meta.name = kit._name;
+    }
+    if(name == "description") {
+      if(data != "") {
+        kit._description = data;
+      } else {
+        kit._description = "No drumkit " + name + " found";
+      meta.description = kit._description;
+      }
+    }
+    if(name == "notes") {
+      if(data != "") {
+        kit._notes = data;
+      } else {
+        kit._notes = "No drumkit " + name + " found";
+      }
+      meta.notes = kit._notes;
+    }
+    if(name == "author") {
+      if(data != "") {
+        kit._author = data;
+      } else {
+        kit._author = "No drumkit " + name + " found";
+      }
+      meta.author = kit._author;
+    }
+    if(name == "email") {
+      if(data != "") {
+        kit._email = data;
+      } else {
+        kit._email = "No drumkit " + name + " found";
+      }
+      meta.email = kit._email;
+    }
+    if(name == "website") {
+      if(data != "") {
+        kit._website = data;
+      } else {
+        kit._website = "No drumkit " + name + " found";
+      }
+      meta.website = kit._website;
     }
   }
 
   if(name == "channels") {}
 
   if(name == "channel") {
-    if(attr.find("name") == attr.end()) {
-      DEBUG(kitparser, "Missing channel name.\n");
+    if(attr.find("id") == attr.end()) {
+      DEBUG(kitparser, "Missing channel id.\n");
       return;
     }
-    Channel c(attr["name"]);
-    c.num = kit.channels.size();
-    kit.channels.push_back(c);
+    ch_id = attr["id"];
+    in_channel = true;
   }
 
-  if(name == "instruments") {
+  if(in_channel) {
+    if(name == "name") {
+      if(data != "") {
+        ch_name = data;
+      } else {
+        ch_name = "No channel " + name + " found";
+      }
+    }
+    if(name == "microphone") {
+      if(data != "") {
+        ch_microphone = data;
+      } else {
+        ch_microphone = "No channel " + name + " found";
+      }
+    }
   }
+
+  if(name == "instruments") {}
 
   if(name == "instrument") {
-    if(attr.find("name") == attr.end()) {
-      DEBUG(kitparser, "Missing name in instrument tag.\n");
+    if(attr.find("id") == attr.end()) {
+      DEBUG(kitparser, "Missing id in instrument tag.\n");
       return;
     }
     if(attr.find("file") == attr.end()) {
@@ -120,31 +171,68 @@ void DrumKitParser::startTag(std::string name,
       return;
     }
 
-    instr_name = attr["name"];
+    instr_id = attr["id"];
     instr_file = attr["file"];
     if(attr.find("group") != attr.end()) instr_group = attr["group"];
     else instr_group = "";
+
+    in_instrument = true;
   }
 
-  if(name == "channelmap") {
-    if(attr.find("in") == attr.end()) {
-      DEBUG(kitparser, "Missing 'in' in channelmap tag.\n");
-      return;
+  if(in_instrument) {
+    if(name == "name") {
+      if(data != "") {
+        instr_name = data;
+      } else {
+        instr_name = "No instrument " + name + " found";
+      }
     }
 
-    if(attr.find("out") == attr.end()) {
-      DEBUG(kitparser, "Missing 'out' in channelmap tag.\n");
-      return;
+    if(name == "description") {
+      if(data != "") {
+        instr_description = data;
+      } else {
+        instr_description = "No instrument " + name + " found";
+      }
     }
 
-    channelmap[attr["in"]] = attr["out"];
+    if(name == "channelmap") {
+      if(attr.find("in") == attr.end()) {
+        DEBUG(kitparser, "Missing 'in' in channelmap tag.\n");
+        return;
+      }
+      
+      if(attr.find("out") == attr.end()) {
+        DEBUG(kitparser, "Missing 'out' in channelmap tag.\n");
+        return;
+      }
+      
+      channelmap[attr["in"]] = attr["out"];
+    }
   }
 }
 
 void DrumKitParser::endTag(std::string name)
 {
+  if(name == "metadata") {
+    in_metadata = false;
+  }
+
+  if(name == "channel") {
+    Channel c(ch_id);
+    c.name = ch_name;
+    c.microphone = ch_microphone;
+    c.num = kit.channels.size();
+    kit.channels.push_back(c);
+
+    meta.channels.push_back(std::pair<std::string, std::string>(ch_name, ch_microphone));
+
+    in_channel = false;
+  }
+
   if(name == "instrument") {
     Instrument *i = new Instrument();
+    i->setDescription(instr_description);
     i->setGroup(instr_group);
     //    Instrument &i = kit.instruments[kit.instruments.size() - 1];
     InstrumentParser parser(path + "/" + instr_file, *i);
@@ -174,8 +262,10 @@ void DrumKitParser::endTag(std::string name)
       ic++;
     }
 
-    channelmap.clear();
+    meta.instruments.push_back(std::pair<std::string, std::string>(instr_name, instr_description));
 
+    in_instrument = false;
+    channelmap.clear();
   }
 }
 
@@ -183,6 +273,11 @@ int DrumKitParser::readData(char *data, size_t size)
 {
   if(!fd) return -1;
   return fread(data, 1, size, fd);
+}
+
+MetaData DrumKitParser::getMetaData()
+{
+  return meta;
 }
 
 #ifdef TEST_DRUMKITPARSER

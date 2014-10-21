@@ -141,6 +141,11 @@ void Instrument::setGroup(std::string g)
   _group = g;
 }
 
+void Instrument::setDescription(std::string d)
+{
+  _description = d;
+}
+
 #ifdef TEST_INSTRUMENT
 //deps: channel.cc sample.cc audiofile.cc
 //cflags: $(SNDFILE_CFLAGS)
