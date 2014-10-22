@@ -72,9 +72,10 @@ bool DrumGizmo::loadkit(std::string file)
     return false;
   }
 
+  loader.metadata = parser.getMetaData();
+
   DrumkitInfoMessage *msg = new DrumkitInfoMessage();
-  MetaData metadata = parser.getMetaData();
-  msg->metadata = metadata;
+  msg->metadata = loader.metadata;
   msghandler.sendMessage(MSGRCV_UI, msg);
 
   loader.loadKit(&kit);
@@ -140,6 +141,13 @@ void DrumGizmo::handleMessage(Message *msg)
       msg->enable_velocity_randomiser = Conf::enable_velocity_randomiser;
       msg->velocity_randomiser_weight = Conf::velocity_randomiser_weight;
       msghandler.sendMessage(MSGRCV_UI, msg);
+    }
+    break;
+  case Message::DrumkitInfoMessage:
+    {
+      DrumkitInfoMessage *msg = new DrumkitInfoMessage();
+      msg->metadata = loader.metadata;
+      msghandler.sendMessage(MSGRC_UI, msg);
     }
     break;
   case Message::ChangeSettingMessage:

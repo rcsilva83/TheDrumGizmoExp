@@ -306,6 +306,10 @@ void PluginGUI::thread_main()
     EngineSettingsMessage *msg = new EngineSettingsMessage();
     msghandler.sendMessage(MSGRCV_ENGINE, msg);
   }
+  { // Request meta data
+    DrumkitInfoMessage *msg = new DrumkitInfoMessage();
+    msghandler.sendMessage(MSGRCV_ENGINE, msg);
+  }
 
   while(running) {
 #ifdef WIN32
