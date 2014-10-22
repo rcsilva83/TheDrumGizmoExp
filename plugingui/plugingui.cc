@@ -245,11 +245,16 @@ void PluginGUI::handleMessage(Message *msg)
       metadatatext.append("Channels:\n");
       std::vector<std::pair< std::string, std::string> >::iterator channels_it;
 
+      int count = 1;
       for(channels_it = m.channels.begin(); channels_it != m.channels.end();
           channels_it++) {
         std::string name = channels_it->first;
         std::string microphone = channels_it->second;
-        metadatatext.append("\t" + name + ": " + microphone + "\n");
+        std::string count_str;
+        count_str << count;
+        metadatatext.append("\t"+ count_str + ". " + name + ": " + microphone + "\n");
+//C++11 only:        metadatatext.append("\t"+ std::to_string(count) + ". " + name + ": " + microphone + "\n");
+        count++;
       }
 
       metadatatext.append("\n\n");
