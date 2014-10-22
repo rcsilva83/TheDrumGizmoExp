@@ -147,7 +147,7 @@ void DrumGizmo::handleMessage(Message *msg)
     {
       DrumkitInfoMessage *msg = new DrumkitInfoMessage();
       msg->metadata = loader.metadata;
-      msghandler.sendMessage(MSGRC_UI, msg);
+      msghandler.sendMessage(MSGRCV_UI, msg);
     }
     break;
   case Message::ChangeSettingMessage:

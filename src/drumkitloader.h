@@ -34,6 +34,8 @@
 #include "semaphore.h"
 #include "mutex.h"
 
+#include "drumkitparser.h"
+
 #include "drumkit.h"
 
 /**
@@ -85,6 +87,7 @@ public:
    */
   void skip();
 
+  MetaData metadata;
 private:
   Semaphore run_semaphore;
   Semaphore semaphore;
