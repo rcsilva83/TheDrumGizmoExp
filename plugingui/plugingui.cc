@@ -250,8 +250,11 @@ void PluginGUI::handleMessage(Message *msg)
           channels_it++) {
         std::string name = channels_it->first;
         std::string microphone = channels_it->second;
-        std::string count_str;
-        count_str << count;
+        
+        char buf[4];
+        sprintf(buf, "%d", count);
+        std::string count_str(buf);
+
         metadatatext.append("\t"+ count_str + ". " + name + ": " + microphone + "\n");
 //C++11 only:        metadatatext.append("\t"+ std::to_string(count) + ". " + name + ": " + microphone + "\n");
         count++;
