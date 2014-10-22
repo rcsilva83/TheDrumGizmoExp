@@ -81,6 +81,27 @@ void DrumKitParser::startTag(std::string name,
     }
   }
 
+  if(in_metadata) {
+    if(name == "name") {
+      data = "";
+    }
+    if(name == "description") {
+      data = "";
+    }
+    if(name == "notes") {
+      data = "";
+    }
+    if(name == "author") {
+      data = "";
+    }
+    if(name == "email") {
+      data = "";
+    }
+    if(name == "website") {
+      data = "";
+    }
+  }
+
   if(name == "metadata") {
     in_metadata = true;
   }
@@ -94,6 +115,15 @@ void DrumKitParser::startTag(std::string name,
     }
     ch_id = attr["id"];
     in_channel = true;
+  }
+
+  if(in_channel) {
+    if(name == "name") {
+      data = "";
+    }
+    if(name == "microphone") {
+      data = "";
+    }
   }
 
   if(name == "instruments") {}
@@ -117,6 +147,13 @@ void DrumKitParser::startTag(std::string name,
   }
 
   if(in_instrument) {
+    if(name == "name") {
+      data = "";
+    }
+    
+    if(name == "description") {
+      data = "";
+    }
     if(name == "channelmap") {
       if(attr.find("in") == attr.end()) {
         DEBUG(kitparser, "Missing 'in' in channelmap tag.\n");
@@ -138,7 +175,6 @@ void DrumKitParser::endTag(std::string name)
 {
   if(in_metadata) {
     if(name == "name") {
-      //FIXME: data is never "", find a new way to check for empty data
       if(data != "") {
         kit._name = data;
       } else {
