@@ -291,15 +291,15 @@ void DrumKitParser::endTag(std::string name)
     while(ic != parser.channellist.end()) {
       InstrumentChannel *c = *ic;
 
-      std::string cname = c->name;
+      std::string cname = c->id;
       if(channelmap.find(cname) != channelmap.end()) cname = channelmap[cname];
 
       for(size_t cnt = 0; cnt < kit.channels.size(); cnt++) {
-        if(kit.channels[cnt].name == cname) c->num = kit.channels[cnt].num;
+        if(kit.channels[cnt].id == cname) c->num = kit.channels[cnt].num;
       }
       if(c->num == NO_CHANNEL) {
         DEBUG(kitparser, "Missing channel '%s' in instrument '%s'\n",
-               c->name.c_str(), i->id().c_str());
+               c->id.c_str(), i->id().c_str());
       } else {
         /*
           DEBUG(kitparser, "Assigned channel '%s' to number %d in instrument '%s'\n",
