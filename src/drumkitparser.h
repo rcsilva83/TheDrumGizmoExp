@@ -47,9 +47,9 @@ public:
   DrumKitParser(const std::string &kitfile, DrumKit &kit);
   ~DrumKitParser();
 
+  void characterData(std::string &data);
   void startTag(std::string name,
-                std::map< std::string, std::string> attributes,
-                std::string &data);
+                std::map< std::string, std::string> attributes);
   void endTag(std::string name);
   MetaData getMetaData();
 
@@ -57,6 +57,8 @@ protected:
   int readData(char *data, size_t size);
 
 private:
+  std::string data;
+
   FILE *fd;
   DrumKit &kit;
 
