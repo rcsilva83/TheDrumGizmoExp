@@ -139,7 +139,7 @@ void GUI::TextEdit::repaintEvent(GUI::RepaintEvent *e)
 
       for(size_t i = 0; i < line.length(); i++) {
         size_t linewidth = font.textWidth(line.substr(0, i));
-        if(linewidth >= width() - BORDER - 4 + 3) {
+        if(linewidth >= width() - BORDER - 4 + 3 - 10) {
           p.drawText(BORDER - 4 + 3, ypos, font, line.substr(0, i));
           ypos += font.textHeight();
           line = line.substr(i);
