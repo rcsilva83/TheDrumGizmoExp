@@ -252,7 +252,7 @@ void PluginGUI::handleMessage(Message *msg)
         std::string microphone = channels_it->second;
         
         char buf[4];
-        sprintf(buf, "%d", count);
+        snprintf(buf, 4, "%d", count);
         std::string count_str(buf);
 
         metadatatext.append("\t"+ count_str + ". " + name + ": " + microphone + "\n");
