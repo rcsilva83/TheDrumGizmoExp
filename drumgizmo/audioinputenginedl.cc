@@ -36,11 +36,11 @@
 
 #include "jackclient.h"
 
-AudioInputEngineDL::AudioInputEngineDL(std::string name)
+AudioInputEngineDL::AudioInputEngineDL(std::string id)
 {
-  is_jack_plugin = strstr(name.c_str(), "jack");
+  is_jack_plugin = strstr(id.c_str(), "jack");
 
-  std::string plugin = INPUT_PLUGIN_DIR"/lib" + name + ".so";
+  std::string plugin = INPUT_PLUGIN_DIR"/lib" + id + ".so";
   void *lib = dlopen(plugin.c_str(), RTLD_LAZY);
   if(!lib) {
     printf("Cannot load device: %s\n", dlerror());
@@ -130,7 +130,7 @@ bool AudioInputEngineDL::init(Instruments &instruments)
 {
   char **n = (char**)malloc(sizeof(char*)*instruments.size());
   for(size_t i = 0; i < instruments.size(); i++) {
-    n[i] = strdup(instruments[i]->name().c_str());
+    n[i] = strdup(instruments[i]->id().c_str());
   }
 
   bool ret = i_init(ptr, instruments.size(), n);

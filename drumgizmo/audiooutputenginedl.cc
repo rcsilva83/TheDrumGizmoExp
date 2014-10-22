@@ -31,11 +31,11 @@
 #include <config.h>
 #include <string.h>
 
-AudioOutputEngineDL::AudioOutputEngineDL(std::string name)
+AudioOutputEngineDL::AudioOutputEngineDL(std::string id)
 {
-  is_jack_plugin = strstr(name.c_str(), "jack");
+  is_jack_plugin = strstr(id.c_str(), "jack");
 
-  std::string plugin = OUTPUT_PLUGIN_DIR"/lib" + name + ".so";
+  std::string plugin = OUTPUT_PLUGIN_DIR"/lib" + id + ".so";
   void *lib = dlopen(plugin.c_str(), RTLD_LAZY);
   if(!lib) {
     printf("Cannot load device: %s\n", dlerror());
@@ -131,7 +131,7 @@ bool AudioOutputEngineDL::init(Channels channels)
 {
   char **n = (char**)malloc(sizeof(char*)*channels.size());
   for(size_t i = 0; i < channels.size(); i++) {
-    n[i] = strdup(channels[i].name.c_str());
+    n[i] = strdup(channels[i].id.c_str());
   }
 
   bool ret = o_init(ptr, channels.size(), n);

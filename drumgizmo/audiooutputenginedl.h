@@ -49,7 +49,7 @@ typedef size_t (*output_bufsize_func_t)(void*);
 
 class AudioOutputEngineDL : public AudioOutputEngine {
 public:
-  AudioOutputEngineDL(std::string name);
+  AudioOutputEngineDL(std::string id);
   ~AudioOutputEngineDL();
 
   bool init(Channels channels);

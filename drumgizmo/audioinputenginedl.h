@@ -42,7 +42,7 @@ typedef void (*input_post_func_t)(void*);
   
 class AudioInputEngineDL : public AudioInputEngine {
 public:
-  AudioInputEngineDL(std::string name);
+  AudioInputEngineDL(std::string id);
   ~AudioInputEngineDL();
 
   bool init(Instruments &instruments);
