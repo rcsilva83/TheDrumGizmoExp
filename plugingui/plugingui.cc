@@ -231,7 +231,36 @@ void PluginGUI::handleMessage(Message *msg)
   case Message::DrumkitInfoMessage:
     {
       DrumkitInfoMessage *dim = (DrumkitInfoMessage*)msg;
-      drumkitinfo->setText(dim->metadata.version);
+      MetaData m = dim->metadata;
+
+      std::string metadatatext;
+      metadatatext.append(m.name + " v. " + m.version + "\n");
+      metadatatext.append(m.author + "\n");
+      metadatatext.append(m.email + " " + metadatatext.append(m.website + "\n\n"));
+
+      metadatatext.append(m.description + "\n");
+      metadatatext.append(m.notes + "\n\n");
+
+      metadatatext.append("Channels:\n");
+      std::vector<std::pair< std::string, std::string> >::iterator channels_it;
+      for(channels_it = m.channels.begin(); channels_it != m.channels.end();
+          channels_it++) {
+        std::string name = channels_it->first;
+        std::string microphone = channels_it->second;
+        metadatatext.append("\t" + name + ": " + microphone + "\n");
+      }
+      metadatatext.append("\n\n");
+      
+      metadatatext.append("Instruments:\n");
+      std::vector<std::pair< std::string, std::string> >::iterator instruments_it;
+      for(channels_it = m.instruments.begin(); instruments_it != m.instruments.end();
+          instruments_it++) {
+        std::string name = instruments_it->first;
+        std::string microphone = instruments_it->second;
+        metadatatext.append("\t" + name + ": " + microphone + "\n");
+      }
+
+      drumkitinfo->setText(metadatatext);
     }
     break;
   case Message::EngineSettingsMessage:
