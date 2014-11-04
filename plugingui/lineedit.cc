@@ -91,7 +91,6 @@ void GUI::LineEdit::buttonEvent(ButtonEvent *e)
 {
   if(readOnly()) return;
 
-
   if(e->direction == 1) {
     for(int i = 0; i < (int)_visibletext.length(); i++) {
       if(e->x < (int)(font.textWidth(_visibletext.substr(0, i)) + BORDER)) {
@@ -184,12 +183,16 @@ void GUI::LineEdit::repaintEvent(GUI::RepaintEvent *e)
   else if(walkstate == WALK_RIGHT) {
     int d = (offsetpos < _text.length()) ? 1 : 0;
     _visibletext = _text.substr(offsetpos + d);
-    offsetpos = offsetpos + d;
+    
+    if(pos < _text.length()) offsetpos = offsetpos + d;
   }
   else {
     _visibletext = _text;
     offsetpos = 0;
   }
+
+//  if(offsetpos > _text.length()) offsetpos = _text.length();
+
   while(true) {
     int textwidth = font.textWidth(_visibletext);
     if(textwidth > w - BORDER - 4 + 3) {
@@ -216,6 +219,10 @@ void GUI::LineEdit::repaintEvent(GUI::RepaintEvent *e)
       break;
     }
   }
+
+  printf("OFFSETPOS: %d\n", offsetpos);
+  printf("POS: %d\n", pos);
+  printf("TEXTLENGTH: %d\n", _text.length());
 
   walkstate = NOOP;
 
