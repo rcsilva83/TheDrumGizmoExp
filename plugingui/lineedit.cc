@@ -76,7 +76,6 @@ void GUI::LineEdit::setText(std::string text)
 {
   _text = text;
   pos = text.size();
-//  if(_text.size() < pos) pos = text.size();
   
   repaintEvent(NULL);
   textChanged();
@@ -94,12 +93,10 @@ void GUI::LineEdit::buttonEvent(ButtonEvent *e)
   if(e->direction == 1) {
     for(int i = 0; i < (int)_visibletext.length(); i++) {
       if(e->x < (int)(font.textWidth(_visibletext.substr(0, i)) + BORDER)) {
-        printf("i, Offset: %d, %d\n", i, offsetpos);
         pos = i + offsetpos;
         break;
       }
     }
-//    if(e->x >= (int)(font.textWidth(_visibletext) + BORDER)) pos = _visibletext.length();
     repaintEvent(NULL);
   }
 }
@@ -117,7 +114,6 @@ void GUI::LineEdit::keyEvent(GUI::KeyEvent *e)
     if(e->keycode == GUI::KeyEvent::KEY_LEFT) {
       if(pos) pos--;
       if(offsetpos >= pos) walkstate = WALK_LEFT;
-//      else walkstate = NOOP;
     
     } else if(e->keycode == GUI::KeyEvent::KEY_HOME) {
       pos = 0;
@@ -128,7 +124,6 @@ void GUI::LineEdit::keyEvent(GUI::KeyEvent *e)
     } else if(e->keycode == GUI::KeyEvent::KEY_RIGHT) {
       if(pos < _text.length()) pos++;
       if(offsetpos + _visibletext.length() <= pos) walkstate = WALK_RIGHT;
-//      else walkstate = NOOP;
     
     } else if(e->keycode == GUI::KeyEvent::KEY_DELETE) {
       if(pos < _text.length()) {
@@ -181,59 +176,32 @@ void GUI::LineEdit::repaintEvent(GUI::RepaintEvent *e)
     offsetpos = pos;
   }
   else if(walkstate == WALK_RIGHT) {
-    int d = (offsetpos < _text.length()) ? 1 : 0;
-    _visibletext = _text.substr(offsetpos + d);
-    
-    if(pos < _text.length()) offsetpos = offsetpos + d;
+    _visibletext = _text.substr(offsetpos);
   }
   else {
     _visibletext = _text;
     offsetpos = 0;
   }
+  walkstate = NOOP;
 
-//  if(offsetpos > _text.length()) offsetpos = _text.length();
-
-  while(true) {
-    int textwidth = font.textWidth(_visibletext);
-    if(textwidth > w - BORDER - 4 + 3) {
-      if(walkstate == WALK_LEFT) {
-        _visibletext = _visibletext.substr(0, _visibletext.length()-1);
-      }
-      else if(walkstate == WALK_RIGHT) {
-        _visibletext = _visibletext.substr(0, _visibletext.length()-1);
-      }
-      else {
-        if(offsetpos < pos) {
-          _visibletext = _visibletext.substr(1);
-          offsetpos++;
-        }
-        else {
-          _visibletext = _visibletext.substr(0, _visibletext.length() - 1);
-        }
-      }
+  int textwidth = font.textWidth(_visibletext);
+  while( textwidth > w - BORDER - 4 + 3) {
+    if(offsetpos < pos) {
+      _visibletext = _visibletext.substr(1);
+      offsetpos++;
     }
     else {
-      DEBUG(lienedit, "Full text:              '%s'\n", _text.c_str());
-      DEBUG(lineedit, "Drawing text in lineedit '%s'\n", _visibletext.c_str());
-      DEBUG(lineedit, "Offset, pos: %d, %d\n", offsetpos, pos);
-      break;
+      _visibletext = _visibletext.substr(0, _visibletext.length() - 1);
     }
+    textwidth = font.textWidth(_visibletext);
   }
-
-  printf("OFFSETPOS: %d\n", offsetpos);
-  printf("POS: %d\n", pos);
-  printf("TEXTLENGTH: %d\n", _text.length());
-
-  walkstate = NOOP;
 
   p.drawText(BORDER - 4 + 3, height()/2+5 + 1 + 1 + 1, font, _visibletext);
 
   if(readOnly()) return;
 
   if(hasKeyboardFocus()) {
-//    size_t px = font.textWidth(_text.substr(0, pos - offsetpos));
     size_t px = font.textWidth(_visibletext.substr(0, pos - offsetpos));
-    //p.setColour(Colour(0.8));
     p.drawLine(px + BORDER - 1 - 4 + 3, 6,
                px + BORDER - 1 - 4 + 3, height() - 7);
   }
