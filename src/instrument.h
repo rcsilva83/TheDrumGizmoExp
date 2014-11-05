@@ -50,8 +50,7 @@ public:
   std::string group();
 
   void setGroup(std::string group);
-  void setDescription(std::string description);
-  void setName(std::string name);
+  void setId(std::string id);
   //  std::map<std::string, std::string> channelmap;
 
   std::vector<AudioFile*> audiofiles;
@@ -62,8 +61,7 @@ private:
   void *magic;
 
   std::string _id;
-  std::string _name;
-  std::string _description;
+  //std::string _name;
   std::string _group;
 
   VersionStr version;

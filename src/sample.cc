@@ -31,9 +31,9 @@
 
 #include <sndfile.h>
 
-Sample::Sample(std::string name, float power)
+Sample::Sample(std::string id, float power)
 {
-  this->name = name;
+  this->id = id;
   this->power = power;
 }
 

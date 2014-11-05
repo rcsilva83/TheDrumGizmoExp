@@ -48,8 +48,7 @@ void DrumKit::clear()
 
   channels.clear();
 
-  _name = "";
-  _description = "";
+  _id = "";
 }
 
 bool DrumKit::isValid()
@@ -60,36 +59,6 @@ bool DrumKit::isValid()
 std::string DrumKit::file()
 {
   return _file;
-}
-
-std::string DrumKit::name()
-{
-  return _name;
-}
-
-std::string DrumKit::description()
-{
-  return _description;
-}
-
-std::string DrumKit::notes()
-{
-  return _notes;
-}
-
-std::string DrumKit::author()
-{
-  return _author;
-}
-
-std::string DrumKit::email()
-{
-  return _email;
-}
-
-std::string DrumKit::website()
-{
-  return _website;
 }
 
 #ifdef TEST_DRUMKIT

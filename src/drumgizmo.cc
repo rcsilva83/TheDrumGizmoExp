@@ -63,9 +63,7 @@ bool DrumGizmo::loadkit(std::string file)
   // Delete all Channels, Instruments, Samples and AudioFiles.
   kit.clear();
 
-  printf("1\n");
   DrumKitParser parser(file, kit);
-  printf("2\n");
 
   if(parser.parse()) {
     ERR(drumgizmo, "Drumkit parser failed: %s\n", file.c_str());

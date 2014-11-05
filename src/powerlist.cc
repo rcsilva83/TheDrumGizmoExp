@@ -134,7 +134,7 @@ Channel *PowerList::getMasterChannel()
   std::map<Channel *, int>::iterator ci = count.begin();
   while(ci != count.end()) {
     if(ci->second > max_count &&
-       strstr(ci->first->name.c_str(), "Alesis") == 0) {
+       strstr(ci->first->id.c_str(), "Alesis") == 0) {
       master = ci->first;
       max_count = ci->second;
     }
@@ -154,7 +154,7 @@ void PowerList::finalise()
     return; // This should not happen...
   }
 
-  DEBUG(rand, "Master channel: %s\n", master_channel->name.c_str());
+  DEBUG(rand, "Master channel: %s\n", master_channel->id.c_str());
 #endif/*AUTO_CALCULATE_POWER*/
 
   std::vector<PowerListItem>::iterator si = samples.begin();
@@ -163,13 +163,13 @@ void PowerList::finalise()
     Sample *sample = item.sample;
 
  #ifdef AUTO_CALCULATE_POWER
-   DEBUG(rand, "Sample: %s\n", sample->name.c_str());
+   DEBUG(rand, "Sample: %s\n", sample->id.c_str());
 
     AudioFile *master = NULL;
 
     AudioFiles::iterator afi = sample->audiofiles.begin();
     while(afi != sample->audiofiles.end()) {
-      if(afi->first->name == master_channel->name) {
+      if(afi->first->id == master_channel->id) {
         master = afi->second;
         break;
       }

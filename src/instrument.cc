@@ -126,29 +126,19 @@ std::string Instrument::id()
   return _id;
 }
 
-std::string Instrument::description()
-{
-  return _description;
-}
-
 std::string Instrument::group()
 {
   return _group;
 }
 
-void Instrument::setGroup(std::string g)
+void Instrument::setId(std::string id)
 {
-  _group = g;
+  _id = id;
 }
 
-void Instrument::setName(std::string n)
+void Instrument::setGroup(std::string group)
 {
-  _name = n;
-}
-
-void Instrument::setDescription(std::string d)
-{
-  _description = d;
+  _group = group;
 }
 
 #ifdef TEST_INSTRUMENT

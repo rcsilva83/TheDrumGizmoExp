@@ -40,7 +40,7 @@ class Sample {
   friend class InstrumentParser;
   friend class PowerList;
 public:
-  Sample(std::string name, float power);
+  Sample(std::string id, float power);
   ~Sample();
 
   AudioFile *getAudioFile(InstrumentChannel *c);
@@ -48,7 +48,7 @@ public:
 private:
   void addAudioFile(InstrumentChannel *c, AudioFile *a);
 
-  std::string name;
+  std::string id;
   float power;
   AudioFiles audiofiles;
 };

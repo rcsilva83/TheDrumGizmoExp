@@ -55,9 +55,6 @@ void InstrumentParser::startTag(std::string name,
     if(attr.find("id") != attr.end())
       instrument._id = attr["id"];
 
-    if(attr.find("description") != attr.end())
-      instrument._description = attr["description"];
-
     if(attr.find("version") != attr.end()) {
       try {
         instrument.version = VersionStr(attr["version"]);
@@ -149,7 +146,7 @@ void InstrumentParser::startTag(std::string name,
     Sample *sample = NULL;
     std::vector<Sample *>::iterator i = instrument.samplelist.begin();
     while(i != instrument.samplelist.end()) {
-      if((*i)->name == attr["name"]) {
+      if((*i)->id == attr["id"]) {
         sample = *i;
         break;
       }
