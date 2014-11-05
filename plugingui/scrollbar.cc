@@ -136,6 +136,7 @@ void GUI::ScrollBar::scrollEvent(ScrollEvent *e)
 
 void GUI::ScrollBar::mouseMoveEvent(MouseMoveEvent *e)
 {
+/*
   if(!dragging) return;
 
   float delta = yoffset - e->y;
@@ -145,6 +146,7 @@ void GUI::ScrollBar::mouseMoveEvent(MouseMoveEvent *e)
 
   int newval = value_offset - delta;
   if(newval != value()) setValue(newval);
+*/
 }
 
 void GUI::ScrollBar::buttonEvent(ButtonEvent *e)
