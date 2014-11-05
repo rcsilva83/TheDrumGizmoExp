@@ -512,9 +512,10 @@ void PluginGUI::init()
   */
 
   drumkitinfo = new GUI::TextEdit(window);
-//  drumkitinfo->setText("Hello World\ten\tto\ttre fire fem seks syv otte ni ti elleve tolv tretten\n\nHej med dig jeg har lavet dette widget og det opfører sig egentlig ganske fint\n\n\nni \n\nti elleve tolv \n\nTEST TEST TEST@\n\ntretten fjorten femten \n\nseksten sytten atten nitten \nHello World\nHello World\n");
   drumkitinfo->move(370, 25);
-  drumkitinfo->resize(300, 300);
+  drumkitinfo->resize(288, 292);
+  drumkitinfo->setText("Hello World\ten\tto\ttre fire fem seks syv otte ni ti elleve tolv tretten\n\nHej med dig jeg har lavet dette widget og det opfører sig egentlig ganske fint\n\n\nni \n\nti elleve tolv \n\nTEST TEST TEST@\n\ntretten fjorten femten \n\nseksten sytten atten nitten \nHello World\nHello World\naaaaaaa\nbbbbbbbbb\ncccccccccc\ndddddddd\neeeeeeeee\nfffffffffff\nggggggggg\nasdasdasdasd\nasd\n");
+//  drumkitinfo->setText("Hello World\n1111\n2222\n");
 
 
   // Create filebrowser

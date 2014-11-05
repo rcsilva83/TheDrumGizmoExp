@@ -27,12 +27,14 @@
 #ifndef __DRUMGIZMO_TEXTEDIT_H__
 #define __DRUMGIZMO_TEXTEDIT_H__
 
-
 #include <string>
+
+#include <list>
 
 #include "widget.h"
 #include "font.h"
 #include "painter.h"
+#include "scrollbar.h"
 
 namespace GUI {
 
@@ -48,25 +50,31 @@ public:
   void setReadOnly(bool readonly);
   bool readOnly();
 
-  void registerEnterPressedHandler(void (*handler)(void *), void *ptr);
+  void resize(int width, int height);
+
+
+  void preprocessText();
 
   //protected:
-  virtual void keyEvent(KeyEvent *e);
+//  virtual void keyEvent(KeyEvent *e);
   virtual void repaintEvent(RepaintEvent *e);
-  virtual void buttonEvent(ButtonEvent *e);
+//  virtual void buttonEvent(ButtonEvent *e);
 
 protected:
   virtual void textChanged() {}
 
 private:
   Painter::Box box;
-
+  ScrollBar scroll;
   Font font;
 
   std::string _text;
   size_t pos;
 
   bool readonly;
+  
+  std::list< std::string > preprocessedtext;
+//  size_t numoflines;
 
   void (*handler)(void *);
   void *ptr;
