@@ -65,6 +65,8 @@ void DrumKitParser::characterData(std::string &data)
 void DrumKitParser::startTag(std::string name,
                              std::map<std::string, std::string> attr)
 {
+  data = "";
+
   if(name == "drumkit") {
     if(attr.find("version") != attr.end()) {
       try {
@@ -81,27 +83,6 @@ void DrumKitParser::startTag(std::string name,
     }
   }
 
-  if(in_metadata) {
-    if(name == "name") {
-      data = "";
-    }
-    if(name == "description") {
-      data = "";
-    }
-    if(name == "notes") {
-      data = "";
-    }
-    if(name == "author") {
-      data = "";
-    }
-    if(name == "email") {
-      data = "";
-    }
-    if(name == "website") {
-      data = "";
-    }
-  }
-
   if(name == "metadata") {
     in_metadata = true;
   }
@@ -115,15 +96,6 @@ void DrumKitParser::startTag(std::string name,
     }
     ch_id = attr["id"];
     in_channel = true;
-  }
-
-  if(in_channel) {
-    if(name == "name") {
-      data = "";
-    }
-    if(name == "microphone") {
-      data = "";
-    }
   }
 
   if(name == "instruments") {}
@@ -147,13 +119,6 @@ void DrumKitParser::startTag(std::string name,
   }
 
   if(in_instrument) {
-    if(name == "name") {
-      data = "";
-    }
-    
-    if(name == "description") {
-      data = "";
-    }
     if(name == "channelmap") {
       if(attr.find("in") == attr.end()) {
         DEBUG(kitparser, "Missing 'in' in channelmap tag.\n");
@@ -291,15 +256,15 @@ void DrumKitParser::endTag(std::string name)
     while(ic != parser.channellist.end()) {
       InstrumentChannel *c = *ic;
 
-      std::string cname = c->name;
+      std::string cname = c->id;
       if(channelmap.find(cname) != channelmap.end()) cname = channelmap[cname];
 
       for(size_t cnt = 0; cnt < kit.channels.size(); cnt++) {
-        if(kit.channels[cnt].name == cname) c->num = kit.channels[cnt].num;
+        if(kit.channels[cnt].id == cname) c->num = kit.channels[cnt].num;
       }
       if(c->num == NO_CHANNEL) {
         DEBUG(kitparser, "Missing channel '%s' in instrument '%s'\n",
-               c->name.c_str(), i->id().c_str());
+               c->id.c_str(), i->id().c_str());
       } else {
         /*
           DEBUG(kitparser, "Assigned channel '%s' to number %d in instrument '%s'\n",
