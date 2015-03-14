@@ -94,8 +94,8 @@ void GUI::Window::repaintEvent(GUI::RepaintEvent *e)
 
   Painter p(this);
   p.drawImageStretched(0,0, &back, width(), height());
-  p.drawImage(width() - logo.width(),
-              height() - logo.height(), &logo);
+  p.drawImage(370 - logo.width(),
+              330 - logo.height(), &logo);
 }
 
 void GUI::Window::setFixedSize(int w, int h)
