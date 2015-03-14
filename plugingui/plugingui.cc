@@ -230,6 +230,7 @@ void PluginGUI::handleMessage(Message *msg)
     }
     break;
   case Message::DrumkitInfoMessage:
+    DEBUG(plugingui, "Handling meta data\n");
     {
       DrumkitInfoMessage *dim = (DrumkitInfoMessage*)msg;
       MetaData m = dim->metadata;
@@ -271,7 +272,7 @@ void PluginGUI::handleMessage(Message *msg)
         metadatatext.append("\t" + name + ": " + microphone + "\n");
       }
 
-      drumkitinfo->setText(metadatatext + "THE END");
+      drumkitinfo->setText(metadatatext);
     }
     break;
   case Message::EngineSettingsMessage:
@@ -490,7 +491,7 @@ void PluginGUI::init()
   drumkitinfo = new GUI::TextEdit(window);
   drumkitinfo->move(370, 25);
   drumkitinfo->resize(288, 292);
-  
+
   // Create filebrowser
   filebrowser = new GUI::FileBrowser(window);
   filebrowser->move(0, 0);
