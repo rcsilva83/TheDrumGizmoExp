@@ -67,6 +67,7 @@ public:
 
   size_t samplerate();
 
+  MetaData metadata;
 private:
   void *magic;
 
