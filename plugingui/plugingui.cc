@@ -271,7 +271,7 @@ void PluginGUI::handleMessage(Message *msg)
         metadatatext.append("\t" + name + ": " + microphone + "\n");
       }
 
-      drumkitinfo->setText(metadatatext);
+      drumkitinfo->setText(metadatatext + "THE END");
     }
     break;
   case Message::EngineSettingsMessage:
