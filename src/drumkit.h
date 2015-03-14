@@ -34,6 +34,18 @@
 #include "instrument.h"
 #include "versionstr.h"
 
+struct MetaData {
+  std::string version;
+  std::string name;
+  std::string description;
+  std::string notes;
+  std::string author;
+  std::string email;
+  std::string website;
+  std::vector<std::pair< std::string, std::string> > channels; // name, microphone
+  std::vector<std::pair< std::string, std::string> > instruments; // name, microphone
+};
+
 class DrumKitParser;
 class DrumKit {
   friend class DrumKitParser;

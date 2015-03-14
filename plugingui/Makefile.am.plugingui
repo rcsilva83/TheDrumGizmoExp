@@ -26,6 +26,7 @@ PLUGIN_GUI_SOURCES = \
 	$(top_srcdir)/plugingui/listboxthin.cc \
 	$(top_srcdir)/plugingui/listboxbasic.cc \
 	$(top_srcdir)/plugingui/knob.cc \
+	$(top_srcdir)/plugingui/textedit.cc \
 	$(top_srcdir)/plugingui/filebrowser.cc \
 	$(top_srcdir)/plugingui/directory.cc \
 	$(top_srcdir)/plugingui/pluginconfig.cc \

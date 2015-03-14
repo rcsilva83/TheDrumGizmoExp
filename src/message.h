@@ -29,6 +29,8 @@
 
 #include <string>
 
+#include "drumkit.h"
+
 class MessageHandler;
 
 class Message {
@@ -43,6 +45,7 @@ public:
     LoadMidimap, // Signal engine to load midimap.
     EngineSettingsMessage, // Request or receive engine settings.
     ChangeSettingMessage, // Update named setting in engine.
+    DrumkitInfoMessage // Drumkit meta data
   } type_t;
 
   typedef enum {
@@ -82,6 +85,13 @@ public:
   type_t type() { return Message::LoadMidimap; }
   std::string midimapfile;
 };
+
+class DrumkitInfoMessage : public Message {
+  public:
+    type_t type() { return Message::DrumkitInfoMessage; }
+    MetaData metadata;
+};
+
 
 class EngineSettingsMessage : public Message {
 public:

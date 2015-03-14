@@ -203,7 +203,6 @@ void PluginGUI::stopThread()
   }
 }
 
-
 void PluginGUI::handleMessage(Message *msg)
 {
   GUI::Painter p(window);// Make sure we only redraw buffer one time.
@@ -228,6 +227,51 @@ void PluginGUI::handleMessage(Message *msg)
       } else {
         progress2->setState(GUI::ProgressBar::red);
       }
+    }
+    break;
+  case Message::DrumkitInfoMessage:
+    {
+      DrumkitInfoMessage *dim = (DrumkitInfoMessage*)msg;
+      MetaData m = dim->metadata;
+
+      std::string metadatatext;
+      metadatatext.append(m.name + " v. " + m.version + "\n");
+      metadatatext.append(m.author + "\n");
+      metadatatext.append(m.email + "\n");
+      metadatatext.append(m.website + "\n\n");
+
+      metadatatext.append(m.description + "\n");
+      metadatatext.append(m.notes + "\n\n");
+
+      metadatatext.append("Channels:\n");
+      std::vector<std::pair< std::string, std::string> >::iterator channels_it;
+
+      int count = 1;
+      for(channels_it = m.channels.begin(); channels_it != m.channels.end();
+          channels_it++) {
+        std::string name = channels_it->first;
+        std::string microphone = channels_it->second;
+
+        char buf[4];
+        snprintf(buf, 4, "%d", count);
+        std::string count_str(buf);
+
+        metadatatext.append("\t"+ count_str + ". " + name + ": " + microphone + "\n");
+        count++;
+      }
+
+      metadatatext.append("\n\n");
+
+      metadatatext.append("Instruments:\n");
+      std::vector<std::pair< std::string, std::string> >::iterator instruments_it;
+      for(instruments_it = m.instruments.begin(); instruments_it != m.instruments.end();
+          instruments_it++) {
+        std::string name = instruments_it->first;
+        std::string microphone = instruments_it->second;
+        metadatatext.append("\t" + name + ": " + microphone + "\n");
+      }
+
+      drumkitinfo->setText(metadatatext);
     }
     break;
   case Message::EngineSettingsMessage:
@@ -310,7 +354,9 @@ void PluginGUI::init()
   window->eventHandler()->registerCloseHandler(closeEventHandler,
                                                (void*)&closing);
 
-  window->setFixedSize(370, 330);
+#define WINDOWXSIZE 670
+#define WINDOWYSIZE 330
+  window->setFixedSize(WINDOWXSIZE, WINDOWYSIZE);
   window->setCaption("DrumGizmo v"VERSION);
 
   GUI::Label *lbl_title = new GUI::Label(window);
@@ -320,7 +366,7 @@ void PluginGUI::init()
   
   GUI::VerticalLine *l1 = new GUI::VerticalLine(window);
   l1->move(20, 30);
-  l1->resize(window->width() - 40, 2);
+  l1->resize(window->width() - 300 - 40, 2);
 
 #define OFFSET1 17
 #define OFFSET2 38
@@ -440,15 +486,12 @@ void PluginGUI::init()
   lbl_version->setText(".::. v"VERSION"  .::.  http://www.drumgizmo.org  .::.  GPLv3 .::.");
   lbl_version->move(16, 300);
   lbl_version->resize(window->width(), 20);
-  /*
-  {
-    GUI::ComboBox *cmb = new GUI::ComboBox(window);
-    cmb->addItem("Foo", "Bar");
-    cmb->addItem("Hello", "World");
-    cmb->move(10,10);
-    cmb->resize(70, 30);
-  }
-  */
+  
+  drumkitinfo = new GUI::TextEdit(window);
+  drumkitinfo->move(370, 25);
+  drumkitinfo->resize(288, 292);
+  drumkitinfo->setText("Hello World\ten\tto\ttre fire fem seks syv otte ni ti elleve tolv tretten\n\nHej med dig jeg har lavet dette widget og det opfører sig egentlig ganske fint\n\n\nni \n\nti elleve tolv \n\nTEST TEST TEST@\n\ntretten fjorten femten \n\nseksten sytten atten nitten \nHello World\nHello World\naaaaaaa\nbbbbbbbbb\ncccccccccc\ndddddddd\neeeeeeeee\nfffffffffff\nggggggggg\nasdasdasdasd\nasd\n");
+  
   // Create filebrowser
   filebrowser = new GUI::FileBrowser(window);
   filebrowser->move(0, 0);

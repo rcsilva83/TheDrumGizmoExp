@@ -38,6 +38,7 @@
 
 #include <config.h>
 
+#include "drumkit.h"
 #include "drumkitparser.h"
 #include "audioinputenginemidi.h"
 #include "configuration.h"
@@ -73,6 +74,12 @@ bool DrumGizmo::loadkit(std::string file)
     ERR(drumgizmo, "Drumkit parser failed: %s\n", file.c_str());
     return false;
   }
+
+  loader.metadata = parser.getMetaData();
+
+  DrumkitInfoMessage *msg = new DrumkitInfoMessage();
+  msg->metadata = loader.metadata;
+  msghandler.sendMessage(MSGRCV_UI, msg);
 
   loader.loadKit(&kit);
 

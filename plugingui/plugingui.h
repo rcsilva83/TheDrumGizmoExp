@@ -37,6 +37,7 @@
 #include "knob.h"
 #include "progressbar.h"
 #include "pluginconfig.h"
+#include "textedit.h"
 
 #include "filebrowser.h"
 
@@ -80,6 +81,8 @@ public:
   GUI::Label *lbl2;
   GUI::LineEdit *lineedit2;
   GUI::ProgressBar *progress2;
+
+  GUI::TextEdit *drumkitinfo;
 
   Config *config;
 

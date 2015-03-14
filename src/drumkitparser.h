@@ -30,18 +30,6 @@
 #include "saxparser.h"
 #include "drumkit.h"
 
-struct MetaData {
-  std::string version;
-  std::string title;
-  std::string description;
-  std::string notes;
-  std::string author;
-  std::string email;
-  std::string website;
-  std::vector<std::pair< std::string, std::string> > channels; // title, microphone
-  std::vector<std::pair< std::string, std::string> > instruments; // title, microphone
-};
-
 class DrumKitParser : public SAXParser {
 public:
   DrumKitParser(const std::string &kitfile, DrumKit &kit);
