@@ -396,12 +396,12 @@ void PluginGUI::init()
     y += OFFSET2;
     progress = new GUI::ProgressBar(window);
     progress->move(XOFFSET, y);
-    progress->resize(window->width() - 2*XOFFSET, 11);
+    progress->resize(window->width() - 300 - 2*XOFFSET, 11);
 
     y += OFFSET3;
     GUI::VerticalLine *l = new GUI::VerticalLine(window);
     l->move(XOFFSET, y);
-    l->resize(window->width() - 2*XOFFSET, 2);
+    l->resize(window->width() - 300 - 2*XOFFSET, 2);
   }
 
   // Midimap file
@@ -427,12 +427,12 @@ void PluginGUI::init()
     y += OFFSET2;
     progress2 = new GUI::ProgressBar(window);
     progress2->move(XOFFSET, y);
-    progress2->resize(window->width() - 2*XOFFSET, 11);
+    progress2->resize(window->width() - 300 - 2*XOFFSET, 11);
 
     y += OFFSET3;
     GUI::VerticalLine *l = new GUI::VerticalLine(window);
     l->move(XOFFSET, y);
-    l->resize(window->width() - 2*XOFFSET, 2);
+    l->resize(window->width() - 300 - 2*XOFFSET, 2);
   }
 
   {
@@ -480,7 +480,7 @@ void PluginGUI::init()
 
   GUI::VerticalLine *l2 = new GUI::VerticalLine(window);
   l2->move(20, 310 - 15 - 9);
-  l2->resize(window->width() - 40, 2);
+  l2->resize(window->width() - 300 - 40, 2);
 
   GUI::Label *lbl_version = new GUI::Label(window);
   lbl_version->setText(".::. v"VERSION"  .::.  http://www.drumgizmo.org  .::.  GPLv3 .::.");
