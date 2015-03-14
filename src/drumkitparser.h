@@ -49,6 +49,7 @@ private:
 
   FILE *fd;
   DrumKit &kit;
+  MetaData meta;
 
   std::string ch_name;
   std::string ch_title;

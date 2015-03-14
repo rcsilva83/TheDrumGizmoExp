@@ -106,7 +106,7 @@ void DrumKitParser::startTag(std::string name,
       return;
     }
 
-    instr_id = attr["name"];
+    instr_name = attr["name"];
     instr_file = attr["file"];
     if(attr.find("group") != attr.end()) instr_group = attr["group"];
     else instr_group = "";
@@ -342,6 +342,11 @@ int DrumKitParser::readData(char *data, size_t size)
 {
   if(!fd) return -1;
   return fread(data, 1, size, fd);
+}
+
+MetaData DrumKitParser::getMetaData()
+{
+  return meta;
 }
 
 #ifdef TEST_DRUMKITPARSER
