@@ -85,6 +85,8 @@ public:
    */
   void skip();
 
+  MetaData metadata;
+
 private:
   Semaphore run_semaphore;
   Semaphore semaphore;
