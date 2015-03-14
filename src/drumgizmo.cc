@@ -75,10 +75,10 @@ bool DrumGizmo::loadkit(std::string file)
     return false;
   }
 
-  loader.metadata = parser.getMetaData();
+  kit.metadata = parser.getMetaData();
 
   DrumkitInfoMessage *msg = new DrumkitInfoMessage();
-  msg->metadata = loader.metadata;
+  msg->metadata = kit.metadata;
   msghandler.sendMessage(MSGRCV_UI, msg);
 
   loader.loadKit(&kit);
@@ -580,6 +580,10 @@ bool DrumGizmo::setConfigString(std::string cfg)
     msg->midimapfile = newmidimap;
     msghandler.sendMessage(MSGRCV_ENGINE, msg);
   }
+
+  DrumkitInfoMessage *msg = new DrumkitInfoMessage();
+  msg->metadata = kit.metadata;
+  msghandler.sendMessage(MSGRCV_UI, msg);
 
   return true;
 }
