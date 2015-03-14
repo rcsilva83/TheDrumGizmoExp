@@ -30,28 +30,54 @@
 #include "saxparser.h"
 #include "drumkit.h"
 
+struct MetaData {
+  std::string version;
+  std::string title;
+  std::string description;
+  std::string notes;
+  std::string author;
+  std::string email;
+  std::string website;
+  std::vector<std::pair< std::string, std::string> > channels; // title, microphone
+  std::vector<std::pair< std::string, std::string> > instruments; // title, microphone
+};
+
 class DrumKitParser : public SAXParser {
 public:
   DrumKitParser(const std::string &kitfile, DrumKit &kit);
   ~DrumKitParser();
 
+  void characterData(std::string &data);
   void startTag(std::string name,
                 std::map< std::string, std::string> attributes);
   void endTag(std::string name);
+  MetaData getMetaData();
 
 protected:
   int readData(char *data, size_t size);
 
 private:
+  std::string data;
+
   FILE *fd;
   DrumKit &kit;
+
+  std::string ch_name;
+  std::string ch_title;
+  std::string ch_microphone;
+
   //  Instrument *instr;
   std::string path;
 
   std::map<std::string, std::string> channelmap;
-  std::string instr_file;
   std::string instr_name;
+  std::string instr_description;
+  std::string instr_file;
+  std::string instr_title;
   std::string instr_group;
+  bool in_metadata;
+  bool in_channel;
+  bool in_instrument;
 };
 
 #endif/*__DRUMGIZMO_DRUMKITPARSER_H__*/
