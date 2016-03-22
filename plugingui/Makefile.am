@@ -56,6 +56,7 @@ EXTRA_DIST = \
 	resource_data.h \
 	scrollbar.h \
 	slider.h \
+	tabs.h \
 	textedit.h \
 	verticalline.h \
 	widget.h \

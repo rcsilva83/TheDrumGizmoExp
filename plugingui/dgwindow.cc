@@ -29,6 +29,8 @@
 #include "knob.h"
 #include "verticalline.h"
 #include "../version.h"
+#include "slider.h"
+#include "tabs.h"
 
 #include "messagehandler.h"
 #include "pluginconfig.h"
@@ -185,26 +187,35 @@ DGWindow::DGWindow(void* native_window, MessageHandler& messageHandler,
 	l2->resize(width() - 40, vlineSpacing);
 	layout.addItem(l2);
 
-	HumanizeControls* humanizeControls = new HumanizeControls(this);
+	Tabs* tabs = new Tabs(this);
+
+	HumanizeControls* humanizeControls = new HumanizeControls(tabs);
 	humanizeControls->resize(80 * 3, 80);
-	layout.addItem(humanizeControls);
-	CONNECT(&humanizeControls->velocityCheck, stateChangedNotifier,
-	        this, &DGWindow::velocityCheckClick);
+//	layout.addItem(humanizeControls);
+//	CONNECT(&humanizeControls->velocityCheck, stateChangedNotifier,
+//	        this, &DGWindow::velocityCheckClick);
 
-	CONNECT(&humanizeControls->attackKnob, valueChangedNotifier,
-	        this, &DGWindow::attackValueChanged);
+//	CONNECT(&humanizeControls->attackKnob, valueChangedNotifier,
+//	        this, &DGWindow::attackValueChanged);
 
-	CONNECT(&humanizeControls->falloffKnob, valueChangedNotifier,
-	        this, &DGWindow::falloffValueChanged);
+//	CONNECT(&humanizeControls->falloffKnob, valueChangedNotifier,
+//	        this, &DGWindow::falloffValueChanged);
+
+	tabs->addTab(*humanizeControls, "Humanize");
 
 	// Store pointers for PluginGUI access:
-	velocityCheck = &humanizeControls->velocityCheck;
-	attackKnob = &humanizeControls->attackKnob;
-	falloffKnob = &humanizeControls->falloffKnob;
+//	velocityCheck = &humanizeControls->velocityCheck;
+//	attackKnob = &humanizeControls->attackKnob;
+//	falloffKnob = &humanizeControls->falloffKnob;
 
 	VerticalLine *l3 = new VerticalLine(this);
 	l3->resize(width() - 40, vlineSpacing);
 	layout.addItem(l3);
+
+//	Slider *sliderTest = new Slider(tabs);
+//	sliderTest->resize(100,20);
+//	layout.addItem(sliderTest);
+//	tabs->addTab(*sliderTest);
 
 	Label *lbl_version = new Label(this);
 	lbl_version->setText(".::. v" VERSION "  .::.  http://www.drumgizmo.org  .::.  GPLv3 .::.");
@@ -213,10 +224,13 @@ DGWindow::DGWindow(void* native_window, MessageHandler& messageHandler,
 	layout.addItem(lbl_version);
 
 	// Create file browser
-	fileBrowser = new FileBrowser(this);
+	fileBrowser = new FileBrowser(tabs);
 	fileBrowser->move(0, 0);
 	fileBrowser->resize(this->width() - 1, this->height() - 1);
 	fileBrowser->hide();
+	tabs->addTab(*fileBrowser, "File Browser");
+
+	tabs->showTab(0);
 }
 
 void DGWindow::repaintEvent(RepaintEvent* repaintEvent)

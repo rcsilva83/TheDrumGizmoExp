@@ -30,6 +30,7 @@ PLUGIN_GUI_SOURCES = \
 	$(top_srcdir)/plugingui/pluginconfig.cc \
 	$(top_srcdir)/plugingui/image.cc \
 	$(top_srcdir)/plugingui/combobox.cc \
+	$(top_srcdir)/plugingui/tabs.cc \
 	$(top_srcdir)/plugingui/progressbar.cc \
 	$(top_srcdir)/plugingui/verticalline.cc \
 	$(top_srcdir)/plugingui/resource.cc \
@@ -62,4 +63,5 @@ PLUGIN_GUI_SOURCES += \
 	$(top_srcdir)/pugl/pugl/pugl_x11.c
 
 PLUGIN_GUI_CPPFLAGS += -I$(top_srcdir)/pugl/pugl
+PLUGIN_GUI_LIBS += -lX11
 endif
