@@ -526,6 +526,9 @@ AS_IF([test "x$enable_sse" = "x3"],
       [AC_MSG_RESULT([Setting sse level 1])
        SSEFLAGS="-DSSE -msse"],
 
+      [test "x$enable_sse" = "xno"],
+      [AC_MSG_RESULT([No SSE])]
+
       [test "x$enable_sse" = "xauto"],
       [AC_MSG_RESULT([Auto setting sse level])
 
@@ -577,7 +580,7 @@ AC_CONFIG_FILES(
 	plugingui/Makefile
 	include/Makefile
 	man/Makefile
-  test/Makefile
+	test/Makefile
 	drumgizmo/Makefile)
 
 AC_OUTPUT()
