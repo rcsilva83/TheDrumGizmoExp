@@ -119,6 +119,10 @@ AS_IF(
   GUI_CPPFLAGS="-DPUGL -I../../pugl"
   GUI_LIBS="-lGLU -lGL -lglut"],
 
+  [test "x$enable_gui" = "xnone"],
+  [AC_MSG_RESULT([Setting gui backend to NONE - No GUI will be build])
+  ],
+
   AC_MSG_ERROR([*** No GUI backend has been selected ***])
 )
 
@@ -128,6 +132,7 @@ AC_SUBST(GUI_LIBS)
 AM_CONDITIONAL([ENABLE_PUGL], [test "x$enable_gui" = "xpugl"])
 AM_CONDITIONAL([ENABLE_WIN32], [test "x$enable_gui" = "xwin32"])
 AM_CONDITIONAL([ENABLE_X11], [test "x$enable_gui" = "xx11"])
+AM_CONDITIONAL([DISABLE_GUI], [test "x$enable_gui" = "xnone"])
 
 dnl ======================
 dnl Compile unit tests
