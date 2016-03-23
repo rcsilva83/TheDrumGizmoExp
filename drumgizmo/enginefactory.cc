@@ -46,6 +46,9 @@ EngineFactory::EngineFactory()
 #ifdef HAVE_INPUT_JACKMIDI
 	input.push_back("jackmidi");
 #endif
+#ifdef HAVE_INPUT_TEST
+	input.push_back("test");
+#endif
 
 // list available output engines
 #ifdef HAVE_OUTPUT_DUMMY
