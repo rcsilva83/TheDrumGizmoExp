@@ -43,12 +43,13 @@ EngineFactory::EngineFactory()
 #ifdef HAVE_INPUT_MIDIFILE
 	input.push_back("midifile");
 #endif
-#ifdef HAVE_INPUT_JACKMIDI
-	input.push_back("jackmidi");
-#endif
 #ifdef HAVE_INPUT_TEST
 	input.push_back("test");
 #endif
+#ifdef HAVE_INPUT_JACKMIDI
+	input.push_back("jackmidi");
+#endif
+
 
 // list available output engines
 #ifdef HAVE_OUTPUT_DUMMY
@@ -97,6 +98,12 @@ std::unique_ptr<AudioInputEngine> EngineFactory::createInput(const std::string& 
 	if(name == "midifile")
 	{
 		return std::make_unique<MidifileInputEngine>();
+	}
+#endif
+#ifdef HAVE_INPUT_TEST
+	if(name == "test")
+	{
+		return std::make_unique<TestInputEngine>();
 	}
 #endif
 #ifdef HAVE_INPUT_JACKMIDI
