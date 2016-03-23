@@ -107,7 +107,7 @@ void JackMidiInputEngine::process(jack_nframes_t num_frames)
 	void* buffer = jack_port_get_buffer(port->port, num_frames);
 	jack_nframes_t num_events = jack_midi_get_event_count(buffer);
 
-	assert(events.empty());
+//	assert(events.empty());
 	events.reserve(num_events);
 	for(jack_nframes_t i = 0; i < num_events; ++i)
 	{
