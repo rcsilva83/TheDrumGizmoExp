@@ -49,7 +49,7 @@ private:
 	};
 
 	Random& rand;
-
+	
 	std::vector<PowerListItem> samples;
 	float power_max;
 	float power_min;
