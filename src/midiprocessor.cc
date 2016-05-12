@@ -1,10 +1,10 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /***************************************************************************
- *            audioinputenginemidi.h
+ *            midiprocessor.cc
  *
- *  Mon Apr  1 20:13:24 CEST 2013
- *  Copyright 2013 Bent Bisballe Nyeng
- *  deva@aasimon.org
+ *  Thu May 12 09:41:25 CEST 2016
+ *  Copyright 2016 Christian Glöckner
+ *  cgloeckner@freenet.de
  ****************************************************************************/
 
 /*
@@ -24,48 +24,37 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#pragma once
-
-#include <string>
-
-#include "audioinputengine.h"
-#include "midimapper.h"
-#include "instrument.h"
-#include "configfile.h"
 #include "midiprocessor.h"
 
-class AudioInputEngineMidi
-	: public AudioInputEngine
-{
-public:
-	AudioInputEngineMidi();
-	virtual ~AudioInputEngineMidi() = default;
+MidiProcessor::MidiProcessor(MidiMapper& midi_mapper)
+	: midi_mapper{midi_mapper} {
+}
 
-	virtual bool init(const Instruments &instruments) = 0;
-
-	virtual void setParm(const std::string& parm, const std::string& value) = 0;
-
-	virtual bool start() = 0;
-	virtual void stop() = 0;
-
-	virtual void pre() = 0;
-	virtual void run(size_t pos, size_t len, std::vector<event_t>& events) = 0;
-	virtual void post() = 0;
-
-	bool loadMidiMap(const std::string& file, const Instruments& i);
-
-	std::string getMidimapFile() const;
-
-	bool isValid() const;
-
-protected:
-	MidiMapper mmap;
+bool MidiProcessor::operator()(std::size_t size, unsigned char const * buffer, event_t& out) {
+	if (size != 3u) {
+		// not enough data
+		return false;
+	}
 	
-private:
-	MidiProcessor midi_processor;
-
-	std::string midimap;
-	bool is_valid;
-
-	ConfigFile refs;
-};
+	// determine event type
+	switch (buffer[0] & 0xF0) {
+		case 0x90:
+			out.type = TYPE_ONSET;
+			break;
+			
+		default:
+			// yet unsupported type
+			return false;
+	}
+	
+	// lookup instrument
+	int instr = midi_mapper.lookup(buffer[1]);
+	if (instr == -1) {
+		// key does not map to an instrument
+		return false;
+	}
+	
+	out.instrument = (std::size_t)instr;
+	out.velocity = buffer[2] / 127.0;
+	return true;
+}

@@ -146,27 +146,14 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 	{
 		if(!smf_event_is_metadata(current_event))
 		{
-			if((current_event->midi_buffer_length == 3) &&
-			    ((current_event->midi_buffer[0] & NOTE_ON) == NOTE_ON) &&
-			    (track == -1 || current_event->track_number == track) &&
-			    current_event->midi_buffer[2] > 0)
-			{
-				int key = current_event->midi_buffer[1];
-				int velocity = current_event->midi_buffer[2];
-
-				events.emplace_back();
-				auto& event = events.back();
-				event.type = TYPE_ONSET;
-				size_t evpos = current_event->time_seconds * (samplerate / speed);
-				event.offset = evpos - pos;
-
-				int i = mmap.lookup(key);
-				if(i != -1)
-				{
-					event.instrument = i;
-					event.velocity = velocity / 127.0;
-				}
+			event_t out;
+			if (!midi_processor(current_event->midi_buffer_length, current_event->midi_buffer, out)) {
+				// unsupported event
+				continue;
 			}
+			std::size_t evpos = current_event->time_seconds * (samplerate / speed);
+			out.offset = evpos - pos;
+			events.push_back(out);
 		}
 
 		current_event = smf_get_next_event(smf);

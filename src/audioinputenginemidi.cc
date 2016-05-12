@@ -33,7 +33,8 @@
 #include <hugin.hpp>
 
 AudioInputEngineMidi::AudioInputEngineMidi()
-	: refs(REFSFILE)
+	: midi_processor{mmap}
+	, refs(REFSFILE)
 {
 	is_valid = false;
 }

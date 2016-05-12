@@ -118,22 +118,14 @@ void JackMidiInputEngine::process(jack_nframes_t num_frames)
 	{
 		jack_midi_event_t event;
 		jack_midi_event_get(&event, buffer, i);
-		if(event.size != 3)
-		{
+		
+		event_t out;
+		if (!midi_processor(event.size, event.buffer, out)) {
+			// unsupported event
 			continue;
 		}
-		if((event.buffer[0] & NOTE_ON) != NOTE_ON)
-		{
-			continue;
-		}
-		int key = event.buffer[1];
-		int velocity = event.buffer[2];
-		printf("Event key:%d vel:%d\n", key, velocity);
-		int k = mmap.lookup(key);
-		if(k != -1 && velocity)
-		{
-			events.push_back({TYPE_ONSET, (size_t)k, event.time, velocity / 127.f});
-		}
+		out.offset = event.time;
+		events.push_back(out);
 	}
 	jack_midi_clear_buffer(buffer);
 	pos += num_frames;

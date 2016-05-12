@@ -1,10 +1,10 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /***************************************************************************
- *            audioinputenginemidi.h
+ *            midiprocessor.h
  *
- *  Mon Apr  1 20:13:24 CEST 2013
- *  Copyright 2013 Bent Bisballe Nyeng
- *  deva@aasimon.org
+ *  Thu May 12 08:20:49 CEST 2016
+ *  Copyright 2016 Christian Glöckner
+ *  cgloeckner@freenet.de
  ****************************************************************************/
 
 /*
@@ -25,47 +25,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
+#include <vector>
 
-#include <string>
-
-#include "audioinputengine.h"
+#include "event.h"
 #include "midimapper.h"
-#include "instrument.h"
-#include "configfile.h"
-#include "midiprocessor.h"
 
-class AudioInputEngineMidi
-	: public AudioInputEngine
-{
-public:
-	AudioInputEngineMidi();
-	virtual ~AudioInputEngineMidi() = default;
-
-	virtual bool init(const Instruments &instruments) = 0;
-
-	virtual void setParm(const std::string& parm, const std::string& value) = 0;
-
-	virtual bool start() = 0;
-	virtual void stop() = 0;
-
-	virtual void pre() = 0;
-	virtual void run(size_t pos, size_t len, std::vector<event_t>& events) = 0;
-	virtual void post() = 0;
-
-	bool loadMidiMap(const std::string& file, const Instruments& i);
-
-	std::string getMidimapFile() const;
-
-	bool isValid() const;
-
-protected:
-	MidiMapper mmap;
-	
+class MidiProcessor {
 private:
-	MidiProcessor midi_processor;
-
-	std::string midimap;
-	bool is_valid;
-
-	ConfigFile refs;
+	MidiMapper& midi_mapper;
+	
+public:
+	MidiProcessor(MidiMapper& midi_mapper);
+	
+	bool operator()(std::size_t size, unsigned char const * buffer, event_t& out);
 };
+	
