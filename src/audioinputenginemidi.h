@@ -61,9 +61,9 @@ public:
 protected:
 	MidiMapper mmap;
 	
-private:
 	MidiProcessor midi_processor;
 
+private:
 	std::string midimap;
 	bool is_valid;
 

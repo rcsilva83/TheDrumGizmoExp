@@ -48,6 +48,7 @@ private:
 		float power;
 	};
 
+
 	Random& rand;
 	
 	std::vector<PowerListItem> samples;
