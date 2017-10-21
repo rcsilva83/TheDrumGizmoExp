@@ -451,6 +451,20 @@ AS_IF(
      have_output_alsa=no]
   )
 
+  dnl *** coreaudio
+  AC_ARG_ENABLE([output_coreaudio],
+		AS_HELP_STRING([--enable-output-coreaudio], [Enable output coreaudio plugin [default=disabled]]),,
+           [enable_output_coreaudio="no"])
+
+  AS_IF(
+    [test "x$enable_output_coreaudio" = "xyes"],
+    [have_output_coreaudio=yes
+     COREAUDIO_LIBS="-framework CoreAudio -framework CoreServices -framework AudioUnit"],
+
+    [AC_MSG_RESULT([*** output coreaudio plugin disabled per user request ***])
+     have_output_coreaudio=no]
+  )
+
   dnl *** wavfile
   AC_ARG_ENABLE([output_wavfile],
 		AS_HELP_STRING([--disable-output-wavfile], [Disable output wavfile plugin [default=enabled]]),,
@@ -501,7 +515,7 @@ AS_IF(
     have_output_oss=no]
   )
 
-  OUTPUT_PLUGINS="dummy alsa wavfile jackaudio oss"
+  OUTPUT_PLUGINS="dummy alsa coreaudio wavfile jackaudio oss"
   AC_SUBST(OUTPUT_PLUGINS)
 
   dnl
@@ -526,6 +540,7 @@ AM_CONDITIONAL([HAVE_INPUT_OSSMIDI], [test "x$have_input_ossmidi" = "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_MIDIFILE], [test "x$have_input_midifile" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_DUMMY], [test "x$have_output_dummy" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_ALSA], [test "x$have_output_alsa" = "xyes"])
+AM_CONDITIONAL([HAVE_OUTPUT_COREAUDIO], [test "x$have_output_coreaudio" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_WAVFILE], [test "x$have_output_wavfile" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_JACKAUDIO], [test "x$have_output_jackaudio" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_OSS], [test "x$have_output_oss" = "xyes"])

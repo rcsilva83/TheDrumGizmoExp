@@ -69,6 +69,10 @@
 #include "output/alsa.h"
 #endif
 
+#ifdef HAVE_OUTPUT_COREAUDIO
+#include "output/coreaudio.h"
+#endif
+
 #ifdef HAVE_OUTPUT_JACKAUDIO
 #include "output/jackaudio.h"
 #endif

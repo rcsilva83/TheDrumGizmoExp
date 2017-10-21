@@ -63,6 +63,9 @@ EngineFactory::EngineFactory()
 #ifdef HAVE_OUTPUT_ALSA
 	output.push_back("alsa");
 #endif
+#ifdef HAVE_OUTPUT_COREAUDIO
+	output.push_back("coreaudio");
+#endif
 #ifdef HAVE_OUTPUT_JACKAUDIO
 	output.push_back("jackaudio");
 #endif
@@ -149,6 +152,12 @@ std::unique_ptr<AudioOutputEngine> EngineFactory::createOutput(const std::string
 	if(name == "alsa")
 	{
 		return std::make_unique<AlsaOutputEngine>();
+	}
+#endif
+#ifdef HAVE_OUTPUT_COREAUDIO
+	if(name == "coreaudio")
+	{
+		return std::make_unique<CoreAudioOutputEngine>();
 	}
 #endif
 #ifdef HAVE_OUTPUT_JACKAUDIO

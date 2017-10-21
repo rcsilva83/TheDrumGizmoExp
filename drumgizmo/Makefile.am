@@ -60,6 +60,13 @@ drumgizmo_SOURCES += output/alsa.cc
 drumgizmo_CXXFLAGS += -DHAVE_OUTPUT_ALSA
 endif # HAVE_OUTPUT_ALSA
 
+if HAVE_OUTPUT_COREAUDIO
+drumgizmo_CXXFLAGS += $(COREAUDIO_CFLAGS)
+drumgizmo_LDFLAGS += $(COREAUDIO_LIBS)
+drumgizmo_SOURCES += output/coreaudio.cc
+drumgizmo_CXXFLAGS += -DHAVE_OUTPUT_COREAUDIO
+endif # HAVE_OUTPUT_COREAUDIO
+
 if HAVE_OUTPUT_JACKAUDIO
 drumgizmo_CXXFLAGS += $(JACK_CFLAGS)
 drumgizmo_LDFLAGS += $(JACK_LIBS)
@@ -96,6 +103,7 @@ EXTRA_DIST = \
 	input/midifile.h \
 	input/ossmidi.h \
 	output/alsa.h \
+	output/coreaudio.h \
 	output/jackaudio.h \
 	output/outputdummy.h \
 	output/oss.h \
