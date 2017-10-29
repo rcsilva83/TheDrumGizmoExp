@@ -26,12 +26,15 @@
  */
 #include "coreaudio.h"
 
+#include <iostream>
+
 #include <hugin.hpp>
 
 static const char* errorString(OSStatus err)
 {
 	const char* err_string = "unknown";
-	switch (err) {
+	switch(err)
+	{
 	case kAudioHardwareNoError:
 		err_string = "kAudioHardwareNoError";
 		break;
@@ -69,24 +72,52 @@ static const char* errorString(OSStatus err)
 	return err_string;
 }
 
-
-CoreAudioOutputEngine::CoreAudioOutputEngine()
+static std::vector<AudioDeviceID> getDeviceList()
 {
 	OSStatus err;
-	std::uint32_t size;
+	Boolean is_writable;
 
-	size = sizeof(AudioDeviceID);
-	err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice,
-	                               &size, &device_id);
+	// Get number of devices in device list
+	UInt32 size;
+	err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices,
+	                                   &size, &is_writable);
 	if(err != noErr)
 	{
-		ERR(coreaudio, "Error kAudioHardwarePropertyDefaultOutputDevice: %s",
+		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
 		    errorString(err));
+		return {};
 	}
+
+	if(size == 0)
+	{
+		return {};
+	}
+
+	std::size_t number_of_devices = size / sizeof(AudioDeviceID);
+
+	// Allocate vector for devices.
+	std::vector<AudioDeviceID> devices;
+	devices.resize(number_of_devices);
+
+	err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &size,
+	                               devices.data());
+	if(err != noErr)
+	{
+		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
+		    errorString(err));
+		return {};
+	}
+
+	return devices;
+}
+
+static std::string getDeviceName(AudioDeviceID device_id)
+{
+	OSStatus err;
 
 	char device_name[256];
 	memset(device_name, 0, sizeof(device_name));
-	size = sizeof(device_name) - 1; // leave space for terminating zero
+	UInt32 size = sizeof(device_name) - 1; // leave space for terminating zero
 	err = AudioDeviceGetProperty(device_id, 0, false,
 	                             kAudioDevicePropertyDeviceName,
 	                             &size, device_name);
@@ -94,9 +125,49 @@ CoreAudioOutputEngine::CoreAudioOutputEngine()
 	{
 		ERR(coreaudio, "Error kAudioDevicePropertyDeviceName: %s",
 		    errorString(err));
+		return "";
 	}
 
-	DEBUG(coreaudio, "default device id: %d (%s)", device_id, device_name);
+	return std::string(device_name);
+}
+
+static std::string getDeviceUID(AudioDeviceID device_id)
+{
+	OSStatus err;
+	CFStringRef ui_name = nullptr;
+	UInt32 size = sizeof(CFStringRef);
+	err = AudioDeviceGetProperty(device_id, 0, false,
+	                             kAudioDevicePropertyDeviceUID,
+	                             &size, &ui_name);
+	if(err != noErr)
+	{
+		ERR(coreaudio, "Error kAudioDevicePropertyDeviceUID: %s",
+		    errorString(err));
+
+		if(ui_name != nullptr)
+		{
+			CFRelease(ui_name);
+		}
+
+		return "";
+	}
+
+	char internal_name[256];
+	memset(internal_name, 0, sizeof(internal_name));
+	size = sizeof(internal_name) - 1; // leave space for terminating zero
+	CFStringGetCString(ui_name, internal_name, size,
+	                   CFStringGetSystemEncoding());
+
+	if(ui_name != nullptr)
+	{
+		CFRelease(ui_name);
+	}
+
+	return std::string(internal_name);
+}
+
+CoreAudioOutputEngine::CoreAudioOutputEngine()
+{
 }
 
 CoreAudioOutputEngine::~CoreAudioOutputEngine()
@@ -105,12 +176,142 @@ CoreAudioOutputEngine::~CoreAudioOutputEngine()
 
 bool CoreAudioOutputEngine::init(const Channels& channels)
 {
+	OSStatus err;
+	std::uint32_t size;
+
+	if(uid == "list")
+	{
+		// Dump device list
+		auto device_list = getDeviceList();
+		std::cout  << "[CoreAudioOutputEngine] Device list (" <<
+			device_list.size() << " devices):\n";
+		for(auto device_id : device_list)
+		{
+			auto device_name = getDeviceName(device_id);
+			auto device_uid = getDeviceUID(device_id);
+			std::cout  << "[CoreAudioOutputEngine] - Device: '" << device_name <<
+				"' (uid: '" << device_uid  << "')\n";
+		}
+
+		// Do not proceed
+		return false;
+	}
+
+	if(uid != "")
+	{
+		// Get device id from UID
+		size = sizeof(AudioValueTranslation);
+		CFStringRef in_uid =
+			CFStringCreateWithCString(nullptr, uid.data(),
+			                          CFStringGetSystemEncoding());
+		AudioValueTranslation value =
+			{
+				&in_uid, sizeof(CFStringRef), &device_id, sizeof(AudioDeviceID)
+			};
+
+		err = AudioHardwareGetProperty(kAudioHardwarePropertyDeviceForUID,
+		                               &size, &value);
+		CFRelease(in_uid);
+
+		if(err != noErr)
+		{
+			ERR(coreaudio, "Error kAudioHardwarePropertyDeviceForUID: %s",
+			    errorString(err));
+		}
+
+		DEBUG(coreaudio, "get_device_id_from_uid '%s' %d",
+		      uid.data(), device_id);
+	}
+	else
+	{
+		// Use default device id
+		size = sizeof(AudioDeviceID);
+		err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice,
+	                               &size, &device_id);
+		if(err != noErr)
+		{
+			ERR(coreaudio, "Error kAudioHardwarePropertyDefaultOutputDevice: %s",
+			    errorString(err));
+		}
+	}
+
+	auto device_name = getDeviceName(device_id);
+
+	DEBUG(coreaudio, "default device id: %d (%s)",
+	      device_id, device_name.data());
+
+	// TODO: Setting buffer size
+	//outSize = sizeof(UInt32);
+	//err = AudioDeviceSetProperty (driver->device_id, NULL, 0, false, kAudioDevicePropertyBufferFrameSize, outSize, &nframes);
+	//if (err != noErr) {
+	//	jack_error ("Cannot set buffer size %ld", nframes);
+	//	printError (err);
+	//	goto error;
+	//}
+
+	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L796
+	// TODO: Set samplerate
+	//// Get sample rate
+	//outSize =  sizeof(Float64);
+	//err = AudioDeviceGetProperty (driver->device_id, 0, kAudioDeviceSectionGlobal, kAudioDevicePropertyNominalSampleRate, &outSize, &sampleRate);
+	//if (err != noErr) {
+	//	jack_error ("Cannot get current sample rate");
+	//	printError (err);
+	//	goto error;
+	//}
+	//
+	// Then; if samplerate doesn't match - set it.
+	//err = AudioDeviceSetProperty (driver->device_id, NULL, 0, kAudioDeviceSectionGlobal, kAudioDevicePropertyNominalSampleRate, outSize, &sampleRate);
+	//if (err != noErr) {
+	//	jack_error ("Cannot set sample rate = %ld", samplerate);
+	//	printError (err);
+	//	return -1;
+	//}
+
+
+
 	return true;
 }
 
 void CoreAudioOutputEngine::setParm(const std::string& parm,
                                     const std::string& value)
 {
+	if(parm == "uid")
+	{
+		// Use the device pointed to by this UID.
+		uid = value;
+	}
+	else if(parm == "frames")
+	{
+		// try to apply hardware buffer size
+		try
+		{
+			frames = std::stoi(value);
+		}
+		catch(...)
+		{
+			std::cerr << "[CoreAudioOutputEngine] Invalid buffer size " << value
+			          << "\n";
+		}
+	}
+	else if(parm == "srate")
+	{
+		try
+		{
+			samplerate = std::stoi(value);
+		}
+		catch(...)
+		{
+			std::cerr << "[CoreAudioOutputEngine] Invalid samplerate " << value
+			          << "\n";
+		}
+	}
+	else
+	{
+		std::cerr << "[CoreAudioOutputEngine] Unsupported parameter '" << parm
+		          << "'\n";
+	}
+
 }
 
 bool CoreAudioOutputEngine::start()
@@ -138,7 +339,7 @@ void CoreAudioOutputEngine::post(size_t nsamples)
 
 size_t CoreAudioOutputEngine::getSamplerate() const
 {
-	return 0;
+	return samplerate;
 }
 
 bool CoreAudioOutputEngine::isFreewheeling() const

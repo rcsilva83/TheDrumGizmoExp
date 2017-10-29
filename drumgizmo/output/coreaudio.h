@@ -51,5 +51,8 @@ public:
 	bool isFreewheeling() const override;
 
 private:
-	AudioDeviceID device_id;
+	AudioDeviceID device_id{kAudioDeviceUnknown};
+	std::string uid;
+	std::uint32_t frames{1024u};
+	std::uint32_t samplerate{44100u};
 };
