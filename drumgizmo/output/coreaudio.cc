@@ -29,6 +29,7 @@
 #include <iostream>
 
 #include <hugin.hpp>
+#include <assert.h>
 
 static const char* errorString(OSStatus err)
 {
@@ -152,6 +153,8 @@ static std::string getDeviceUID(AudioDeviceID device_id)
 		return "";
 	}
 
+	assert(ui_name != nullptr);
+
 	char internal_name[256];
 	memset(internal_name, 0, sizeof(internal_name));
 	size = sizeof(internal_name) - 1; // leave space for terminating zero
@@ -268,7 +271,32 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	//	return -1;
 	//}
 
+	// Create AU HAL (whatever that is?)
+// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L825
+//	// AUHAL
+//#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+//	AudioComponentDescription cd = { kAudioUnitType_Output, kAudioUnitSubType_HALOutput, kAudioUnitManufacturer_Apple, 0, 0 };
+//	AudioComponent HALOutput = AudioComponentFindNext (NULL, &cd);
+//	err1 = AudioComponentInstanceNew (HALOutput, &driver->au_hal);
+//#else
+//	ComponentDescription cd = { kAudioUnitType_Output, kAudioUnitSubType_HALOutput, kAudioUnitManufacturer_Apple, 0, 0 };
+//	Component HALOutput = FindNextComponent (NULL, &cd);
+//	err1 = OpenAComponent (HALOutput, &driver->au_hal);
+//#endif
+//
+//	if (err1 != noErr) {
+//#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+//		jack_error ("Error calling AudioComponentInstanceNew");
+//#else
+//		jack_error ("Error calling OpenAComponent");
+//#endif
+//		printError (err1);
+//		goto error;
+//	}
 
+
+	// Set up channels maps (whaveter that is?!)
+	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L901
 
 	return true;
 }
@@ -316,11 +344,39 @@ void CoreAudioOutputEngine::setParm(const std::string& parm,
 
 bool CoreAudioOutputEngine::start()
 {
+	//https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L864
+	// Start I/O
+	//enableIO = 1;
+	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, 0, &enableIO, sizeof(enableIO));
+	//if (err1 != noErr) {
+	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_EnableIO,kAudioUnitScope_Output");
+	//	printError (err1);
+	//	goto error;
+	//}
+
+	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L874
+	//// Setup up choosen device, in both input and output cases
+	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &driver->device_id, sizeof(AudioDeviceID));
+	//if (err1 != noErr) {
+	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_CurrentDevice");
+	//	printError (err1);
+	//	goto error;
+	//}
+
 	return true;
 }
 
 void CoreAudioOutputEngine::stop()
 {
+	//https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L864
+	// Start I/O
+	//enableIO = 0;
+	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, 0, &enableIO, sizeof(enableIO));
+	//if (err1 != noErr) {
+	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_EnableIO,kAudioUnitScope_Output");
+	//	printError (err1);
+	//	goto error;
+	//}{
 }
 
 void CoreAudioOutputEngine::pre(size_t nsamples)
