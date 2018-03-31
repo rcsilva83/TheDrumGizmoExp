@@ -294,7 +294,7 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 		oe = factory.createOutput(engine);
-		if(ie == NULL)
+		if(oe == NULL)
 		{
 			std::cerr << "Invalid output engine: " << engine << std::endl;;
 			exit(1);
