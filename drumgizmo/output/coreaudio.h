@@ -28,7 +28,9 @@
 
 #include <audiotypes.h>
 #include <CoreAudio/CoreAudio.h>
+#include <CoreServices/CoreServices.h>
 #include <AudioUnit/AudioUnit.h>
+#include <AudioUnit/AUComponent.h>
 
 #include "audiooutputengine.h"
 
@@ -52,7 +54,35 @@ public:
 
 private:
 	AudioDeviceID device_id{kAudioDeviceUnknown};
-	std::string uid;
+	std::string id;
 	std::uint32_t frames{1024u};
 	std::uint32_t samplerate{44100u};
+	AudioUnit au_hal;
+	AudioBufferList* input_list;
+
+	// libao:
+static OSStatus audioCallback (void *inRefCon, 
+                                               AudioUnitRenderActionFlags *inActionFlags,
+                                               const AudioTimeStamp *inTimeStamp, 
+                                               UInt32 inBusNumber, 
+                                               UInt32 inNumberFrames,
+                                                      AudioBufferList *ioData);
+
+	AudioDeviceID                outputDevice;
+  ComponentInstance            outputAudioUnit;
+  int                          output_p;
+
+  /* Keep track of whether the output stream has actually been
+     started/stopped */
+  Boolean                      started;
+  Boolean                      isStopping;
+
+  /* Our internal queue of samples waiting to be consumed by
+     CoreAudio */
+  void                        *buffer;
+  unsigned int                 bufferByteCount;
+  unsigned int                 firstValidByteOffset;
+  unsigned int                 validByteCount;
+
+  unsigned int                 buffer_time;
 };

@@ -27,10 +27,13 @@
 #include "coreaudio.h"
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include <hugin.hpp>
 #include <assert.h>
 
+#if 0
 static const char* errorString(OSStatus err)
 {
 	const char* err_string = "unknown";
@@ -72,101 +75,46 @@ static const char* errorString(OSStatus err)
 
 	return err_string;
 }
+#endif
 
-static std::vector<AudioDeviceID> getDeviceList()
+OSStatus CoreAudioOutputEngine::audioCallback(void *user_data,
+                                              AudioUnitRenderActionFlags *action_flags,
+                                              const AudioTimeStamp *timestamp,
+                                              UInt32 bus_number,
+                                              UInt32 number_frames,
+                                              AudioBufferList *io_data)
 {
-	OSStatus err;
-	Boolean is_writable;
+	OSStatus err = noErr;
+	CoreAudioOutputEngine *engine =
+		static_cast<CoreAudioOutputEngine*>(user_data);
+	(void)engine;
 
-	// Get number of devices in device list
-	UInt32 size;
-	err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices,
-	                                   &size, &is_writable);
-	if(err != noErr)
+	// Despite the audio buffer list, playback render can only submit a
+	// single buffer.
+
+	if(!io_data)
 	{
-		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
-		    errorString(err));
-		return {};
+		ERR(coreaudio, "Unexpected number of buffers (io_data == nullptr)\n");
+		return 0;
 	}
 
-	if(size == 0)
+	if(io_data->mNumberBuffers != 1)
 	{
-		return {};
+		ERR(coreaudio, "Unexpected number of buffers (%d)\n",
+		       (int)io_data->mNumberBuffers);
+		return 0;
 	}
 
-	std::size_t number_of_devices = size / sizeof(AudioDeviceID);
+	float *samples = (float*)io_data->mBuffers[0].mData;
+	auto size = io_data->mBuffers[0].mDataByteSize / sizeof(float);
 
-	// Allocate vector for devices.
-	std::vector<AudioDeviceID> devices;
-	devices.resize(number_of_devices);
-
-	err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &size,
-	                               devices.data());
-	if(err != noErr)
+	static double p = 0.0;
+	for(auto i = 0u; i < size; ++i)
 	{
-		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
-		    errorString(err));
-		return {};
+		samples[i] = 0.4 * sin(p += 0.02);
 	}
 
-	return devices;
-}
-
-static std::string getDeviceName(AudioDeviceID device_id)
-{
-	OSStatus err;
-
-	char device_name[256];
-	memset(device_name, 0, sizeof(device_name));
-	UInt32 size = sizeof(device_name) - 1; // leave space for terminating zero
-	err = AudioDeviceGetProperty(device_id, 0, false,
-	                             kAudioDevicePropertyDeviceName,
-	                             &size, device_name);
-	if(err != noErr)
-	{
-		ERR(coreaudio, "Error kAudioDevicePropertyDeviceName: %s",
-		    errorString(err));
-		return "";
-	}
-
-	return std::string(device_name);
-}
-
-static std::string getDeviceUID(AudioDeviceID device_id)
-{
-	OSStatus err;
-	CFStringRef ui_name = nullptr;
-	UInt32 size = sizeof(CFStringRef);
-	err = AudioDeviceGetProperty(device_id, 0, false,
-	                             kAudioDevicePropertyDeviceUID,
-	                             &size, &ui_name);
-	if(err != noErr)
-	{
-		ERR(coreaudio, "Error kAudioDevicePropertyDeviceUID: %s",
-		    errorString(err));
-
-		if(ui_name != nullptr)
-		{
-			CFRelease(ui_name);
-		}
-
-		return "";
-	}
-
-	assert(ui_name != nullptr);
-
-	char internal_name[256];
-	memset(internal_name, 0, sizeof(internal_name));
-	size = sizeof(internal_name) - 1; // leave space for terminating zero
-	CFStringGetCString(ui_name, internal_name, size,
-	                   CFStringGetSystemEncoding());
-
-	if(ui_name != nullptr)
-	{
-		CFRelease(ui_name);
-	}
-
-	return std::string(internal_name);
+	return err;
 }
 
 CoreAudioOutputEngine::CoreAudioOutputEngine()
@@ -179,124 +127,213 @@ CoreAudioOutputEngine::~CoreAudioOutputEngine()
 
 bool CoreAudioOutputEngine::init(const Channels& channels)
 {
-	OSStatus err;
-	std::uint32_t size;
+	OSStatus result = noErr;
+	AudioComponent comp;
+	AudioComponentDescription desc;
+	AudioStreamBasicDescription requestedDesc;
+	AURenderCallbackStruct      input;
+	UInt32 i_param_size, requestedEndian;
 
-	if(uid == "list")
+	// Locate the default output audio unit
+	desc.componentType = kAudioUnitType_Output;
+	desc.componentSubType = kAudioUnitSubType_HALOutput;
+	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+	desc.componentFlags = 0;
+	desc.componentFlagsMask = 0;
+
+	comp = AudioComponentFindNext(nullptr, &desc);
+	if(comp == nullptr)
 	{
-		// Dump device list
-		auto device_list = getDeviceList();
-		std::cout  << "[CoreAudioOutputEngine] Device list (" <<
-			device_list.size() << " devices):\n";
-		for(auto device_id : device_list)
-		{
-			auto device_name = getDeviceName(device_id);
-			auto device_uid = getDeviceUID(device_id);
-			std::cout  << "[CoreAudioOutputEngine] - Device: '" << device_name <<
-				"' (uid: '" << device_uid  << "')\n";
-		}
-
-		// Do not proceed
+		ERR(coreaudio, "Failed to start CoreAudio:"
+		    " AudioComponentFindNext returned nullptr.");
 		return false;
 	}
 
-	if(uid != "")
+	// Open & initialize the default output audio unit
+	result = AudioComponentInstanceNew(comp, &outputAudioUnit);
+	if(result)
 	{
-		// Get device id from UID
-		size = sizeof(AudioValueTranslation);
-		CFStringRef in_uid =
-			CFStringCreateWithCString(nullptr, uid.data(),
-			                          CFStringGetSystemEncoding());
-		AudioValueTranslation value =
-			{
-				&in_uid, sizeof(CFStringRef), &device_id, sizeof(AudioDeviceID)
-			};
-
-		err = AudioHardwareGetProperty(kAudioHardwarePropertyDeviceForUID,
-		                               &size, &value);
-		CFRelease(in_uid);
-
-		if(err != noErr)
-		{
-			ERR(coreaudio, "Error kAudioHardwarePropertyDeviceForUID: %s",
-			    errorString(err));
-		}
-
-		DEBUG(coreaudio, "get_device_id_from_uid '%s' %d",
-		      uid.data(), device_id);
-	}
-	else
-	{
-		// Use default device id
-		size = sizeof(AudioDeviceID);
-		err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice,
-	                               &size, &device_id);
-		if(err != noErr)
-		{
-			ERR(coreaudio, "Error kAudioHardwarePropertyDefaultOutputDevice: %s",
-			    errorString(err));
-		}
+		ERR(coreaudio,"AudioComponentInstanceNew() error => %d\n", (int)result);
+		return false;
 	}
 
-	auto device_name = getDeviceName(device_id);
+	// Set the desired output device if not default
+	if(outputDevice != kAudioObjectUnknown)
+	{
+		result = AudioUnitSetProperty(outputAudioUnit,
+		                              kAudioOutputUnitProperty_CurrentDevice,
+		                              kAudioUnitScope_Global,
+		                              0,
+		                              &outputDevice,
+		                              sizeof(outputDevice));
+		if(result)
+		{
+			ERR(coreaudio, "AudioComponentSetDevice() error => %d\n", (int)result);
+			AudioComponentInstanceDispose(outputAudioUnit);
+			return false;
+		}
+	}
+	output_p=1;
 
-	DEBUG(coreaudio, "default device id: %d (%s)",
-	      device_id, device_name.data());
+	// Request desired format of the audio unit.  Let HAL do all
+	// conversion since it will probably be doing some internal
+	// conversion anyway.
 
-	// TODO: Setting buffer size
-	//outSize = sizeof(UInt32);
-	//err = AudioDeviceSetProperty (driver->device_id, NULL, 0, false, kAudioDevicePropertyBufferFrameSize, outSize, &nframes);
-	//if (err != noErr) {
-	//	jack_error ("Cannot set buffer size %ld", nframes);
-	//	printError (err);
-	//	goto error;
+	//device->driver_byte_format = format->byte_format;
+	requestedDesc.mFormatID = kAudioFormatLinearPCM;
+	requestedDesc.mFormatFlags = kAudioFormatFlagIsPacked;
+	//switch(format->byte_format){
+	//case AO_FMT_BIG:
+	//	requestedDesc.mFormatFlags |= kAudioFormatFlagIsBigEndian;
+	//	break;
+	//case AO_FMT_NATIVE:
+	//	if(ao_is_big_endian())
+	//		requestedDesc.mFormatFlags |= kAudioFormatFlagIsBigEndian;
+	//	break;
+	//}
+	requestedEndian = requestedDesc.mFormatFlags & kAudioFormatFlagIsBigEndian;
+	//if(format->bits > 8)
+	//requestedDesc.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
+	requestedDesc.mFormatFlags |=kAudioFormatFlagIsFloat;
+	requestedDesc.mChannelsPerFrame = channels.size();//device->output_channels;
+	requestedDesc.mSampleRate = samplerate;//format->rate;
+	requestedDesc.mBitsPerChannel = 32;//format->bits;
+	requestedDesc.mFramesPerPacket = 1;
+	requestedDesc.mBytesPerFrame =
+		requestedDesc.mBitsPerChannel * requestedDesc.mChannelsPerFrame / 8;
+	requestedDesc.mBytesPerPacket =
+		requestedDesc.mBytesPerFrame * requestedDesc.mFramesPerPacket;
+
+	result = AudioUnitSetProperty(outputAudioUnit,
+	                              kAudioUnitProperty_StreamFormat,
+	                              kAudioUnitScope_Input,
+	                              0,
+	                              &requestedDesc,
+	                              sizeof(requestedDesc));
+
+	if(result)
+	{
+		ERR(coreaudio, "AudioUnitSetProperty error => %d\n", (int)result);
+		return false;
+	}
+
+	// What format did we actually get?
+	i_param_size = sizeof(requestedDesc);
+	result = AudioUnitGetProperty(outputAudioUnit,
+	                              kAudioUnitProperty_StreamFormat,
+	                              kAudioUnitScope_Input,
+	                              0,
+	                              &requestedDesc,
+	                              &i_param_size );
+	if(result)
+	{
+		ERR(coreaudio, "Failed to query modified device hardware settings => %d\n",
+		    (int)result);
+		return false;
+	}
+
+	// If any major settings differ, abort
+	//if(fabs(requestedDesc.mSampleRate- samplerate) > format->rate*.05)
+	//{
+	//	 ERR(coreaudio. "Unable to set output sample rate\n");
+	//	return false;
+	//}
+	if(requestedDesc.mChannelsPerFrame != channels.size())
+	{
+		ERR(coreaudio, "Could not configure %d channel output\n",
+		    (int)channels.size());
+		return false;
+	}
+
+	if(requestedDesc.mBitsPerChannel != 32) // size of float in bits
+	{
+		ERR(coreaudio, "Could not configure %d bit output\n", 32);
+		return false;
+	}
+
+	if(requestedDesc.mBitsPerChannel != 32)
+	{
+		ERR(coreaudio, "Could not configure %d bit output\n", 32);
+		return false;
+	}
+
+	//if(requestedDesc.mFormatFlags & kAudioFormatFlagIsFloat)
+	//{
+	//	ERR(coreaudio, "Could not configure integer sample output\n");
+	//	return false;
 	//}
 
-	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L796
-	// TODO: Set samplerate
-	//// Get sample rate
-	//outSize =  sizeof(Float64);
-	//err = AudioDeviceGetProperty (driver->device_id, 0, kAudioDeviceSectionGlobal, kAudioDevicePropertyNominalSampleRate, &outSize, &sampleRate);
-	//if (err != noErr) {
-	//	jack_error ("Cannot get current sample rate");
-	//	printError (err);
-	//	goto error;
+	if((requestedDesc.mFormatFlags & kAudioFormatFlagsNativeEndian) !=
+	   requestedEndian)
+	{
+		ERR(coreaudio, "Could not configure output endianness\n");
+		return false;
+	}
+
+	//if(format->bits > 8)
+	//{
+	//	if(!(requestedDesc.mFormatFlags & kAudioFormatFlagIsSignedInteger))
+	//	{
+	//		ERR(coreaudio, "Could not configure signed output\n");
+	//		return false;
+	//	}
 	//}
+	//else
+	//{
+	//	if((requestedDesc.mFormatFlags & kAudioFormatFlagIsSignedInteger))
+	//	{
+	//		ERR(coreaudio, "Could not configure unsigned output\n");
+	//		return false;
+	//	}
+	//}
+	if(requestedDesc.mSampleRate != samplerate)
+	{
+		WARN(coreaudio,
+		     "Could not set sample rate to exactly %d; using %g instead.\n",
+		     samplerate,(double)requestedDesc.mSampleRate);
+	}
+
+	// Set the channel mapping.
+	// MacOSX AUHAL is capable of mapping any channel format currently
+	// representable in the libao matrix.
+	//if(device->output_mask)
+	//{
+	//	AudioChannelLayout layout;
+	//	memset(&layout,0,sizeof(layout));
 	//
-	// Then; if samplerate doesn't match - set it.
-	//err = AudioDeviceSetProperty (driver->device_id, NULL, 0, kAudioDeviceSectionGlobal, kAudioDevicePropertyNominalSampleRate, outSize, &sampleRate);
-	//if (err != noErr) {
-	//	jack_error ("Cannot set sample rate = %ld", samplerate);
-	//	printError (err);
-	//	return -1;
+	//	layout.mChannelLayoutTag = kAudioChannelLayoutTag_UseChannelBitmap;
+	//	layout.mChannelBitmap = device->output_mask;
+	//
+	//	result = AudioUnitSetProperty(outputAudioUnit,
+	//	                              kAudioUnitProperty_AudioChannelLayout,
+	//	                              kAudioUnitScope_Input, 0, &layout,
+	//	                              sizeof(layout));
+	//	if(result) {
+	//	  ERR(coreaudio, "Failed to set audio channel layout => %d\n",
+	//		    (int)result);
+	//	}
 	//}
 
-	// Create AU HAL (whatever that is?)
-// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L825
-//	// AUHAL
-//#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
-//	AudioComponentDescription cd = { kAudioUnitType_Output, kAudioUnitSubType_HALOutput, kAudioUnitManufacturer_Apple, 0, 0 };
-//	AudioComponent HALOutput = AudioComponentFindNext (NULL, &cd);
-//	err1 = AudioComponentInstanceNew (HALOutput, &driver->au_hal);
-//#else
-//	ComponentDescription cd = { kAudioUnitType_Output, kAudioUnitSubType_HALOutput, kAudioUnitManufacturer_Apple, 0, 0 };
-//	Component HALOutput = FindNextComponent (NULL, &cd);
-//	err1 = OpenAComponent (HALOutput, &driver->au_hal);
-//#endif
-//
-//	if (err1 != noErr) {
-//#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
-//		jack_error ("Error calling AudioComponentInstanceNew");
-//#else
-//		jack_error ("Error calling OpenAComponent");
-//#endif
-//		printError (err1);
-//		goto error;
-//	}
+	// Set the audio callback
+	input.inputProc = (AURenderCallback)audioCallback;
+	input.inputProcRefCon = this;
 
+	result = AudioUnitSetProperty(outputAudioUnit,
+	                              kAudioUnitProperty_SetRenderCallback,
+	                              kAudioUnitScope_Input,
+	                              0, &input, sizeof(input));
+	if(result)
+	{
+		ERR(coreaudio, "Callback set error => %d\n",(int)result);
+		return false;
+	}
 
-	// Set up channels maps (whaveter that is?!)
-	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L901
+	result = AudioUnitInitialize(outputAudioUnit);
+	if(result)
+	{
+		ERR(coreaudio, "AudioUnitInitialize() error => %d\n",(int)result);
+		return false;
+	}
 
 	return true;
 }
@@ -304,10 +341,10 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 void CoreAudioOutputEngine::setParm(const std::string& parm,
                                     const std::string& value)
 {
-	if(parm == "uid")
+	if(parm == "id")
 	{
-		// Use the device pointed to by this UID.
-		uid = value;
+		// Use the device pointed to by this ID.
+		id = value;
 	}
 	else if(parm == "frames")
 	{
@@ -344,39 +381,22 @@ void CoreAudioOutputEngine::setParm(const std::string& parm,
 
 bool CoreAudioOutputEngine::start()
 {
-	//https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L864
-	// Start I/O
-	//enableIO = 1;
-	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, 0, &enableIO, sizeof(enableIO));
-	//if (err1 != noErr) {
-	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_EnableIO,kAudioUnitScope_Output");
-	//	printError (err1);
-	//	goto error;
-	//}
-
-	// https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L874
-	//// Setup up choosen device, in both input and output cases
-	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &driver->device_id, sizeof(AudioDeviceID));
-	//if (err1 != noErr) {
-	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_CurrentDevice");
-	//	printError (err1);
-	//	goto error;
-	//}
-
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	int err = AudioOutputUnitStart(au_hal);
+	err = AudioOutputUnitStart(outputAudioUnit);
+	DEBUG(coreaudio, "Starting audio output unit\n");
+	if(err){
+//	  pthread_mutex_unlock(&mutex);
+	  ERR(coreaudio, "Failed to start audio output => %d\n",(int)err);
+	  return false;
+	}
 	return true;
 }
 
 void CoreAudioOutputEngine::stop()
 {
-	//https://github.com/jackaudio/jack1/blob/master/drivers/coreaudio/coreaudio_driver.c#L864
-	// Start I/O
-	//enableIO = 0;
-	//err1 = AudioUnitSetProperty (driver->au_hal, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, 0, &enableIO, sizeof(enableIO));
-	//if (err1 != noErr) {
-	//	jack_error ("Error calling AudioUnitSetProperty - kAudioOutputUnitProperty_EnableIO,kAudioUnitScope_Output");
-	//	printError (err1);
-	//	goto error;
-	//}{
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	AudioOutputUnitStop(au_hal);
 }
 
 void CoreAudioOutputEngine::pre(size_t nsamples)
@@ -385,6 +405,7 @@ void CoreAudioOutputEngine::pre(size_t nsamples)
 
 void CoreAudioOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 {
+//	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	// Write channel data in interleaved buffer
 }
 
@@ -402,3 +423,4 @@ bool CoreAudioOutputEngine::isFreewheeling() const
 {
 	return false;
 }
+
