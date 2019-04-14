@@ -26,13 +26,14 @@
  */
 #pragma once
 
+#include <memory>
+
 #include <audiotypes.h>
-#include <CoreAudio/CoreAudio.h>
-#include <CoreServices/CoreServices.h>
-#include <AudioUnit/AudioUnit.h>
-#include <AudioUnit/AUComponent.h>
 
 #include "audiooutputengine.h"
+
+struct AudioTimeStamp;
+struct AudioBufferList;
 
 class CoreAudioOutputEngine
 	: public AudioOutputEngine
@@ -41,48 +42,25 @@ public:
 	CoreAudioOutputEngine();
 	~CoreAudioOutputEngine();
 
-	// based on AudioOutputEngine
+	// From AudioOutputEngine:
 	bool init(const Channels& chan) override;
 	void setParm(const std::string& parm, const std::string& value) override;
 	bool start() override;
 	void stop() override;
-	void pre(size_t nsamples) override;
-	void run(int ch, sample_t* samples, size_t nsamples) override;
-	void post(size_t nsamples) override;
+	void pre(std::size_t nsamples) override;
+	void run(int ch, sample_t* samples, std::size_t nsamples) override;
+	void post(std::size_t nsamples) override;
 	size_t getSamplerate() const override;
+	std::size_t getBufferSize() const override;
 	bool isFreewheeling() const override;
 
 private:
-	AudioDeviceID device_id{kAudioDeviceUnknown};
-	std::string id;
-	std::uint32_t frames{1024u};
-	std::uint32_t samplerate{44100u};
-	AudioUnit au_hal;
-	AudioBufferList* input_list;
+	std::unique_ptr<struct RAII> raii;
 
-	// libao:
-static OSStatus audioCallback (void *inRefCon, 
-                                               AudioUnitRenderActionFlags *inActionFlags,
-                                               const AudioTimeStamp *inTimeStamp, 
-                                               UInt32 inBusNumber, 
-                                               UInt32 inNumberFrames,
-                                                      AudioBufferList *ioData);
-
-	AudioDeviceID                outputDevice;
-  ComponentInstance            outputAudioUnit;
-  int                          output_p;
-
-  /* Keep track of whether the output stream has actually been
-     started/stopped */
-  Boolean                      started;
-  Boolean                      isStopping;
-
-  /* Our internal queue of samples waiting to be consumed by
-     CoreAudio */
-  void                        *buffer;
-  unsigned int                 bufferByteCount;
-  unsigned int                 firstValidByteOffset;
-  unsigned int                 validByteCount;
-
-  unsigned int                 buffer_time;
+	static int render(void *user_data,
+	                  std::uint32_t *action_flags,
+	                  const AudioTimeStamp *timestamp,
+	                  std::uint32_t bus_number,
+	                  std::uint32_t number_frames,
+	                  AudioBufferList *io_data);
 };

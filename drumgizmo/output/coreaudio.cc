@@ -33,7 +33,21 @@
 #include <hugin.hpp>
 #include <assert.h>
 
-#if 0
+#include <CoreAudio/CoreAudio.h>
+#include <CoreServices/CoreServices.h>
+#include <AudioUnit/AudioUnit.h>
+#include <AudioUnit/AUComponent.h>
+
+struct RAII
+{
+	std::string id; // value from user arguments
+	AudioDeviceID device_id{kAudioDeviceUnknown};
+	std::uint32_t frames;
+	std::uint32_t samplerate;
+	AudioBufferList* input_list;
+	ComponentInstance audio_unit;
+};
+
 static const char* errorString(OSStatus err)
 {
 	const char* err_string = "unknown";
@@ -75,54 +89,114 @@ static const char* errorString(OSStatus err)
 
 	return err_string;
 }
-#endif
 
-OSStatus CoreAudioOutputEngine::audioCallback(void *user_data,
-                                              AudioUnitRenderActionFlags *action_flags,
-                                              const AudioTimeStamp *timestamp,
-                                              UInt32 bus_number,
-                                              UInt32 number_frames,
-                                              AudioBufferList *io_data)
+static std::vector<AudioDeviceID> getDeviceList()
 {
-	OSStatus err = noErr;
-	CoreAudioOutputEngine *engine =
-		static_cast<CoreAudioOutputEngine*>(user_data);
-	(void)engine;
+	OSStatus err;
+	Boolean is_writable;
 
-	// Despite the audio buffer list, playback render can only submit a
-	// single buffer.
-
-	if(!io_data)
+	// Get number of devices in device list
+	UInt32 size;
+	err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices,
+	                                   &size, &is_writable);
+	if(err != noErr)
 	{
-		ERR(coreaudio, "Unexpected number of buffers (io_data == nullptr)\n");
-		return 0;
+		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
+		    errorString(err));
+		return {};
 	}
 
-	if(io_data->mNumberBuffers != 1)
+	if(size == 0)
 	{
-		ERR(coreaudio, "Unexpected number of buffers (%d)\n",
-		       (int)io_data->mNumberBuffers);
-		return 0;
+		return {};
 	}
 
-	float *samples = (float*)io_data->mBuffers[0].mData;
-	auto size = io_data->mBuffers[0].mDataByteSize / sizeof(float);
+	std::size_t number_of_devices = size / sizeof(AudioDeviceID);
 
-	static double p = 0.0;
-	for(auto i = 0u; i < size; ++i)
+	// Allocate vector for devices.
+	std::vector<AudioDeviceID> devices;
+	devices.resize(number_of_devices);
+
+	err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &size,
+	                               devices.data());
+	if(err != noErr)
 	{
-		samples[i] = 0.4 * sin(p += 0.02);
+		ERR(coreaudio, "Error kAudioHardwarePropertyDevices: %s",
+		    errorString(err));
+		return {};
 	}
 
-	return err;
+	return devices;
+}
+
+static std::string getDeviceName(AudioDeviceID device_id)
+{
+	OSStatus err;
+
+	char device_name[256];
+	memset(device_name, 0, sizeof(device_name));
+	UInt32 size = sizeof(device_name) - 1; // leave space for terminating zero
+	err = AudioDeviceGetProperty(device_id, 0, false,
+	                             kAudioDevicePropertyDeviceName,
+	                             &size, device_name);
+	if(err != noErr)
+	{
+		ERR(coreaudio, "Error kAudioDevicePropertyDeviceName: %s",
+		    errorString(err));
+		return "";
+	}
+
+	return std::string(device_name);
+}
+
+static std::string getDeviceUID(AudioDeviceID device_id)
+{
+	OSStatus err;
+	CFStringRef ui_name = nullptr;
+	UInt32 size = sizeof(CFStringRef);
+	err = AudioDeviceGetProperty(device_id, 0, false,
+	                             kAudioDevicePropertyDeviceUID,
+	                             &size, &ui_name);
+	if(err != noErr)
+	{
+		ERR(coreaudio, "Error kAudioDevicePropertyDeviceUID: %s",
+		    errorString(err));
+
+		if(ui_name != nullptr)
+		{
+			CFRelease(ui_name);
+		}
+
+		return "";
+	}
+
+	assert(ui_name != nullptr);
+
+	char internal_name[256];
+	memset(internal_name, 0, sizeof(internal_name));
+	size = sizeof(internal_name) - 1; // leave space for terminating zero
+	CFStringGetCString(ui_name, internal_name, size,
+	                   CFStringGetSystemEncoding());
+
+	if(ui_name != nullptr)
+	{
+		CFRelease(ui_name);
+	}
+
+	return std::string(internal_name);
 }
 
 CoreAudioOutputEngine::CoreAudioOutputEngine()
+	: raii(new struct RAII)
 {
+	raii->samplerate = 44100;
+	raii->frames = 1024;
+	DEBUG(coreaudio, "!");
 }
 
 CoreAudioOutputEngine::~CoreAudioOutputEngine()
 {
+	DEBUG(coreaudio, "!");
 }
 
 bool CoreAudioOutputEngine::init(const Channels& channels)
@@ -131,7 +205,6 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	AudioComponent comp;
 	AudioComponentDescription desc;
 	AudioStreamBasicDescription requestedDesc;
-	AURenderCallbackStruct      input;
 	UInt32 i_param_size, requestedEndian;
 
 	// Locate the default output audio unit
@@ -150,7 +223,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	}
 
 	// Open & initialize the default output audio unit
-	result = AudioComponentInstanceNew(comp, &outputAudioUnit);
+	result = AudioComponentInstanceNew(comp, &raii->audio_unit);
 	if(result)
 	{
 		ERR(coreaudio,"AudioComponentInstanceNew() error => %d\n", (int)result);
@@ -158,22 +231,21 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	}
 
 	// Set the desired output device if not default
-	if(outputDevice != kAudioObjectUnknown)
+	if(raii->device_id != kAudioObjectUnknown)
 	{
-		result = AudioUnitSetProperty(outputAudioUnit,
+		result = AudioUnitSetProperty(raii->audio_unit,
 		                              kAudioOutputUnitProperty_CurrentDevice,
 		                              kAudioUnitScope_Global,
 		                              0,
-		                              &outputDevice,
-		                              sizeof(outputDevice));
+		                              &raii->device_id,
+		                              sizeof(raii->device_id));
 		if(result)
 		{
 			ERR(coreaudio, "AudioComponentSetDevice() error => %d\n", (int)result);
-			AudioComponentInstanceDispose(outputAudioUnit);
+			AudioComponentInstanceDispose(raii->audio_unit);
 			return false;
 		}
 	}
-	output_p=1;
 
 	// Request desired format of the audio unit.  Let HAL do all
 	// conversion since it will probably be doing some internal
@@ -196,7 +268,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	//requestedDesc.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
 	requestedDesc.mFormatFlags |=kAudioFormatFlagIsFloat;
 	requestedDesc.mChannelsPerFrame = channels.size();//device->output_channels;
-	requestedDesc.mSampleRate = samplerate;//format->rate;
+	requestedDesc.mSampleRate = raii->samplerate;//format->rate;
 	requestedDesc.mBitsPerChannel = 32;//format->bits;
 	requestedDesc.mFramesPerPacket = 1;
 	requestedDesc.mBytesPerFrame =
@@ -204,7 +276,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	requestedDesc.mBytesPerPacket =
 		requestedDesc.mBytesPerFrame * requestedDesc.mFramesPerPacket;
 
-	result = AudioUnitSetProperty(outputAudioUnit,
+	result = AudioUnitSetProperty(raii->audio_unit,
 	                              kAudioUnitProperty_StreamFormat,
 	                              kAudioUnitScope_Input,
 	                              0,
@@ -219,7 +291,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 
 	// What format did we actually get?
 	i_param_size = sizeof(requestedDesc);
-	result = AudioUnitGetProperty(outputAudioUnit,
+	result = AudioUnitGetProperty(raii->audio_unit,
 	                              kAudioUnitProperty_StreamFormat,
 	                              kAudioUnitScope_Input,
 	                              0,
@@ -286,11 +358,11 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	//		return false;
 	//	}
 	//}
-	if(requestedDesc.mSampleRate != samplerate)
+	if(requestedDesc.mSampleRate != raii->samplerate)
 	{
 		WARN(coreaudio,
 		     "Could not set sample rate to exactly %d; using %g instead.\n",
-		     samplerate,(double)requestedDesc.mSampleRate);
+		     raii->samplerate,(double)requestedDesc.mSampleRate);
 	}
 
 	// Set the channel mapping.
@@ -304,7 +376,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	//	layout.mChannelLayoutTag = kAudioChannelLayoutTag_UseChannelBitmap;
 	//	layout.mChannelBitmap = device->output_mask;
 	//
-	//	result = AudioUnitSetProperty(outputAudioUnit,
+	//	result = AudioUnitSetProperty(raii->audio_unit,
 	//	                              kAudioUnitProperty_AudioChannelLayout,
 	//	                              kAudioUnitScope_Input, 0, &layout,
 	//	                              sizeof(layout));
@@ -315,10 +387,11 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 	//}
 
 	// Set the audio callback
-	input.inputProc = (AURenderCallback)audioCallback;
+	AURenderCallbackStruct input;
+	input.inputProc = (AURenderCallback)render;
 	input.inputProcRefCon = this;
 
-	result = AudioUnitSetProperty(outputAudioUnit,
+	result = AudioUnitSetProperty(raii->audio_unit,
 	                              kAudioUnitProperty_SetRenderCallback,
 	                              kAudioUnitScope_Input,
 	                              0, &input, sizeof(input));
@@ -328,7 +401,7 @@ bool CoreAudioOutputEngine::init(const Channels& channels)
 		return false;
 	}
 
-	result = AudioUnitInitialize(outputAudioUnit);
+	result = AudioUnitInitialize(raii->audio_unit);
 	if(result)
 	{
 		ERR(coreaudio, "AudioUnitInitialize() error => %d\n",(int)result);
@@ -343,15 +416,34 @@ void CoreAudioOutputEngine::setParm(const std::string& parm,
 {
 	if(parm == "id")
 	{
+		if(value == "list")
+		{
+			// Dump device list
+			auto device_list = getDeviceList();
+			std::cout  << "[CoreAudioOutputEngine] Device list (" <<
+				device_list.size() << " devices):\n";
+			for(auto device_id : device_list)
+			{
+				auto device_name = getDeviceName(device_id);
+				auto device_uid = getDeviceUID(device_id);
+				std::cout  << "[CoreAudioOutputEngine] - id: " << device_id <<
+					" device: '" << device_name <<
+					"' (uid: '" << device_uid  << "')\n";
+			}
+
+			// Do not proceed
+			exit(0);
+		}
+
 		// Use the device pointed to by this ID.
-		id = value;
+		raii->id = value;
 	}
 	else if(parm == "frames")
 	{
 		// try to apply hardware buffer size
 		try
 		{
-			frames = std::stoi(value);
+			raii->frames = std::stoi(value);
 		}
 		catch(...)
 		{
@@ -363,7 +455,7 @@ void CoreAudioOutputEngine::setParm(const std::string& parm,
 	{
 		try
 		{
-			samplerate = std::stoi(value);
+			raii->samplerate = std::stoi(value);
 		}
 		catch(...)
 		{
@@ -381,22 +473,22 @@ void CoreAudioOutputEngine::setParm(const std::string& parm,
 
 bool CoreAudioOutputEngine::start()
 {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	int err = AudioOutputUnitStart(au_hal);
-	err = AudioOutputUnitStart(outputAudioUnit);
 	DEBUG(coreaudio, "Starting audio output unit\n");
-	if(err){
-//	  pthread_mutex_unlock(&mutex);
+
+	int err = AudioOutputUnitStart(raii->audio_unit);
+	if(err)
+	{
 	  ERR(coreaudio, "Failed to start audio output => %d\n",(int)err);
 	  return false;
 	}
+
 	return true;
 }
 
 void CoreAudioOutputEngine::stop()
 {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	AudioOutputUnitStop(au_hal);
+	AudioOutputUnitStop(raii->audio_unit);
 }
 
 void CoreAudioOutputEngine::pre(size_t nsamples)
@@ -416,7 +508,12 @@ void CoreAudioOutputEngine::post(size_t nsamples)
 
 size_t CoreAudioOutputEngine::getSamplerate() const
 {
-	return samplerate;
+	return raii->samplerate;
+}
+
+std::size_t CoreAudioOutputEngine::getBufferSize() const
+{
+	return raii->frames;
 }
 
 bool CoreAudioOutputEngine::isFreewheeling() const
@@ -424,3 +521,42 @@ bool CoreAudioOutputEngine::isFreewheeling() const
 	return false;
 }
 
+OSStatus CoreAudioOutputEngine::render(void *user_data,
+                                       AudioUnitRenderActionFlags *action_flags,
+                                       const AudioTimeStamp *timestamp,
+                                       UInt32 bus_number,
+                                       UInt32 number_frames,
+                                       AudioBufferList *io_data)
+{
+	OSStatus err = noErr;
+	CoreAudioOutputEngine *engine =
+		static_cast<CoreAudioOutputEngine*>(user_data);
+	(void)engine;
+
+	// Despite the audio buffer list, playback render can only submit a
+	// single buffer.
+
+	if(!io_data)
+	{
+		ERR(coreaudio, "Unexpected number of buffers (io_data == nullptr)\n");
+		return 0;
+	}
+
+	if(io_data->mNumberBuffers != 1)
+	{
+		ERR(coreaudio, "Unexpected number of buffers (%d)\n",
+		       (int)io_data->mNumberBuffers);
+		return 0;
+	}
+
+	float *samples = (float*)io_data->mBuffers[0].mData;
+	auto size = io_data->mBuffers[0].mDataByteSize / sizeof(float);
+
+	static double p = 0.0;
+	for(auto i = 0u; i < size; ++i)
+	{
+		samples[i] = 0.4 * sin(p += 0.02);
+	}
+
+	return err;
+}
