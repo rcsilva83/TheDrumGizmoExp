@@ -70,9 +70,17 @@ void DrumkitTab::resize(std::size_t width, std::size_t height)
 		Painter painter(*this);
 		painter.clear();
 
-		drumkit_image_x = (this->width()-drumkit_image->width())/2;
-		drumkit_image_y = (this->height()-drumkit_image->height())/2;
-		painter.drawImage(drumkit_image_x, drumkit_image_y, *drumkit_image);
+		double scale_x = (double)this->width() / drumkit_image->width();
+		double scale_y = (double)this->height() / drumkit_image->height();
+		drumkit_scale = std::min(scale_x, scale_y);
+
+		drumkit_image_x = (this->width() - drumkit_image->width() * drumkit_scale) / 2;
+		drumkit_image_y = (this->height() - drumkit_image->height() * drumkit_scale) / 2;
+		painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+		                           *drumkit_image,
+		                           drumkit_image->width() * drumkit_scale,
+		                           drumkit_image->height() * drumkit_scale,
+		                           Filter::Linear);
 	}
 
 	velocity_label.move(10, height-velocity_label.height()-5);
@@ -89,7 +97,11 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 			if(buttonEvent->direction == GUI::Direction::down)
 			{
 				Painter painter(*this);
-				painter.drawImage(drumkit_image_x, drumkit_image_y, *map_image);
+				painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+				                           *map_image,
+				                           drumkit_image->width() * drumkit_scale,
+				                           drumkit_image->height() * drumkit_scale,
+				                           Filter::Linear);
 				shows_overlay = true;
 				redraw();
 				return;
@@ -99,7 +111,11 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 			{
 				Painter painter(*this);
 				painter.clear();
-				painter.drawImage(drumkit_image_x, drumkit_image_y, *drumkit_image);
+				painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+				                           *drumkit_image,
+				                           drumkit_image->width() * drumkit_scale,
+				                           drumkit_image->height() * drumkit_scale,
+				                           Filter::Linear);
 
 				highlightInstrument(current_index);
 
@@ -125,10 +141,18 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 			{
 				Painter painter(*this);
 				painter.clear();
-				painter.drawImage(drumkit_image_x, drumkit_image_y, *drumkit_image);
+				painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+				                           *drumkit_image,
+				                           drumkit_image->width() * drumkit_scale,
+				                           drumkit_image->height() * drumkit_scale,
+				                           Filter::Linear);
 				if(shows_overlay)
 				{
-					painter.drawImage(drumkit_image_x, drumkit_image_y, *map_image);
+					painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+					                           *map_image,
+					                           drumkit_image->width() * drumkit_scale,
+					                           drumkit_image->height() * drumkit_scale,
+					                           Filter::Linear);
 				}
 				highlightInstrument(current_index);
 				redraw();
@@ -154,17 +178,26 @@ void DrumkitTab::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	auto const x = mouseMoveEvent->x - drumkit_image_x;
 	auto const y = mouseMoveEvent->y - drumkit_image_y;
 
-	auto index = pos_to_colour_index(x, y);
+	auto index = pos_to_colour_index(x / drumkit_scale, y / drumkit_scale);
 
 	if(index == current_index) { return; }
 	current_index = index;
 
 	Painter painter(*this);
 	painter.clear();
-	painter.drawImage(drumkit_image_x, drumkit_image_y, *drumkit_image);
+	painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+	                           *drumkit_image,
+	                           drumkit_image->width() * drumkit_scale,
+	                           drumkit_image->height() * drumkit_scale,
+	                           Filter::Linear);
+
 	if(shows_overlay)
 	{
-		painter.drawImage(drumkit_image_x, drumkit_image_y, *map_image);
+		painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+		                           *map_image,
+		                           drumkit_image->width() * drumkit_scale,
+		                           drumkit_image->height() * drumkit_scale,
+		                           Filter::Linear);
 	}
 
 	highlightInstrument(index);
@@ -178,7 +211,11 @@ void DrumkitTab::mouseLeaveEvent()
 	{
 		Painter painter(*this);
 		painter.clear();
-		painter.drawImage(drumkit_image_x, drumkit_image_y, *drumkit_image);
+		painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
+		                           *drumkit_image,
+		                           drumkit_image->width() * drumkit_scale,
+		                           drumkit_image->height() * drumkit_scale,
+		                           Filter::Linear);
 
 		shows_overlay = false;
 		redraw();
@@ -191,7 +228,7 @@ void DrumkitTab::triggerAudition(int x, int y)
 	x -= drumkit_image_x;
 	y -= drumkit_image_y;
 
-	auto index = pos_to_colour_index(x, y);
+	auto index = pos_to_colour_index(x / drumkit_scale, y / drumkit_scale);
 	if(index == -1)
 	{
 		return;
@@ -215,7 +252,7 @@ void DrumkitTab::highlightInstrument(int index)
 		//Colour colour(1.0f, 1.0f, 0.0f);
 		auto const& positions = colour_index_to_positions[index];
 		painter.draw(positions.begin(), positions.end(),
-		             drumkit_image_x, drumkit_image_y, colour);
+		             drumkit_image_x, drumkit_image_y, colour, drumkit_scale);
 		shows_instrument_overlay = true;
 	}
 	else

@@ -39,6 +39,12 @@ class Drawable;
 class Image;
 class Canvas;
 
+enum class Filter
+{
+	Nearest,
+	Linear,
+};
+
 class Painter
 {
 public:
@@ -59,10 +65,11 @@ public:
 	void drawRestrictedImage(int x0, int y0, const Colour& restriction_colour,
 	                         const Drawable& image);
 	void drawImageStretched(int x, int y, const Drawable& image,
-	                        int width, int height);
+	                        int width, int height,
+	                        Filter filter = Filter::Nearest);
 
 	template<typename Iterator>
-	void draw(Iterator begin, Iterator end, int x_offset, int y_offset, Colour const& colour);
+	void draw(Iterator begin, Iterator end, int x_offset, int y_offset, Colour const& colour, double scale = 1.0);
 
 	typedef struct {
 		Image* topLeft;
@@ -92,11 +99,11 @@ private:
 };
 
 template<typename Iterator>
-void Painter::draw(Iterator begin, Iterator end, int x_offset, int y_offset, Colour const& colour)
+void Painter::draw(Iterator begin, Iterator end, int x_offset, int y_offset, Colour const& colour, double scale)
 {
 	for (auto it = begin; it != end; ++it)
 	{
-		pixbuf.addPixel(x_offset + it->x, y_offset + it->y, colour);
+		pixbuf.addPixel(x_offset + it->x * scale, y_offset + it->y * scale, colour);
 	}
 }
 

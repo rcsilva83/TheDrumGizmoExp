@@ -79,4 +79,24 @@ bool Colour::operator!=(const Colour& other) const
 	return !(*this == other);
 }
 
+Colour Colour::operator+(const Colour& other) const
+{
+	Colour c = *this;
+	c.pixel[0] += other.pixel[0];
+	c.pixel[1] += other.pixel[1];
+	c.pixel[2] += other.pixel[2];
+	c.pixel[3] += other.pixel[3];
+	return c;
+}
+
+Colour Colour::operator*(float v) const
+{
+	Colour c = *this;
+	c.pixel[0] *= v;
+	c.pixel[1] *= v;
+	c.pixel[2] *= v;
+	c.pixel[3] *= v;
+	return c;
+}
+
 } // GUI::

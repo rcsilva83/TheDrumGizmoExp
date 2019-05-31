@@ -95,8 +95,9 @@ private:
 
 	std::unique_ptr<Image> drumkit_image;
 	std::unique_ptr<Image> map_image;
-	int drumkit_image_x;
-	int drumkit_image_y;
+	int drumkit_image_x{0};
+	int drumkit_image_y{0};
+	double drumkit_scale{1.0};
 
 	Label velocity_label{this};
 	Label instrument_name_label{this};

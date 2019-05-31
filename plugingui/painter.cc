@@ -461,7 +461,7 @@ void Painter::drawRestrictedImage(int x0, int y0,
 }
 
 void Painter::drawImageStretched(int x0, int y0, const Drawable& image,
-                                 int width, int height)
+                                 int width, int height, Filter filter)
 {
 	float fw = image.width();
 	float fh = image.height();
@@ -482,15 +482,44 @@ void Painter::drawImageStretched(int x0, int y0, const Drawable& image,
 		return;
 	}
 
-	for(int y = -1 * std::min(0, y0); y < height; ++y)
+	switch(filter)
 	{
-		for(int x = -1 * std::min(0, x0); x < width; ++x)
+	case Filter::Nearest:
+		for(int y = -1 * std::min(0, y0); y < height; ++y)
 		{
-			int lx = ((float)x / (float)width) * fw;
-			int ly = ((float)y / (float)height) * fh;
-			auto& c = image.getPixel(lx, ly);
-			pixbuf.addPixel(x0 + x, y0 + y, c);
+			for(int x = -1 * std::min(0, x0); x < width; ++x)
+			{
+				int lx = ((float)x / (float)width) * fw;
+				int ly = ((float)y / (float)height) * fh;
+				auto& c = image.getPixel(lx, ly);
+				pixbuf.addPixel(x0 + x, y0 + y, c);
+			}
 		}
+		break;
+
+	case Filter::Linear:
+		for(int y = -1 * std::min(0, y0); y < height; ++y)
+		{
+			for(int x = -1 * std::min(0, x0); x < width; ++x)
+			{
+				float lx = ((float)x / (float)width) * fw;
+				float ly = ((float)y / (float)height) * fh;
+				float px = lx - std::floor(lx);
+				float py = ly - std::floor(ly);
+				//printf("px: %f, py: %f\n", px, py);
+				// 1,1   2,1
+				// 1,2   2,2
+				auto& c11 = image.getPixel(std::floor(lx), std::floor(ly));
+				auto& c12 = image.getPixel(std::floor(lx), std::ceil(ly));
+				auto& c21 = image.getPixel(std::ceil(lx), std::floor(ly));
+				auto& c22 = image.getPixel(std::ceil(lx), std::ceil(ly));
+				auto c1 = c11 * (1 - px) + c21 * px;
+				auto c2 = c12 * (1 - px) + c22 * px;
+				auto c = c1 * (1 - py) + c2 * py;
+				pixbuf.addPixel(x0 + x, y0 + y, c);
+			}
+		}
+		break;
 	}
 }
 

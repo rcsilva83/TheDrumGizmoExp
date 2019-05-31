@@ -54,6 +54,9 @@ public:
 	std::uint8_t* data() { return pixel.data(); }
 	const std::uint8_t* data() const { return pixel.data(); }
 
+	Colour operator+(const Colour& other) const;
+	Colour operator*(float v) const;
+
 private:
 	std::array<std::uint8_t, 4> pixel{{255, 255, 255, 255}};
 };
