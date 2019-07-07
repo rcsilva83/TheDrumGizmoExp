@@ -44,21 +44,21 @@ TimingframeContent::TimingframeContent(Widget* parent,
 	layout.setResizeChildren(false);
 
 	tightness.resize(80, 80);
-	tightness_knob.resize(30, 30);
+	tightness_knob.resize(31, 31);
 	tightness_knob.showValue(false);
 	tightness_knob.setDefaultValue(tightnessSettingsToKnob(Settings::latency_stddev_default));
 	tightness.setControl(&tightness_knob);
 	layout.addItem(&tightness);
 
 	regain.resize(80, 80);
-	regain_knob.resize(30, 30);
+	regain_knob.resize(31, 31);
 	regain_knob.showValue(false);
 	regain_knob.setDefaultValue(Settings::latency_regain_default);
 	regain.setControl(&regain_knob);
 	layout.addItem(&regain);
 
 	laidback.resize(80, 80);
-	laidback_knob.resize(30, 30);
+	laidback_knob.resize(31, 31);
 	laidback_knob.showValue(false);
 	laidback_knob.setDefaultValue(Settings::latency_laid_back_ms_default);
 	laidback_knob.setRange(-100.0f, 100.0f); // +/- 100 ms range

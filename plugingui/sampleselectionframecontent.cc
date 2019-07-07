@@ -43,21 +43,21 @@ SampleselectionframeContent::SampleselectionframeContent(Widget* parent,
 	layout.setResizeChildren(false);
 
 	f_close.resize(80, 80);
-	f_close_knob.resize(30, 30);
+	f_close_knob.resize(31, 31);
 	f_close_knob.showValue(false);
 	f_close_knob.setDefaultValue(Settings::sample_selection_f_close_default);
 	f_close.setControl(&f_close_knob);
 	layout.addItem(&f_close);
 
 	f_diverse.resize(80, 80);
-	f_diverse_knob.resize(30, 30);
+	f_diverse_knob.resize(31, 31);
 	f_diverse_knob.showValue(false);
 	f_diverse_knob.setDefaultValue(Settings::sample_selection_f_diverse_default);
 	f_diverse.setControl(&f_diverse_knob);
 	layout.addItem(&f_diverse);
 
 	f_random.resize(80, 80);
-	f_random_knob.resize(30, 30);
+	f_random_knob.resize(31, 31);
 	f_random_knob.showValue(false);
 	f_random_knob.setDefaultValue(Settings::sample_selection_f_random_default);
 	f_random.setControl(&f_random_knob);

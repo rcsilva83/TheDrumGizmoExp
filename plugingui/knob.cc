@@ -185,7 +185,11 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 	Painter p(*this);
 	p.clear();
 
-	p.drawImageStretched(0, 0, img_knob, diameter, diameter);
+	// Make it start from 20% and stop at 80%
+	double padval = current_value * 0.8 + 0.1;
+
+	//p.drawImageStretched(0, 0, img_knob, diameter, diameter);
+	p.drawRotatedImage(0, 0, padval * 2.0 * M_PI, img_knob);
 
 	float range = maximum - minimum;
 
@@ -207,9 +211,6 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 		p.drawText(center_x - font.textWidth(buf) / 2 + 1,
 				   center_y + font.textHeight(buf) / 2 + 1, font, buf);
 	}
-
-	// Make it start from 20% and stop at 80%
-	double padval = current_value * 0.8 + 0.1;
 
 	double from_x = sin((-1 * padval + 1) * 2 * M_PI) * radius * 0.6;
 	double from_y = cos((-1 * padval + 1) * 2 * M_PI) * radius * 0.6;

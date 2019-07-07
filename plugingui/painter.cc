@@ -490,6 +490,68 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 }
 #endif
 
+void Painter::drawRotatedImage(int x0, int y0, float a, const Drawable& image)
+{
+	int fw = image.width();
+	int fh = image.height();
+
+	// Make sure we don't try to draw outside the pixbuf.
+	if(fw > (int)(pixbuf.width - x0))
+	{
+		fw = (int)(pixbuf.width - x0);
+	}
+
+	if(fh > (int)(pixbuf.height - y0))
+	{
+		fh = (int)(pixbuf.height - y0);
+	}
+
+	if((fw < 1) || (fh < 1))
+	{
+		return;
+	}
+
+	const auto cos_a = std::cos(a);
+	const auto sin_a = std::sin(a);
+	for(int y = -1 * std::min(0, y0) - (int)image.height() / 2;
+	    y < fh - (int)image.height() / 2; ++y)
+	{
+		//auto y0_ = y - image.height() / 2;
+		for(int x = -1 * std::min(0, x0) - (int)image.width() / 2;
+		    x < fw - (int)image.width() / 2; ++x)
+		{
+			//auto x0_ = x - image.width() / 2;
+
+			auto x_rotated = x * cos_a + y * sin_a + image.width() / 2;
+			auto y_rotated = y * cos_a - x * sin_a + image.height() / 2;
+
+			if(x_rotated < 0 ||
+			   y_rotated < 0 ||
+			   x_rotated >= (int)image.width() ||
+			   y_rotated >= (int)image.height())
+			{
+				continue;
+			}
+
+			auto& c = image.getPixel(x_rotated, y_rotated);
+
+			if(x0 + x + (int)image.width() / 2 < 0 ||
+			   y0 + y + (int)image.height() / 2< 0 ||
+			   x0 + x >= (int)pixbuf.width ||
+			   y0 + y >= (int)pixbuf.height)
+			{
+				continue;
+			}
+
+			if (!has_restriction || c == restriction_colour)
+			{
+				pixbuf.addPixel(x0 + x + image.width() / 2,
+				                y0 + y + image.height() / 2, c);
+			}
+		}
+	}
+}
+
 void Painter::drawRestrictedImage(int x0, int y0, Colour const& colour, const Drawable& image)
 {
 	has_restriction = true;

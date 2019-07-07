@@ -43,21 +43,21 @@ HumanizerframeContent::HumanizerframeContent(Widget* parent,
 	layout.setResizeChildren(false);
 
 	attack.resize(80, 80);
-	attack_knob.resize(30, 30);
+	attack_knob.resize(31, 31);
 	attack_knob.showValue(false);
 	attack_knob.setDefaultValue(Settings::velocity_modifier_weight_default);
 	attack.setControl(&attack_knob);
 	layout.addItem(&attack);
 
 	falloff.resize(80, 80);
-	falloff_knob.resize(30, 30);
+	falloff_knob.resize(31, 31);
 	falloff_knob.showValue(false);
 	falloff_knob.setDefaultValue(Settings::velocity_modifier_falloff_default);
 	falloff.setControl(&falloff_knob);
 	layout.addItem(&falloff);
 
 	stddev.resize(80, 80);
-	stddev_knob.resize(30, 30);
+	stddev_knob.resize(31, 31);
 	stddev_knob.showValue(false);
 	stddev_knob.setDefaultValue(Settings::velocity_stddev_default/stddev_factor);
 	stddev.setControl(&stddev_knob);
