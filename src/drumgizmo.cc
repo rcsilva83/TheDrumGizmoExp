@@ -31,6 +31,7 @@
 #include <cassert>
 #include <cstring>
 #include <mutex>
+#include <fstream>
 
 #include <event.h>
 #include <audiotypes.h>

@@ -3,7 +3,7 @@
  *            inputprocessor.h
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -61,8 +61,12 @@ private:
 	bool processOnset(event_t& event, std::size_t pos, double resample_ratio);
 	bool processChoke(event_t& event, std::size_t pos, double resample_ratio);
 	bool processStop(event_t& event);
+	void applyVoiceLimit(const event_t& event, size_t max_voices);
+	size_t getMaxVoicesForInstrument(size_t instrument_id) const;
 
 	std::vector<std::unique_ptr<InputFilter>> filters;
 
 	Settings& settings;
+
+	size_t insert_group_id; ///< Identifier for all Events added in all different channels from the same event_t.
 };

@@ -65,7 +65,10 @@ class EventSample
 {
 public:
 	EventSample(channel_t c, float g, AudioFile* af,
-	            const std::string& grp, std::size_t instrument_id)
+	            const std::string& grp, 
+                std::size_t instrument_id,
+                std::size_t insert_group_id
+)
 		: Event(c)
 		, cache_id(CACHE_NOID)
 		, gain(g)
@@ -75,6 +78,7 @@ public:
 		, rampdown_count(-1)
 		, ramp_length(0)
 		, instrument_id(instrument_id)
+		, insert_group_id(insert_group_id)
 	{
 	}
 
@@ -92,7 +96,7 @@ public:
 	sample_t* buffer;
 	std::size_t buffer_size;
 	std::size_t buffer_ptr{0}; //< Internal pointer into the current buffer
-	std::size_t sample_size{0}; //< Total number of audio samples in this sample.
+	std::size_t sample_size{0}; //< Total number of audio samples in this sample.	
 
 	float gain;
 	unsigned int t; //< Internal sample position.
@@ -103,6 +107,7 @@ public:
 	std::size_t rampdown_offset{0};
 	float scale{1.0f};
 	std::size_t instrument_id;
+	std::size_t insert_group_id; //< All EventSample instances created from the same event_t will share this value.
 };
 
 class EventQueue

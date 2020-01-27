@@ -63,6 +63,7 @@ libdg_la_SOURCES = \
 	sem.cc \
 	staminafilter.cc \
 	thread.cc \
+	tracer.cc \
 	velocityfilter.cc \
 	versionstr.cc
 
@@ -118,6 +119,7 @@ EXTRA_DIST = \
 	staminafilter.h \
 	syncedsettings.h \
 	thread.h \
+	tracer.h \
 	velocityfilter.h \
 	versionstr.h \
 	zrwrapper.h

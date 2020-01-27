@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -29,6 +29,8 @@
 #include <list>
 
 #include <hugin.hpp>
+#include <fstream>
+#include <algorithm>
 
 #include "instrument.h"
 
@@ -38,63 +40,12 @@
 
 #include "cpp11fix.h"
 
-InputProcessor::InputProcessor(Settings& settings,
-                               DrumKit& kit,
-                               std::list<Event*>* activeevents,
-                               Random& random)
-	: kit(kit)
-	, activeevents(activeevents)
-	, is_stopping(false)
-	, settings(settings)
+//TODO: This is just for development purposes. Remove when done.
+#include "tracer.h"
+
+//Anonymous namespace for local functions.
+namespace
 {
-	// Build filter list
-	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
-	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
-	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
-}
-
-bool InputProcessor::process(std::vector<event_t>& events,
-                             std::size_t pos,
-                             double resample_ratio)
-{
-	for(auto& event: events)
-	{
-		if(event.type == EventType::OnSet)
-		{
-			if(!processOnset(event, pos, resample_ratio))
-			{
-				continue;
-			}
-		}
-
-		if(event.type == EventType::Choke)
-		{
-			if(!processChoke(event, pos, resample_ratio))
-			{
-				continue;
-			}
-		}
-
-		if(!processStop(event))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-std::size_t InputProcessor::getLatency() const
-{
-	std::size_t latency = 0;
-
-	for(const auto& filter : filters)
-	{
-		latency += filter->getLatency();
-	}
-
-	return latency;
-}
 
 //! Applies choke with rampdown time in ms to event starting at offset.
 static void applyChoke(Settings& settings, EventSample& event,
@@ -164,10 +115,74 @@ static void applyDirectedChoke(Settings& settings, DrumKit& kit,
 
 	}
 }
+} //End of anonymous namespace.
+
+InputProcessor::InputProcessor(Settings& settings,
+                               DrumKit& kit,
+                               std::list<Event*>* activeevents,
+                               Random& random)
+	: kit(kit)
+	, activeevents(activeevents)
+	, is_stopping(false)
+	, settings(settings)
+	, insert_group_id(0)
+{
+	tracer::trace("building InputProcessor", '\n');
+
+	// Build filter list
+	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
+	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
+	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
+}
+
+bool InputProcessor::process(std::vector<event_t>& events,
+                             std::size_t pos,
+                             double resample_ratio)
+{
+	for(auto& event: events)
+	{
+		if(event.type == EventType::OnSet)
+		{
+			if(!processOnset(event, pos, resample_ratio))
+			{
+				continue;
+			}
+		}
+
+		if(event.type == EventType::Choke)
+		{
+			if(!processChoke(event, pos, resample_ratio))
+			{
+				continue;
+			}
+		}
+
+		if(!processStop(event))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+std::size_t InputProcessor::getLatency() const
+{
+	std::size_t latency = 0;
+
+	for(const auto& filter : filters)
+	{
+		latency += filter->getLatency();
+	}
+
+	return latency;
+}
 
 bool InputProcessor::processOnset(event_t& event, std::size_t pos,
                                   double resample_ratio)
 {
+	tracer::trace("processOnset was called", '\n');
+
 	if(!kit.isValid())
 	{
 		return false;
@@ -198,6 +213,11 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 			return false; // Skip event completely
 		}
 	}
+	
+	//TODO: A lookup map would be much better...
+	const size_t max_voices=getMaxVoicesForInstrument(instrument_id);
+	//TODO: Somehow this seems like a very specific case of a group.
+	applyVoiceLimit(event, max_voices);
 
 	// Mute other instruments in the same group
 	applyChokeGroup(settings, kit, *instr, event, activeevents);
@@ -220,26 +240,29 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	auto const selected_level = (sample->getPower() - power_min)/power_span;
 	settings.velocity_modifier_current.store(selected_level/original_level);
 
+	++insert_group_id; //Insert group id 0 is not allowed.
 	for(Channel& ch: kit.channels)
 	{
 		const auto af = sample->getAudioFile(ch);
 		if(af == nullptr || !af->isValid())
 		{
 			//DEBUG(inputprocessor, "Missing AudioFile.\n");
+			continue;
 		}
-		else
+		
+		//DEBUG(inputprocessor, "Adding event %d.\n", event.offset);
+		auto evt = new EventSample(ch.num, 1.0, af, instr->getGroup(),
+		                           instrument_id,
+		                           insert_group_id);
+		evt->offset = (event.offset + pos) * resample_ratio;
+		if(settings.normalized_samples.load() && sample->getNormalized())
 		{
-			//DEBUG(inputprocessor, "Adding event %d.\n", event.offset);
-			auto evt = new EventSample(ch.num, 1.0, af, instr->getGroup(),
-			                           instrument_id);
-			evt->offset = (event.offset + pos) * resample_ratio;
-			if(settings.normalized_samples.load() && sample->getNormalized())
-			{
-				evt->scale *= event.velocity;
-			}
-
-			activeevents[ch.num].push_back(evt);
+			evt->scale *= event.velocity;
 		}
+
+		tracer::trace("event added to channel ", ch.num, " for instrument id ", instrument_id, '\n');
+
+		activeevents[ch.num].push_back(evt);
 	}
 
 	return true;
@@ -324,4 +347,83 @@ bool InputProcessor::processStop(event_t& event)
 	}
 
 	return true;
+}
+
+//TODO: Document.
+void InputProcessor::applyVoiceLimit(const event_t& event, size_t max_voices)
+{
+	//Find out how many voices for the instrument we are currently playing...
+	const auto instrument_id = event.instrument;
+	size_t current_count{0};
+
+	tracer::trace("applyVoiceLimit will count for instrument id ", instrument_id, '\n');
+
+	for(const auto& ch : kit.channels)
+	{
+		current_count+=std::count_if(std::begin(activeevents[ch.num]),
+		                             std::end(activeevents[ch.num]),
+		                             [instrument_id](Event const * active_event)
+									 {
+										return active_event->getType() == Event::sample
+											&& static_cast<EventSample const *>(active_event)->instrument_id == instrument_id;
+									 });
+	}
+
+	//Early exit if the max number of voices has yet to be reached...
+	tracer::trace("found ", current_count, " for instrument id ", instrument_id, '\n');
+	if(current_count <= max_voices) 
+	{
+		return;
+	}
+
+	//Locate the earliest sample group for this instrument that is not ramping.
+	tracer::trace("locating earliest sample group\n");
+	std::size_t earliest_group{0};
+
+	for(const auto& ch : kit.channels)
+	{
+		for(const auto active_event : activeevents[ch.num])
+		{
+			if(active_event->getType() == Event::sample)
+			{
+				auto& event_sample = *static_cast<EventSample*>(active_event);
+
+				//Same instrument, not ramping, with a lesser group.
+				if(event_sample.instrument_id != instrument_id
+				   && -1 == event_sample.rampdown_count
+				   //TODO: Not proud of this, not proud of it at all.
+				   && (event_sample.insert_group_id < earliest_group
+				       || 0 == earliest_group))
+				{
+					earliest_group=event_sample.insert_group_id;
+				}
+			}
+		}
+	}
+
+	tracer::trace("earliest sample group was ", earliest_group, '\n');
+
+	//Ramp down everyone belonging to that group...
+	for(const auto& ch : kit.channels)
+	{
+		for(auto active_event : activeevents[ch.num])
+		{
+			if(active_event->getType() == Event::sample)
+			{
+				auto& event_sample = *static_cast<EventSample*>(active_event);
+				if(event_sample.insert_group_id == earliest_group)
+				{
+					tracer::trace("found and ramping in channel ", ch.num, '\n');
+					applyChoke(settings, event_sample, 68, event.offset);
+				}
+			}
+		}
+	}
+}
+
+//TODO: Document.
+size_t InputProcessor::getMaxVoicesForInstrument(size_t instrument_id) const 
+{
+	//TODO: This would depend on the configuration set on the GUI.
+	return 16;
 }
