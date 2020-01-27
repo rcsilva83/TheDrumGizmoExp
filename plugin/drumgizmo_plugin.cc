@@ -127,7 +127,7 @@ std::string DrumGizmoPlugin::getURI()
 
 std::string DrumGizmoPlugin::getEffectName()
 {
-	return "DrumGizmo (experimental)";
+	return "DrumGizmo";
 }
 
 std::string DrumGizmoPlugin::getVendorString()

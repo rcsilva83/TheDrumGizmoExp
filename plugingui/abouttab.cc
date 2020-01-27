@@ -52,50 +52,35 @@ void AboutTab::resize(std::size_t width, std::size_t height)
 
 std::string AboutTab::getAboutText()
 {
+	//TODO: This does not respect the original format.
+	auto generate_header=[](const std::string& header, bool ignore_nl=false) -> std::string 
+	{
+		
+		return std::string("*===========*\n             ")
+		                   +header
+		                   +"\n*===========*\n\n\n";
+	};
+
 	std::string about_text;
 
 	// About
-	about_text.append(
-	"=============\n"
-	"             About\n"
-	"=============\n"
-	"\n");
+	about_text.append(generate_header("About"));
 	about_text.append(about.data());
 
 	// Version
-	about_text.append(
-	"\n"
-	"=============\n"
-	"            Version\n"
-	"=============\n"
-	"\n");
+	about_text.append(generate_header("Version"));
 	about_text.append(std::string(VERSION) + "\n");
 
 	// Bugs
-	about_text.append(
-	"\n"
-	"=============\n"
-	"            Bugs\n"
-	"=============\n"
-	"\n");
+	about_text.append(generate_header("Bugs"));
 	about_text.append(bugs.data());
 
 	// Authors
-	about_text.append(
-	"\n"
-	"=============\n"
-	"            Authors\n"
-	"=============\n"
-	"\n");
+	about_text.append(generate_header("Authors"));
 	about_text.append(UTF8().toLatin1(authors.data()));
 
 	// GPL
-	about_text.append(
-	"\n"
-	"=============\n"
-	"            License\n"
-	"=============\n"
-	"\n");
+	about_text.append(generate_header("License"));
 	about_text.append(gpl.data());
 
 	return about_text;
