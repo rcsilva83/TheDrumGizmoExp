@@ -51,6 +51,7 @@ public:
 		about_text.append(separator_count, separator_character)
 		          .append(1, '\n')
 		          .append(space_count, ' ')
+				  .append(_title)
 		          .append(1, '\n')
 		          .append(separator_count, separator_character)
 		          .append(3, '\n')
