@@ -98,7 +98,7 @@ std::string AboutTab::getAboutText()
 
 	//This will casually add an extra newline at the end of License.
 	return builder.add("About", about.data())
-	    .add("Version", std::string(VERSION)+"\n")
+	    .add("Version", std::string(VERSION))
 	    .add("Bugs", bugs.data())
 	    .add("Authors", UTF8().toLatin1(authors.data()))
 	    .add("License", gpl.data())
