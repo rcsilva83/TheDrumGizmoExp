@@ -80,7 +80,7 @@ void DrumkitTab::resize(std::size_t width, std::size_t height)
 		                           *drumkit_image,
 		                           drumkit_image->width() * drumkit_scale,
 		                           drumkit_image->height() * drumkit_scale,
-		                           Filter::Linear);
+		                           Filter::Nearest);
 	}
 
 	velocity_label.move(10, height-velocity_label.height()-5);
@@ -101,7 +101,7 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 				                           *map_image,
 				                           drumkit_image->width() * drumkit_scale,
 				                           drumkit_image->height() * drumkit_scale,
-				                           Filter::Linear);
+				                           Filter::Nearest);
 				shows_overlay = true;
 				redraw();
 				return;
@@ -115,7 +115,7 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 				                           *drumkit_image,
 				                           drumkit_image->width() * drumkit_scale,
 				                           drumkit_image->height() * drumkit_scale,
-				                           Filter::Linear);
+				                           Filter::Nearest);
 
 				highlightInstrument(current_index);
 
@@ -145,14 +145,14 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 				                           *drumkit_image,
 				                           drumkit_image->width() * drumkit_scale,
 				                           drumkit_image->height() * drumkit_scale,
-				                           Filter::Linear);
+				                           Filter::Nearest);
 				if(shows_overlay)
 				{
 					painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
 					                           *map_image,
 					                           drumkit_image->width() * drumkit_scale,
 					                           drumkit_image->height() * drumkit_scale,
-					                           Filter::Linear);
+					                           Filter::Nearest);
 				}
 				highlightInstrument(current_index);
 				redraw();
@@ -189,7 +189,7 @@ void DrumkitTab::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	                           *drumkit_image,
 	                           drumkit_image->width() * drumkit_scale,
 	                           drumkit_image->height() * drumkit_scale,
-	                           Filter::Linear);
+	                           Filter::Nearest);
 
 	if(shows_overlay)
 	{
@@ -197,7 +197,7 @@ void DrumkitTab::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 		                           *map_image,
 		                           drumkit_image->width() * drumkit_scale,
 		                           drumkit_image->height() * drumkit_scale,
-		                           Filter::Linear);
+		                           Filter::Nearest);
 	}
 
 	highlightInstrument(index);
@@ -215,7 +215,7 @@ void DrumkitTab::mouseLeaveEvent()
 		                           *drumkit_image,
 		                           drumkit_image->width() * drumkit_scale,
 		                           drumkit_image->height() * drumkit_scale,
-		                           Filter::Linear);
+		                           Filter::Nearest);
 
 		shows_overlay = false;
 		redraw();
@@ -250,9 +250,17 @@ void DrumkitTab::highlightInstrument(int index)
 		Painter painter(*this);
 		auto const& colour = colours[index];
 		//Colour colour(1.0f, 1.0f, 0.0f);
-		auto const& positions = colour_index_to_positions[index];
-		painter.draw(positions.begin(), positions.end(),
-		             drumkit_image_x, drumkit_image_y, colour, drumkit_scale);
+		//auto const& positions = colour_index_to_positions[index];
+//		painter.draw(positions.begin(), positions.end(),
+//		             drumkit_image_x, drumkit_image_y, colour, drumkit_scale);
+
+		painter.drawRestrictedImageStretched(drumkit_image_x, drumkit_image_y,
+		                                     colour,
+		                                     *map_image,
+		                                     drumkit_image->width() * drumkit_scale,
+		                                     drumkit_image->height() * drumkit_scale,
+		                                     Filter::Nearest);
+
 		shows_instrument_overlay = true;
 	}
 	else

@@ -27,6 +27,7 @@
 #pragma once
 
 #include <string>
+#include <cmath>
 
 #include "colour.h"
 #include "pixelbuffer.h"
@@ -64,6 +65,10 @@ public:
 	void drawImage(int x, int y, const Drawable& image);
 	void drawRestrictedImage(int x0, int y0, const Colour& restriction_colour,
 	                         const Drawable& image);
+	void drawRestrictedImageStretched(int x0, int y0,
+	                                  const Colour& restriction_colour,
+	                                  const Drawable& image,
+	                                  int width, int height, Filter filter);
 	void drawImageStretched(int x, int y, const Drawable& image,
 	                        int width, int height,
 	                        Filter filter = Filter::Nearest);
@@ -101,9 +106,24 @@ private:
 template<typename Iterator>
 void Painter::draw(Iterator begin, Iterator end, int x_offset, int y_offset, Colour const& colour, double scale)
 {
-	for (auto it = begin; it != end; ++it)
+	if(scale > 1)
 	{
-		pixbuf.addPixel(x_offset + it->x * scale, y_offset + it->y * scale, colour);
+		auto tmp = this->colour;
+		setColour(colour);
+		for (auto it = begin; it != end; ++it)
+		{
+			drawFilledCircle(x_offset + it->x * scale, y_offset + it->y * scale,
+			                 std::ceil(scale));
+		}
+		setColour(tmp);
+	}
+	else
+	{
+		for (auto it = begin; it != end; ++it)
+		{
+			pixbuf.addPixel(x_offset + it->x * scale, y_offset + it->y * scale,
+			                colour);
+		}
 	}
 }
 

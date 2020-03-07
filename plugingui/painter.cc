@@ -452,11 +452,82 @@ void Painter::drawRestrictedImage(int x0, int y0,
 			assert(x0 + x < pixbuf.width);
 			assert(y0 + y < pixbuf.height);
 
-			if(c == restriction_colour)
+			if(c == restriction_colour && c.alpha() > 0)
 			{
 				pixbuf.setPixel(x0 + x, y0 + y, c);
 			}
 		}
+	}
+}
+
+void Painter::drawRestrictedImageStretched(int x0, int y0,
+                                           const Colour& restriction_colour,
+                                           const Drawable& image,
+                                           int width, int height, Filter filter)
+{
+	float fw = image.width();
+	float fh = image.height();
+
+	// Make sure we don't try to draw outside the pixbuf.
+	if(width > (int)(pixbuf.width - x0))
+	{
+		width = pixbuf.width - x0;
+	}
+
+	if(height > (int)(pixbuf.height - y0))
+	{
+		height = pixbuf.height - y0;
+	}
+
+	if((width < 1) || (height < 1))
+	{
+		return;
+	}
+
+	switch(filter)
+	{
+	case Filter::Nearest:
+		for(int y = -1 * std::min(0, y0); y < height; ++y)
+		{
+			for(int x = -1 * std::min(0, x0); x < width; ++x)
+			{
+				int lx = ((float)x / (float)width) * fw;
+				int ly = ((float)y / (float)height) * fh;
+				auto& c = image.getPixel(lx, ly);
+				if(c == restriction_colour && c.alpha() > 0)
+				{
+					pixbuf.addPixel(x0 + x, y0 + y, restriction_colour);
+				}
+			}
+		}
+		break;
+
+	case Filter::Linear:
+		for(int y = -1 * std::min(0, y0); y < height; ++y)
+		{
+			for(int x = -1 * std::min(0, x0); x < width; ++x)
+			{
+				float lx = ((float)x / (float)width) * fw;
+				float ly = ((float)y / (float)height) * fh;
+				float px = lx - std::floor(lx);
+				float py = ly - std::floor(ly);
+				//printf("px: %f, py: %f\n", px, py);
+				// 1,1   2,1
+				// 1,2   2,2
+				auto c11 = image.getPixel(std::floor(lx), std::floor(ly));
+				auto c12 = image.getPixel(std::floor(lx), std::ceil(ly));
+				auto c21 = image.getPixel(std::ceil(lx), std::floor(ly));
+				auto c22 = image.getPixel(std::ceil(lx), std::ceil(ly));
+				auto c1 = c11 * (1 - px) + c21 * px;
+				auto c2 = c12 * (1 - px) + c22 * px;
+				auto c = c1 * (1 - py) + c2 * py;
+				if(c == restriction_colour && c.alpha() > 0)
+				{
+					pixbuf.addPixel(x0 + x, y0 + y, restriction_colour);
+				}
+			}
+		}
+		break;
 	}
 }
 

@@ -204,7 +204,7 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 			sprintf(buf, "%.2f", current_value * range + minimum);
 		}
 		p.drawText(center_x - font.textWidth(buf) / 2 + 1,
-				   center_y + font.textHeight(buf) / 2 + 1, font, buf);
+		           center_y + font.textHeight(buf) / 2 + 1, font, buf);
 	}
 
 	// Make it start from 20% and stop at 80%
