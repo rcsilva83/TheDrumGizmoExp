@@ -61,6 +61,7 @@ GUI_SRC = \
 	@top_srcdir@/plugingui/dialog.cc \
 	@top_srcdir@/plugingui/diskstreamingframecontent.cc \
 	@top_srcdir@/plugingui/drumkitframecontent.cc \
+	@top_srcdir@/plugingui/drumkitimage.cc \
 	@top_srcdir@/plugingui/drumkittab.cc \
 	@top_srcdir@/plugingui/eventhandler.cc \
 	@top_srcdir@/plugingui/filebrowser.cc \

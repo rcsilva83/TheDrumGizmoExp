@@ -67,6 +67,7 @@ nodist_libdggui_la_SOURCES = \
 	dialog.cc \
 	diskstreamingframecontent.cc \
 	drumkitframecontent.cc \
+	drumkitimage.cc \
 	drumkittab.cc \
 	eventhandler.cc \
 	filebrowser.cc \

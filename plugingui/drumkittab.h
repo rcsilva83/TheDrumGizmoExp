@@ -35,6 +35,7 @@
 #include "image.h"
 #include "label.h"
 #include "widget.h"
+#include "drumkitimage.h"
 
 struct Settings;
 class SettingsNotifier;
@@ -112,6 +113,8 @@ private:
 	void updateInstrumentLabel(int index);
 
 	void drumkitFileChanged(const std::string& drumkit_file);
+
+	DrumKitImage drumkit_image2{this};
 };
 
 } // GUI::

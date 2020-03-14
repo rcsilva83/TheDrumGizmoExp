@@ -59,12 +59,16 @@ DrumkitTab::DrumkitTab(Widget* parent,
 
 	CONNECT(this, settings_notifier.drumkit_file,
 	        this, &DrumkitTab::drumkitFileChanged);
+
+	settings.drumkit_file.store("/mnt/atuin/misc/stuff/deva/CrocellKit/CrocellKit_full.xml");
 }
 
 void DrumkitTab::resize(std::size_t width, std::size_t height)
 {
 	Widget::resize(width, height);
-
+	drumkit_image2.resize(width, height);
+	drumkit_image2.move(0, height / 2 - drumkit_image2.height() / 2);
+/*
 	if(drumkit_image)
 	{
 		Painter painter(*this);
@@ -82,7 +86,7 @@ void DrumkitTab::resize(std::size_t width, std::size_t height)
 		                           drumkit_image->height() * drumkit_scale,
 		                           Filter::Nearest);
 	}
-
+*/
 	velocity_label.move(10, height-velocity_label.height()-5);
 	instrument_name_label.move(velocity_label.width()+30,
 	                           height-instrument_name_label.height()-5);
@@ -90,6 +94,7 @@ void DrumkitTab::resize(std::size_t width, std::size_t height)
 
 void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 {
+	/*
 	if(map_image)
 	{
 		if(buttonEvent->button == MouseButton::right)
@@ -160,6 +165,7 @@ void DrumkitTab::buttonEvent(ButtonEvent* buttonEvent)
 			shows_instrument_overlay = false;
 		}
 	}
+	*/
 }
 
 void DrumkitTab::scrollEvent(ScrollEvent* scrollEvent)
@@ -182,7 +188,7 @@ void DrumkitTab::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 
 	if(index == current_index) { return; }
 	current_index = index;
-
+/*
 	Painter painter(*this);
 	painter.clear();
 	painter.drawImageStretched(drumkit_image_x, drumkit_image_y,
@@ -203,10 +209,13 @@ void DrumkitTab::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	highlightInstrument(index);
 	updateInstrumentLabel(index);
 	redraw();
+*/
+	Widget::mouseMoveEvent(mouseMoveEvent);
 }
 
 void DrumkitTab::mouseLeaveEvent()
 {
+	/*
 	if(map_image && (shows_overlay || shows_instrument_overlay))
 	{
 		Painter painter(*this);
@@ -220,6 +229,7 @@ void DrumkitTab::mouseLeaveEvent()
 		shows_overlay = false;
 		redraw();
 	}
+	*/
 }
 
 void DrumkitTab::triggerAudition(int x, int y)
@@ -245,6 +255,7 @@ void DrumkitTab::triggerAudition(int x, int y)
 
 void DrumkitTab::highlightInstrument(int index)
 {
+	/*
 	if(index != -1)
 	{
 		Painter painter(*this);
@@ -267,6 +278,7 @@ void DrumkitTab::highlightInstrument(int index)
 	{
 		shows_instrument_overlay = false;
 	}
+	*/
 }
 
 void DrumkitTab::updateVelocityLabel()
@@ -288,6 +300,8 @@ void DrumkitTab::init(std::string const& image_file,
 {
 	drumkit_image = std::make_unique<Image>(image_file);
 	map_image = std::make_unique<Image>(map_file);
+
+	drumkit_image2.setImages(image_file, map_file);
 
 	// collect all colours and build lookup table
 	auto const height = map_image->height();
