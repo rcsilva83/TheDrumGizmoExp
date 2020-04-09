@@ -496,7 +496,12 @@ void Painter::drawRestrictedImageStretched(int x0, int y0,
 				auto& c = image.getPixel(lx, ly);
 				if(c == restriction_colour && c.alpha() > 0)
 				{
-					pixbuf.addPixel(x0 + x, y0 + y, restriction_colour);
+					Colour col(restriction_colour);
+					int alpha = col.data()[3];
+					alpha *= c.alpha();
+					col.data()[3] = alpha / 255;
+					pixbuf.addPixel(x0 + x, y0 + y, col);
+					//pixbuf.addPixel(x0 + x, y0 + y, restriction_colour);
 				}
 			}
 		}

@@ -59,20 +59,28 @@ private:
 	public:
 		Overlay(Widget* parent);
 
-		void setOverlay(const std::string& overlayfile);
+		void setOverlay(const Image& image);
 		void clearOverlay();
+		void setColour(const Colour& colour);
 
 		// From Widget:
 		void buttonEvent(ButtonEvent* buttonEvent) override;
 		void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) override;
+		void resize(std::size_t width, std::size_t height) override;
 		void repaintEvent(RepaintEvent* repaintEvent) override;
 
 	private:
-		std::unique_ptr<Image> overlay;
+		const Image* overlay{nullptr};
+		bool needs_repaint{true};
+		Colour highlight_colour;
+		float scale{1.0f};
 	};
 
-	Overlay overlay{this};
+	Overlay hover_overlay{this};
+	Overlay click_overlay{this};
 	std::unique_ptr<Image> image;
+	std::unique_ptr<Image> overlay;
+	float scale{1.0f};
 };
 
 } // GUI::

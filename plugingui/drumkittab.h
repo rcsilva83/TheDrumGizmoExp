@@ -91,8 +91,8 @@ private:
 		{Colour(248./255, 221./255, 37./255), "Tom4"}
 	};
 
-	bool shows_overlay{false};
-	bool shows_instrument_overlay{false};
+	//bool shows_overlay{false};
+	//bool shows_instrument_overlay{false};
 
 	std::unique_ptr<Image> drumkit_image;
 	std::unique_ptr<Image> map_image;

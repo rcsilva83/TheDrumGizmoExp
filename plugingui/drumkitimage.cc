@@ -35,31 +35,43 @@ namespace GUI
 DrumKitImage::DrumKitImage(Widget* parent)
 	: Widget(parent)
 {
+	click_overlay.setVisible(false);
 }
 
 void DrumKitImage::setImages(const std::string& imagefile,
                              const std::string& overlayfile)
 {
-	overlay.setOverlay(overlayfile);
 	image = std::make_unique<Image>(imagefile);
+	overlay = std::make_unique<Image>(overlayfile);
+
+	hover_overlay.setOverlay(*overlay);
+	click_overlay.setOverlay(*overlay);
+
+	scale = (float)width() / image->width();
+
 	redraw();
 }
 
 void DrumKitImage::clearImages()
 {
-	overlay.clearOverlay();
+	hover_overlay.clearOverlay();
+	click_overlay.clearOverlay();
 	image.reset();
+	overlay.reset();
 	redraw();
 }
 
 void DrumKitImage::resize(std::size_t width, std::size_t height)
 {
 	Widget::resize(width, height);
-	overlay.resize(width, height);
+	hover_overlay.resize(width, height);
+	click_overlay.resize(width, height);
+	scale = (float)width / image->width();
 }
 
 void DrumKitImage::buttonEvent(ButtonEvent* buttonEvent)
 {
+	click_overlay.setVisible(buttonEvent->direction == Direction::down);
 }
 
 void DrumKitImage::scrollEvent(ScrollEvent* scrollEvent)
@@ -68,8 +80,16 @@ void DrumKitImage::scrollEvent(ScrollEvent* scrollEvent)
 
 void DrumKitImage::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 {
+	if(overlay)
+	{
+		auto scale = (float)width() / image->width();
+		auto colour = overlay->getPixel(mouseMoveEvent->x / scale,
+		                                mouseMoveEvent->y / scale);
+		hover_overlay.setColour(colour);
+		click_overlay.setColour(colour);
+	}
+
 	Widget::mouseMoveEvent(mouseMoveEvent);
-	//redraw();
 }
 
 void DrumKitImage::mouseLeaveEvent()
@@ -81,13 +101,11 @@ void DrumKitImage::repaintEvent(RepaintEvent* repaintEvent)
 	Painter painter(*this);
 	painter.clear();
 
-	auto drumkit_scale = (float)width() / image->width();
-
 	if(image)
 	{
 		painter.drawImageStretched(0, 0, *image,
-		                           image->width() * drumkit_scale,
-		                           image->height() * drumkit_scale,
+		                           image->width() * scale,
+		                           image->height() * scale,
 		                           Filter::Linear);
 	}
 }
@@ -97,45 +115,69 @@ DrumKitImage::Overlay::Overlay(Widget* parent)
 {
 }
 
-void DrumKitImage::Overlay::setOverlay(const std::string& overlayfile)
+void DrumKitImage::Overlay::setOverlay(const Image& overlay)
 {
-	overlay = std::make_unique<Image>(overlayfile);
+	this->overlay = &overlay;
+	scale = (float)width() / overlay.width();
+	needs_repaint = true;
 	redraw();
 }
 
 void DrumKitImage::Overlay::clearOverlay()
 {
-	overlay.reset();
+	overlay = nullptr;
 	redraw();
 }
 
-static auto has_highlight_colour = false;
+void DrumKitImage::Overlay::setColour(const Colour& colour)
+{
+	if(highlight_colour != colour)
+	{
+		highlight_colour = colour;
+		highlight_colour.data()[3] = 64;
+		needs_repaint = true;
+		redraw();
+	}
+}
 
 void DrumKitImage::Overlay::buttonEvent(ButtonEvent* buttonEvent)
 {
-	has_highlight_colour = !has_highlight_colour;
-	redraw();
+	// Propagate event to parent
+	parent->buttonEvent(buttonEvent);
 }
 
 void DrumKitImage::Overlay::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 {
+	// Propagate event to parent
+	parent->mouseMoveEvent(mouseMoveEvent);
+}
+
+void DrumKitImage::Overlay::resize(std::size_t width, std::size_t height)
+{
+	Widget::resize(width, height);
+	scale = (float)width / overlay->width();
+	needs_repaint = true;
 }
 
 void DrumKitImage::Overlay::repaintEvent(RepaintEvent* repaintEvent)
 {
+	if(!needs_repaint)
+	{
+		return;
+	}
+
 	Painter painter(*this);
 	painter.clear();
 
-	auto drumkit_scale = (float)width() / overlay->width();
-	auto colour = Colour(0.0f, 0, 0, .8f);
-
-	if(overlay && has_highlight_colour)
+	if(overlay)
 	{
-		painter.drawRestrictedImageStretched(0, 0, colour, *overlay,
-		                                     overlay->width() * drumkit_scale,
-		                                     overlay->height() * drumkit_scale,
+		painter.drawRestrictedImageStretched(0, 0, highlight_colour, *overlay,
+		                                     overlay->width() * scale,
+		                                     overlay->height() * scale,
 		                                     Filter::Nearest);
 	}
+
+	needs_repaint = false;
 }
 
 } // GUI::
