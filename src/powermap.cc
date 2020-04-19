@@ -26,41 +26,182 @@
  */
 #include "powermap.h"
 
+#include <cassert>
 #include <cmath>
 
-Power Powermap::map(Power in) const
+namespace
 {
-	if (in < fixed_map.in) {
-		return a1*pow(in,3) + b1*pow(in,2) + c1*in + d1;
+
+using Power = Powermap::Power;
+using PowerPair = Powermap::PowerPair;
+
+Power h00(Power x) { return (1+2*x)*pow(1-x,2); }
+Power h10(Power x) { return x*pow(1-x,2); }
+Power h01(Power x) { return x*x*(3-2*x); }
+Power h11(Power x) { return x*x*(x-1); }
+
+Power computeValue(
+	Power const x, PowerPair const& P0, PowerPair const& P1, Power const m0, Power const m1)
+{
+	auto const x0 = P0.in;
+	auto const x1 = P1.in;
+	auto const y0 = P0.out;
+	auto const y1 = P1.out;
+	auto const dx = x1 - x0;
+	auto const x_prime = (x - x1)/dx;
+
+	return h00(x_prime)*y0 + h10(x_prime)*dx*m0 + h01(x_prime)*y1 + h11(x_prime)*dx*m1;
+}
+
+} // end anonymous namespace
+
+Powermap::Powermap()
+{
+	reset();
+}
+
+Power Powermap::map(Power in)
+{
+	if (spline_needs_update) {
+		updateSpline();
 	}
-	else {
-		return a2*pow(in,3) + b2*pow(in,2) + c2*in + d2;
+
+	if (in < fixed[0].in) {
+		return shelf ? fixed[0].out : computeValue(in, {0.,0.}, fixed[0], m[0], m[1]);
+	}
+	else if (in < fixed[1].in) {
+		return computeValue(in, fixed[0], fixed[1], m[1], m[2]);
+	}
+	else if (in < fixed[2].in) {
+		return computeValue(in, fixed[1], fixed[2], m[2], m[3]);
+	}
+	else { // in >= fixed[2].in
+		return shelf ? fixed[2].out : computeValue(in, fixed[2], {1.,1.}, m[3], m[4]);
 	}
 }
 
 void Powermap::reset()
 {
-	min_input = 0.;
-	max_input = 1.;
-	fixed_map = {.5, .5};
+	fixed[0] = {0., 0.};
+	fixed[1] = {.5, .5};
+	fixed[2] = {1., 1.};
+	shelf = false;
+
+	updateSpline();
 }
 
-void Powermap::setMinInput(Power min_input)
+void Powermap::setFixed0(PowerPair new_value)
 {
-	this->min_input = min_input;
+	if (fixed[0] != new_value) {
+		spline_needs_update = true;
+		this->fixed[0] = new_value;
+	}
 }
 
-void Powermap::setMaxInput(Power max_input)
+void Powermap::setFixed1(PowerPair new_value)
 {
-	this->max_input = max_input;
+	if (fixed[1] != new_value) {
+		spline_needs_update = true;
+		this->fixed[1] = new_value;
+	}
 }
 
-void Powermap::setFixed(PowerPair fixed)
+void Powermap::setFixed2(PowerPair new_value)
 {
-	this->fixed = fixed;
+	if (fixed[2] != new_value) {
+		spline_needs_update = true;
+		this->fixed[2] = new_value;
+	}
 }
 
+void Powermap::setShelf(bool enable)
+{
+	if (shelf != enable) {
+		spline_needs_update = true;
+		this->shelf = enable;
+	}
+}
+
+// This mostly followes the wikipedia article for monotone cubic splines:
+// https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
 void Powermap::updateSpline()
 {
-	// TODO
+	assert(0. <= fixed[0].in && fixed[0].in < fixed[1].in &&
+	       fixed[1].in < fixed[2].in && fixed[2].in <= 1.);
+	assert(0. <= fixed[0].out && fixed[0].out <= fixed[1].out &&
+	       fixed[1].out <= fixed[2].out && fixed[2].out <= 1.);
+
+	Powers X = shelf ? Powers{fixed[0].in, fixed[1].in, fixed[2].in}
+	                 : Powers{0., fixed[0].in, fixed[1].in, fixed[2].in, 1.};
+	Powers P = shelf ? Powers{fixed[0].out, fixed[1].out, fixed[2].out}
+	                 : Powers{0., fixed[0].out, fixed[1].out, fixed[2].out, 1.};
+
+	Powers deltas(X.size()-1);
+	Powers m(X.size());
+
+	// 1
+	for (std::size_t i = 0; i < deltas.size(); ++i) {
+		deltas[i] = (P[i+1]-P[i])/(X[i+1]-X[i]);
+	}
+
+	// 2
+	m[0] = deltas[0];
+	for (std::size_t i = 1; i < deltas.size(); ++i) {
+		m[i] =  (deltas[i-1] + deltas[i])/2.;
+	}
+	m.back() = deltas.back();
+
+	// 3
+	std::vector<bool> ignore(deltas.size(), false);
+	for (std::size_t i = 0; i < deltas.size(); ++i) {
+		if (deltas[i] == 0) {
+			m[i] = 0;
+			m[i+1] = 0;
+			ignore[i] = true;
+		}
+	}
+
+	for (std::size_t i = 0; i < deltas.size(); ++i) {
+		if (ignore[i]) {
+			continue;
+		}
+
+		// 4
+		auto alpha = m[i]/deltas[i];
+		auto beta = m[i+1]/deltas[i];
+		assert(alpha >= 0.);
+		assert(beta >= 0.);
+
+		// 5
+		// TODO: expose this parameter for testing both
+		bool const option1 = true;
+		if (option1) {
+			if (alpha > 3 || beta > 3) {
+				m[i] = 3*deltas[i];
+			}
+		}
+		else {
+			auto const a2b2 = alpha*alpha + beta*beta;
+			if (a2b2 > 9) {
+				auto const tau = 3./sqrt(a2b2);
+				m[i] = tau*alpha*deltas[i];
+				m[i+1] = tau*alpha*deltas[i];
+			}
+		}
+	}
+
+	if (shelf) {
+		assert(m.size() == 3);
+		this->m[1] = m[0];
+		this->m[2] = m[1];
+		this->m[3] = m[2];
+	}
+	else {
+		assert(m.size() == 5);
+		for (std::size_t i = 0; i < m.size(); ++i) {
+			this->m[i] = m[i];
+		}
+	}
+
+	spline_needs_update = false;
 }

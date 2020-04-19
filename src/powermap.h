@@ -26,34 +26,41 @@
  */
 #pragma once
 
+#include <array>
+#include <vector>
+
 class Powermap
 {
+public:
 	using Power = float;
+	using Powers = std::vector<Power>;
 	struct PowerPair {
 		Power in;
 		Power out;
+
+		bool operator!=(PowerPair const& other) {
+			return in != other.in || out != other.out;
+		}
 	};
 
-public:
-	Powermap() = default;
+	Powermap();
 
-	Power map(Power in) const;
+	Power map(Power in);
 	void reset();
 
-	// set parameters
-	void setMinInput(Power min_input);
-	void setMaxInput(Power max_input);
-	void setFixed(PowerPair fixed);
+	void setFixed0(PowerPair new_value);
+	void setFixed1(PowerPair new_value);
+	void setFixed2(PowerPair new_value);
+	void setShelf(bool enable);
 
 private:
-	// input parameters
-	Power min_input;
-	Power max_input;
-	PowerPair fixed;
+	// input parameters (state of this class)
+	std::array<PowerPair, 3> fixed;
+	bool shelf;
 
-	// spline parameters
-	float a1, b1, c1, d1;
-	float a2, b2, c2, d2;
+	// spline parameters (deterministically computed from the input parameters)
+	std::array<float, 5> m;
 
+	bool spline_needs_update;
 	void updateSpline();
 };
