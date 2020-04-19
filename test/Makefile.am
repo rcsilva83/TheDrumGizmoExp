@@ -8,7 +8,7 @@ TESTS = resource enginetest paintertest configfile audiocache \
 	randomtest atomictest syncedsettingstest imagecachetest \
 	semaphoretest drumkitcreatortest bytesizeparsertest notifiertest \
 	dgxmlparsertest domloadertest configparsertest midimapparsertest \
-	eventsdstest
+	eventsdstest powermaptest
 
 EXTRA_DIST = \
 	dgunit.h \
@@ -268,6 +268,15 @@ eventsdstest_LDFLAGS =
 eventsdstest_SOURCES = \
 	$(top_srcdir)/src/events_ds.cc \
 	eventsdstest.cc \
+	dgtest.cc
+
+powermaptest_CXXFLAGS = -DOUTPUT=\"powermaptest\" \
+	$(DEBUG_FLAGS) \
+	-I$(top_srcdir)/src
+powermaptest_LDFLAGS =
+powermaptest_SOURCES = \
+	$(top_srcdir)/src/powermap.cc \
+	powermaptest.cc \
 	dgtest.cc
 
 endif

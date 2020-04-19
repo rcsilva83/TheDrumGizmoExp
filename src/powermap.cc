@@ -48,7 +48,7 @@ Power computeValue(
 	auto const y0 = P0.out;
 	auto const y1 = P1.out;
 	auto const dx = x1 - x0;
-	auto const x_prime = (x - x1)/dx;
+	auto const x_prime = (x - x0)/dx;
 
 	return h00(x_prime)*y0 + h10(x_prime)*dx*m0 + h01(x_prime)*y1 + h11(x_prime)*dx*m1;
 }
@@ -131,6 +131,7 @@ void Powermap::updateSpline()
 	assert(0. <= fixed[0].out && fixed[0].out <= fixed[1].out &&
 	       fixed[1].out <= fixed[2].out && fixed[2].out <= 1.);
 
+	// TODO: What to do if fixed[0] is (0,0) or fixed[2] is (1,1)??
 	Powers X = shelf ? Powers{fixed[0].in, fixed[1].in, fixed[2].in}
 	                 : Powers{0., fixed[0].in, fixed[1].in, fixed[2].in, 1.};
 	Powers P = shelf ? Powers{fixed[0].out, fixed[1].out, fixed[2].out}
