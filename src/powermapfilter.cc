@@ -1,8 +1,8 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            powermaptest.cc
+ *            powermapfilter.cc
  *
- *  Sun Apr 19 23:23:37 CEST 2020
+ *  Mon Apr 20 23:28:12 CEST 2020
  *  Copyright 2020 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
@@ -24,28 +24,29 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include "dgunit.h"
+#include "powermapfilter.h"
 
-#include "../src/powermap.h"
+#include "settings.h"
 
-class test_powermaptest
-	: public DGUnit
+PowermapFilter::PowermapFilter(Settings& settings)
+	: settings(settings)
 {
-public:
-	test_powermaptest()
+}
+
+bool PowermapFilter::filter(event_t& event, size_t pos)
+{
+	// the position is irrelevant for this filter
+	(void) pos;
+
+	if (settings.enable_powermap.load())
 	{
-		DGUNIT_TEST(test_powermaptest::check_values);
+		powermap.setFixed0({settings.fixed0_x.load(), settings.fixed0_y.load()});
+		powermap.setFixed1({settings.fixed1_x.load(), settings.fixed1_y.load()});
+		powermap.setFixed2({settings.fixed2_x.load(), settings.fixed2_y.load()});
+		powermap.setShelf(settings.shelf.load());
+
+		event.velocity = powermap.map(event.velocity);
 	}
 
-	void check_values()
-	{
-		Powermap powermap;
-
-		// TODO
-		// std::cout << powermap.map(.8) << std::endl;
-		// DGUNIT_ASSERT_EQUAL(powermap.map(.8), .8);
-	}
-};
-
-// Registers the fixture into the 'registry'
-static test_powermaptest test;
+	return true;
+}

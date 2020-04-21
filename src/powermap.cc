@@ -85,7 +85,8 @@ void Powermap::reset()
 	fixed[0] = {0., 0.};
 	fixed[1] = {.5, .5};
 	fixed[2] = {1., 1.};
-	shelf = false;
+	// FIXME: better false?
+	shelf = true;
 
 	updateSpline();
 }

@@ -32,8 +32,9 @@
 
 #include "instrument.h"
 
-#include "staminafilter.h"
 #include "latencyfilter.h"
+#include "powermapfilter.h"
+#include "staminafilter.h"
 #include "velocityfilter.h"
 
 #include "cpp11fix.h"
@@ -50,6 +51,7 @@ InputProcessor::InputProcessor(Settings& settings,
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
+	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
 }
 
 bool InputProcessor::process(std::vector<event_t>& events,

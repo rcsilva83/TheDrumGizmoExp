@@ -1,8 +1,8 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            powermaptest.cc
+ *            powermapfilter.h
  *
- *  Sun Apr 19 23:23:37 CEST 2020
+ *  Mon Apr 20 23:28:12 CEST 2020
  *  Copyright 2020 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
@@ -24,28 +24,24 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include "dgunit.h"
+#pragma once
 
-#include "../src/powermap.h"
+#include "inputfilter.h"
+#include "powermap.h"
 
-class test_powermaptest
-	: public DGUnit
+struct Settings;
+
+class PowermapFilter
+	: public InputFilter
 {
 public:
-	test_powermaptest()
-	{
-		DGUNIT_TEST(test_powermaptest::check_values);
-	}
+	PowermapFilter(Settings& settings);
 
-	void check_values()
-	{
-		Powermap powermap;
+	bool filter(event_t& event, std::size_t pos) override;
 
-		// TODO
-		// std::cout << powermap.map(.8) << std::endl;
-		// DGUNIT_ASSERT_EQUAL(powermap.map(.8), .8);
-	}
+	// Note getLatency not overloaded because this filter doesn't add latency.
+
+private:
+	Settings& settings;
+	Powermap powermap;
 };
-
-// Registers the fixture into the 'registry'
-static test_powermaptest test;
