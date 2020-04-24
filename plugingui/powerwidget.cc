@@ -181,6 +181,15 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 //	p.setColour(c);
 //	p.drawFilledRectangle(0, 0, width(), height());
 
+	// draw the fixed nodes of the spline
+	p.setColour(GUI::Colour{0.f, 0.7f, .5f, 1.f});
+	p.drawFilledCircle(
+		power_map.getFixed0().in*width(), height() - power_map.getFixed0().out*height(), 3);
+	p.drawFilledCircle(
+		power_map.getFixed1().in*width(), height() - power_map.getFixed1().out*height(), 3);
+	p.drawFilledCircle(
+		power_map.getFixed2().in*width(), height() - power_map.getFixed2().out*height(), 3);
+
 	if(enabled)
 	{
 		// enabled green

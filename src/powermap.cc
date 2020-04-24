@@ -123,6 +123,21 @@ void Powermap::setShelf(bool enable)
 	}
 }
 
+PowerPair Powermap::getFixed0() const
+{
+	return fixed[0];
+}
+
+PowerPair Powermap::getFixed1() const
+{
+	return fixed[1];
+}
+
+PowerPair Powermap::getFixed2() const
+{
+	return fixed[2];
+}
+
 // This mostly followes the wikipedia article for monotone cubic splines:
 // https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
 void Powermap::updateSpline()

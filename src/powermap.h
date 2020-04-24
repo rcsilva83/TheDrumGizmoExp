@@ -53,6 +53,10 @@ public:
 	void setFixed2(PowerPair new_value);
 	void setShelf(bool enable);
 
+	PowerPair getFixed0() const;
+	PowerPair getFixed1() const;
+	PowerPair getFixed2() const;
+
 private:
 	// input parameters (state of this class)
 	std::array<PowerPair, 3> fixed;
