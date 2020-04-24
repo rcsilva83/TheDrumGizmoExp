@@ -91,6 +91,7 @@ nodist_libdggui_la_SOURCES = \
 	pixelbuffer.cc \
 	pluginconfig.cc \
 	powerbutton.cc \
+	powerwidget.cc \
 	progressbar.cc \
 	resamplingframecontent.cc \
 	resource.cc \
@@ -231,6 +232,7 @@ EXTRA_DIST = \
 	pixelbuffer.h \
 	pluginconfig.h \
 	powerbutton.h \
+	powerwidget.h \
 	progressbar.h \
 	resamplingframecontent.h \
 	resource.h \

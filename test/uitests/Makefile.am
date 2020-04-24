@@ -1,5 +1,5 @@
 noinst_PROGRAMS = resizetest tabwidgettest framewidgettest \
-	filebrowsertest benchmarktest
+	filebrowsertest benchmarktest powerwidgettest
 
 resizetest_LDADD = $(top_srcdir)/plugingui/libdggui.la $(top_srcdir)/src/libdg.la
 resizetest_CXXFLAGS = \
@@ -55,6 +55,15 @@ benchmarktest_CXXFLAGS = \
 benchmarktest_SOURCES = \
 	benchmarktest.cc \
 	benchmarktest_resource_data.cc \
+	$(top_srcdir)/hugin/hugin.c
+
+powerwidgettest_LDADD = $(top_srcdir)/plugingui/libdggui.la $(top_srcdir)/src/libdg.la
+powerwidgettest_CXXFLAGS = \
+	-I$(top_srcdir)/plugingui \
+	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/hugin
+powerwidgettest_SOURCES = \
+	powerwidgettest.cc \
 	$(top_srcdir)/hugin/hugin.c
 
 EXTRA_DIST = $(RES)
