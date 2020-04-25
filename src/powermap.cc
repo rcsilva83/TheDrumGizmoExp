@@ -217,8 +217,9 @@ void Powermap::updateSpline()
 			// }
 
 			// soft change to enforce monotonicity
-			if (a2b2 >= 4.5) {
-				auto const l = std::min(1., (a2b2-4.5)/4.5);
+			Power threshold = 4.5; // must be >= 0 and < 9.
+			if (a2b2 >= threshold) {
+				auto const l = std::min(1., (a2b2-threshold)/(9.-threshold));
 				auto const tau = 3./sqrt(a2b2);
 				m[i] = (1-l)*m[i] + l*tau*alpha*deltas[i];
 				m[i+1] = (1-l)*m[i+1] + l*tau*alpha*deltas[i];
