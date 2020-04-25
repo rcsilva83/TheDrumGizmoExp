@@ -35,6 +35,7 @@
 #include <powermap.h>
 
 #include <hugin.hpp>
+#include <cmath>
 
 PowerWidget::PowerWidget(GUI::Widget* parent,
                                          Settings& settings,
@@ -179,13 +180,14 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	p.clear();
 
 	// draw the fixed nodes of the spline
+	float rad = radius * width();
 	p.setColour(GUI::Colour{0.f, 0.7f, .5f, 1.f});
 	p.drawFilledCircle(power_map.getFixed0().in*width(),
-	                   height() - power_map.getFixed0().out*height(), 3);
+	                   height() - power_map.getFixed0().out*height(), rad);
 	p.drawFilledCircle(power_map.getFixed1().in*width(),
-	                   height() - power_map.getFixed1().out*height(), 3);
+	                   height() - power_map.getFixed1().out*height(), rad);
 	p.drawFilledCircle(power_map.getFixed2().in*width(),
-	                   height() - power_map.getFixed2().out*height(), 3);
+	                   height() - power_map.getFixed2().out*height(), rad);
 
 	if(enabled)
 	{
@@ -214,6 +216,67 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	int y = power_map.map((float)x / width()) * height();
 	p.drawLine(old.first, old.second, x, height() - y);
 	old = { x, height() - y };
+}
+
+void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
+{
+	float x0 = (float)buttonEvent->x / width();
+	float y0 = (float)(height() - buttonEvent->y) / height();
+
+	switch(buttonEvent->direction)
+	{
+	case GUI::Direction::up:
+		in_point = -1;
+		break;
+	case GUI::Direction::down:
+		if(std::abs(x0 - settings.fixed0_x.load()) < radius &&
+		   std::abs(y0 - settings.fixed0_y.load()) < radius)
+		{
+			in_point = 0;
+		}
+
+		if(std::abs(x0 - settings.fixed1_x.load()) < radius &&
+		   std::abs(y0 - settings.fixed1_y.load()) < radius)
+		{
+			in_point = 1;
+		}
+
+		if(std::abs(x0 - settings.fixed2_x.load()) < radius &&
+		   std::abs(y0 - settings.fixed2_y.load()) < radius)
+		{
+			in_point = 2;
+		}
+		break;
+	}
+}
+
+void PowerWidget::Canvas::mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent)
+{
+	switch(in_point)
+	{
+	case 0:
+		settings.fixed0_x.store((float)mouseMoveEvent->x / width());
+		settings.fixed0_y.store((float)(height() - mouseMoveEvent->y) / height());
+		redraw();
+		break;
+	case 1:
+		settings.fixed1_x.store((float)mouseMoveEvent->x / width());
+		settings.fixed1_y.store((float)(height() - mouseMoveEvent->y) / height());
+		redraw();
+		break;
+	case 2:
+		settings.fixed2_x.store((float)mouseMoveEvent->x / width());
+		settings.fixed2_y.store((float)(height() - mouseMoveEvent->y) / height());
+		redraw();
+		break;
+	default:
+		break;
+	}
+}
+
+void PowerWidget::Canvas::mouseLeaveEvent()
+{
+	//in_point = -1;
 }
 
 void PowerWidget::Canvas::parameterChangedFloat(float)

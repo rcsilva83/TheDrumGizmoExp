@@ -63,6 +63,9 @@ private:
 
 		// From Widget:
 		virtual void repaintEvent(GUI::RepaintEvent *repaintEvent) override;
+		virtual void buttonEvent(GUI::ButtonEvent* buttonEvent) override;
+		virtual void mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent) override;
+		virtual void mouseLeaveEvent() override;
 
 	private:
 		Powermap power_map;
@@ -74,6 +77,9 @@ private:
 		Settings& settings;
 
 		bool enabled{true};
+
+		int in_point{-1};
+		const float radius = 0.015;
 	};
 
 	void chk_enable(bool v);
