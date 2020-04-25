@@ -177,18 +177,15 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	GUI::Painter p(*this);
 
 	p.clear();
-//	GUI::Colour c(1.0f, 1.0f, 0.0f, 0.2f);
-//	p.setColour(c);
-//	p.drawFilledRectangle(0, 0, width(), height());
 
 	// draw the fixed nodes of the spline
 	p.setColour(GUI::Colour{0.f, 0.7f, .5f, 1.f});
-	p.drawFilledCircle(
-		power_map.getFixed0().in*width(), height() - power_map.getFixed0().out*height(), 3);
-	p.drawFilledCircle(
-		power_map.getFixed1().in*width(), height() - power_map.getFixed1().out*height(), 3);
-	p.drawFilledCircle(
-		power_map.getFixed2().in*width(), height() - power_map.getFixed2().out*height(), 3);
+	p.drawFilledCircle(power_map.getFixed0().in*width(),
+	                   height() - power_map.getFixed0().out*height(), 3);
+	p.drawFilledCircle(power_map.getFixed1().in*width(),
+	                   height() - power_map.getFixed1().out*height(), 3);
+	p.drawFilledCircle(power_map.getFixed2().in*width(),
+	                   height() - power_map.getFixed2().out*height(), 3);
 
 	if(enabled)
 	{
@@ -201,11 +198,22 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 		p.setColour(GUI::Colour(0.5f, 0.5f, 0.5f, 1.0f));
 	}
 
-	for(std::size_t x = 0; x < width(); ++x)
+	// draw 64 line segments across the region
+	std::pair<int, int> old{};
+	for(std::size_t x = 0; x < width(); x += width() / 64)
 	{
 		int y = power_map.map((float)x / width()) * height();
-		p.drawPoint(x, height() - y);
+		if(x > 0)
+		{
+			p.drawLine(old.first, old.second, x, height() - y);
+		}
+		old = { x, height() - y };
 	}
+
+	int x = width();
+	int y = power_map.map((float)x / width()) * height();
+	p.drawLine(old.first, old.second, x, height() - y);
+	old = { x, height() - y };
 }
 
 void PowerWidget::Canvas::parameterChangedFloat(float)
