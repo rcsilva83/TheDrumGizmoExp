@@ -156,18 +156,43 @@ void Powermap::updateSpline()
 	assert(0. <= fixed[0].out && fixed[0].out <= fixed[1].out &&
 	       fixed[1].out <= fixed[2].out && fixed[2].out <= 1.);
 
-	// TODO: What to do if fixed[0] is (0,0) or fixed[2] is (1,1)??
 	Powers X = shelf ? Powers{fixed[0].in, fixed[1].in, fixed[2].in}
 	                 : Powers{0., fixed[0].in, fixed[1].in, fixed[2].in, 1.};
-	Powers P = shelf ? Powers{fixed[0].out, fixed[1].out, fixed[2].out}
+	Powers Y = shelf ? Powers{fixed[0].out, fixed[1].out, fixed[2].out}
 	                 : Powers{0., fixed[0].out, fixed[1].out, fixed[2].out, 1.};
 
+	auto slopes = calcSlopes(X, Y);
+
+	if (shelf) {
+		assert(slopes.size() == 3);
+		this->m[1] = slopes[0];
+		this->m[2] = slopes[1];
+		this->m[3] = slopes[2];
+	}
+	else {
+		assert(slopes.size() == 5);
+		for (std::size_t i = 0; i < m.size(); ++i) {
+			this->m[i] = slopes[i];
+		}
+	}
+
+	spline_needs_update = false;
+}
+
+std::vector<float> Powermap::calcSlopes(Powers const& X, Powers const& Y)
+{
+	// return calcSlopesFritschCarlson(X, Y);
+	return calcSlopesSteffen(X, Y);
+}
+
+std::vector<float> Powermap::calcSlopesFritschCarlson(Powers const& X, Powers const& Y)
+{
 	Powers deltas(X.size()-1);
 	Powers m(X.size());
 
 	// 1
 	for (std::size_t i = 0; i < deltas.size(); ++i) {
-		deltas[i] = (P[i+1]-P[i])/(X[i+1]-X[i]);
+		deltas[i] = (Y[i+1]-Y[i])/(X[i+1]-X[i]);
 	}
 
 	// 2
@@ -227,20 +252,32 @@ void Powermap::updateSpline()
 		}
 	}
 
-	if (shelf) {
-		assert(m.size() == 3);
-		this->m[1] = m[0];
-		this->m[2] = m[1];
-		this->m[3] = m[2];
-	}
-	else {
-		assert(m.size() == 5);
-		for (std::size_t i = 0; i < m.size(); ++i) {
-			this->m[i] = m[i];
-		}
+	return m;
+}
+
+std::vector<float> Powermap::calcSlopesSteffen(Powers const& X, Powers const& Y)
+{
+	Powers m(X.size());
+
+	Powers d(X.size()-1);
+	Powers h(X.size()-1);
+	for (std::size_t i = 0; i < d.size(); ++i) {
+		h[i] = X[i+1]-X[i];
+		d[i] = (Y[i+1]-Y[i])/h[i];
 	}
 
-	spline_needs_update = false;
+	m.front() = d.front();
+	for (std::size_t i = 1; i < m.size()-1; ++i) {
+		m[i] = (d[i-1] + d[i])/2.;
+	}
+	m.back() = d.back();
+
+	for (std::size_t i = 1; i < m.size()-1; ++i) {
+		auto const min_d = 2*std::min(d[i-1], d[i]);
+		m[i] = std::min<float>(min_d, (h[i]*d[i-1] + h[i-1]*d[i])/(h[i-1]+h[i]));
+	}
+
+	return m;
 }
 
 Power Powermap::clamp(Power in, Power min, Power max) const
