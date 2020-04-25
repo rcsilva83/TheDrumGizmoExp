@@ -63,15 +63,12 @@ private:
 	bool shelf;
 
 	// spline parameters (deterministically computed from the input parameters)
-	std::array<float, 5> m;
 	bool spline_needs_update;
+	std::array<float, 5> m;
+	const Power eps = 1e-3;
 
 	void updateSpline();
 	std::vector<float> calcSlopes(Powers const& X, Powers const& P);
-	std::vector<float> calcSlopesFritschCarlson(Powers const& X, Powers const& P);
-	std::vector<float> calcSlopesSteffen(Powers const& X, Powers const& P);
 
 	Power clamp(Power in, Power min, Power max) const;
-
-	const Power eps = 1e-3;
 };

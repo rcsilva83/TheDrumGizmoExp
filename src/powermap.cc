@@ -179,83 +179,9 @@ void Powermap::updateSpline()
 	spline_needs_update = false;
 }
 
+// This follows the monotone cubic spline algorithm of Steffen, from:
+// "A Simple Method for Monotonic Interpolation in One Dimension"
 std::vector<float> Powermap::calcSlopes(Powers const& X, Powers const& Y)
-{
-	// return calcSlopesFritschCarlson(X, Y);
-	return calcSlopesSteffen(X, Y);
-}
-
-std::vector<float> Powermap::calcSlopesFritschCarlson(Powers const& X, Powers const& Y)
-{
-	Powers deltas(X.size()-1);
-	Powers m(X.size());
-
-	// 1
-	for (std::size_t i = 0; i < deltas.size(); ++i) {
-		deltas[i] = (Y[i+1]-Y[i])/(X[i+1]-X[i]);
-	}
-
-	// 2
-	m[0] = deltas[0];
-	for (std::size_t i = 1; i < deltas.size(); ++i) {
-		m[i] =  (deltas[i-1] + deltas[i])/2.;
-	}
-	m.back() = deltas.back();
-
-	// 3
-	std::vector<bool> ignore(deltas.size(), false);
-	for (std::size_t i = 0; i < deltas.size(); ++i) {
-		if (deltas[i] == 0) {
-			m[i] = 0;
-			m[i+1] = 0;
-			ignore[i] = true;
-		}
-	}
-
-	for (std::size_t i = 0; i < deltas.size(); ++i) {
-		if (ignore[i]) {
-			continue;
-		}
-
-		// 4
-		auto alpha = m[i]/deltas[i];
-		auto beta = m[i+1]/deltas[i];
-		assert(alpha >= 0.);
-		assert(beta >= 0.);
-
-		// 5
-		// TODO: expose this parameter for testing both
-		bool const option1 = false;
-		if (option1) {
-			if (alpha > 3 || beta > 3) {
-				m[i] = 3*deltas[i];
-			}
-		}
-		else {
-			auto const a2b2 = alpha*alpha + beta*beta;
-
-			// hard change to enforce monotonicity
-			// if (a2b2 > 9) {
-			//     auto const tau = 3./sqrt(a2b2);
-			//     m[i] = tau*alpha*deltas[i];
-			//     m[i+1] = tau*alpha*deltas[i];
-			// }
-
-			// soft change to enforce monotonicity
-			Power threshold = 4.5; // must be >= 0 and < 9.
-			if (a2b2 >= threshold) {
-				auto const l = std::min(1., (a2b2-threshold)/(9.-threshold));
-				auto const tau = 3./sqrt(a2b2);
-				m[i] = (1-l)*m[i] + l*tau*alpha*deltas[i];
-				m[i+1] = (1-l)*m[i+1] + l*tau*alpha*deltas[i];
-			}
-		}
-	}
-
-	return m;
-}
-
-std::vector<float> Powermap::calcSlopesSteffen(Powers const& X, Powers const& Y)
 {
 	Powers m(X.size());
 
