@@ -260,23 +260,31 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 	}
 }
 
+namespace
+{
+float clamp(float val)
+{
+	return std::max(0.0f, std::min(1.0f, val));
+}
+}
+
 void PowerWidget::Canvas::mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent)
 {
 	switch(in_point)
 	{
 	case 0:
-		settings.fixed0_x.store((float)mouseMoveEvent->x / width());
-		settings.fixed0_y.store((float)(height() - mouseMoveEvent->y) / height());
+		settings.fixed0_x.store(clamp((float)mouseMoveEvent->x / width()));
+		settings.fixed0_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
 		redraw();
 		break;
 	case 1:
-		settings.fixed1_x.store((float)mouseMoveEvent->x / width());
-		settings.fixed1_y.store((float)(height() - mouseMoveEvent->y) / height());
+		settings.fixed1_x.store(clamp((float)mouseMoveEvent->x / width()));
+		settings.fixed1_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
 		redraw();
 		break;
 	case 2:
-		settings.fixed2_x.store((float)mouseMoveEvent->x / width());
-		settings.fixed2_y.store((float)(height() - mouseMoveEvent->y) / height());
+		settings.fixed2_x.store(clamp((float)mouseMoveEvent->x / width()));
+		settings.fixed2_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
 		redraw();
 		break;
 	default:

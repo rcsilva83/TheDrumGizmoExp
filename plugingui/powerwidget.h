@@ -62,6 +62,7 @@ private:
 		       SettingsNotifier& settings_notifier);
 
 		// From Widget:
+		virtual bool catchMouse() override { return true; }
 		virtual void repaintEvent(GUI::RepaintEvent *repaintEvent) override;
 		virtual void buttonEvent(GUI::ButtonEvent* buttonEvent) override;
 		virtual void mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent) override;
