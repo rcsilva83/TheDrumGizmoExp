@@ -111,10 +111,11 @@ MainTab::MainTab(Widget* parent,
 	layout.setSpacing(0);
 	layout.setResizeChildren(true);
 
-	add("Drumkit", drumkit_frame, drumkitframe_content, 15, 0);
-	add("Status", status_frame, statusframe_content, 15, 0);
-	add("Resampling", resampling_frame, resamplingframe_content, 10, 0);
-	add("Disk Streaming", diskstreaming_frame, diskstreamingframe_content, 9, 0);
+	add("Drumkit", drumkit_frame, drumkitframe_content, 12, 0);
+	add("Status", status_frame, statusframe_content, 14, 0);
+	add("Resampling", resampling_frame, resamplingframe_content, 9, 0);
+	add("Disk Streaming", diskstreaming_frame, diskstreamingframe_content, 7, 0);
+	add("Bleed Control", bleedcontrol_frame, bleedcontrolframe_content, 7, 0);
 
 	add("Velocity Humanizer", humanizer_frame, humanizerframe_content, 8, 1);
 	humanizer_frame.setHelpText(humanizer_tip);
@@ -125,9 +126,8 @@ MainTab::MainTab(Widget* parent,
 	sampleselection_frame.setHelpText(sampleselection_tip);
 	add("Visualizer", visualizer_frame, visualizerframe_content, 8, 1);
 	visualizer_frame.setHelpText(visualizer_tip);
-	add("Velocity Curve", power_frame, powerframe_content, 9, 1);
+	add("Velocity Curve", power_frame, powerframe_content, 17, 1);
 	power_frame.setHelpText(power_tip);
-	add("Bleed Control", bleedcontrol_frame, bleedcontrolframe_content, 8, 1);
 
 	humanizer_frame.setOnSwitch(settings.enable_velocity_modifier);
 	bleedcontrol_frame.setOnSwitch(settings.enable_bleed_control);

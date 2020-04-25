@@ -64,7 +64,7 @@ void PowerWidget::chk_shelf(bool v)
 void PowerWidget::repaintEvent(GUI::RepaintEvent *repaintEvent)
 {
 	GUI::Painter p(*this);
-	box.setSize(width() - 59, height());
+	box.setSize(width() - 59 - 64, height());
 	p.drawImage(0, 0, box);
 }
 
@@ -76,10 +76,10 @@ void PowerWidget::resize(std::size_t width, std::size_t height)
 		canvas.resize(1, 1);
 		return;
 	}
-	canvas.resize(width - 14 - 59, height - 14);
+	canvas.resize(width - 14 - 59 - 64, height - 14);
 
-	shelf_label.move(width - 59 + 5, 0);
-	shelf_checkbox.move(width - 59 + 5, 16);
+	shelf_label.move(width - 59 + 5 - 32 , 0);
+	shelf_checkbox.move(width - 59 + 5 - 32, 16);
 }
 
 PowerWidget::Canvas::Canvas(GUI::Widget* parent,
