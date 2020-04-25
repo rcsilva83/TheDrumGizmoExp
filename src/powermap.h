@@ -67,4 +67,7 @@ private:
 
 	bool spline_needs_update;
 	void updateSpline();
+	Power clamp(Power in, Power min, Power max) const;
+
+	const Power eps = 1e-3;
 };

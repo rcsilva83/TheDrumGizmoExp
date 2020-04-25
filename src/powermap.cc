@@ -101,7 +101,8 @@ void Powermap::setFixed0(PowerPair new_value)
 {
 	if (fixed[0] != new_value) {
 		spline_needs_update = true;
-		this->fixed[0] = new_value;
+		fixed[0].in = clamp(new_value.in, eps, fixed[1].in-eps);
+		fixed[0].out = clamp(new_value.out, eps, fixed[1].out-eps);
 	}
 }
 
@@ -109,7 +110,8 @@ void Powermap::setFixed1(PowerPair new_value)
 {
 	if (fixed[1] != new_value) {
 		spline_needs_update = true;
-		this->fixed[1] = new_value;
+		fixed[1].in = clamp(new_value.in, fixed[0].in+eps, fixed[2].in-eps);
+		fixed[1].out = clamp(new_value.out, fixed[0].out+eps, fixed[2].out-eps);
 	}
 }
 
@@ -117,7 +119,8 @@ void Powermap::setFixed2(PowerPair new_value)
 {
 	if (fixed[2] != new_value) {
 		spline_needs_update = true;
-		this->fixed[2] = new_value;
+		fixed[2].in = clamp(new_value.in, fixed[1].in+eps, 1-eps);
+		fixed[2].out = clamp(new_value.out, fixed[1].out+eps, 1-eps);
 	}
 }
 
@@ -227,4 +230,9 @@ void Powermap::updateSpline()
 	}
 
 	spline_needs_update = false;
+}
+
+Power Powermap::clamp(Power in, Power min, Power max) const
+{
+	return std::max(min, std::min(in, max));
 }
