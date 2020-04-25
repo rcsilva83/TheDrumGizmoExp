@@ -182,12 +182,12 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
 	p.setColour(GUI::Colour{0.f, 0.7f, .5f, 1.f});
-	p.drawFilledCircle(power_map.getFixed0().in*width(),
-	                   height() - power_map.getFixed0().out*height(), rad);
-	p.drawFilledCircle(power_map.getFixed1().in*width(),
-	                   height() - power_map.getFixed1().out*height(), rad);
-	p.drawFilledCircle(power_map.getFixed2().in*width(),
-	                   height() - power_map.getFixed2().out*height(), rad);
+	p.drawFilledCircle(settings.fixed0_x.load() * width(),
+	                   height() - settings.fixed0_y.load() * height(), rad);
+	p.drawFilledCircle(settings.fixed1_x.load() * width(),
+	                   height() - settings.fixed1_y.load() * height(), rad);
+	p.drawFilledCircle(settings.fixed2_x.load() * width(),
+	                   height() - settings.fixed2_y.load() * height(), rad);
 
 	if(enabled)
 	{
