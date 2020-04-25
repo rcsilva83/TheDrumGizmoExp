@@ -184,12 +184,20 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	p.setColour(GUI::Colour{0.0f, 0.7f, 0.5f, 1.0f});
 	p.drawFilledCircle(settings.fixed0_x.load() * width(),
 	                   height() - settings.fixed0_y.load() * height(), rad);
+	p.drawCircle(power_map.getFixed0().in * width(),
+	             height() - power_map.getFixed0().out * height(), rad + 2);
+
 	p.setColour(GUI::Colour{0.5f, 0.7f, 0.0f, 1.0f});
 	p.drawFilledCircle(settings.fixed1_x.load() * width(),
 	                   height() - settings.fixed1_y.load() * height(), rad);
+	p.drawCircle(power_map.getFixed1().in * width(),
+	             height() - power_map.getFixed1().out * height(), rad + 2);
+
 	p.setColour(GUI::Colour{0.5f, 0.0f, 0.7f, 1.0f});
 	p.drawFilledCircle(settings.fixed2_x.load() * width(),
 	                   height() - settings.fixed2_y.load() * height(), rad);
+	p.drawCircle(power_map.getFixed2().in * width(),
+	             height() - power_map.getFixed2().out * height(), rad + 2);
 
 	if(enabled)
 	{

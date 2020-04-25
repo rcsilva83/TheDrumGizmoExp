@@ -252,7 +252,10 @@ void Painter::drawText(int x0, int y0, const Font& font,
 
 void Painter::drawPoint(int x, int y)
 {
-	pixbuf.setPixel(x, y, colour);
+	if(x >= 0 && y >= 0 && (std::size_t)x < pixbuf.width && (std::size_t)y < pixbuf.height)
+	{
+		pixbuf.setPixel(x, y, colour);
+	}
 }
 
 static void plot4points(Painter *p, int cx, int cy, int x, int y)
