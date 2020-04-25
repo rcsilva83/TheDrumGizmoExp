@@ -181,11 +181,13 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
-	p.setColour(GUI::Colour{0.f, 0.7f, .5f, 1.f});
+	p.setColour(GUI::Colour{0.0f, 0.7f, 0.5f, 1.0f});
 	p.drawFilledCircle(settings.fixed0_x.load() * width(),
 	                   height() - settings.fixed0_y.load() * height(), rad);
+	p.setColour(GUI::Colour{0.5f, 0.7f, 0.0f, 1.0f});
 	p.drawFilledCircle(settings.fixed1_x.load() * width(),
 	                   height() - settings.fixed1_y.load() * height(), rad);
+	p.setColour(GUI::Colour{0.5f, 0.0f, 0.7f, 1.0f});
 	p.drawFilledCircle(settings.fixed2_x.load() * width(),
 	                   height() - settings.fixed2_y.load() * height(), rad);
 
@@ -229,20 +231,20 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 		in_point = -1;
 		break;
 	case GUI::Direction::down:
-		if(std::abs(x0 - settings.fixed0_x.load()) < radius &&
-		   std::abs(y0 - settings.fixed0_y.load()) < radius)
+		if(std::abs(x0 - settings.fixed0_x.load()) < radius * 1.5 &&
+		   std::abs(y0 - settings.fixed0_y.load()) < radius * 1.5)
 		{
 			in_point = 0;
 		}
 
-		if(std::abs(x0 - settings.fixed1_x.load()) < radius &&
-		   std::abs(y0 - settings.fixed1_y.load()) < radius)
+		if(std::abs(x0 - settings.fixed1_x.load()) < radius * 1.5 &&
+		   std::abs(y0 - settings.fixed1_y.load()) < radius * 1.5)
 		{
 			in_point = 1;
 		}
 
-		if(std::abs(x0 - settings.fixed2_x.load()) < radius &&
-		   std::abs(y0 - settings.fixed2_y.load()) < radius)
+		if(std::abs(x0 - settings.fixed2_x.load()) < radius * 1.5 &&
+		   std::abs(y0 - settings.fixed2_y.load()) < radius * 1.5)
 		{
 			in_point = 2;
 		}
