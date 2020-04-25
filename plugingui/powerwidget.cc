@@ -210,9 +210,9 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 		p.setColour(GUI::Colour(0.5f, 0.5f, 0.5f, 1.0f));
 	}
 
-	// draw 64 line segments across the region
+	// Draw very short line segments across the region
 	std::pair<int, int> old{};
-	for(std::size_t x = 0; x < width(); x += width() / 64)
+	for(std::size_t x = 0; x < width(); ++x)
 	{
 		int y = power_map.map((float)x / width()) * height();
 		if(x > 0)
