@@ -31,6 +31,7 @@
 #include <texture.h>
 #include <knob.h>
 #include <checkbox.h>
+#include <label.h>
 #include <powermap.h>
 
 struct Settings;
@@ -83,24 +84,11 @@ private:
 		const float radius = 0.015;
 	};
 
-	void chk_enable(bool v);
-	void k0_x(float v);
-	void k0_y(float v);
-	void k1_x(float v);
-	void k1_y(float v);
-	void k2_x(float v);
-	void k2_y(float v);
 	void chk_shelf(bool v);
 
 	Canvas canvas;
-	GUI::CheckBox checkbox_enable{this};
-	GUI::Knob knob0_x{this};
-	GUI::Knob knob0_y{this};
-	GUI::Knob knob1_x{this};
-	GUI::Knob knob1_y{this};
-	GUI::Knob knob2_x{this};
-	GUI::Knob knob2_y{this};
-	GUI::CheckBox checkbox_shelf{this};
+	GUI::Label shelf_label{this};
+	GUI::CheckBox shelf_checkbox{this};
 
 	Settings& settings;
 };

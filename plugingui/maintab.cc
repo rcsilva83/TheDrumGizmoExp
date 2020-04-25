@@ -81,6 +81,10 @@ The pink areas indicate the spread of the position and velocity of the\n\
 next note in line. The wider the area the more the note can move in time\n\
 and velocity.";
 
+constexpr char power_tip[] =
+R"lit(Some explanatory text about how the power curvatures work and how they
+can be controlled.)lit";
+
 } // end anonymous namespace
 
 namespace GUI
@@ -100,6 +104,7 @@ MainTab::MainTab(Widget* parent,
 	, timingframe_content{this, settings, settings_notifier}
 	, sampleselectionframe_content{this, settings, settings_notifier}
 	, visualizerframe_content{this, settings, settings_notifier}
+	, powerframe_content{this, settings, settings_notifier}
 	, settings(settings)
 	, settings_notifier(settings_notifier)
 {
@@ -111,16 +116,18 @@ MainTab::MainTab(Widget* parent,
 	add("Resampling", resampling_frame, resamplingframe_content, 10, 0);
 	add("Disk Streaming", diskstreaming_frame, diskstreamingframe_content, 9, 0);
 
-	add("Velocity Humanizer", humanizer_frame, humanizerframe_content, 10, 1);
+	add("Velocity Humanizer", humanizer_frame, humanizerframe_content, 8, 1);
 	humanizer_frame.setHelpText(humanizer_tip);
-	add("Timing Humanizer", timing_frame, timingframe_content, 10, 1);
+	add("Timing Humanizer", timing_frame, timingframe_content, 8, 1);
 	timing_frame.setHelpText(timing_tip);
 	add("Sample Selection", sampleselection_frame,
-	    sampleselectionframe_content, 10, 1);
+	    sampleselectionframe_content, 8, 1);
 	sampleselection_frame.setHelpText(sampleselection_tip);
-	add("Visualizer", visualizer_frame, visualizerframe_content, 10, 1);
+	add("Visualizer", visualizer_frame, visualizerframe_content, 8, 1);
 	visualizer_frame.setHelpText(visualizer_tip);
-	add("Bleed Control", bleedcontrol_frame, bleedcontrolframe_content, 9, 1);
+	add("Velocity Curve", power_frame, powerframe_content, 9, 1);
+	power_frame.setHelpText(power_tip);
+	add("Bleed Control", bleedcontrol_frame, bleedcontrolframe_content, 8, 1);
 
 	humanizer_frame.setOnSwitch(settings.enable_velocity_modifier);
 	bleedcontrol_frame.setOnSwitch(settings.enable_bleed_control);
@@ -146,6 +153,11 @@ MainTab::MainTab(Widget* parent,
 	        this, &MainTab::timingOnChange);
 	CONNECT(&bleedcontrol_frame, onEnabledChanged,
 	        &bleedcontrolframe_content, &BleedcontrolframeContent::setEnabled);
+
+	CONNECT(&settings_notifier, enable_powermap,
+	        &power_frame, &FrameWidget::setOnSwitch);
+	CONNECT(&power_frame, onSwitchChangeNotifier,
+	        this, &MainTab::powerOnChange);
 }
 
 void MainTab::resize(std::size_t width, std::size_t height)
@@ -176,6 +188,11 @@ void MainTab::resamplingOnChange(bool on)
 void MainTab::timingOnChange(bool on)
 {
 	settings.enable_latency_modifier.store(on);
+}
+
+void MainTab::powerOnChange(bool on)
+{
+	settings.enable_powermap.store(on);
 }
 
 void MainTab::add(std::string const& title, FrameWidget& frame, Widget& content,

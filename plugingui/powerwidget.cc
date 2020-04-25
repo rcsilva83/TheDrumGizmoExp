@@ -31,7 +31,6 @@
 #include <notifier.h>
 #include <settings.h>
 #include <colour.h>
-
 #include <powermap.h>
 
 #include <hugin.hpp>
@@ -46,67 +45,15 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 {
 	canvas.move(7, 7);
 
-	CONNECT(&checkbox_enable, stateChangedNotifier, this, &PowerWidget::chk_enable);
-	CONNECT(&knob0_x, valueChangedNotifier, this, &PowerWidget::k0_x);
-	CONNECT(&knob0_y, valueChangedNotifier, this, &PowerWidget::k0_y);
-	CONNECT(&knob1_x, valueChangedNotifier, this, &PowerWidget::k1_x);
-	CONNECT(&knob1_y, valueChangedNotifier, this, &PowerWidget::k1_y);
-	CONNECT(&knob2_x, valueChangedNotifier, this, &PowerWidget::k2_x);
-	CONNECT(&knob2_y, valueChangedNotifier, this, &PowerWidget::k2_y);
-	CONNECT(&checkbox_shelf, stateChangedNotifier, this, &PowerWidget::chk_shelf);
+	CONNECT(&shelf_checkbox, stateChangedNotifier, this, &PowerWidget::chk_shelf);
 
-	checkbox_enable.resize(100, 42);
-	knob0_x.resize(42, 42);
-	knob0_y.resize(42, 42);
-	knob1_x.resize(42, 42);
-	knob1_y.resize(42, 42);
-	knob2_x.resize(42, 42);
-	knob2_y.resize(42, 42);
-	checkbox_shelf.resize(100, 42);
+	shelf_label.setText("Shelf");
+	shelf_label.setAlignment(GUI::TextAlignment::center);
+	shelf_label.resize(59, 16);
+	shelf_checkbox.resize(59, 40);
 
-	CONNECT(&settings_notifier, enable_powermap, &checkbox_enable, &GUI::CheckBox::setChecked);
-	CONNECT(&settings_notifier, fixed0_x, &knob0_x, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, fixed0_y, &knob0_y, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, fixed1_x, &knob1_x, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, fixed1_y, &knob1_y, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, fixed2_x, &knob2_x, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, fixed2_y, &knob2_y, &GUI::Knob::setValue);
-	CONNECT(&settings_notifier, shelf, &checkbox_shelf, &GUI::CheckBox::setChecked);
-}
-
-void PowerWidget::chk_enable(bool v)
-{
-	settings.enable_powermap.store(v);
-}
-
-void PowerWidget::k0_x(float v)
-{
-	settings.fixed0_x.store(v);
-}
-
-void PowerWidget::k0_y(float v)
-{
-	settings.fixed0_y.store(v);
-}
-
-void PowerWidget::k1_x(float v)
-{
-	settings.fixed1_x.store(v);
-}
-
-void PowerWidget::k1_y(float v)
-{
-	settings.fixed1_y.store(v);
-}
-
-void PowerWidget::k2_x(float v)
-{
-	settings.fixed2_x.store(v);
-}
-
-void PowerWidget::k2_y(float v)
-{
-	settings.fixed2_y.store(v);
+	CONNECT(&settings_notifier, shelf, &shelf_checkbox,
+	        &GUI::CheckBox::setChecked);
 }
 
 void PowerWidget::chk_shelf(bool v)
@@ -117,7 +64,7 @@ void PowerWidget::chk_shelf(bool v)
 void PowerWidget::repaintEvent(GUI::RepaintEvent *repaintEvent)
 {
 	GUI::Painter p(*this);
-	box.setSize(width(), height() / 2);
+	box.setSize(width() - 59, height());
 	p.drawImage(0, 0, box);
 }
 
@@ -129,16 +76,10 @@ void PowerWidget::resize(std::size_t width, std::size_t height)
 		canvas.resize(1, 1);
 		return;
 	}
-	canvas.resize(width - 14, height / 2 - 14);
+	canvas.resize(width - 14 - 59, height - 14);
 
-	checkbox_enable.move(220, height / 2 + 14);
-	knob0_x.move(0,   height / 2 + 14);
-	knob0_y.move(0,   height / 2 + 14 + 60);
-	knob1_x.move(80,  height / 2 + 14);
-	knob1_y.move(80,  height / 2 + 14 + 60);
-	knob2_x.move(160, height / 2 + 14);
-	knob2_y.move(160, height / 2 + 14 + 60);
-	checkbox_shelf.move(220, height / 2 + 14 + 60);
+	shelf_label.move(width - 59 + 5, 0);
+	shelf_checkbox.move(width - 59 + 5, 16);
 }
 
 PowerWidget::Canvas::Canvas(GUI::Widget* parent,
@@ -181,23 +122,30 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
-	p.setColour(GUI::Colour{0.0f, 0.7f, 0.5f, 1.0f});
+	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
 	p.drawFilledCircle(settings.fixed0_x.load() * width(),
 	                   height() - settings.fixed0_y.load() * height(), rad);
 	p.drawCircle(power_map.getFixed0().in * width(),
 	             height() - power_map.getFixed0().out * height(), rad + 2);
 
-	p.setColour(GUI::Colour{0.5f, 0.7f, 0.0f, 1.0f});
+	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
 	p.drawFilledCircle(settings.fixed1_x.load() * width(),
 	                   height() - settings.fixed1_y.load() * height(), rad);
 	p.drawCircle(power_map.getFixed1().in * width(),
 	             height() - power_map.getFixed1().out * height(), rad + 2);
 
-	p.setColour(GUI::Colour{0.5f, 0.0f, 0.7f, 1.0f});
+	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
 	p.drawFilledCircle(settings.fixed2_x.load() * width(),
 	                   height() - settings.fixed2_y.load() * height(), rad);
 	p.drawCircle(power_map.getFixed2().in * width(),
 	             height() - power_map.getFixed2().out * height(), rad + 2);
+
+	if(enabled)
+	{
+		// draw 1:1 line in grey in the background to indicate where 1:1 is
+		p.setColour(GUI::Colour(0.5));
+		p.drawLine(0, height(), width(), 0);
+	}
 
 	if(enabled)
 	{
@@ -207,7 +155,7 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	else
 	{
 		// disabled grey
-		p.setColour(GUI::Colour(0.5f, 0.5f, 0.5f, 1.0f));
+		p.setColour(GUI::Colour(0.5f));
 	}
 
 	// Draw very short line segments across the region
@@ -226,6 +174,13 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	int y = power_map.map((float)x / width()) * height();
 	p.drawLine(old.first, old.second, x, height() - y);
 	old = { x, height() - y };
+
+	if(!enabled)
+	{
+		// draw 1:1 line in green
+		p.setColour(GUI::Colour(0.0f, 1.0f, 0.0f, 1.0f));
+		p.drawLine(0, height(), width(), 0);
+	}
 }
 
 void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
@@ -233,26 +188,29 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 	float x0 = (float)buttonEvent->x / width();
 	float y0 = (float)(height() - buttonEvent->y) / height();
 
+	float radius_x = radius * 2;
+	float radius_y = radius * width() / height() * 2;
+
 	switch(buttonEvent->direction)
 	{
 	case GUI::Direction::up:
 		in_point = -1;
 		break;
 	case GUI::Direction::down:
-		if(std::abs(x0 - settings.fixed0_x.load()) < radius * 1.5 &&
-		   std::abs(y0 - settings.fixed0_y.load()) < radius * 1.5)
+		if(std::abs(x0 - settings.fixed0_x.load()) < radius_x &&
+		   std::abs(y0 - settings.fixed0_y.load()) < radius_y)
 		{
 			in_point = 0;
 		}
 
-		if(std::abs(x0 - settings.fixed1_x.load()) < radius * 1.5 &&
-		   std::abs(y0 - settings.fixed1_y.load()) < radius * 1.5)
+		if(std::abs(x0 - settings.fixed1_x.load()) < radius_x &&
+		   std::abs(y0 - settings.fixed1_y.load()) < radius_y)
 		{
 			in_point = 1;
 		}
 
-		if(std::abs(x0 - settings.fixed2_x.load()) < radius * 1.5 &&
-		   std::abs(y0 - settings.fixed2_y.load()) < radius * 1.5)
+		if(std::abs(x0 - settings.fixed2_x.load()) < radius_x &&
+		   std::abs(y0 - settings.fixed2_y.load()) < radius_y)
 		{
 			in_point = 2;
 		}
