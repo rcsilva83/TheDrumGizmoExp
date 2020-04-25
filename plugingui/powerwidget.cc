@@ -38,22 +38,13 @@
 #include <cmath>
 
 PowerWidget::PowerWidget(GUI::Widget* parent,
-                                         Settings& settings,
-                                         SettingsNotifier& settings_notifier)
+                         Settings& settings,
+                         SettingsNotifier& settings_notifier)
 	: GUI::Widget(parent)
 	, canvas(this, settings, settings_notifier)
 	, settings(settings)
 {
 	canvas.move(7, 7);
-
-	checkbox_enable.setChecked(settings.enable_powermap.load());
-	knob0_x.setValue(settings.fixed0_x.load());
-	knob0_y.setValue(settings.fixed0_y.load());
-	knob1_x.setValue(settings.fixed1_x.load());
-	knob1_y.setValue(settings.fixed1_y.load());
-	knob2_x.setValue(settings.fixed2_x.load());
-	knob2_y.setValue(settings.fixed2_y.load());
-	checkbox_shelf.setChecked(settings.shelf.load());
 
 	CONNECT(&checkbox_enable, stateChangedNotifier, this, &PowerWidget::chk_enable);
 	CONNECT(&knob0_x, valueChangedNotifier, this, &PowerWidget::k0_x);
@@ -72,6 +63,15 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 	knob2_x.resize(42, 42);
 	knob2_y.resize(42, 42);
 	checkbox_shelf.resize(100, 42);
+
+	CONNECT(&settings_notifier, enable_powermap, &checkbox_enable, &GUI::CheckBox::setChecked);
+	CONNECT(&settings_notifier, fixed0_x, &knob0_x, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, fixed0_y, &knob0_y, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, fixed1_x, &knob1_x, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, fixed1_y, &knob1_y, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, fixed2_x, &knob2_x, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, fixed2_y, &knob2_y, &GUI::Knob::setValue);
+	CONNECT(&settings_notifier, shelf, &checkbox_shelf, &GUI::CheckBox::setChecked);
 }
 
 void PowerWidget::chk_enable(bool v)
