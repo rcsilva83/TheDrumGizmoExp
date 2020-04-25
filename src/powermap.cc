@@ -208,10 +208,20 @@ void Powermap::updateSpline()
 		}
 		else {
 			auto const a2b2 = alpha*alpha + beta*beta;
-			if (a2b2 > 9) {
+
+			// hard change to enforce monotonicity
+			// if (a2b2 > 9) {
+			//     auto const tau = 3./sqrt(a2b2);
+			//     m[i] = tau*alpha*deltas[i];
+			//     m[i+1] = tau*alpha*deltas[i];
+			// }
+
+			// soft change to enforce monotonicity
+			if (a2b2 >= 4.5) {
+				auto const l = std::min(1., (a2b2-4.5)/4.5);
 				auto const tau = 3./sqrt(a2b2);
-				m[i] = tau*alpha*deltas[i];
-				m[i+1] = tau*alpha*deltas[i];
+				m[i] = (1-l)*m[i] + l*tau*alpha*deltas[i];
+				m[i+1] = (1-l)*m[i+1] + l*tau*alpha*deltas[i];
 			}
 		}
 	}
