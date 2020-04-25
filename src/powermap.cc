@@ -88,9 +88,9 @@ Power Powermap::map(Power in)
 
 void Powermap::reset()
 {
-	fixed[0] = {0., 0.};
-	fixed[1] = {.5, .5};
-	fixed[2] = {1., 1.};
+	setFixed0({eps, eps});
+	setFixed1({.5, .5});
+	setFixed2({1-eps, 1-eps});
 	// FIXME: better false?
 	shelf = true;
 
