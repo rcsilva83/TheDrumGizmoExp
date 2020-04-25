@@ -62,22 +62,28 @@ Powermap::Powermap()
 
 Power Powermap::map(Power in)
 {
+	assert(in >= 0. && in <= 1.);
+
 	if (spline_needs_update) {
 		updateSpline();
 	}
 
+	Power out;
 	if (in < fixed[0].in) {
-		return shelf ? fixed[0].out : computeValue(in, {0.,0.}, fixed[0], m[0], m[1]);
+		out = shelf ? fixed[0].out : computeValue(in, {0.,0.}, fixed[0], m[0], m[1]);
 	}
 	else if (in < fixed[1].in) {
-		return computeValue(in, fixed[0], fixed[1], m[1], m[2]);
+		out = computeValue(in, fixed[0], fixed[1], m[1], m[2]);
 	}
 	else if (in < fixed[2].in) {
-		return computeValue(in, fixed[1], fixed[2], m[2], m[3]);
+		out = computeValue(in, fixed[1], fixed[2], m[2], m[3]);
 	}
 	else { // in >= fixed[2].in
-		return shelf ? fixed[2].out : computeValue(in, fixed[2], {1.,1.}, m[3], m[4]);
+		out = shelf ? fixed[2].out : computeValue(in, fixed[2], {1.,1.}, m[3], m[4]);
 	}
+
+	assert(out >= 0. && out <= 1.);
+	return out;
 }
 
 void Powermap::reset()
