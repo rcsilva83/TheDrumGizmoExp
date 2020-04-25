@@ -200,7 +200,7 @@ void Powermap::updateSpline()
 
 		// 5
 		// TODO: expose this parameter for testing both
-		bool const option1 = true;
+		bool const option1 = false;
 		if (option1) {
 			if (alpha > 3 || beta > 3) {
 				m[i] = 3*deltas[i];
