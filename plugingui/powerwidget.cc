@@ -116,35 +116,23 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 		return;
 	}
 
+	const float x0 = brd;
+	const float y0 = brd;
+	const float width0 = (int)width() - 2 * brd;
+	const float height0 = (int)height() - 2 * brd;
+
 	GUI::Painter p(*this);
 
 	p.clear();
 
-	// draw the fixed nodes of the spline
-	float rad = radius * width();
-	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(settings.fixed0_x.load() * width(),
-	                   height() - settings.fixed0_y.load() * height(), rad);
-	p.drawCircle(power_map.getFixed0().in * width(),
-	             height() - power_map.getFixed0().out * height(), rad + 2);
-
-	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(settings.fixed1_x.load() * width(),
-	                   height() - settings.fixed1_y.load() * height(), rad);
-	p.drawCircle(power_map.getFixed1().in * width(),
-	             height() - power_map.getFixed1().out * height(), rad + 2);
-
-	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(settings.fixed2_x.load() * width(),
-	                   height() - settings.fixed2_y.load() * height(), rad);
-	p.drawCircle(power_map.getFixed2().in * width(),
-	             height() - power_map.getFixed2().out * height(), rad + 2);
+	p.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
+	p.drawRectangle(x0, y0 + height0, x0 + width0, y0);
 
 	if(enabled)
 	{
 		// draw 1:1 line in grey in the background to indicate where 1:1 is
 		p.setColour(GUI::Colour(0.5));
-		p.drawLine(0, height(), width(), 0);
+		p.drawLine(x0, y0 + height0, x0 + width0, y0);
 	}
 
 	if(enabled)
@@ -160,36 +148,61 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 
 	// Draw very short line segments across the region
 	std::pair<int, int> old{};
-	for(std::size_t x = 0; x < width(); ++x)
+	for(std::size_t x = 0; x < width0; ++x)
 	{
-		int y = power_map.map((float)x / width()) * height();
+		int y = power_map.map((float)x / width0) * height0;
 		if(x > 0)
 		{
-			p.drawLine(old.first, old.second, x, height() - y);
+			p.drawLine(x0 + old.first, y0 + old.second, x0 + x, y0 + height0 - y);
 		}
-		old = { x, height() - y };
+		old = { x, height0 - y };
 	}
 
-	int x = width();
-	int y = power_map.map((float)x / width()) * height();
-	p.drawLine(old.first, old.second, x, height() - y);
-	old = { x, height() - y };
+	int x = width0;
+	int y = power_map.map((float)x / width0) * height0;
+	p.drawLine(x0 + old.first, y0 + old.second, x0 + x, y0 + height0 - y);
+	old = { x, height0 - y };
 
 	if(!enabled)
 	{
-		// draw 1:1 line in green
+		// draw 1:1 line in green in the foreground
 		p.setColour(GUI::Colour(0.0f, 1.0f, 0.0f, 1.0f));
-		p.drawLine(0, height(), width(), 0);
+		p.drawLine(x0, y0 + height0, x0 + width0, y0);
 	}
+
+	// draw the fixed nodes of the spline
+	float rad = radius * width();
+	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
+	p.drawFilledCircle(x0 + settings.fixed0_x.load() * width0,
+	                   y0 + height0 - settings.fixed0_y.load() * height0, rad);
+	p.drawCircle(x0 + power_map.getFixed0().in * width0,
+	             y0 + height0 - power_map.getFixed0().out * height0, rad + 1);
+
+	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
+	p.drawFilledCircle(x0 + settings.fixed1_x.load() * width0,
+	                   y0 + height0 - settings.fixed1_y.load() * height0, rad);
+	p.drawCircle(x0 + power_map.getFixed1().in * width0,
+	             y0 + height0 - power_map.getFixed1().out * height0, rad + 1);
+
+	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
+	p.drawFilledCircle(x0 + settings.fixed2_x.load() * width0,
+	                   y0 + height0 - settings.fixed2_y.load() * height0, rad);
+	p.drawCircle(x0 + power_map.getFixed2().in * width0,
+	             y0 + height0 - power_map.getFixed2().out * height0, rad + 1);
 }
 
 void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 {
-	float x0 = (float)buttonEvent->x / width();
-	float y0 = (float)(height() - buttonEvent->y) / height();
+	const float x0 = brd;
+	const float y0 = brd;
+	const float width0 = (int)width() - 2 * brd;
+	const float height0 = (int)height() - 2 * brd;
+
+	float mx0 = (float)(buttonEvent->x - x0) / width0;
+	float my0 = (float)(((int)height() - buttonEvent->y) - y0) / height0;
 
 	float radius_x = radius * 2;
-	float radius_y = radius * width() / height() * 2;
+	float radius_y = radius * width0 / height0 * 2;
 
 	switch(buttonEvent->direction)
 	{
@@ -197,20 +210,20 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 		in_point = -1;
 		break;
 	case GUI::Direction::down:
-		if(std::abs(x0 - settings.fixed0_x.load()) < radius_x &&
-		   std::abs(y0 - settings.fixed0_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.fixed0_x.load()) < radius_x &&
+		   std::abs(my0 - settings.fixed0_y.load()) < radius_y)
 		{
 			in_point = 0;
 		}
 
-		if(std::abs(x0 - settings.fixed1_x.load()) < radius_x &&
-		   std::abs(y0 - settings.fixed1_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.fixed1_x.load()) < radius_x &&
+		   std::abs(my0 - settings.fixed1_y.load()) < radius_y)
 		{
 			in_point = 1;
 		}
 
-		if(std::abs(x0 - settings.fixed2_x.load()) < radius_x &&
-		   std::abs(y0 - settings.fixed2_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.fixed2_x.load()) < radius_x &&
+		   std::abs(my0 - settings.fixed2_y.load()) < radius_y)
 		{
 			in_point = 2;
 		}
@@ -220,14 +233,43 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 
 namespace
 {
-float clamp(float val)
+float clamp(float val, float min, float max)
 {
-	return std::max(0.0f, std::min(1.0f, val));
+	return std::max(min, std::min(max, val));
 }
 }
 
 void PowerWidget::Canvas::mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent)
 {
+	const float x0 = brd;
+	const float y0 = brd;
+	const float width0 = (int)width() - 2 * brd;
+	const float height0 = (int)height() - 2 * brd;
+
+	float mx0 = (float)(mouseMoveEvent->x - x0) / width0;
+	float my0 = (float)(((int)height() - mouseMoveEvent->y) - y0) / height0;
+
+	switch(in_point)
+	{
+	case 0:
+		settings.fixed0_x.store(clamp(mx0, 0, 1));
+		settings.fixed0_y.store(clamp(my0, 0, 1));
+		redraw();
+		break;
+	case 1:
+		settings.fixed1_x.store(clamp(mx0, 0, 1));
+		settings.fixed1_y.store(clamp(my0, 0, 1));
+		redraw();
+		break;
+	case 2:
+		settings.fixed2_x.store(clamp(mx0, 0, 1));
+		settings.fixed2_y.store(clamp(my0, 0, 1));
+		redraw();
+		break;
+	default:
+		break;
+	}
+/*
 	switch(in_point)
 	{
 	case 0:
@@ -248,6 +290,7 @@ void PowerWidget::Canvas::mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent)
 	default:
 		break;
 	}
+*/
 }
 
 void PowerWidget::Canvas::mouseLeaveEvent()

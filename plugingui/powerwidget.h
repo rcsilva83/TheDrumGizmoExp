@@ -81,7 +81,8 @@ private:
 		bool enabled{true};
 
 		int in_point{-1};
-		const float radius = 0.015;
+		const float radius = 0.02f;
+		const float brd = 6.0f;
 	};
 
 	void chk_shelf(bool v);
