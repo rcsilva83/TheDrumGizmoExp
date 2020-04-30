@@ -105,6 +105,10 @@ PowerWidget::Canvas::Canvas(GUI::Widget* parent,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
 	CONNECT(this, settings_notifier.powermap_shelf,
 	        this, &PowerWidget::Canvas::parameterChangedBool);
+	CONNECT(this, settings_notifier.powermap_input,
+	        this, &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_output,
+	        this, &PowerWidget::Canvas::parameterChangedFloat);
 
 	parameterChangedFloat(0);
 }
@@ -168,6 +172,16 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 		// draw 1:1 line in green in the foreground
 		p.setColour(GUI::Colour(0.0f, 1.0f, 0.0f, 1.0f));
 		p.drawLine(x0, y0 + height0, x0 + width0, y0);
+	}
+
+	// draw the input/output of the last hit
+	if(settings.powermap_input.load() != -1 && settings.powermap_output.load() != -1)
+	{
+		p.setColour(GUI::Colour(.8f, 0.0f, .2f, .5f));
+		p.drawLine(x0 + settings.powermap_input.load()*width0, y0 + height0,
+				   x0 + settings.powermap_input.load()*width0, y0);
+		p.drawLine(x0, y0 + height0 - settings.powermap_output.load()*height0,
+				   x0 + width0, y0 + height0 - settings.powermap_output.load()*height0);
 	}
 
 	// draw the fixed nodes of the spline

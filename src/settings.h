@@ -154,6 +154,10 @@ struct Settings
 	Atomic<float> powermap_fixed2_y{1.};
 	Atomic<bool> powermap_shelf{true};
 
+	// Powermap visualizer; -1 is "none"
+	Atomic<float> powermap_input{-1.};
+	Atomic<float> powermap_output{-1.};
+
 	Atomic<std::size_t> audition_counter{0};
 	Atomic<std::string> audition_instrument;
 	Atomic<float> audition_velocity;
@@ -228,6 +232,9 @@ struct SettingsGetter
 	SettingRef<float> powermap_fixed2_y;
 	SettingRef<bool> powermap_shelf;
 
+	SettingRef<float> powermap_input;
+	SettingRef<float> powermap_output;
+
 	SettingRef<std::size_t> audition_counter;
 	SettingRef<std::string> audition_instrument;
 	SettingRef<float> audition_velocity;
@@ -284,6 +291,8 @@ struct SettingsGetter
 		, powermap_fixed2_x{settings.powermap_fixed2_x}
 		, powermap_fixed2_y{settings.powermap_fixed2_y}
 		, powermap_shelf{settings.powermap_shelf}
+		, powermap_input{settings.powermap_input}
+		, powermap_output{settings.powermap_output}
 		, audition_counter{settings.audition_counter}
 		, audition_instrument{settings.audition_instrument}
 		, audition_velocity{settings.audition_velocity}
@@ -357,6 +366,9 @@ public:
 	Notifier<float> powermap_fixed2_y;
 	Notifier<bool> powermap_shelf;
 
+	Notifier<float> powermap_input;
+	Notifier<float> powermap_output;
+
 	Notifier<std::size_t> audition_counter;
 	Notifier<std::string> audition_instrument;
 	Notifier<int> audition_velocity;
@@ -427,6 +439,9 @@ public:
 		EVAL(powermap_fixed2_x);
 		EVAL(powermap_fixed2_y);
 		EVAL(powermap_shelf);
+
+		EVAL(powermap_input);
+		EVAL(powermap_output);
 
 		EVAL(audition_counter);
 		EVAL(audition_instrument);

@@ -38,6 +38,7 @@ bool PowermapFilter::filter(event_t& event, size_t pos)
 	// the position is irrelevant for this filter
 	(void) pos;
 
+	settings.powermap_input.store(event.velocity);
 	if (settings.enable_powermap.load())
 	{
 		powermap.setFixed0({settings.powermap_fixed0_x.load(), settings.powermap_fixed0_y.load()});
@@ -47,6 +48,7 @@ bool PowermapFilter::filter(event_t& event, size_t pos)
 
 		event.velocity = powermap.map(event.velocity);
 	}
+	settings.powermap_output.store(event.velocity);
 
 	return true;
 }
