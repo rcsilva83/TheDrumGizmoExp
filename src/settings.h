@@ -152,7 +152,7 @@ struct Settings
 	Atomic<float> powermap_fixed1_y{.5};
 	Atomic<float> powermap_fixed2_x{1.};
 	Atomic<float> powermap_fixed2_y{1.};
-	Atomic<bool> powermap_shelf{true};
+	Atomic<bool> powermap_shelf{false};
 
 	// Powermap visualizer; -1 is "none"
 	Atomic<float> powermap_input{-1.};
