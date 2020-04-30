@@ -48,10 +48,10 @@ InputProcessor::InputProcessor(Settings& settings,
 	, settings(settings)
 {
 	// Build filter list
+	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
-	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
 }
 
 bool InputProcessor::process(std::vector<event_t>& events,
