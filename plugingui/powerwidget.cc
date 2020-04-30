@@ -52,13 +52,13 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 	shelf_label.resize(59, 16);
 	shelf_checkbox.resize(59, 40);
 
-	CONNECT(&settings_notifier, shelf, &shelf_checkbox,
+	CONNECT(&settings_notifier, powermap_shelf, &shelf_checkbox,
 	        &GUI::CheckBox::setChecked);
 }
 
 void PowerWidget::chk_shelf(bool v)
 {
-	settings.shelf.store(v);
+	settings.powermap_shelf.store(v);
 }
 
 void PowerWidget::repaintEvent(GUI::RepaintEvent *repaintEvent)
@@ -91,19 +91,19 @@ PowerWidget::Canvas::Canvas(GUI::Widget* parent,
 {
 	CONNECT(this, settings_notifier.enable_powermap,
 	        this, &PowerWidget::Canvas::parameterChangedBool);
-	CONNECT(this, settings_notifier.fixed0_x,
+	CONNECT(this, settings_notifier.powermap_fixed0_x,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.fixed0_y,
+	CONNECT(this, settings_notifier.powermap_fixed0_y,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.fixed1_x,
+	CONNECT(this, settings_notifier.powermap_fixed1_x,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.fixed1_y,
+	CONNECT(this, settings_notifier.powermap_fixed1_y,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.fixed2_x,
+	CONNECT(this, settings_notifier.powermap_fixed2_x,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.fixed2_y,
+	CONNECT(this, settings_notifier.powermap_fixed2_y,
 	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.shelf,
+	CONNECT(this, settings_notifier.powermap_shelf,
 	        this, &PowerWidget::Canvas::parameterChangedBool);
 
 	parameterChangedFloat(0);
@@ -173,20 +173,20 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
 	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.fixed0_x.load() * width0,
-	                   y0 + height0 - settings.fixed0_y.load() * height0, rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed0_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed0_y.load() * height0, rad);
 	p.drawCircle(x0 + power_map.getFixed0().in * width0,
 	             y0 + height0 - power_map.getFixed0().out * height0, rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.fixed1_x.load() * width0,
-	                   y0 + height0 - settings.fixed1_y.load() * height0, rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed1_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed1_y.load() * height0, rad);
 	p.drawCircle(x0 + power_map.getFixed1().in * width0,
 	             y0 + height0 - power_map.getFixed1().out * height0, rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.fixed2_x.load() * width0,
-	                   y0 + height0 - settings.fixed2_y.load() * height0, rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed2_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed2_y.load() * height0, rad);
 	p.drawCircle(x0 + power_map.getFixed2().in * width0,
 	             y0 + height0 - power_map.getFixed2().out * height0, rad + 1);
 }
@@ -210,20 +210,20 @@ void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
 		in_point = -1;
 		break;
 	case GUI::Direction::down:
-		if(std::abs(mx0 - settings.fixed0_x.load()) < radius_x &&
-		   std::abs(my0 - settings.fixed0_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.powermap_fixed0_x.load()) < radius_x &&
+		   std::abs(my0 - settings.powermap_fixed0_y.load()) < radius_y)
 		{
 			in_point = 0;
 		}
 
-		if(std::abs(mx0 - settings.fixed1_x.load()) < radius_x &&
-		   std::abs(my0 - settings.fixed1_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.powermap_fixed1_x.load()) < radius_x &&
+		   std::abs(my0 - settings.powermap_fixed1_y.load()) < radius_y)
 		{
 			in_point = 1;
 		}
 
-		if(std::abs(mx0 - settings.fixed2_x.load()) < radius_x &&
-		   std::abs(my0 - settings.fixed2_y.load()) < radius_y)
+		if(std::abs(mx0 - settings.powermap_fixed2_x.load()) < radius_x &&
+		   std::abs(my0 - settings.powermap_fixed2_y.load()) < radius_y)
 		{
 			in_point = 2;
 		}
@@ -252,18 +252,18 @@ void PowerWidget::Canvas::mouseMoveEvent(GUI::MouseMoveEvent* mouseMoveEvent)
 	switch(in_point)
 	{
 	case 0:
-		settings.fixed0_x.store(clamp(mx0, 0, 1));
-		settings.fixed0_y.store(clamp(my0, 0, 1));
+		settings.powermap_fixed0_x.store(clamp(mx0, 0, 1));
+		settings.powermap_fixed0_y.store(clamp(my0, 0, 1));
 		redraw();
 		break;
 	case 1:
-		settings.fixed1_x.store(clamp(mx0, 0, 1));
-		settings.fixed1_y.store(clamp(my0, 0, 1));
+		settings.powermap_fixed1_x.store(clamp(mx0, 0, 1));
+		settings.powermap_fixed1_y.store(clamp(my0, 0, 1));
 		redraw();
 		break;
 	case 2:
-		settings.fixed2_x.store(clamp(mx0, 0, 1));
-		settings.fixed2_y.store(clamp(my0, 0, 1));
+		settings.powermap_fixed2_x.store(clamp(mx0, 0, 1));
+		settings.powermap_fixed2_y.store(clamp(my0, 0, 1));
 		redraw();
 		break;
 	default:
@@ -300,10 +300,10 @@ void PowerWidget::Canvas::mouseLeaveEvent()
 
 void PowerWidget::Canvas::parameterChangedFloat(float)
 {
-	power_map.setFixed0({settings.fixed0_x.load(), settings.fixed0_y.load()});
-	power_map.setFixed1({settings.fixed1_x.load(), settings.fixed1_y.load()});
-	power_map.setFixed2({settings.fixed2_x.load(), settings.fixed2_y.load()});
-	power_map.setShelf(settings.shelf.load());
+	power_map.setFixed0({settings.powermap_fixed0_x.load(), settings.powermap_fixed0_y.load()});
+	power_map.setFixed1({settings.powermap_fixed1_x.load(), settings.powermap_fixed1_y.load()});
+	power_map.setFixed2({settings.powermap_fixed2_x.load(), settings.powermap_fixed2_y.load()});
+	power_map.setShelf(settings.powermap_shelf.load());
 	enabled = settings.enable_powermap.load();
 	redraw();
 }

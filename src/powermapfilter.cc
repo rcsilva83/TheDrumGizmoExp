@@ -40,10 +40,10 @@ bool PowermapFilter::filter(event_t& event, size_t pos)
 
 	if (settings.enable_powermap.load())
 	{
-		powermap.setFixed0({settings.fixed0_x.load(), settings.fixed0_y.load()});
-		powermap.setFixed1({settings.fixed1_x.load(), settings.fixed1_y.load()});
-		powermap.setFixed2({settings.fixed2_x.load(), settings.fixed2_y.load()});
-		powermap.setShelf(settings.shelf.load());
+		powermap.setFixed0({settings.powermap_fixed0_x.load(), settings.powermap_fixed0_y.load()});
+		powermap.setFixed1({settings.powermap_fixed1_x.load(), settings.powermap_fixed1_y.load()});
+		powermap.setFixed2({settings.powermap_fixed2_x.load(), settings.powermap_fixed2_y.load()});
+		powermap.setShelf(settings.powermap_shelf.load());
 
 		event.velocity = powermap.map(event.velocity);
 	}

@@ -146,13 +146,13 @@ struct Settings
 
 	// Powermap parameters
 	Atomic<bool> enable_powermap;
-	Atomic<float> fixed0_x{0.};
-	Atomic<float> fixed0_y{0.};
-	Atomic<float> fixed1_x{.5};
-	Atomic<float> fixed1_y{.5};
-	Atomic<float> fixed2_x{1.};
-	Atomic<float> fixed2_y{1.};
-	Atomic<bool> shelf{true};
+	Atomic<float> powermap_fixed0_x{0.};
+	Atomic<float> powermap_fixed0_y{0.};
+	Atomic<float> powermap_fixed1_x{.5};
+	Atomic<float> powermap_fixed1_y{.5};
+	Atomic<float> powermap_fixed2_x{1.};
+	Atomic<float> powermap_fixed2_y{1.};
+	Atomic<bool> powermap_shelf{true};
 
 	Atomic<std::size_t> audition_counter{0};
 	Atomic<std::string> audition_instrument;
@@ -220,13 +220,13 @@ struct SettingsGetter
 	SettingRef<float> latency_current;
 
 	SettingRef<bool> enable_powermap;
-	SettingRef<float> fixed0_x;
-	SettingRef<float> fixed0_y;
-	SettingRef<float> fixed1_x;
-	SettingRef<float> fixed1_y;
-	SettingRef<float> fixed2_x;
-	SettingRef<float> fixed2_y;
-	SettingRef<bool> shelf;
+	SettingRef<float> powermap_fixed0_x;
+	SettingRef<float> powermap_fixed0_y;
+	SettingRef<float> powermap_fixed1_x;
+	SettingRef<float> powermap_fixed1_y;
+	SettingRef<float> powermap_fixed2_x;
+	SettingRef<float> powermap_fixed2_y;
+	SettingRef<bool> powermap_shelf;
 
 	SettingRef<std::size_t> audition_counter;
 	SettingRef<std::string> audition_instrument;
@@ -277,13 +277,13 @@ struct SettingsGetter
 		, latency_regain{settings.latency_regain}
 		, latency_current{settings.latency_current}
 		, enable_powermap{settings.enable_powermap}
-		, fixed0_x{settings.fixed0_x}
-		, fixed0_y{settings.fixed0_y}
-		, fixed1_x{settings.fixed1_x}
-		, fixed1_y{settings.fixed1_y}
-		, fixed2_x{settings.fixed2_x}
-		, fixed2_y{settings.fixed2_y}
-		, shelf{settings.shelf}
+		, powermap_fixed0_x{settings.powermap_fixed0_x}
+		, powermap_fixed0_y{settings.powermap_fixed0_y}
+		, powermap_fixed1_x{settings.powermap_fixed1_x}
+		, powermap_fixed1_y{settings.powermap_fixed1_y}
+		, powermap_fixed2_x{settings.powermap_fixed2_x}
+		, powermap_fixed2_y{settings.powermap_fixed2_y}
+		, powermap_shelf{settings.powermap_shelf}
 		, audition_counter{settings.audition_counter}
 		, audition_instrument{settings.audition_instrument}
 		, audition_velocity{settings.audition_velocity}
@@ -349,13 +349,13 @@ public:
 	Notifier<float> latency_current;
 
 	Notifier<bool> enable_powermap;
-	Notifier<float> fixed0_x;
-	Notifier<float> fixed0_y;
-	Notifier<float> fixed1_x;
-	Notifier<float> fixed1_y;
-	Notifier<float> fixed2_x;
-	Notifier<float> fixed2_y;
-	Notifier<bool> shelf;
+	Notifier<float> powermap_fixed0_x;
+	Notifier<float> powermap_fixed0_y;
+	Notifier<float> powermap_fixed1_x;
+	Notifier<float> powermap_fixed1_y;
+	Notifier<float> powermap_fixed2_x;
+	Notifier<float> powermap_fixed2_y;
+	Notifier<bool> powermap_shelf;
 
 	Notifier<std::size_t> audition_counter;
 	Notifier<std::string> audition_instrument;
@@ -420,13 +420,13 @@ public:
 		EVAL(latency_current);
 
 		EVAL(enable_powermap);
-		EVAL(fixed0_x);
-		EVAL(fixed0_y);
-		EVAL(fixed1_x);
-		EVAL(fixed1_y);
-		EVAL(fixed2_x);
-		EVAL(fixed2_y);
-		EVAL(shelf);
+		EVAL(powermap_fixed0_x);
+		EVAL(powermap_fixed0_y);
+		EVAL(powermap_fixed1_x);
+		EVAL(powermap_fixed1_y);
+		EVAL(powermap_fixed2_x);
+		EVAL(powermap_fixed2_y);
+		EVAL(powermap_shelf);
 
 		EVAL(audition_counter);
 		EVAL(audition_instrument);
