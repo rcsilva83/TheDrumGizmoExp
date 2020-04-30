@@ -91,7 +91,8 @@ void Powermap::reset()
 	setFixed0({eps, eps});
 	setFixed1({.5, .5});
 	setFixed2({1-eps, 1-eps});
-	shelf = false;
+	// FIXME: better false?
+	shelf = true;
 
 	updateSpline();
 }
