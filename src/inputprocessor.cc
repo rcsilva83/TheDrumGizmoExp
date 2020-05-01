@@ -39,6 +39,25 @@
 
 #include "cpp11fix.h"
 
+class VelocityStorer
+	: public InputFilter
+{
+public:
+	VelocityStorer(float& original_velocity)
+		: original_velocity(original_velocity)
+	{
+	}
+
+	bool filter(event_t& event, std::size_t pos) override
+	{
+		original_velocity = event.velocity;
+		return true;
+	}
+
+private:
+	float& original_velocity;
+};
+
 class Reporter
 	: public InputFilter
 {
@@ -55,7 +74,7 @@ public:
 		return true;
 	}
 
-
+private:
 	Settings& settings;
 	float& original_velocity;
 };
@@ -70,10 +89,11 @@ InputProcessor::InputProcessor(Settings& settings,
 {
 	// Build filter list
 	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
+	filters.emplace_back(std::make_unique<VelocityStorer>(original_velocity));
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
-	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
+	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
 }
 
 bool InputProcessor::process(std::vector<event_t>& events,
