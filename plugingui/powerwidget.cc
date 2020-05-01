@@ -52,15 +52,6 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 	shelf_label.resize(59, 16);
 	shelf_checkbox.resize(59, 40);
 
-	input_label.setText("in");
-	input_label.resize(20, 16);
-	input_label.setAlignment(GUI::TextAlignment::center);
-	input_label.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
-	output_label.setText("out");
-	output_label.resize(20, 16);
-	output_label.setAlignment(GUI::TextAlignment::left);
-	output_label.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
-
 	CONNECT(&settings_notifier, powermap_shelf, &shelf_checkbox,
 	        &GUI::CheckBox::setChecked);
 }
@@ -89,8 +80,6 @@ void PowerWidget::resize(std::size_t width, std::size_t height)
 
 	shelf_label.move(width - 59 + 5 - 32 , 0);
 	shelf_checkbox.move(width - 59 + 5 - 32, 16);
-	input_label.move((width-64-59)/2, height-30);
-	output_label.move(20, height/2);
 }
 
 PowerWidget::Canvas::Canvas(GUI::Widget* parent,
@@ -198,22 +187,26 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
 	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed0_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed0_y.load() * height0), rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed0_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed0_y.load() * height0, rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed0().in * width0),
 	             y0 + height0 - std::round(power_map.getFixed0().out * height0), rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed1_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed1_y.load() * height0), rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed1_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed1_y.load() * height0, rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed1().in * width0),
 	             y0 + height0 - std::round(power_map.getFixed1().out * height0), rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed2_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed2_y.load() * height0), rad);
+	p.drawFilledCircle(x0 + settings.powermap_fixed2_x.load() * width0,
+	                   y0 + height0 - settings.powermap_fixed2_y.load() * height0, rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed2().in * width0),
 	             y0 + height0 - std::round(power_map.getFixed2().out * height0), rad + 1);
+
+	p.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
+	p.drawText(width() / 2, height() - 8, font, "in");
+	p.drawText(16, height() / 2 + 8, font, "out");
 }
 
 void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)

@@ -32,6 +32,7 @@
 #include <knob.h>
 #include <checkbox.h>
 #include <label.h>
+#include <font.h>
 #include <powermap.h>
 
 struct Settings;
@@ -83,6 +84,7 @@ private:
 		int in_point{-1};
 		const float radius = 0.02f;
 		const float brd = 6.0f;
+		GUI::Font font{":resources/fontemboss.png"};
 	};
 
 	void chk_shelf(bool v);
@@ -90,8 +92,6 @@ private:
 	Canvas canvas;
 	GUI::Label shelf_label{this};
 	GUI::CheckBox shelf_checkbox{this};
-	GUI::Label input_label{this};
-	GUI::Label output_label{this};
 
 	Settings& settings;
 };
