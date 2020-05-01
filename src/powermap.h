@@ -65,7 +65,7 @@ private:
 	// spline parameters (deterministically computed from the input parameters)
 	bool spline_needs_update;
 	std::array<float, 5> m;
-	const Power eps = 1e-3;
+	const Power eps = 1e-4;
 
 	void updateSpline();
 	std::vector<float> calcSlopes(Powers const& X, Powers const& P);
