@@ -81,9 +81,16 @@ The pink areas indicate the spread of the position and velocity of the\n\
 next note in line. The wider the area the more the note can move in time\n\
 and velocity.";
 
-constexpr char power_tip[] =
-R"lit(Some explanatory text about how the power curvatures work and how they
-can be controlled.)lit";
+constexpr char power_tip[] = "\
+This function controls how the input powers are mapped to the powers that\n\
+DrumGizmo uses for selecting samples. You can control the function by dragging\n\
+and dropping the three colorful balls. The function is forced to be monotone\n\
+such that a higher input power always also has to be mapped to the same or a\n\
+higher output power. Furthermore, you can either use a shelf, which draws a\n\
+horizontal line from the green and red balls to the left/right side. Or you can\n\
+turn off the shelf, and then the function goes through the lower left corner,\n\
+then the three balls, and then the upper right corner, enabling to draw more\n\
+complicated functions.";
 
 } // end anonymous namespace
 
