@@ -84,13 +84,11 @@ and velocity.";
 constexpr char power_tip[] = "\
 This function controls how the input powers are mapped to the powers that\n\
 DrumGizmo uses for selecting samples. You can control the function by dragging\n\
-and dropping the three colorful balls. The function is forced to be monotone\n\
-such that a higher input power always also has to be mapped to the same or a\n\
-higher output power. Furthermore, you can either use a shelf, which draws a\n\
-horizontal line from the green and red balls to the left/right side. Or you can\n\
-turn off the shelf, and then the function goes through the lower left corner,\n\
-then the three balls, and then the upper right corner, enabling to draw more\n\
-complicated functions.";
+and dropping the three colorful control points. Additionally, you can either\n\
+use a shelf, which draws a horizontal line from the green and red control\n\
+points to the left/right side. Or you can turn off the shelf, and then the\n\
+function goes through the lower left corner, then the three control points,\n\
+and then the upper right corner, enabling to draw more complicated functions.";
 
 } // end anonymous namespace
 
