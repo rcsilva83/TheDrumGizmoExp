@@ -196,22 +196,22 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
 	p.setColour(GUI::Colour{0.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.powermap_fixed0_x.load() * width0,
-	                   y0 + height0 - settings.powermap_fixed0_y.load() * height0, rad);
-	p.drawCircle(x0 + power_map.getFixed0().in * width0,
-	             y0 + height0 - power_map.getFixed0().out * height0, rad + 1);
+	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed0_x.load() * width0),
+	                   y0 + height0 - std::round(settings.powermap_fixed0_y.load() * height0), rad);
+	p.drawCircle(x0 + std::round(power_map.getFixed0().in * width0),
+	             y0 + height0 - std::round(power_map.getFixed0().out * height0), rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.powermap_fixed1_x.load() * width0,
-	                   y0 + height0 - settings.powermap_fixed1_y.load() * height0, rad);
-	p.drawCircle(x0 + power_map.getFixed1().in * width0,
-	             y0 + height0 - power_map.getFixed1().out * height0, rad + 1);
+	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed1_x.load() * width0),
+	                   y0 + height0 - std::round(settings.powermap_fixed1_y.load() * height0), rad);
+	p.drawCircle(x0 + std::round(power_map.getFixed1().in * width0),
+	             y0 + height0 - std::round(power_map.getFixed1().out * height0), rad + 1);
 
 	p.setColour(GUI::Colour{1.0f, 0.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + settings.powermap_fixed2_x.load() * width0,
-	                   y0 + height0 - settings.powermap_fixed2_y.load() * height0, rad);
-	p.drawCircle(x0 + power_map.getFixed2().in * width0,
-	             y0 + height0 - power_map.getFixed2().out * height0, rad + 1);
+	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed2_x.load() * width0),
+	                   y0 + height0 - std::round(settings.powermap_fixed2_y.load() * height0), rad);
+	p.drawCircle(x0 + std::round(power_map.getFixed2().in * width0),
+	             y0 + height0 - std::round(power_map.getFixed2().out * height0), rad + 1);
 }
 
 void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
