@@ -205,8 +205,8 @@ void PowerWidget::Canvas::repaintEvent(GUI::RepaintEvent *repaintEvent)
 	             y0 + height0 - std::round(power_map.getFixed2().out * height0), rad + 1);
 
 	p.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
-	p.drawText(width() / 2, height() - 8, font, "in");
-	p.drawText(16, height() / 2 + 8, font, "out");
+	p.drawText(width() / 2 - (font.textWidth("in") / 2), height() - 8, font, "in");
+	p.drawText(8, height() / 2 - (font.textWidth("out") / 2), font, "out", false, true);
 }
 
 void PowerWidget::Canvas::buttonEvent(GUI::ButtonEvent* buttonEvent)
