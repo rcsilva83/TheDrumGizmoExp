@@ -67,4 +67,5 @@ private:
 	std::vector<std::unique_ptr<InputFilter>> filters;
 
 	Settings& settings;
+	float original_velocity{0.0f};
 };

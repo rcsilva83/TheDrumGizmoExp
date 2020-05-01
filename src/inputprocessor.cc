@@ -39,6 +39,27 @@
 
 #include "cpp11fix.h"
 
+class Reporter
+	: public InputFilter
+{
+public:
+	Reporter(Settings& settings, float& original_velocity)
+		: settings(settings)
+		, original_velocity(original_velocity)
+	{
+	}
+
+	bool filter(event_t& event, std::size_t pos) override
+	{
+		settings.velocity_modifier_current.store(event.velocity / original_velocity);
+		return true;
+	}
+
+
+	Settings& settings;
+	float& original_velocity;
+};
+
 InputProcessor::InputProcessor(Settings& settings,
                                DrumKit& kit,
                                EventsDS& events_ds,
@@ -51,6 +72,7 @@ InputProcessor::InputProcessor(Settings& settings,
 	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
+	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
 }
 
@@ -180,7 +202,7 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		return false;
 	}
 
-	auto const original_level = event.velocity;
+	original_velocity = event.velocity;
 	for(auto& filter : filters)
 	{
 		// This line might change the 'event' variable
@@ -209,9 +231,6 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		ERR(inputprocessor, "Missing Sample.\n");
 		return false;
 	}
-
-	auto const selected_level = (sample->getPower() - power_min)/power_span;
-	settings.velocity_modifier_current.store(selected_level/original_level);
 
 	events_ds.startAddingNewGroup(instrument_id);
 	for(Channel& ch: kit.channels)
