@@ -43,7 +43,7 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 	, canvas(this, settings, settings_notifier)
 	, settings(settings)
 {
-	canvas.move(27, 7);
+	canvas.move(7, 7);
 
 	CONNECT(&shelf_checkbox, stateChangedNotifier, this, &PowerWidget::chk_shelf);
 
@@ -55,9 +55,11 @@ PowerWidget::PowerWidget(GUI::Widget* parent,
 	input_label.setText("in");
 	input_label.resize(20, 16);
 	input_label.setAlignment(GUI::TextAlignment::center);
+	input_label.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
 	output_label.setText("out");
 	output_label.resize(20, 16);
 	output_label.setAlignment(GUI::TextAlignment::left);
+	output_label.setColour(GUI::Colour(1.0f, 1.0f, 1.0f, 0.2f));
 
 	CONNECT(&settings_notifier, powermap_shelf, &shelf_checkbox,
 	        &GUI::CheckBox::setChecked);
@@ -72,7 +74,7 @@ void PowerWidget::repaintEvent(GUI::RepaintEvent *repaintEvent)
 {
 	GUI::Painter p(*this);
 	box.setSize(width() - 59 - 64, height());
-	p.drawImage(20, 0, box);
+	p.drawImage(0, 0, box);
 }
 
 void PowerWidget::resize(std::size_t width, std::size_t height)
@@ -87,8 +89,8 @@ void PowerWidget::resize(std::size_t width, std::size_t height)
 
 	shelf_label.move(width - 59 + 5 - 32 , 0);
 	shelf_checkbox.move(width - 59 + 5 - 32, 16);
-	input_label.move(20+(width-64-59)/2, height-2);
-	output_label.move(0, height/2);
+	input_label.move((width-64-59)/2, height-30);
+	output_label.move(20, height/2);
 }
 
 PowerWidget::Canvas::Canvas(GUI::Widget* parent,
