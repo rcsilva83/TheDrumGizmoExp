@@ -71,7 +71,7 @@ void PowerWidget::repaintEvent(GUI::RepaintEvent *repaintEvent)
 void PowerWidget::resize(std::size_t width, std::size_t height)
 {
 	Widget::resize(width, height);
-	if(width < 14 || height < 14)
+	if(width < (14 + 59 + 64) || height < 14)
 	{
 		canvas.resize(1, 1);
 		return;
