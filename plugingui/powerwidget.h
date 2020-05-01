@@ -90,6 +90,8 @@ private:
 	Canvas canvas;
 	GUI::Label shelf_label{this};
 	GUI::CheckBox shelf_checkbox{this};
+	GUI::Label input_label{this};
+	GUI::Label output_label{this};
 
 	Settings& settings;
 };
