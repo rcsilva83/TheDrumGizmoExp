@@ -26,6 +26,7 @@ DG_SRC = \
 	@top_srcdir@/src/dgxmlparser.cc \
 	@top_srcdir@/src/directory.cc \
 	@top_srcdir@/src/domloader.cc \
+	@top_srcdir@/src/doubletriggerfilter.cc \
 	@top_srcdir@/src/drumgizmo.cc \
 	@top_srcdir@/src/drumgizmoconf.cc \
 	@top_srcdir@/src/drumkit.cc \

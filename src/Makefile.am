@@ -45,6 +45,7 @@ libdg_la_SOURCES = \
 	configparser.cc \
 	directory.cc \
 	domloader.cc \
+	doubletriggerfilter.cc \
 	dgxmlparser.cc \
 	drumgizmo.cc \
 	drumgizmoconf.cc \
@@ -95,6 +96,7 @@ EXTRA_DIST = \
 	cpp11fix.h \
 	dgxmlparser.h \
 	domloader.h \
+	doubletriggerfilter.h \
 	drumgizmo.h \
 	drumgizmoconf.h \
 	drumkit.h \

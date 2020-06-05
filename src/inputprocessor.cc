@@ -36,6 +36,7 @@
 #include "powermapfilter.h"
 #include "staminafilter.h"
 #include "velocityfilter.h"
+#include "doubletriggerfilter.h"
 
 #include "cpp11fix.h"
 
@@ -88,6 +89,7 @@ InputProcessor::InputProcessor(Settings& settings,
 	, settings(settings)
 {
 	// Build filter list
+	filters.emplace_back(std::make_unique<DoubleTriggerFilter>(settings));
 	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
 	filters.emplace_back(std::make_unique<VelocityStorer>(original_velocity));
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
