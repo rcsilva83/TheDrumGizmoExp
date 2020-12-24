@@ -37,6 +37,8 @@
 
 #include <Availability.h>
 
+static const int y_offset = 100;
+
 #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
 #if __MAC_OS_X_VERSION_MAX_ALLOWED < 101300 // Before MacOSX 10.13 (High-Sierra)
 #define STYLE_MASK                              \
@@ -230,7 +232,7 @@
 	NSPoint loc = [event locationInWindow];
 	auto mouseEnterEvent = std::make_shared<GUI::MouseEnterEvent>();
 	mouseEnterEvent->x = loc.x - frame.origin.x;
-	mouseEnterEvent->y = frame.size.height - loc.y - frame.origin.y;
+	mouseEnterEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	native->pushBackEvent(mouseEnterEvent);
 	//[[NSCursor pointingHandCursor] set];
 }
@@ -242,7 +244,7 @@
 	NSPoint loc = [event locationInWindow];
 	auto mouseLeaveEvent = std::make_shared<GUI::MouseLeaveEvent>();
 	mouseLeaveEvent->x = loc.x - frame.origin.x;
-	mouseLeaveEvent->y = frame.size.height - loc.y - frame.origin.y;
+	mouseLeaveEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	native->pushBackEvent(mouseLeaveEvent);
 	//[[NSCursor arrowCursor] set];
 }
@@ -253,7 +255,7 @@
 	NSPoint loc = [event locationInWindow];
 	auto mouseMoveEvent = std::make_shared<GUI::MouseMoveEvent>();
 	mouseMoveEvent->x = loc.x - frame.origin.x;
-	mouseMoveEvent->y = frame.size.height - loc.y - frame.origin.y;
+	mouseMoveEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	native->pushBackEvent(mouseMoveEvent);
 }
 
@@ -264,7 +266,7 @@
 
 	auto buttonEvent = std::make_shared<GUI::ButtonEvent>();
 	buttonEvent->x = loc.x - frame.origin.x;
-	buttonEvent->y = frame.size.height - loc.y - frame.origin.y;
+	buttonEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	switch((int)[event buttonNumber])
 	{
 	case 0:
@@ -293,7 +295,7 @@
 
 	auto buttonEvent = std::make_shared<GUI::ButtonEvent>();
 	buttonEvent->x = loc.x - frame.origin.x;
-	buttonEvent->y = frame.size.height - loc.y - frame.origin.y;
+	buttonEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	switch((int)[event buttonNumber])
 	{
 	case 0:
@@ -364,7 +366,7 @@
 
 	auto scrollEvent = std::make_shared<GUI::ScrollEvent>();
 	scrollEvent->x = loc.x - frame.origin.x;
-	scrollEvent->y = frame.size.height - loc.y - frame.origin.y;
+	scrollEvent->y = frame.size.height - loc.y - frame.origin.y - y_offset;
 	scrollEvent->delta = [event deltaY] * -1.0f;
 	native->pushBackEvent(scrollEvent);
 
@@ -725,6 +727,7 @@ void NativeWindowCocoa::updateLayerOffset()
 	{
 		//auto r1 = [priv->parent_view frame];
 		auto r2 = [priv->view frame];
+    r2.origin.y = y_offset;
 
 		CATransform3D t = [[priv->view layer] transform];
 		if(t.m42 != -r2.origin.y)
