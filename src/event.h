@@ -39,8 +39,9 @@ enum class EventType
 //! POD datatype for input event transport.
 struct event_t
 {
-	EventType type; //!< The type of the event.
-	std::size_t instrument; //!< The instrument number.
-	std::size_t offset; //!< The offset position in the input buffer
-	float velocity; //!< The velocity if the type is a note on [0; 1]
+	EventType type;          //!< The type of the event.
+	std::size_t instrument;  //!< The instrument number.
+	std::size_t offset;      //!< The offset position in the input buffer
+	float velocity;          //!< The velocity if the type is a note on [0; 1]
+	float position;          //!< The position of the note. 0 := center, 1 := rim
 };

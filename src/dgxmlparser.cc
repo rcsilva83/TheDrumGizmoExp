@@ -358,9 +358,19 @@ bool parseInstrumentFile(const std::string& filename, InstrumentDOM& dom, LogFun
 		}
 		else
 		{
-			res &= attrcpy(dom.samples.back().power, sample, "power", logger, filename);
-			dom.samples.back().normalized = false;
-			res &= attrcpy(dom.samples.back().normalized, sample, "normalized", logger, filename, true);
+			res &= attrcpy(dom.samples.back().power, sample, "power",
+			               logger, filename);
+
+			dom.samples.back().position = 0.0; // optional - defaults to 0
+			res &= attrcpy(dom.samples.back().position, sample, "position",
+			               logger, filename, true);
+			// Clamp to [0; 1] range.
+			dom.samples.back().position =
+				std::min(1.0, std::max(dom.samples.back().position, 0.0));
+
+			dom.samples.back().normalized = false; // optional - defaults to false
+			res &= attrcpy(dom.samples.back().normalized, sample, "normalized",
+			               logger, filename, true);
 		}
 
 		for(pugi::xml_node audiofile: sample.children("audiofile"))

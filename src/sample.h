@@ -37,12 +37,14 @@ using AudioFiles = std::map<const InstrumentChannel*, AudioFile*>;
 class Sample
 {
 public:
-	Sample(const std::string& name, double power, bool normalized = false);
+	Sample(const std::string& name, double power, double position,
+	       bool normalized = false);
 	~Sample();
 
 	AudioFile* getAudioFile(const Channel& channel) const;
 
 	double getPower() const;
+	double getPosition() const;
 	bool getNormalized() const;
 
 private:
@@ -55,6 +57,7 @@ private:
 
 	std::string name;
 	double power;
+	double position{0.0};
 	bool normalized;
 	AudioFiles audiofiles;
 };
