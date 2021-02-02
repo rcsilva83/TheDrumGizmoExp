@@ -417,6 +417,19 @@ AS_IF(
     have_input_jackmidi=no]
   )
 
+  dnl *** alsamidi
+  AC_ARG_ENABLE([input_alsamidi],
+    AS_HELP_STRING([--disable-input-alsamidi], [Disable input alsamidi plugin [default=enabled]]),,
+           [enable_input_alsamidi="yes"])
+
+  AS_IF(
+    [test "x$enable_input_alsamidi" = "xyes"],
+    [have_input_alsamidi=yes],
+
+    [AC_MSG_RESULT([*** input alsamidi plugin disabled per user request ***])
+    have_input_alsamidi=no]
+  )
+
   dnl *** Midifile
   AC_ARG_ENABLE([input_midifile],
 		AS_HELP_STRING([--disable-input-midifile], [Disable input midifile plugin [default=enabled]]),,
@@ -593,6 +606,7 @@ AM_CONDITIONAL([ENABLE_CLI], [test "x$enable_cli" == "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_DUMMY], [test "x$have_input_dummy" = "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_TEST], [test "x$have_input_test" = "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_JACKMIDI], [test "x$have_input_jackmidi" = "xyes"])
+AM_CONDITIONAL([HAVE_INPUT_ALSAMIDI], [test "x$have_input_alsamidi" = "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_OSSMIDI], [test "x$have_input_ossmidi" = "xyes"])
 AM_CONDITIONAL([HAVE_INPUT_MIDIFILE], [test "x$have_input_midifile" = "xyes"])
 AM_CONDITIONAL([HAVE_OUTPUT_DUMMY], [test "x$have_output_dummy" = "xyes"])
