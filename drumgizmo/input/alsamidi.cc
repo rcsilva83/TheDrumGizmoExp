@@ -2,7 +2,7 @@
 /***************************************************************************
  *            alsamidi.cc
  *
- *  Copyright 2021 corrados
+ *  Copyright 2021 Volker Fischer (github.com/corrados)
  ****************************************************************************/
 
 /*
@@ -28,6 +28,26 @@
 #include "cpp11fix.h" // required for c++11
 #include "alsamidi.h"
 
+struct AlsaMidiInitError
+{
+	int const code;
+	const std::string msg;
+
+	AlsaMidiInitError(int op_code, const std::string& msg)
+		: code{op_code}
+		, msg{msg}
+	{
+	}
+
+	static inline void test(int code, const std::string& msg)
+	{
+		if(code < 0)
+		{
+			throw AlsaMidiInitError(code, msg);
+		}
+	}
+};
+
 AlsaMidiInputEngine::AlsaMidiInputEngine()
 	: AudioInputEngineMidi{}
 	, in_port(0)
@@ -39,31 +59,52 @@ AlsaMidiInputEngine::AlsaMidiInputEngine()
 
 AlsaMidiInputEngine::~AlsaMidiInputEngine()
 {
+	if(seq_handle != nullptr)
+	{
+		snd_seq_close(seq_handle);
+	}
 }
 
 bool AlsaMidiInputEngine::init(const Instruments& instruments)
 {
 	if(!loadMidiMap(midimap_file, instruments))
 	{
-		std::cerr << "[MidifileInputEngine] Failed to parse midimap '"
+		std::cerr << "[AlsaMidiInputEngine] Failed to parse midimap '"
 		          << midimap_file << "'\n";
 		return false;
 	}
 
-	snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_INPUT, 0);
+	// try to initialize alsa MIDI
+	try
+	{
+		// it is not allowed to block in the run() function, therefore we
+		// have to use a non-blocking mode
+		int value = snd_seq_open(&seq_handle, "default",
+		                         SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
+		AlsaMidiInitError::test(value, "snd_seq_open");
 
-	snd_seq_set_client_name(seq_handle, "Midi Listener");
+		value = snd_seq_set_client_name(seq_handle, "drumgizmo");
+		AlsaMidiInitError::test(value, "snd_seq_set_client_name");
 
-	in_port =
-		snd_seq_create_simple_port(seq_handle, "listen:in",
-		                           SND_SEQ_PORT_CAP_WRITE |
-		                           SND_SEQ_PORT_CAP_SUBS_WRITE,
-		                           SND_SEQ_PORT_TYPE_APPLICATION);
+		in_port =
+			snd_seq_create_simple_port(seq_handle, "listen:in",
+			                           SND_SEQ_PORT_CAP_WRITE |
+			                           SND_SEQ_PORT_CAP_SUBS_WRITE,
+			                           SND_SEQ_PORT_TYPE_APPLICATION);
+		AlsaMidiInitError::test(in_port, "snd_seq_create_simple_port");
+	}
+	catch(AlsaMidiInitError const& error)
+	{
+		std::cerr << "[AlsaMidiInputEngine] " << error.msg
+		          << " failed: " << snd_strerror(error.code) << std::endl;
+		return false;
+	}
 
 	return true;
 }
 
-void AlsaMidiInputEngine::setParm(const std::string& parm, const std::string& value)
+void AlsaMidiInputEngine::setParm(const std::string& parm,
+                                  const std::string& value)
 {
 	if(parm == "midimap")
 	{
@@ -94,11 +135,36 @@ void AlsaMidiInputEngine::run(size_t pos, size_t len,
                               std::vector<event_t>& events)
 {
 	assert(events.empty());
+	snd_seq_event_t* ev = NULL;
+	if ( snd_seq_event_input(seq_handle, &ev) >= 0 )
+	{
+		// TODO Better solution needed: It seems that the very first raw byte
+		// of the MIDI message is missing the type information which is coded
+		// in the 4 high bits of the first byte. As a quick hack we add this
+		// information based on the type information of the sequence event.
+		std::uint8_t myd[3];
+		for ( int i = 0; i < 3; ++i)
+		{
+			myd[i] = ev->data.raw8.d[i];
+		}
+		if(ev->type == SND_SEQ_EVENT_NOTEON)
+		{
+			myd[0] += 0x90; // NoteOn
+		}
+		else if(ev->type == SND_SEQ_EVENT_NOTEOFF)
+		{
+			myd[0] += 0x80; // NoteOff
+		}
+		else if(ev->type == SND_SEQ_EVENT_KEYPRESS )
+		{
+			myd[0] += 0xA0; // NoteAftertouch
+		}
 
-	snd_seq_event_t* ev = nullptr;
-	snd_seq_event_input(seq_handle, &ev);
-
-	processNote(ev->data.raw8.d, 12, ev->data.time.tick, events);
+		// since we do not want to introduce any additional delay for the
+		// MIDI processing, we set the offset to zero
+		processNote(myd, 3, 0, events);
+	}
+	snd_seq_free_event(ev);
 }
 
 void AlsaMidiInputEngine::post()
