@@ -256,7 +256,14 @@ bool parseDrumkitFile(const std::string& filename, DrumkitDOM& dom, LogFunction 
 	for(pugi::xml_node channel: channels.children("channel"))
 	{
 		dom.channels.emplace_back();
-		res &= attrcpy(dom.channels.back().name, channel, "name", logger, filename);
+		auto& ch = dom.channels.back();
+		res &= attrcpy(ch.name, channel, "name", logger, filename);
+		ch.stereo_panning = 0.0f;
+		ch.stereo_volume = 1.0f;
+		res &= attrcpy(ch.stereo_panning, channel, "stereo_panning",
+		               logger, filename, true);
+		res &= attrcpy(ch.stereo_volume, channel, "stereo_volume",
+		               logger, filename, true);
 	}
 
 	pugi::xml_node instruments = doc.child("drumkit").child("instruments");

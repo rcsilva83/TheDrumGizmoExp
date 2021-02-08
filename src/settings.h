@@ -174,6 +174,8 @@ struct Settings
 	// Time it takes for an old sample to completely fall silent.
 	static float constexpr voice_limit_rampdown_default = 0.5f;
 	Atomic<float> voice_limit_rampdown{voice_limit_rampdown_default};
+
+	Atomic<bool> enable_stereo_mode{true};
 };
 
 //! Settings getter class.
@@ -256,6 +258,8 @@ struct SettingsGetter
 	SettingRef<std::size_t> voice_limit_max;
 	SettingRef<float> voice_limit_rampdown;
 
+	SettingRef<bool> enable_stereo_mode;
+
 	SettingsGetter(Settings& settings)
 		: drumkit_file(settings.drumkit_file)
 		, drumkit_load_status(settings.drumkit_load_status)
@@ -316,6 +320,7 @@ struct SettingsGetter
 		, enable_voice_limit{settings.enable_voice_limit}
 		, voice_limit_max{settings.voice_limit_max}
 		, voice_limit_rampdown{settings.voice_limit_rampdown}
+		, enable_stereo_mode{settings.enable_stereo_mode}
 	{
 	}
 };
@@ -399,6 +404,8 @@ public:
 	Notifier<std::size_t> voice_limit_max;
 	Notifier<float> voice_limit_rampdown;
 
+	Notifier<bool> enable_stereo_mode;
+
 	void evaluate()
 	{
 #define EVAL(x) if(settings.x.hasChanged()) { x(settings.x.getValue()); }
@@ -477,6 +484,8 @@ public:
 		EVAL(enable_voice_limit);
 		EVAL(voice_limit_max);
 		EVAL(voice_limit_rampdown);
+
+		EVAL(enable_stereo_mode);
 	}
 
 	SettingsNotifier(Settings& settings)

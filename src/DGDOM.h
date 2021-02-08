@@ -87,6 +87,8 @@ struct InstrumentDOM
 struct ChannelDOM
 {
 	std::string name;
+	double stereo_panning;
+	double stereo_volume;
 };
 
 struct ChannelMapDOM

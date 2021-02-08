@@ -65,6 +65,8 @@ bool DOMLoader::loadDom(const std::string& basepath,
 	{
 		drumkit.channels.emplace_back();
 		drumkit.channels.back().name = channel.name;
+		drumkit.channels.back().stereo_panning = channel.stereo_panning;
+		drumkit.channels.back().stereo_volume = channel.stereo_volume;
 		drumkit.channels.back().num = drumkit.channels.size() - 1;
 	}
 

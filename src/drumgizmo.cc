@@ -185,6 +185,63 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 	//
 	// Write audio
 	//
+	if(settings.enable_stereo_mode)
+	{
+		static sample_t left[4096];
+		static sample_t right[4096];
+		std::memset(left, 0, sizeof(left));
+		std::memset(right, 0, sizeof(right));
+		for(size_t c = 0; c < kit.channels.size(); ++c)
+		{
+			const auto& channel = kit.channels[c];
+			(void)channel;
+			const auto pan = channel.stereo_panning * 0.5 + 0.5; // -> [0; 1]
+			const auto scale = channel.stereo_volume;
+			static sample_t buf[4096];
+			std::memset(buf, 0, sizeof(buf));
+			getSamples(c, pos, buf, nsamples);
+			for(auto i = 0u; i < nsamples; ++i)
+			{
+				left[i] += buf[i] * pan * scale;
+				right[i] += buf[i] * (1 - pan) * scale;
+			}
+		}
+
+		for(size_t c = 0; c < kit.channels.size(); ++c)
+		{
+			sample_t *buf = samples;
+			bool internal = false;
+			if(oe.getBuffer(c))
+			{
+				buf = oe.getBuffer(c);
+				internal = true;
+			}
+
+			if(buf)
+			{
+				if(c == 0) // left channel
+				{
+					memcpy(buf, left, nsamples * sizeof(sample_t));
+				}
+				else if(c == 1) // right channel
+				{
+					memcpy(buf, right, nsamples * sizeof(sample_t));
+				}
+				else
+				{
+					std::memset(buf, 0, nsamples * sizeof(sample_t));
+				}
+
+				if(!internal)
+				{
+					oe.run(c, samples, nsamples);
+				}
+			}
+		}
+
+	}
+	else
+	{
 	if(!enable_resampling || ratio == 1.0)
 	{
 		// No resampling needed
@@ -249,6 +306,7 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 				oe.run(c, samples, nsamples);
 			}
 		}
+	}
 	}
 
 	ie.post();

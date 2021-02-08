@@ -47,6 +47,8 @@ public:
 	Channel(const std::string& name = "");
 
 	std::string name;
+	double stereo_panning; //! [-1; 1] where -1 i left, 0 is center and 1 is right
+	double stereo_volume; //! [0; 1] volume scalar
 	channel_t num;
 };
 
