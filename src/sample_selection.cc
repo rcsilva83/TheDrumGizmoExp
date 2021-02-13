@@ -142,8 +142,9 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 		auto random = rand.floatInRange(0.,1.);
 		auto close = (samples[current_index].power - level)/power_range;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
-		auto closepos = (position - samples[current_index].sample->getPosition());
-		auto value = f_close*pow2(close) + f_diverse*diverse + f_random*random + f_position*pow2(closepos);
+		auto closepos = samples[current_index].sample->getPosition() - position;
+		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
+		auto value = f_close*pow2(close) + f_position*pow2(closepos) + f_diverse*diverse + f_random*random;
 
 		if (value < value_opt)
 		{
