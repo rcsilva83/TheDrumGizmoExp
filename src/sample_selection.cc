@@ -69,16 +69,16 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 	float pos_opt{0.f};
 	float value_opt{std::numeric_limits<float>::max()};
 	// the following three values are mostly for debugging
-	float random_opt = 0.;
 	float close_opt = 0.;
-	float diverse_opt = 0.;
 	float closepos_opt = 0.;
+	float random_opt = 0.;
+	float diverse_opt = 0.;
 
 	// Note the magic values in front of the settings factors.
 	const float f_close = 4.*settings.sample_selection_f_close.load();
+	const float f_position = 1000.*settings.sample_selection_f_position.load(); // FIXME: huge factor for now
 	const float f_diverse = (1./2.)*settings.sample_selection_f_diverse.load();
 	const float f_random = (1./3.)*settings.sample_selection_f_random.load();
-	const float f_position = 1000.; // FIXME: get from settings
 
 	float power_range = powerlist.getMaxPower() - powerlist.getMinPower();
 	// If all power values are the same then power_range is invalid but we want
