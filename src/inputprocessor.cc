@@ -244,7 +244,8 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	auto const power_min = instr->getMinPower();
 	float const power_span = power_max - power_min;
 	float const instrument_level = power_min + event.velocity*power_span;
-	const auto sample = instr->sample(instrument_level, event.offset + pos);
+	// FIXME: bad variable naming of parameters
+	const auto sample = instr->sample(instrument_level, event.position, event.offset + pos);
 
 	if(sample == nullptr)
 	{

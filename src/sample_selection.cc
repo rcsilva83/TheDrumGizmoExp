@@ -54,7 +54,9 @@ void SampleSelection::finalise()
 	last.assign(powerlist.getPowerListItems().size(), 0);
 }
 
-const Sample* SampleSelection::get(level_t level, std::size_t pos)
+// FIXME: For the position, weird hacks via the powerlist are necessary. Refactor!
+// FIXME: bad variable naming
+const Sample* SampleSelection::get(level_t level, float position, std::size_t pos)
 {
 	const auto& samples = powerlist.getPowerListItems();
 	if(!samples.size())
@@ -64,16 +66,19 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 
 	std::size_t index_opt = 0;
 	float power_opt{0.f};
+	float pos_opt{0.f};
 	float value_opt{std::numeric_limits<float>::max()};
 	// the following three values are mostly for debugging
 	float random_opt = 0.;
 	float close_opt = 0.;
 	float diverse_opt = 0.;
+	float closepos_opt = 0.;
 
 	// Note the magic values in front of the settings factors.
 	const float f_close = 4.*settings.sample_selection_f_close.load();
 	const float f_diverse = (1./2.)*settings.sample_selection_f_diverse.load();
 	const float f_random = (1./3.)*settings.sample_selection_f_random.load();
+	const float f_position = 1000.; // FIXME: get from settings
 
 	float power_range = powerlist.getMaxPower() - powerlist.getMinPower();
 	// If all power values are the same then power_range is invalid but we want
@@ -137,22 +142,25 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 		auto random = rand.floatInRange(0.,1.);
 		auto close = (samples[current_index].power - level)/power_range;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
-		auto value = f_close*pow2(close) + f_diverse*diverse + f_random*random;
+		auto closepos = (position - samples[current_index].sample->getPosition());
+		auto value = f_close*pow2(close) + f_diverse*diverse + f_random*random + f_position*pow2(closepos);
 
 		if (value < value_opt)
 		{
 			index_opt = current_index;
 			power_opt = samples[current_index].power;
+			pos_opt = samples[current_index].sample->getPosition();
 			value_opt = value;
 			random_opt = random;
 			close_opt = close;
 			diverse_opt = diverse;
+			closepos_opt = closepos;
 		}
 		++count;
 	}
 	while (up_value_lb <= value_opt || down_value_lb <= value_opt);
 
-	DEBUG(rand, "Chose sample with index: %d, value: %f, power %f, random: %f, close: %f, diverse: %f, count: %d", (int)index_opt, value_opt, power_opt, random_opt, close_opt, diverse_opt, (int)count);
+	DEBUG(rand, "Chose sample with index: %d, value: %f, power: %f, position: %f, random: %f, close: %f, diverse: %f, closepos: %f, count: %d", (int)index_opt, value_opt, power_opt, pos_opt, random_opt, close_opt, diverse_opt, closepos_opt, (int)count);
 
 	last[index_opt] = pos;
 	return samples[index_opt].sample;

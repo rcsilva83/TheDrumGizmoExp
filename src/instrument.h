@@ -49,7 +49,8 @@ public:
 	Instrument(Settings& settings, Random& rand);
 	~Instrument();
 
-	const Sample* sample(level_t level, size_t pos);
+	// FIXME: variable naming
+	const Sample* sample(level_t level, float position, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;
