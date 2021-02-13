@@ -137,6 +137,8 @@ static std::string arguments()
 		"Sample selection parameters:\n"
 		"  close:         The importance given to choosing a sample close to\n"
 		"                 the actual velocity value (after humanization). [0,1]\n"
+		"  position:      The importance given to choosing a sample close to\n"
+		"                 the actual position value (after humanization). [0,1]\n"
 		"  diverse:       The importance given to choosing samples\n"
 		"                 which haven't been played recently. [0,1]\n"
 		"  random:        The amount of randomness added. [0,1]\n"
@@ -559,6 +561,16 @@ int main(int argc, char* argv[])
 					        return 1;
 				        }
 				        settings.sample_selection_f_close.store(val);
+			        }
+			        else if(token.key == "position")
+			        {
+				        auto val = atof_nol(token.value.data());
+				        if(val < 0 || val > 1)
+				        {
+					        std::cerr << "position range is [0, 1].\n";
+					        return 1;
+				        }
+				        settings.sample_selection_f_position.store(val);
 			        }
 			        else if(token.key == "diverse")
 			        {
