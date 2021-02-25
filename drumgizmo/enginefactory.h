@@ -3,7 +3,7 @@
  *            enginefactory.h
  *
  *  Mi 20. Jan 10:46:07 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian GlÃ¶ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -83,10 +83,6 @@
 
 #ifdef HAVE_INPUT_OSSMIDI
 #include "input/ossmidi.h"
-#endif
-
-#ifdef HAVE_INPUT_ALSAMIDI
-#include "input/alsamidi.h"
 #endif
 
 
