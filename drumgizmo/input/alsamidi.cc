@@ -136,7 +136,7 @@ void AlsaMidiInputEngine::run(size_t pos, size_t len,
 {
 	assert(events.empty());
 	snd_seq_event_t* ev = NULL;
-	if ( snd_seq_event_input(seq_handle, &ev) >= 0 )
+	while(snd_seq_event_input(seq_handle, &ev) >= 0)
 	{
 		// TODO Better solution needed: The ALSA MIDI event structure does
 		// not seem to contain the raw MIDI data, therefore we have to re-create
