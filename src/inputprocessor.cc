@@ -27,6 +27,7 @@
 #include "inputprocessor.h"
 
 #include <list>
+#include <cmath>
 
 #include <hugin.hpp>
 
@@ -285,7 +286,9 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 			event_sample.offset = (event.offset + pos) * resample_ratio;
 			if(settings.normalized_samples.load() && sample->getNormalized())
 			{
-				event_sample.scale *= event.velocity;
+				// To amortize with the non-normalized perceived sample power
+				// the velocity is square-rooted.
+				event_sample.scale *= std::sqrt(event.velocity);
 			}
 		}
 	}

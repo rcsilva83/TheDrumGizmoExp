@@ -36,7 +36,7 @@ libdg_la_CPPFLAGS = \
 	$(SNDFILE_CFLAGS) $(PTHREAD_CFLAGS)
 
 libdg_la_LIBADD = \
-	$(SNDFILE_LIBS) $(PTHREAD_LIBS) libzr.la libpugi.la
+	$(SNDFILE_LIBS) $(PTHREAD_LIBS) libzr.la libpugi.la -lm
 
 libdg_la_SOURCES = \
 	audiocachefile.cc \
