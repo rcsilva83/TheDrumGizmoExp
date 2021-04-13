@@ -209,6 +209,8 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		return false;
 	}
 
+	event.velocity = std::pow(event.velocity, 3);
+
 	std::size_t instrument_id = event.instrument;
 	Instrument* instr = nullptr;
 
