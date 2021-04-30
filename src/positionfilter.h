@@ -1,8 +1,8 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            sample_selection.h
+ *            positionfilter.h
  *
- *  Mon Mar  4 23:58:12 CET 2019
+ *  Sat 13 Feb 2021 12:46:41 CET
  *  Copyright 2019 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
@@ -26,26 +26,27 @@
  */
 #pragma once
 
-#include <vector>
+#include <cstddef>
+#include <map>
+#include <utility>
 
-#include "sample.h"
+#include "inputfilter.h"
+#include "instrument.h"
 
-class PowerList;
-class Random;
 struct Settings;
+class Random;
 
-class SampleSelection
+class PositionFilter
+	: public InputFilter
 {
 public:
-	SampleSelection(Settings& settings, Random& rand, const PowerList& powerlist);
+	PositionFilter(Settings& settings, Random& random);
 
-	void finalise();
-	const Sample* get(level_t level, float position, std::size_t pos);
+	bool filter(event_t& event, std::size_t pos) override;
+
+	// Note getLatency not overloaded because this filter doesn't add latency.
 
 private:
 	Settings& settings;
-	Random& rand;
-	const PowerList& powerlist;
-
-	std::vector<std::size_t> last;
+	Random& random;
 };

@@ -70,4 +70,6 @@ private:
 	bool is_valid;
 
 	ConfigFile refs;
+
+	float positional_information{0.0f};
 };

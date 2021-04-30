@@ -28,9 +28,11 @@
 
 #include <sndfile.h>
 
-Sample::Sample(const std::string& name, double power, bool normalized)
+Sample::Sample(const std::string& name, double power, double position,
+               bool normalized)
 	: name{name}
 	, power{power}
+	, position{position}
 	, normalized(normalized)
 	, audiofiles{}
 {
@@ -67,6 +69,11 @@ AudioFile* Sample::getAudioFile(const Channel& channel) const
 double Sample::getPower() const
 {
 	return power;
+}
+
+double Sample::getPosition() const
+{
+	return position;
 }
 
 bool Sample::getNormalized() const

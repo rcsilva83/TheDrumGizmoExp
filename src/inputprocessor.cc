@@ -36,6 +36,7 @@
 #include "powermapfilter.h"
 #include "staminafilter.h"
 #include "velocityfilter.h"
+#include "positionfilter.h"
 
 #include "cpp11fix.h"
 
@@ -93,6 +94,7 @@ InputProcessor::InputProcessor(Settings& settings,
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
+	filters.emplace_back(std::make_unique<PositionFilter>(settings, random));
 	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
 }
 
@@ -244,7 +246,8 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	auto const power_min = instr->getMinPower();
 	float const power_span = power_max - power_min;
 	float const instrument_level = power_min + event.velocity*power_span;
-	const auto sample = instr->sample(instrument_level, event.offset + pos);
+	// FIXME: bad variable naming of parameters
+	const auto sample = instr->sample(instrument_level, event.position, event.offset + pos);
 
 	if(sample == nullptr)
 	{

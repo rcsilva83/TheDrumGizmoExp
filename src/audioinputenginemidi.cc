@@ -100,9 +100,13 @@ bool AudioInputEngineMidi::isValid() const
 static const std::uint8_t NoteOff = 0x80;
 static const std::uint8_t NoteOn = 0x90;
 static const std::uint8_t NoteAftertouch = 0xA0;
+static const std::uint8_t ControlChange = 0xB0;
 
 // Note type mask:
-static int const NoteMask = 0xF0;
+static const std::uint8_t TypeMask = 0xF0;
+
+// See:
+// https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
 
 void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
                                        std::size_t midi_buffer_length,
@@ -114,35 +118,59 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		return;
 	}
 
-	auto key = midi_buffer[1];
-	auto velocity = midi_buffer[2];
-	auto instrument_idx = mmap.lookup(key);
-
-	switch(midi_buffer[0] & NoteMask)
+	switch(midi_buffer[0] & TypeMask)
 	{
 	case NoteOff:
 		// Ignore for now
 		break;
 
 	case NoteOn:
-		if(velocity != 0 && instrument_idx != -1)
 		{
-			// maps velocities to [.5/127, 126.5/127]
-			auto centered_velocity = (velocity-.5f)/127.0f;
-			events.push_back({EventType::OnSet, (std::size_t)instrument_idx,
-			                  offset, centered_velocity});
+			auto key = midi_buffer[1];
+			auto velocity = midi_buffer[2];
+			auto instrument_idx = mmap.lookup(key);
+			if(velocity != 0 && instrument_idx != -1)
+			{
+				// maps velocities to [.5/127, 126.5/127]
+				auto centered_velocity = (velocity-.5f)/127.0f;
+				events.push_back({ EventType::OnSet, (std::size_t)instrument_idx,
+				                   offset, centered_velocity, positional_information });
+			}
 		}
 		break;
 
 	case NoteAftertouch:
-		if(velocity == 0 && instrument_idx != -1)
 		{
-			events.push_back({EventType::Choke, (std::size_t)instrument_idx,
-			                  offset, .0f});
+			auto key = midi_buffer[1];
+			auto velocity = midi_buffer[2];
+			auto instrument_idx = mmap.lookup(key);
+			if(velocity == 0 && instrument_idx != -1)
+			{
+				events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
+				                   offset, .0f, .0f });
+			}
+		}
+		break;
+
+	case ControlChange:
+		{
+			auto controller_number = midi_buffer[1];
+			auto value = midi_buffer[2];
+			if(controller_number == 16) // positional information
+			{
+				// Store value for use in next NoteOn event.
+				positional_information = value / 127.0f;
+
+				// Return here to prevent reset of cached positional information.
+				return;
+			}
 		}
 		break;
 
 	default:
 		break;
 	}
+
+	// Clear cached positional information.
+	positional_information = 0.0f;
 }

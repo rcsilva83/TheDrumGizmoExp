@@ -1,8 +1,8 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            sample_selection.h
+ *            positionfilter.cc
  *
- *  Mon Mar  4 23:58:12 CET 2019
+ *  Sat 13 Feb 2021 12:46:41 CET
  *  Copyright 2019 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
@@ -24,28 +24,25 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#pragma once
+#include "positionfilter.h"
 
-#include <vector>
+#include "random.h"
+#include "settings.h"
 
-#include "sample.h"
-
-class PowerList;
-class Random;
-struct Settings;
-
-class SampleSelection
+PositionFilter::PositionFilter(Settings& settings, Random& random)
+	: settings(settings), random(random)
 {
-public:
-	SampleSelection(Settings& settings, Random& rand, const PowerList& powerlist);
+}
 
-	void finalise();
-	const Sample* get(level_t level, float position, std::size_t pos);
+bool PositionFilter::filter(event_t& event, size_t pos)
+{
+	if (settings.enable_velocity_modifier.load())
+	{
+		float mean = event.position;
+		float stddev = settings.position_stddev.load();
+		// the 30.0f were determined empirically
+		event.position = random.normalDistribution(mean, stddev / 30.0f); // FIXME: right magic value?
+	}
 
-private:
-	Settings& settings;
-	Random& rand;
-	const PowerList& powerlist;
-
-	std::vector<std::size_t> last;
-};
+	return true;
+}
