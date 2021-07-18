@@ -290,6 +290,26 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 			{
 				event_sample.scale *= event.velocity;
 			}
+
+// TEST dynamic expander
+//printf("event_sample.scale: %f, event.velocity: %f, sample->getPower(): %f, instr->getMinPower(): %f, instr->getMaxPower(): %f\n", event_sample.scale, event.velocity, sample->getPower(), instr->getMinPower(), instr->getMaxPower());
+
+auto instr_dynamic = 10 * log10(instr->getMaxPower()) - 10 * log10(instr->getMinPower());
+auto sel_power     = 10 * log10(sample->getPower());
+
+auto target_dynamic   = 35.0; // dB
+auto target_max_power = 10 * log10(instr->getMaxPower());
+auto target_min_power = target_max_power - target_dynamic;
+
+auto target_power = event.velocity * target_dynamic - target_dynamic + target_max_power;
+
+auto diff_power = target_power - sel_power;
+
+event_sample.scale = pow(10.0, diff_power / 20);
+
+//printf("event_sample.scale: %f, diff_power: %f, target_power: %f, sel_power: %f\n", event_sample.scale, diff_power, target_power, sel_power);
+
+
 		}
 	}
 
