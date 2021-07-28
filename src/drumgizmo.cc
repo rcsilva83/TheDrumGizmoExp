@@ -119,6 +119,12 @@ void DrumGizmo::setRandomSeed(unsigned int seed)
 
 bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 {
+	if(settings_getter.drumkit_file.hasChanged())
+	{
+		// New kit loaded/loading - old events no longer makes sense.
+		events_ds.clear();
+	}
+
 	if(settings_getter.enable_resampling.hasChanged())
 	{
 		enable_resampling = settings_getter.enable_resampling.getValue();
@@ -346,8 +352,9 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 
 		if(!af.isLoaded() || !af.isValid() || (s == nullptr))
 		{
-			removeevent = true;
-			break;
+			// This event cannot be played - schedule for deletion and continue.
+			to_remove.push_back(sample_event.id);
+			continue;
 		}
 
 		if(sample_event.offset > (pos + sz))
@@ -431,7 +438,7 @@ float DrumGizmo::samplerate()
 
 void DrumGizmo::setSamplerate(float samplerate, float resampling_quality)
 {
-	DEBUG(dgeditor, "%s samplerate: %f\n", __PRETTY_FUNCTION__, samplerate);
+	DEBUG(engine, "%s samplerate: %f\n", __PRETTY_FUNCTION__, samplerate);
 	settings.samplerate.store(samplerate);
 
 	// Notify input engine of the samplerate change.
@@ -463,10 +470,14 @@ void DrumGizmo::setSamplerate(float samplerate, float resampling_quality)
 		zita[c].set_inp_data(nullptr);
 		zita[c].set_inp_count(null_size);
 
-		constexpr auto sz = 4096 * 16;
-		sample_t s[sz];
-		zita[c].set_out_data(s);
-		zita[c].set_out_count(sz);
+		std::size_t scratch_buffer_size = (null_size / ratio);
+
+		if(scratch_buffer.size() < scratch_buffer_size)
+		{
+			scratch_buffer.resize(scratch_buffer_size);
+		}
+		zita[c].set_out_data(scratch_buffer.data());
+		zita[c].set_out_count(scratch_buffer_size);
 
 		zita[c].process();
 	}

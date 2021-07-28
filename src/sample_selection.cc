@@ -108,6 +108,8 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 	{
 		DEBUG(rand, "%d %d", (int)up_index, (int)down_index);
 
+		assert(down_index <= up_index);
+
 		std::size_t current_index;
 		if (up_value_lb < down_value_lb)
 		{
