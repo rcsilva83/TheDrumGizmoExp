@@ -144,7 +144,7 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 			auto key = midi_buffer[1];
 			auto velocity = midi_buffer[2];
 			auto instrument_idx = mmap.lookup(key);
-			if(velocity == 0 && instrument_idx != -1)
+			if(velocity > 0 && instrument_idx != -1)
 			{
 				events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
 				                   offset, .0f, .0f });
