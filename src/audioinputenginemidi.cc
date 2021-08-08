@@ -108,6 +108,11 @@ static const std::uint8_t TypeMask = 0xF0;
 // See:
 // https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
 
+
+// TODO better implementation: use member variable for controller value, set MIDI key on command line
+int hihat_controller = 0; // open hi-hat
+int hihat_midi_key   = 26;
+
 void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
                                        std::size_t midi_buffer_length,
                                        std::size_t offset,
@@ -135,6 +140,18 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 				auto centered_velocity = (velocity-.5f)/127.0f;
 				events.push_back({ EventType::OnSet, (std::size_t)instrument_idx,
 				                   offset, centered_velocity, positional_information });
+
+// quick hack, add 1000000 to offset to transport hi-hat controller value
+auto instrument_idx1 = mmap.lookup(hihat_midi_key);
+if(instrument_idx == instrument_idx1)
+{
+  if(hihat_controller < 100) // quick hack: hard-coded value
+  {
+    events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
+                       1000000 + hihat_controller, .0f, .0f });
+  }
+}
+
 			}
 		}
 		break;
@@ -163,6 +180,20 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 
 				// Return here to prevent reset of cached positional information.
 				return;
+			}
+
+			if(controller_number == 4) // hi-hat pedal
+			{
+
+// quick hack: if hi-hat control pedal is down, choke hi-hat instrument
+auto instrument_idx = mmap.lookup(hihat_midi_key);
+hihat_controller = value;
+if(value > 100 && instrument_idx != -1) // quick hack: hard-coded value
+{
+  events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
+                     offset, .0f, .0f });
+}
+
 			}
 		}
 		break;

@@ -168,8 +168,8 @@ static void applyChokeGroup(Settings& settings, DrumKit& kit,
 		for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 		{
 			if(event_sample.group == instr.getGroup() &&
-			   event_sample.instrument_id != instrument_id &&
-			   event_sample.rampdown_count == -1) // Only if not already ramping.
+			   event_sample.instrument_id != instrument_id /*&&
+			   event_sample.rampdown_count == -1*/) // Only if not already ramping.
 			{
 				// Fixed group rampdown time of 68ms, independent of samplerate
 				applyChoke(settings, event_sample, 68, event.offset);
@@ -190,8 +190,8 @@ static void applyDirectedChoke(Settings& settings, DrumKit& kit,
 		{
 			for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 			{
-				if(choke.instrument_id == event_sample.instrument_id &&
-				   event_sample.rampdown_count == -1) // Only if not already ramping.
+				if(choke.instrument_id == event_sample.instrument_id /*&&
+				   event_sample.rampdown_count == -1*/) // Only if not already ramping.
 				{
 					// choke.choketime is in ms
 					applyChoke(settings, event_sample, choke.choketime, event.offset);
@@ -355,11 +355,22 @@ bool InputProcessor::processChoke(event_t& event,
 	{
 		for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 		{
-			if(event_sample.instrument_id == instrument_id &&
-			   event_sample.rampdown_count == -1) // Only if not already ramping.
+			if(event_sample.instrument_id == instrument_id /*&&
+			   event_sample.rampdown_count == -1*/) // Only if not already ramping.
 			{
 				// Fixed group rampdown time of 68ms, independent of samplerate
+
+// quick hack: all "Only if not already ramping" must be disabled for hi-hat pedal to work
+if(event.offset >= 1000000) // quick hack: added 1000000 to offset to transport hi-hat controller value
+{
+  int hihat_controller = event.offset - 1000000;
+  int rampdown_time = static_cast<int>(std::max(100.0, pow(10.0, (127.0 - hihat_controller) / 38.0))); // TODO optimize
+  applyChoke(settings, event_sample, rampdown_time, 0);
+}
+else
+{
 				applyChoke(settings, event_sample, 68, event.offset);
+}
 			}
 		}
 	}
