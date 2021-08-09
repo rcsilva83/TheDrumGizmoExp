@@ -369,7 +369,7 @@ if(event.offset >= 1000000) // quick hack: added 1000000 to offset to transport 
 }
 else
 {
-				applyChoke(settings, event_sample, 68, event.offset);
+				applyChoke(settings, event_sample, 450, event.offset);
 }
 			}
 		}
