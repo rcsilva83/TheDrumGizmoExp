@@ -353,7 +353,7 @@ bool InputProcessor::processChoke(event_t& event,
 			if(event_sample.instrument_id == instrument_id /*&&
 			   event_sample.rampdown_count == -1*/) // Only if not already ramping.
 			{
-				// Fixed group rampdown time of 68ms, independent of samplerate
+				// Fixed group rampdown time of 180ms, independent of samplerate
 
 // quick hack: all "Only if not already ramping" must be disabled for hi-hat pedal to work
 if(event.offset >= 1000000) // quick hack: added 1000000 to offset to transport hi-hat controller value
@@ -364,7 +364,7 @@ if(event.offset >= 1000000) // quick hack: added 1000000 to offset to transport 
 }
 else
 {
-				applyChoke(settings, event_sample, 450, event.offset);
+				applyChoke(settings, event_sample, 180, event.offset);
 }
 			}
 		}
