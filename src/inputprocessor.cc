@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 AndrÃ© Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -297,7 +297,7 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 auto target_max_power_db = 10 * log10(instr->getMaxPower());
 auto target_min_power_db = 10 * log10(instr->getMinPower());
 auto sel_power_db        = 10 * log10(sample->getPower());
-auto target_dynamic_db   = 35.0; // dB
+auto target_dynamic_db   = 40.0; // dB
 
 auto target_power_db = sqrt(event.velocity) * target_dynamic_db + target_max_power_db - target_dynamic_db;
 auto diff_power_db   = target_power_db - sel_power_db;
