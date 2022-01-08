@@ -46,7 +46,7 @@ void LED::setState(state_t state)
 	}
 }
 
-void LED::repaintEvent(RepaintEvent* repaintEvent)
+void LED::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	size_t h = height() - 1;
 	size_t w = width() - 1;

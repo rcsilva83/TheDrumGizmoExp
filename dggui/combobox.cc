@@ -40,7 +40,7 @@ void ComboBox::listboxSelectHandler()
 {
 	ButtonEvent buttonEvent;
 	buttonEvent.direction = Direction::down;
-	this->buttonEvent(&buttonEvent);
+	this->buttonEvent(buttonEvent);
 }
 
 ComboBox::ComboBox(Widget* parent)
@@ -95,7 +95,7 @@ static void drawArrow(Painter &p, int x, int y, int w, int h)
 	p.drawLine(x+(w/2), y+h, x+w, y);
 }
 
-void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
+void ComboBox::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 
@@ -129,7 +129,7 @@ void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 	}
 }
 
-void ComboBox::scrollEvent(ScrollEvent* scrollEvent)
+void ComboBox::scrollEvent(const ScrollEvent& scrollEvent)
 {
 	/*
 	scroll_offset += e->delta;
@@ -145,15 +145,15 @@ void ComboBox::scrollEvent(ScrollEvent* scrollEvent)
 	*/
 }
 
-void ComboBox::keyEvent(KeyEvent* keyEvent)
+void ComboBox::keyEvent(const KeyEvent& keyEvent)
 {
-	if(keyEvent->direction != Direction::up)
+	if(keyEvent.direction != Direction::up)
 	{
 		return;
 	}
 
 	/*
-	switch(keyEvent->keycode) {
+	switch(keyEvent.keycode) {
 	case Key::up:
 		{
 			selected--;
@@ -205,15 +205,15 @@ void ComboBox::keyEvent(KeyEvent* keyEvent)
 	*/
 }
 
-void ComboBox::buttonEvent(ButtonEvent* buttonEvent)
+void ComboBox::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if(buttonEvent->direction != Direction::down)
+	if(buttonEvent.direction != Direction::down)
 	{
 		return;
 	}

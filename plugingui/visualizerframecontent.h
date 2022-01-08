@@ -48,8 +48,8 @@ public:
 	VisualizerframeContent(dggui::Widget* parent, Settings& settings,
 	                       SettingsNotifier& settings_notifier);
 
-		// From Widget
-	virtual void resize(std::size_t width, std::size_t height) override;
+	// From Widget
+	void resize(std::size_t width, std::size_t height) override;
 
 private:
 	HumaniserVisualiser visualizer;

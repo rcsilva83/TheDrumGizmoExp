@@ -57,7 +57,7 @@ void Tooltip::resize(std::size_t width, std::size_t height)
 	Widget::resize(width, height);
 }
 
-void Tooltip::repaintEvent(RepaintEvent* repaintEvent)
+void Tooltip::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	if(needs_preprocessing)
 	{
@@ -189,9 +189,9 @@ void Tooltip::show()
 	window()->setMouseFocus(this);
 }
 
-void Tooltip::buttonEvent(ButtonEvent* buttonEvent)
+void Tooltip::buttonEvent(const ButtonEvent& buttonEvent)
 {
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
 		hide();
 	}

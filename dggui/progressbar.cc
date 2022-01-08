@@ -65,7 +65,7 @@ void ProgressBar::setValue(std::size_t value)
 	}
 }
 
-void ProgressBar::repaintEvent(RepaintEvent* repaintEvent)
+void ProgressBar::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 

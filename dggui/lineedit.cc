@@ -71,7 +71,7 @@ std::string LineEdit::getText()
 	return _text;
 }
 
-void LineEdit::buttonEvent(ButtonEvent *buttonEvent)
+void LineEdit::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	if(readOnly())
 	{
@@ -79,17 +79,17 @@ void LineEdit::buttonEvent(ButtonEvent *buttonEvent)
 	}
 
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
 		for(int i = 0; i < (int)visibleText.length(); ++i)
 		{
 			int textWidth = font.textWidth(visibleText.substr(0, i));
-			if(buttonEvent->x < (textWidth + BORDER))
+			if(buttonEvent.x < (textWidth + BORDER))
 			{
 				pos = i + offsetPos;
 				break;
@@ -99,7 +99,7 @@ void LineEdit::buttonEvent(ButtonEvent *buttonEvent)
 	}
 }
 
-void LineEdit::keyEvent(KeyEvent *keyEvent)
+void LineEdit::keyEvent(const KeyEvent& keyEvent)
 {
 	if(readOnly())
 	{
@@ -108,9 +108,9 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 
 	bool change = false;
 
-	if(keyEvent->direction == Direction::down)
+	if(keyEvent.direction == Direction::down)
 	{
-		switch(keyEvent->keycode) {
+		switch(keyEvent.keycode) {
 		case Key::left:
 			if(pos == 0)
 			{
@@ -176,7 +176,7 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 			{
 				std::string pre = _text.substr(0, pos);
 				std::string post = _text.substr(pos, std::string::npos);
-				_text = pre + keyEvent->text + post;
+				_text = pre + keyEvent.text + post;
 				change = true;
 				pos++;
 			}
@@ -199,7 +199,7 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 	}
 }
 
-void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
+void LineEdit::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 

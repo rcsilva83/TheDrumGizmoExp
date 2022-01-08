@@ -71,12 +71,12 @@ public:
 	void redraw();
 
 	// From LayoutItem
-	virtual void resize(std::size_t width, std::size_t height) override;
-	virtual void move(int x, int y) override;
-	virtual int x() const override;
-	virtual int y() const override;
-	virtual std::size_t width() const override;
-	virtual std::size_t height() const override;
+	void resize(std::size_t width, std::size_t height) override;
+	void move(int x, int y) override;
+	int x() const override;
+	int y() const override;
+	std::size_t width() const override;
+	std::size_t height() const override;
 
 	Point position() const;
 
@@ -90,11 +90,11 @@ public:
 	void removeChild(Widget* widget);
 	void reparent(Widget* parent);
 
-	virtual void repaintEvent(RepaintEvent* repaintEvent) {}
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) {}
-	virtual void buttonEvent(ButtonEvent* buttonEvent) {}
-	virtual void scrollEvent(ScrollEvent* scrollEvent) {}
-	virtual void keyEvent(KeyEvent* keyEvent) {}
+	virtual void repaintEvent(const RepaintEvent& repaintEvent) {}
+	virtual void mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent) {}
+	virtual void buttonEvent(const ButtonEvent& buttonEvent) {}
+	virtual void scrollEvent(const ScrollEvent& scrollEvent) {}
+	virtual void keyEvent(const KeyEvent& keyEvent) {}
 	virtual void mouseLeaveEvent() {}
 	virtual void mouseEnterEvent() {}
 

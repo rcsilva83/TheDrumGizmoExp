@@ -44,8 +44,8 @@ public:
 	virtual ~FrameWidget() = default;
 
 	// From Widget:
-	virtual bool isFocusable() override { return false; }
-	virtual bool catchMouse() override { return false; }
+	bool isFocusable() override { return false; }
+	bool catchMouse() override { return false; }
 
 	bool isSwitchedOn() { return is_switched_on; }
 
@@ -61,7 +61,7 @@ public:
 
 protected:
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
 
 	//! Callback for Widget::sizeChangeNotifier
 	void sizeChanged(int width, int height);

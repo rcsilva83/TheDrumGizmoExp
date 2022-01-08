@@ -82,40 +82,40 @@ void Knob::showValue(bool show_value)
 	this->show_value = show_value;
 }
 
-void Knob::scrollEvent(ScrollEvent* scrollEvent)
+void Knob::scrollEvent(const ScrollEvent& scrollEvent)
 {
-	float value = (current_value - (scrollEvent->delta / 200.0));
+	float value = (current_value - (scrollEvent.delta / 200.0));
 	internalSetValue(value);
 }
 
-void Knob::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+void Knob::mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent)
 {
 	if(state == down)
 	{
-		if(mouse_offset_x == (mouseMoveEvent->x + (-1 * mouseMoveEvent->y)))
+		if(mouse_offset_x == (mouseMoveEvent.x + (-1 * mouseMoveEvent.y)))
 		{
 			return;
 		}
 
 		float dval =
-			mouse_offset_x - (mouseMoveEvent->x + (-1 * mouseMoveEvent->y));
+			mouse_offset_x - (mouseMoveEvent.x + (-1 * mouseMoveEvent.y));
 		float value = current_value - (dval / 300.0);
 
 		internalSetValue(value);
 
-		mouse_offset_x = mouseMoveEvent->x + (-1 * mouseMoveEvent->y);
+		mouse_offset_x = mouseMoveEvent.x + (-1 * mouseMoveEvent.y);
 	}
 }
 
-void Knob::keyEvent(KeyEvent* keyEvent)
+void Knob::keyEvent(const KeyEvent& keyEvent)
 {
-	if(keyEvent->direction != Direction::up)
+	if(keyEvent.direction != Direction::up)
 	{
 		return;
 	}
 
 	float value = current_value;
-	switch(keyEvent->keycode) {
+	switch(keyEvent.keycode) {
 	case Key::up:
 		value += 0.01;
 		break;
@@ -141,15 +141,15 @@ void Knob::keyEvent(KeyEvent* keyEvent)
 	internalSetValue(value);
 }
 
-void Knob::buttonEvent(ButtonEvent* buttonEvent)
+void Knob::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if(buttonEvent->doubleClick)
+	if(buttonEvent.doubleClick)
 	{
 		float value = default_value;
 		value -= minimum;
@@ -158,23 +158,23 @@ void Knob::buttonEvent(ButtonEvent* buttonEvent)
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
 		state = down;
-		mouse_offset_x = buttonEvent->x + (-1 * buttonEvent->y);
+		mouse_offset_x = buttonEvent.x + (-1 * buttonEvent.y);
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::up)
+	if(buttonEvent.direction == Direction::up)
 	{
 		state = up;
-		mouse_offset_x = buttonEvent->x + (-1 * buttonEvent->y);
+		mouse_offset_x = buttonEvent.x + (-1 * buttonEvent.y);
 		clicked();
 		return;
 	}
 }
 
-void Knob::repaintEvent(RepaintEvent* repaintEvent)
+void Knob::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	int diameter = (width()>height()?height():width());
 	int radius = diameter / 2;

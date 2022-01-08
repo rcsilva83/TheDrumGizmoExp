@@ -140,7 +140,7 @@ void ListBoxBasic::onScrollBarValueChange(int value)
 	redraw();
 }
 
-void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
+void ListBoxBasic::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 
@@ -190,20 +190,20 @@ void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
 	scroll.setMaximum(items.size());
 }
 
-void ListBoxBasic::scrollEvent(ScrollEvent* scrollEvent)
+void ListBoxBasic::scrollEvent(const ScrollEvent& scrollEvent)
 {
 	// forward scroll event to scroll bar.
 	scroll.scrollEvent(scrollEvent);
 }
 
-void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
+void ListBoxBasic::keyEvent(const KeyEvent& keyEvent)
 {
-	if(keyEvent->direction != Direction::down)
+	if(keyEvent.direction != Direction::down)
 	{
 		return;
 	}
 
-	switch(keyEvent->keycode) {
+	switch(keyEvent.keycode) {
 	case Key::up:
 		if(marked == 0)
 		{
@@ -259,7 +259,7 @@ void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
 		break;
 
 	case Key::character:
-		if(keyEvent->text == " ")
+		if(keyEvent.text == " ")
 		{
 			setSelection(marked);
 			//selectionNotifier();
@@ -278,20 +278,20 @@ void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
 	redraw();
 }
 
-void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
+void ListBoxBasic::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if((buttonEvent->x > ((int)width() - btn_size)) &&
-	   (buttonEvent->y < ((int)width() - 1)))
+	if((buttonEvent.x > ((int)width() - btn_size)) &&
+	   (buttonEvent.y < ((int)width() - 1)))
 	{
-		if(buttonEvent->y > 0 && buttonEvent->y < btn_size)
+		if(buttonEvent.y > 0 && buttonEvent.y < btn_size)
 		{
-			if(buttonEvent->direction == Direction::up)
+			if(buttonEvent.direction == Direction::up)
 			{
 				return;
 			}
@@ -299,10 +299,10 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 			return;
 		}
 
-		if(buttonEvent->y > ((int)height() - btn_size) &&
-		   buttonEvent->y < ((int)height() - 1))
+		if(buttonEvent.y > ((int)height() - btn_size) &&
+		   buttonEvent.y < ((int)height() - 1))
 		{
-			if(buttonEvent->direction == Direction::up)
+			if(buttonEvent.direction == Direction::up)
 			{
 				return;
 			}
@@ -311,14 +311,14 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 		}
 	}
 
-	if(buttonEvent->direction == Direction::up)
+	if(buttonEvent.direction == Direction::up)
 	{
 		int skip = scroll.value();
 		size_t yoffset = padding / 2;
 		for(int idx = skip; idx < (int)items.size(); idx++)
 		{
 			yoffset += font.textHeight() + padding;
-			if(buttonEvent->y < (int)yoffset - (padding / 2))
+			if(buttonEvent.y < (int)yoffset - (padding / 2))
 			{
 				setSelection(idx);
 				marked = selected;
@@ -330,14 +330,14 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 		redraw();
 	}
 
-	if(buttonEvent->direction != Direction::up)
+	if(buttonEvent.direction != Direction::up)
 	{
 		int skip = scroll.value();
 		size_t yoffset = padding / 2;
 		for(int idx = skip; idx < (int)items.size(); idx++)
 		{
 			yoffset += font.textHeight() + padding;
-			if(buttonEvent->y < ((int)yoffset - (padding / 2)))
+			if(buttonEvent.y < ((int)yoffset - (padding / 2)))
 			{
 				marked = idx;
 				break;
@@ -347,7 +347,7 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 		redraw();
 	}
 
-	if(buttonEvent->doubleClick)
+	if(buttonEvent.doubleClick)
 	{
 		selectionNotifier();
 	}

@@ -49,11 +49,11 @@ public:
 	void setText(const std::string& text);
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* repaint_event) override;
-	virtual void resize(std::size_t height, std::size_t width) override;
-	virtual void mouseLeaveEvent() override;
-	virtual void show() override;
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
+	void repaintEvent(const RepaintEvent& repaint_event) override;
+	void resize(std::size_t height, std::size_t width) override;
+	void mouseLeaveEvent() override;
+	void show() override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
 
 private:
 	void preprocessText();

@@ -139,7 +139,7 @@ void FileBrowser::resize(std::size_t width, std::size_t height)
 	btn_sel.resize(btn_w, btn_h);
 }
 
-void FileBrowser::repaintEvent(dggui::RepaintEvent* repaintEvent)
+void FileBrowser::repaintEvent(const dggui::RepaintEvent& repaintEvent)
 {
 	dggui::Painter p(*this);
 	p.drawImageStretched(0,0, back, width(), height());

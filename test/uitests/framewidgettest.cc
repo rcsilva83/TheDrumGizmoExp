@@ -141,7 +141,7 @@ public:
 		return !closing;
 	}
 
-	void repaintEvent(dggui::RepaintEvent* repaintEvent) override
+	void repaintEvent(const dggui::RepaintEvent& repaintEvent) override
 	{
 		dggui::Painter painter(*this);
 		painter.setColour(dggui::Colour(0.85));

@@ -105,7 +105,7 @@ void Slider::setEnabled(bool enabled)
 	redraw();
 }
 
-void Slider::repaintEvent(RepaintEvent* repaintEvent)
+void Slider::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 
@@ -125,28 +125,28 @@ void Slider::repaintEvent(RepaintEvent* repaintEvent)
 	p.drawImage(button_x, button_y, button);
 }
 
-void Slider::buttonEvent(ButtonEvent* buttonEvent)
+void Slider::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(!enabled || buttonEvent->button != MouseButton::left)
+	if(!enabled || buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
 		state = State::down;
-		recomputeCurrentValue(buttonEvent->x);
+		recomputeCurrentValue(buttonEvent.x);
 
 		redraw();
 		clickNotifier();
 		valueChangedNotifier(current_value);
 	}
 
-	if(buttonEvent->direction == Direction::up)
+	if(buttonEvent.direction == Direction::up)
 	{
 		state = State::up;
-		recomputeCurrentValue(buttonEvent->x);
+		recomputeCurrentValue(buttonEvent.x);
 
 		redraw();
 		clickNotifier();
@@ -154,11 +154,11 @@ void Slider::buttonEvent(ButtonEvent* buttonEvent)
 	}
 }
 
-void Slider::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+void Slider::mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent)
 {
 	if(state == State::down)
 	{
-		recomputeCurrentValue(mouseMoveEvent->x);
+		recomputeCurrentValue(mouseMoveEvent.x);
 
 		redraw();
 		clickNotifier();
@@ -166,11 +166,11 @@ void Slider::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	}
 }
 
-void Slider::scrollEvent(ScrollEvent* scrollEvent)
+void Slider::scrollEvent(const ScrollEvent& scrollEvent)
 {
 	if (!enabled) { return; }
 
-	current_value -= scrollEvent->delta/(float)getControlWidth();
+	current_value -= scrollEvent.delta/(float)getControlWidth();
 	if (current_value < 0.)
 	{
 		current_value = 0.;

@@ -57,10 +57,10 @@ public:
 protected:
 	// From Widget:
 	bool catchMouse() override { return true; }
-	void scrollEvent(ScrollEvent* scrollEvent) override;
-	void repaintEvent(RepaintEvent* repaintEvent) override;
-	void buttonEvent(ButtonEvent* buttonEvent) override;
-	void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) override;
+	void scrollEvent(const ScrollEvent& scrollEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
+	void mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent) override;
 
 private:
 	int maxValue{100};

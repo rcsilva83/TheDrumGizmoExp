@@ -65,7 +65,7 @@ private:
 	void changeDrumkitTabVisibility(bool visible);
 
 	// From Widget
-	void repaintEvent(dggui::RepaintEvent* repaintEvent) override final;
+	void repaintEvent(const dggui::RepaintEvent& repaintEvent) override final;
 
 	Config config;
 	SettingsNotifier settings_notifier;

@@ -54,9 +54,9 @@ public:
 
 	// From dggui::Widget:
 	void resize(std::size_t width, std::size_t height) override;
-	void buttonEvent(dggui::ButtonEvent* buttonEvent) override;
-	void scrollEvent(dggui::ScrollEvent* scrollEvent) override;
-	void mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent) override;
+	void buttonEvent(const dggui::ButtonEvent& buttonEvent) override;
+	void scrollEvent(const dggui::ScrollEvent& scrollEvent) override;
+	void mouseMoveEvent(const dggui::MouseMoveEvent& mouseMoveEvent) override;
 	void mouseLeaveEvent() override;
 
 	void init(const std::string& image_file, const std::string& map_file);

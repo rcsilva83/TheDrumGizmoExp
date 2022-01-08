@@ -67,7 +67,7 @@ void Label::resizeToText()
 	resize(font.textWidth(_text) + border, font.textHeight());
 }
 
-void Label::repaintEvent(RepaintEvent* repaintEvent)
+void Label::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 	p.clear();

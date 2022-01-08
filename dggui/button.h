@@ -41,7 +41,7 @@ public:
 
 protected:
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override;
+	void repaintEvent(const RepaintEvent& event) override;
 
 private:
 	TexturedBox box_up{getImageCache(), ":resources/pushbutton.png",

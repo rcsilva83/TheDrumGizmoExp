@@ -82,13 +82,13 @@ void DrumkitTab::resize(std::size_t width, std::size_t height)
 	                           height-instrument_name_label.height()-5);
 }
 
-void DrumkitTab::buttonEvent(dggui::ButtonEvent* buttonEvent)
+void DrumkitTab::buttonEvent(const dggui::ButtonEvent& buttonEvent)
 {
 	if(map_image)
 	{
-		if(buttonEvent->button == dggui::MouseButton::right)
+		if(buttonEvent.button == dggui::MouseButton::right)
 		{
-			if(buttonEvent->direction == dggui::Direction::down)
+			if(buttonEvent.direction == dggui::Direction::down)
 			{
 				dggui::Painter painter(*this);
 				painter.drawImage(drumkit_image_x, drumkit_image_y, *map_image);
@@ -97,7 +97,7 @@ void DrumkitTab::buttonEvent(dggui::ButtonEvent* buttonEvent)
 				return;
 			}
 
-			if(buttonEvent->direction == dggui::Direction::up)
+			if(buttonEvent.direction == dggui::Direction::up)
 			{
 				dggui::Painter painter(*this);
 				painter.clear();
@@ -112,16 +112,16 @@ void DrumkitTab::buttonEvent(dggui::ButtonEvent* buttonEvent)
 		}
 	}
 
-	if(buttonEvent->button == dggui::MouseButton::left)
+	if(buttonEvent.button == dggui::MouseButton::left)
 	{
-		if(buttonEvent->direction == dggui::Direction::down)
+		if(buttonEvent.direction == dggui::Direction::down)
 		{
-			triggerAudition(buttonEvent->x, buttonEvent->y);
+			triggerAudition(buttonEvent.x, buttonEvent.y);
 			highlightInstrument(current_index);
 			redraw();
 		}
 
-		if(buttonEvent->direction == dggui::Direction::up)
+		if(buttonEvent.direction == dggui::Direction::up)
 		{
 			if(shows_instrument_overlay)
 			{
@@ -140,21 +140,21 @@ void DrumkitTab::buttonEvent(dggui::ButtonEvent* buttonEvent)
 	}
 }
 
-void DrumkitTab::scrollEvent(dggui::ScrollEvent* scrollEvent)
+void DrumkitTab::scrollEvent(const dggui::ScrollEvent& scrollEvent)
 {
-	current_velocity -=  0.01 * scrollEvent->delta;
+	current_velocity -=  0.01 * scrollEvent.delta;
 	current_velocity = std::max(std::min(current_velocity, 1.0f), 0.0f);
 	updateVelocityLabel();
 	velocity_label.resizeToText();
 
-	triggerAudition(scrollEvent->x, scrollEvent->y);
+	triggerAudition(scrollEvent.x, scrollEvent.y);
 }
 
-void DrumkitTab::mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent)
+void DrumkitTab::mouseMoveEvent(const dggui::MouseMoveEvent& mouseMoveEvent)
 {
 	// change to image coordinates
-	const auto x = mouseMoveEvent->x - drumkit_image_x;
-	const auto y = mouseMoveEvent->y - drumkit_image_y;
+	const auto x = mouseMoveEvent.x - drumkit_image_x;
+	const auto y = mouseMoveEvent.y - drumkit_image_y;
 
 	auto index = pos_to_colour_index(x, y);
 

@@ -57,7 +57,7 @@ public:
 
 protected:
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
 
 private:
 	ProgressBarState state{ProgressBarState::Blue};

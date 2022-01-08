@@ -45,8 +45,8 @@ public:
 	                    SettingsNotifier& settings_notifier);
 
 	// From Widget:
-	virtual void repaintEvent(dggui::RepaintEvent *repaintEvent) override;
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void repaintEvent(const dggui::RepaintEvent& repaintEvent) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 private:
 	dggui::TexturedBox box{getImageCache(), ":resources/widget.png",
@@ -62,7 +62,7 @@ private:
 		       SettingsNotifier& settings_notifier);
 
 		// From Widget:
-		virtual void repaintEvent(dggui::RepaintEvent *repaintEvent) override;
+		void repaintEvent(const dggui::RepaintEvent& repaintEvent) override;
 
 		void latencyEnabledChanged(bool enabled);
 		void velocityEnabledChanged(bool enabled);

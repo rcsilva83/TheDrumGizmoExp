@@ -54,10 +54,10 @@ public:
 
 	// From Widget:
 	bool isFocusable() override { return true; }
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
-	virtual void scrollEvent(ScrollEvent* scrollEvent) override;
-	virtual void keyEvent(KeyEvent* keyEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
+	void scrollEvent(const ScrollEvent& scrollEvent) override;
+	void keyEvent(const KeyEvent& keyEvent) override;
 
 	Notifier<std::string, std::string> valueChangedNotifier;
 

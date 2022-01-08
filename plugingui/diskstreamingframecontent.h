@@ -46,7 +46,7 @@ public:
 	                          SettingsNotifier& settings_notifier);
 
 	// From Widget
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 private:
 	void limitSettingsValueChanged(std::size_t value);

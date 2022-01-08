@@ -67,17 +67,17 @@ public:
 	Notifier<> valueChangedNotifier;
 
 	// From Widget:
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 protected:
 	void onScrollBarValueChange(int value);
 
 	// From Widget:
 	bool isFocusable() override { return true; }
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
-	virtual void keyEvent(KeyEvent* keyEvent) override;
-	virtual void scrollEvent(ScrollEvent* scrollEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
+	void keyEvent(const KeyEvent& keyEvent) override;
+	void scrollEvent(const ScrollEvent& scrollEvent) override;
 
 	ScrollBar scroll;
 

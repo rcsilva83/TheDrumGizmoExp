@@ -62,10 +62,11 @@ public:
 	Notifier<float> valueChangedNotifier; // (float value)
 
 protected:
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) override;
-	virtual void scrollEvent(ScrollEvent* scrollEvent) override;
+	// From Widget:
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
+	void mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent) override;
+	void scrollEvent(const ScrollEvent& scrollEvent) override;
 
 	bool enabled = true;;
 

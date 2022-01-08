@@ -90,7 +90,7 @@ TabID TabButton::getID() const
 	return tab_id;
 }
 
-void TabButton::repaintEvent(RepaintEvent* e)
+void TabButton::repaintEvent(const RepaintEvent& e)
 {
 	Painter p(*this);
 
@@ -119,9 +119,9 @@ void TabButton::repaintEvent(RepaintEvent* e)
 	p.drawText(x, y, font, text, true);
 }
 
-void TabButton::scrollEvent(ScrollEvent* scroll_event)
+void TabButton::scrollEvent(const ScrollEvent& scroll_event)
 {
-	scrollNotifier(scroll_event->delta);
+	scrollNotifier(scroll_event.delta);
 }
 
 void TabButton::clickHandler()

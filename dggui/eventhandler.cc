@@ -143,7 +143,7 @@ void EventHandler::processEvents()
 					moveEvent->x -= widget->translateToWindowX();
 					moveEvent->y -= widget->translateToWindowY();
 
-					window.buttonDownFocus()->mouseMoveEvent(moveEvent);
+					window.buttonDownFocus()->mouseMoveEvent(*moveEvent);
 					break;
 				}
 
@@ -151,7 +151,7 @@ void EventHandler::processEvents()
 				{
 					moveEvent->x -= widget->translateToWindowX();
 					moveEvent->y -= widget->translateToWindowY();
-					widget->mouseMoveEvent(moveEvent);
+					widget->mouseMoveEvent(*moveEvent);
 				}
 			}
 			break;
@@ -182,7 +182,7 @@ void EventHandler::processEvents()
 						buttonEvent->x -= widget->translateToWindowX();
 						buttonEvent->y -= widget->translateToWindowY();
 
-						widget->buttonEvent(buttonEvent);
+						widget->buttonEvent(*buttonEvent);
 						window.setButtonDownFocus(nullptr);
 						break;
 					}
@@ -193,7 +193,7 @@ void EventHandler::processEvents()
 					buttonEvent->x -= widget->translateToWindowX();
 					buttonEvent->y -= widget->translateToWindowY();
 
-					widget->buttonEvent(buttonEvent);
+					widget->buttonEvent(*buttonEvent);
 
 					if((buttonEvent->direction == Direction::down) &&
 					   widget->catchMouse())
@@ -224,7 +224,7 @@ void EventHandler::processEvents()
 					scrollEvent->x -= widget->translateToWindowX();
 					scrollEvent->y -= widget->translateToWindowY();
 
-					widget->scrollEvent(scrollEvent);
+					widget->scrollEvent(*scrollEvent);
 				}
 			}
 			break;
@@ -241,7 +241,7 @@ void EventHandler::processEvents()
 				auto keyEvent = static_cast<KeyEvent*>(event.get());
 				if(window.keyboardFocus())
 				{
-					window.keyboardFocus()->keyEvent(keyEvent);
+					window.keyboardFocus()->keyEvent(*keyEvent);
 				}
 			}
 			break;

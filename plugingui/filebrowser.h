@@ -54,8 +54,8 @@ public:
 
 	// From Widget:
 	bool isFocusable() override { return true; }
-	virtual void repaintEvent(dggui::RepaintEvent* repaintEvent) override;
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void repaintEvent(const dggui::RepaintEvent& repaintEvent) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 	//! Return the filename selected in the browser.
 	std::string getFilename() const;

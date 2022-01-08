@@ -48,7 +48,7 @@ public:
 	BrowseFile(dggui::Widget* parent);
 
 	// From Widget
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 	std::size_t getLineEditWidth();
 	std::size_t getButtonWidth();
@@ -77,7 +77,7 @@ public:
 	                    Config& config);
 
 	// From Widget
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 	void kitBrowseClick();
 	void midimapBrowseClick();

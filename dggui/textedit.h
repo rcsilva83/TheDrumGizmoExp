@@ -64,8 +64,8 @@ public:
 
 protected:
 	// From Widget
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	void scrollEvent(ScrollEvent* scrollEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void scrollEvent(const ScrollEvent& scrollEvent) override;
 
 private:
 	void scrolled(int value);

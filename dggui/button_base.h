@@ -57,10 +57,10 @@ protected:
 	virtual void clicked() {}
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override {};
-	virtual void buttonEvent(ButtonEvent* e) override;
-	virtual void mouseLeaveEvent() override;
-	virtual void mouseEnterEvent() override;
+	void repaintEvent(const RepaintEvent& e) override {};
+	void buttonEvent(const ButtonEvent& e) override;
+	void mouseLeaveEvent() override;
+	void mouseEnterEvent() override;
 
 	bool enabled{true};
 	bool in_button{false};

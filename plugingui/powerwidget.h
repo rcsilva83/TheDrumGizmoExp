@@ -51,8 +51,8 @@ public:
 	            SettingsNotifier& settings_notifier);
 
 	// From Widget:
-	virtual void repaintEvent(dggui::RepaintEvent *repaintEvent) override;
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void repaintEvent(const dggui::RepaintEvent& repaintEvent) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 private:
 	dggui::TexturedBox box{getImageCache(), ":resources/widget.png",
@@ -68,11 +68,11 @@ private:
 		       SettingsNotifier& settings_notifier);
 
 		// From Widget:
-		virtual bool catchMouse() override { return true; }
-		virtual void repaintEvent(dggui::RepaintEvent *repaintEvent) override;
-		virtual void buttonEvent(dggui::ButtonEvent* buttonEvent) override;
-		virtual void mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent) override;
-		virtual void mouseLeaveEvent() override;
+		bool catchMouse() override { return true; }
+		void repaintEvent(const dggui::RepaintEvent& repaintEvent) override;
+		void buttonEvent(const dggui::ButtonEvent& buttonEvent) override;
+		void mouseMoveEvent(const dggui::MouseMoveEvent& mouseMoveEvent) override;
+		void mouseLeaveEvent() override;
 
 	private:
 		Powermap power_map;

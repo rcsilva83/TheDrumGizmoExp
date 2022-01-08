@@ -54,9 +54,9 @@ public:
 	Notifier<> enterPressedNotifier;
 
 	//protected:
-	virtual void keyEvent(KeyEvent *keyEvent) override;
-	virtual void repaintEvent(RepaintEvent *repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent *buttonEvent) override;
+	void keyEvent(const KeyEvent& keyEvent) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
 
 protected:
 	virtual void textChanged() {}

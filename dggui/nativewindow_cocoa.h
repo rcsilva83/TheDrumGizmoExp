@@ -42,21 +42,21 @@ public:
 	~NativeWindowCocoa();
 
 	// From NativeWindow:
-	virtual void setFixedSize(std::size_t width, std::size_t height) override;
-	virtual void setAlwaysOnTop(bool always_on_top) override;
-	virtual void resize(std::size_t width, std::size_t height) override;
-	virtual std::pair<std::size_t, std::size_t> getSize() const override;
-	virtual void move(int x, int y) override;
-	virtual std::pair<int, int> getPosition() const override;
-	virtual void show() override;
-	virtual void hide() override;
-	virtual bool visible() const override;
-	virtual void setCaption(const std::string &caption) override;
-	virtual void redraw(const Rect& dirty_rect) override;
-	virtual void grabMouse(bool grab) override;
-	virtual EventQueue getEvents() override;
-	virtual void* getNativeWindowHandle() const override;
-	virtual Point translateToScreen(const Point& point) override;
+	void setFixedSize(std::size_t width, std::size_t height) override;
+	void setAlwaysOnTop(bool always_on_top) override;
+	void resize(std::size_t width, std::size_t height) override;
+	std::pair<std::size_t, std::size_t> getSize() const override;
+	void move(int x, int y) override;
+	std::pair<int, int> getPosition() const override;
+	void show() override;
+	void hide() override;
+	bool visible() const override;
+	void setCaption(const std::string &caption) override;
+	void redraw(const Rect& dirty_rect) override;
+	void grabMouse(bool grab) override;
+	EventQueue getEvents() override;
+	void* getNativeWindowHandle() const override;
+	Point translateToScreen(const Point& point) override;
 
 	// Expose friend members of Window to ObjC++ implementation.
 	class Window& getWindow();

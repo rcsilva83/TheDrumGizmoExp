@@ -40,15 +40,15 @@ ButtonBase::~ButtonBase()
 {
 }
 
-void ButtonBase::buttonEvent(ButtonEvent* buttonEvent)
+void ButtonBase::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(!enabled || buttonEvent->button != MouseButton::left)
+	if(!enabled || buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
 		draw_state = State::Down;
 		button_state = State::Down;
@@ -56,7 +56,7 @@ void ButtonBase::buttonEvent(ButtonEvent* buttonEvent)
 		redraw();
 	}
 
-	if(buttonEvent->direction == Direction::up)
+	if(buttonEvent.direction == Direction::up)
 	{
 		draw_state = State::Up;
 		button_state = State::Up;

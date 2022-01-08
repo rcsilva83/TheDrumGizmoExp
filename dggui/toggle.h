@@ -52,9 +52,9 @@ public:
 
 protected:
 	// From Widget:
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
-	virtual void mouseLeaveEvent() override;
-	virtual void mouseEnterEvent() override;
+	void buttonEvent(const ButtonEvent& buttonEvent) override;
+	void mouseLeaveEvent() override;
+	void mouseEnterEvent() override;
 
 	bool state{false};
 	bool clicked{false};

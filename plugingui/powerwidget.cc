@@ -66,7 +66,7 @@ void PowerWidget::chk_shelf(bool v)
 	settings.powermap_shelf.store(v);
 }
 
-void PowerWidget::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::repaintEvent(const dggui::RepaintEvent& repaintEvent)
 {
 	dggui::Painter p(*this);
 	box.setSize(width() - 59 - 64, height());
@@ -118,7 +118,7 @@ PowerWidget::Canvas::Canvas(dggui::Widget* parent,
 	parameterChangedFloat(0);
 }
 
-void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::Canvas::repaintEvent(const dggui::RepaintEvent& repaintEvent)
 {
 	if(width() < 1 || height() < 1)
 	{
@@ -214,20 +214,20 @@ void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 	p.drawText(8, height() / 2 - (font.textWidth(_("out")) / 2), font, _("out"), false, true);
 }
 
-void PowerWidget::Canvas::buttonEvent(dggui::ButtonEvent* buttonEvent)
+void PowerWidget::Canvas::buttonEvent(const dggui::ButtonEvent& buttonEvent)
 {
 	const float x0 = brd;
 	const float y0 = brd;
 	const float width0 = (int)width() - 2 * brd;
 	const float height0 = (int)height() - 2 * brd;
 
-	float mx0 = (float)(buttonEvent->x - x0) / width0;
-	float my0 = (float)(((int)height() - buttonEvent->y) - y0) / height0;
+	float mx0 = (float)(buttonEvent.x - x0) / width0;
+	float my0 = (float)(((int)height() - buttonEvent.y) - y0) / height0;
 
 	float radius_x = radius * 2;
 	float radius_y = radius * width0 / height0 * 2;
 
-	switch(buttonEvent->direction)
+	switch(buttonEvent.direction)
 	{
 	case dggui::Direction::up:
 		in_point = -1;
@@ -262,15 +262,15 @@ float clamp(float val, float min, float max)
 }
 }
 
-void PowerWidget::Canvas::mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent)
+void PowerWidget::Canvas::mouseMoveEvent(const dggui::MouseMoveEvent& mouseMoveEvent)
 {
 	const float x0 = brd;
 	const float y0 = brd;
 	const float width0 = (int)width() - 2 * brd;
 	const float height0 = (int)height() - 2 * brd;
 
-	float mx0 = (float)(mouseMoveEvent->x - x0) / width0;
-	float my0 = (float)(((int)height() - mouseMoveEvent->y) - y0) / height0;
+	float mx0 = (float)(mouseMoveEvent.x - x0) / width0;
+	float my0 = (float)(((int)height() - mouseMoveEvent.y) - y0) / height0;
 
 	switch(in_point)
 	{
@@ -296,18 +296,18 @@ void PowerWidget::Canvas::mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent)
 	switch(in_point)
 	{
 	case 0:
-		settings.fixed0_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed0_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
+		settings.fixed0_x.store(clamp((float)mouseMoveEvent.x / width()));
+		settings.fixed0_y.store(1.0f - clamp((float)mouseMoveEvent.y / height()));
 		redraw();
 		break;
 	case 1:
-		settings.fixed1_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed1_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
+		settings.fixed1_x.store(clamp((float)mouseMoveEvent.x / width()));
+		settings.fixed1_y.store(1.0f - clamp((float)mouseMoveEvent.y / height()));
 		redraw();
 		break;
 	case 2:
-		settings.fixed2_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed2_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
+		settings.fixed2_x.store(clamp((float)mouseMoveEvent.x / width()));
+		settings.fixed2_y.store(1.0f - clamp((float)mouseMoveEvent.y / height()));
 		redraw();
 		break;
 	default:

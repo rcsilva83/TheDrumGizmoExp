@@ -39,7 +39,7 @@ CheckBox::CheckBox(Widget* parent)
 {
 }
 
-void CheckBox::repaintEvent(RepaintEvent* repaintEvent)
+void CheckBox::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 	p.clear();

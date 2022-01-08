@@ -54,8 +54,8 @@ public:
 	void clearSelectedValue();
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	virtual void resize(std::size_t width, std::size_t height) override;
+	void repaintEvent(const RepaintEvent& repaintEvent) override;
+	void resize(std::size_t width, std::size_t height) override;
 
 	// Forwarded notifiers from ListBoxBasic::basic
 	Notifier<>& selectionNotifier;

@@ -91,7 +91,7 @@ public:
 	void setSpacing(size_t spacing);
 
 	// From Layout:
-	virtual void layout() override = 0;
+	void layout() override = 0;
 
 protected:
 	bool resizeChildren{false};
@@ -114,7 +114,7 @@ public:
 	void setHAlignment(HAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	HAlignment align;
@@ -136,7 +136,7 @@ public:
 	void setVAlignment(VAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	VAlignment align;
@@ -188,8 +188,8 @@ private:
 	};
 
 	CellSize calculateCellSize() const;
-	void moveAndResize(
-	    LayoutItem& item, GridRange const& range, CellSize cell_size) const;
+	void moveAndResize(LayoutItem& item, GridRange const& range,
+	                   CellSize cell_size) const;
 };
 
 } // dggui::

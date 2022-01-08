@@ -81,7 +81,7 @@ bool MainWindow::processEvents()
 	return true;
 }
 
-void MainWindow::repaintEvent(dggui::RepaintEvent* repaintEvent)
+void MainWindow::repaintEvent(const dggui::RepaintEvent& repaintEvent)
 {
 	if(!visible())
 	{

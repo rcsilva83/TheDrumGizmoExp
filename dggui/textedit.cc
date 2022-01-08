@@ -149,7 +149,7 @@ void TextEdit::preprocessText()
 	}
 }
 
-void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
+void TextEdit::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	if(needs_preprocessing)
 	{
@@ -187,9 +187,9 @@ void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
 	}
 }
 
-void TextEdit::scrollEvent(ScrollEvent* scrollEvent)
+void TextEdit::scrollEvent(const ScrollEvent& scrollEvent)
 {
-	scroll.setValue(scroll.value() + scrollEvent->delta);
+	scroll.setValue(scroll.value() + scrollEvent.delta);
 }
 
 void TextEdit::scrolled(int value)

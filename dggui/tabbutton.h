@@ -58,8 +58,8 @@ public:
 
 protected:
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override;
-	virtual void scrollEvent(ScrollEvent* scroll_event) override;
+	void repaintEvent(const RepaintEvent& e) override;
+	void scrollEvent(const ScrollEvent& scroll_event) override;
 
 private:
 	TabID tab_id;

@@ -117,7 +117,7 @@ static void drawArrow(Painter &p, int x, int y, int w, int h)
 	p.drawLine(x + (w / 2), y + h, x + w, y);
 }
 
-void ScrollBar::repaintEvent(RepaintEvent* repaintEvent)
+void ScrollBar::repaintEvent(const RepaintEvent& repaintEvent)
 {
 	Painter p(*this);
 
@@ -150,19 +150,19 @@ void ScrollBar::repaintEvent(RepaintEvent* repaintEvent)
 	p.drawLine(0, height() - width(), width(), height() - width());
 }
 
-void ScrollBar::scrollEvent(ScrollEvent* scrollEvent)
+void ScrollBar::scrollEvent(const ScrollEvent& scrollEvent)
 {
-	setValue(value() + scrollEvent->delta);
+	setValue(value() + scrollEvent.delta);
 }
 
-void ScrollBar::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+void ScrollBar::mouseMoveEvent(const MouseMoveEvent& mouseMoveEvent)
 {
 	if(!dragging)
 	{
 		return;
 	}
 
-	float delta = yOffset - mouseMoveEvent->y;
+	float delta = yOffset - mouseMoveEvent.y;
 
 	int h = height() - 2 * width() - 3;
 	delta /= (float)h / (float)maxValue;
@@ -174,17 +174,17 @@ void ScrollBar::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	}
 }
 
-void ScrollBar::buttonEvent(ButtonEvent* buttonEvent)
+void ScrollBar::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if((buttonEvent->y < (int)width()) && buttonEvent->y > 0)
+	if((buttonEvent.y < (int)width()) && buttonEvent.y > 0)
 	{
-		if(buttonEvent->direction == Direction::down)
+		if(buttonEvent.direction == Direction::down)
 		{
 			addValue(-1);
 		}
@@ -192,10 +192,10 @@ void ScrollBar::buttonEvent(ButtonEvent* buttonEvent)
 		return;
 	}
 
-	if((buttonEvent->y > ((int)height() - (int)width())) &&
-	   (buttonEvent->y < (int)height()))
+	if((buttonEvent.y > ((int)height() - (int)width())) &&
+	   (buttonEvent.y < (int)height()))
 	{
-		if(buttonEvent->direction == Direction::down)
+		if(buttonEvent.direction == Direction::down)
 		{
 			addValue(1);
 		}
@@ -203,13 +203,13 @@ void ScrollBar::buttonEvent(ButtonEvent* buttonEvent)
 		return;
 	}
 
-	if(buttonEvent->direction == Direction::down)
+	if(buttonEvent.direction == Direction::down)
 	{
-		yOffset = buttonEvent->y;
+		yOffset = buttonEvent.y;
 		valueOffset = value();
 	}
 
-	dragging = (buttonEvent->direction == Direction::down);
+	dragging = (buttonEvent.direction == Direction::down);
 }
 
 } // dggui::

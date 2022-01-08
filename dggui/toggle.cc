@@ -33,15 +33,15 @@ Toggle::Toggle(Widget* parent) : Widget(parent)
 {
 }
 
-void Toggle::buttonEvent(ButtonEvent* buttonEvent)
+void Toggle::buttonEvent(const ButtonEvent& buttonEvent)
 {
 	// Ignore everything except left clicks.
-	if(buttonEvent->button != MouseButton::left)
+	if(buttonEvent.button != MouseButton::left)
 	{
 		return;
 	}
 
-	if((buttonEvent->direction == Direction::up) || buttonEvent->doubleClick)
+	if((buttonEvent.direction == Direction::up) || buttonEvent.doubleClick)
 	{
 		buttonDown = false;
 		clicked = false;
