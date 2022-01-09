@@ -123,6 +123,24 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		return;
 	}
 
+const bool use_edrumulus_debugging_output = false;
+if(use_edrumulus_debugging_output)
+{
+  auto type     = midi_buffer[0] & TypeMask;
+  auto key      = midi_buffer[1];
+  auto velocity = midi_buffer[2];
+  if((type == ControlChange) && (key == 16))
+  {
+    std::string bar = "--------------------";
+    bar[static_cast<int>(static_cast<float>(velocity) / 128 * 20)] = '*';
+    printf(std::string("                           " + bar + "\n").c_str());
+  }
+  else
+  {
+    printf("key: %d, velocity: %d\n", key, velocity);
+  }
+}
+
 	switch(midi_buffer[0] & TypeMask)
 	{
 	case NoteOff:
