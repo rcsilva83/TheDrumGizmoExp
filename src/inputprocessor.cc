@@ -295,7 +295,6 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 //printf("event_sample.scale: %f, event.velocity: %f, sample->getPower(): %f, instr->getMinPower(): %f, instr->getMaxPower(): %f\n", event_sample.scale, event.velocity, sample->getPower(), instr->getMinPower(), instr->getMaxPower());
 
 auto target_max_power_db = 10 * log10(instr->getMaxPower());
-auto target_min_power_db = 10 * log10(instr->getMinPower());
 auto sel_power_db        = 10 * log10(sample->getPower());
 auto target_dynamic_db   = 40.0; // dB
 
