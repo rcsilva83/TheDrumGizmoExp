@@ -122,6 +122,12 @@ void JackMidiInputEngine::process(jack_nframes_t num_frames)
 		jack_midi_event_get(&event, buffer, i);
 		processNote(event.buffer, event.size, event.time, events);
 	}
-	jack_midi_clear_buffer(buffer);
+
+	// Disable clear buffer on input port because for Edrumulus usage we need that
+	// two clients use the some output buffer and if we clear it here, the other
+	// application will not get any MIDI input signal. Usually, the output port
+	// is responsible for clearing the buffer, not the input port.
+	//jack_midi_clear_buffer(buffer);
+
 	pos += num_frames;
 }
