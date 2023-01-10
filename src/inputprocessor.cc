@@ -358,7 +358,7 @@ bool InputProcessor::processChoke(event_t& event,
 if(event.offset >= 1000000) // quick hack: added 1000000 to offset to transport hi-hat controller value
 {
   int hihat_controller = event.offset - 1000000;
-  int rampdown_time = static_cast<int>(std::max(100.0, pow(10.0, (127.0 - hihat_controller) / 38.0))); // TODO optimize
+  int rampdown_time = static_cast<int>(std::max(180.0, pow(10.0, (127.0 - hihat_controller) / 38.0))); // TODO optimize
   applyChoke(settings, event_sample, rampdown_time, 0);
 }
 else
