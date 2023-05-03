@@ -298,9 +298,12 @@ auto target_max_power_db = 10 * log10(instr->getMaxPower());
 auto sel_power_db        = 10 * log10(sample->getPower());
 auto target_dynamic_db   = 40.0; // dB
 
-auto target_power_db = sqrt(event.velocity) * target_dynamic_db + target_max_power_db - target_dynamic_db;
-auto diff_power_db   = target_power_db - sel_power_db;
-event_sample.scale   = pow(10.0, diff_power_db / 20);
+static auto a               = 0.981;
+static auto factor          = 126.0f / (pow(a, 126.0f) - 1.0f);
+auto        y               = (factor * (pow(a, event.velocity * 127.0f - 1.0f) - 1.0f) + 1.0f) / 127.0f;
+auto        target_power_db = y * target_dynamic_db + target_max_power_db - target_dynamic_db;
+auto        diff_power_db   = target_power_db - sel_power_db;
+event_sample.scale          = pow(10.0, diff_power_db / 20);
 
 //printf("event_sample.scale: %f, diff_power_db: %f, target_power_db: %f, sel_power_db: %f\n", event_sample.scale, diff_power_db, target_power_db, sel_power_db);
 
