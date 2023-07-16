@@ -94,6 +94,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 			instrument->_name = instrumentdom.name;
 			instrument->version = instrumentdom.version;
 			instrument->_description = instrumentdom.description;
+			instrument->_percussive = instrumentdom.percussive == "true";
 
 			auto path = getPath(basepath + "/" + instrumentref.file);
 			for(const auto& sampledom : instrumentdom.samples)

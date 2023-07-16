@@ -123,7 +123,8 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		switch(midi_buffer[0] & NoteMask)
 		{
 		case NoteOff:
-			// Ignore for now
+			events.push_back({EventType::Release, (std::size_t)instrument_idx,
+			                  offset, .0f});
 			break;
 
 		case NoteOn:

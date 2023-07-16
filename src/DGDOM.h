@@ -74,6 +74,7 @@ struct InstrumentDOM
 	std::string name;
 	std::string version;
 	std::string description;
+	std::string percussive;
 	std::vector<SampleDOM> samples;
 	std::vector<InstrumentChannelDOM> instrument_channels;
 

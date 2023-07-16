@@ -55,6 +55,7 @@ public:
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 	const std::string& getGroup() const;
+	bool getPercussive() const;
 
 	void setGroup(const std::string& group);
 
@@ -85,6 +86,7 @@ private:
 	std::string _group;
 	std::string _name;
 	std::string _description;
+	bool _percussive{true};
 
 	VersionStr version;
 

@@ -61,6 +61,7 @@ private:
 	bool is_stopping{false}; ///< Is set to true when a EventType::Stop event has been seen.
 
 	bool processOnset(event_t& event, std::size_t pos, double resample_ratio);
+	bool processRelease(event_t& event, std::size_t pos, double resample_ratio);
 	bool processChoke(event_t& event, std::size_t pos, double resample_ratio);
 	bool processStop(event_t& event);
 

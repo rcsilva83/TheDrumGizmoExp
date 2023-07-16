@@ -110,6 +110,14 @@ bool InputProcessor::process(std::vector<event_t>& events,
 			}
 		}
 
+		if(event.type == EventType::Release)
+		{
+			if(!processRelease(event, pos, resample_ratio))
+			{
+				continue;
+			}
+		}
+
 		if(event.type == EventType::Choke)
 		{
 			if(!processChoke(event, pos, resample_ratio))
@@ -185,7 +193,7 @@ void InputProcessor::applyDirectedChoke(Settings& settings, DrumKit& kit,
 {
 	for(const auto& choke : instr.getChokes())
 	{
-		// Add event to ramp down all existing events with the same groupname.
+		// Add event to ramp down all existing events in the directed-choke list.
 		for(const auto& ch : kit.channels)
 		{
 			if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
@@ -305,6 +313,68 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	return true;
 }
 
+bool InputProcessor::processRelease(event_t& event,
+                                    std::size_t pos,
+                                    double resample_ratio)
+{
+	if(!kit.isValid())
+	{
+		return false;
+	}
+
+	std::size_t instrument_id = event.instrument;
+	Instrument* instr = nullptr;
+
+	if(instrument_id < kit.instruments.size())
+	{
+		instr = kit.instruments[instrument_id].get();
+	}
+
+	if(instr == nullptr || !instr->isValid())
+	{
+		ERR(inputprocessor, "Missing Instrument %d.\n", (int)instrument_id);
+		return false;
+	}
+
+	if(instr->getPercussive())
+	{
+		// Instrument is percussive, so release/note-off is ignored.
+		return false;
+	}
+
+	for(auto& filter : filters)
+	{
+		// This line might change the 'event' variable
+		bool keep = filter->filter(event, event.offset + pos);
+
+		if(!keep)
+		{
+			return false; // Skip event completely
+		}
+	}
+
+	// Add event to ramp down all existing events with the same instrument id.
+	for(const auto& ch : kit.channels)
+	{
+		if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
+		{
+			continue;
+		}
+
+		for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
+		{
+			if(event_sample.instrument_id == instrument_id &&
+			   event_sample.rampdown_count == -1) // Only if not already ramping.
+			{
+				// Fixed note-off rampdown time of 100ms, independent of samplerate
+				applyChoke(settings, event_sample, 100, event.offset, pos);
+			}
+		}
+	}
+
+	return true;
+}
+
 bool InputProcessor::processChoke(event_t& event,
                                   std::size_t pos,
                                   double resample_ratio)
@@ -339,7 +409,7 @@ bool InputProcessor::processChoke(event_t& event,
 		}
 	}
 
-	// Add event to ramp down all existing events with the same groupname.
+	// Add event to ramp down all existing events with the same instrument id.
 	for(const auto& ch : kit.channels)
 	{
 		if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
@@ -352,7 +422,7 @@ bool InputProcessor::processChoke(event_t& event,
 			if(event_sample.instrument_id == instrument_id &&
 			   event_sample.rampdown_count == -1) // Only if not already ramping.
 			{
-				// Fixed group rampdown time of 68ms, independent of samplerate
+				// Fixed group rampdown time of 450ms, independent of samplerate
 				applyChoke(settings, event_sample, 450, event.offset, pos);
 			}
 		}

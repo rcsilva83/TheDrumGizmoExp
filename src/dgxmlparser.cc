@@ -333,6 +333,8 @@ bool parseInstrumentFile(const std::string& filename, InstrumentDOM& dom, LogFun
 	dom.version = "1.0";
 	res &= attrcpy(dom.version, instrument, "version", logger, filename, true);
 	res &= attrcpy(dom.description, instrument, "description", logger, filename, true);
+	dom.percussive = "true";
+	res &= attrcpy(dom.percussive, instrument, "percussive", logger, filename, true);
 
 	pugi::xml_node channels = instrument.child("channels");
 	for(pugi::xml_node channel : channels.children("channel"))

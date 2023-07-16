@@ -115,6 +115,11 @@ const std::string& Instrument::getGroup() const
 	return _group;
 }
 
+bool Instrument::getPercussive() const
+{
+	return _percussive;
+}
+
 void Instrument::setGroup(const std::string& g)
 {
 	_group = g;
