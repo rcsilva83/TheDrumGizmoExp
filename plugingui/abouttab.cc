@@ -94,7 +94,7 @@ std::string AboutTab::getAboutText()
 	"            Version\n"
 	"=============\n"
 	"\n"));
-	about_text.append(std::string(VERSION) + "\n");
+	about_text.append(std::string(VERSION) + " (note-off support)\n");
 
 	// Bugs
 	about_text.append(_(
