@@ -209,6 +209,8 @@ bool parseDrumkitFile(const std::string& filename, DrumkitDOM& dom, LogFunction 
 	res &= attrcpy(dom.version, drumkit, "version", logger, filename, true);
 	dom.samplerate = 44100.0;
 	res &= attrcpy(dom.samplerate, drumkit, "samplerate", logger, filename, true);
+	dom.islogpower = false;
+	res &= attrcpy(dom.islogpower, drumkit, "islogpower", logger, filename, true);
 
 	// Use the old name and description attributes on the drumkit node as fallback
 	res &= attrcpy(dom.metadata.title, drumkit, "name", logger, filename, true);

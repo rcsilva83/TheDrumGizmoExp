@@ -210,6 +210,19 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		return false;
 	}
 
+
+// TEST dynamic expander
+if(settings.drumkit_is_log_power)
+{
+  static auto a      = 0.981;
+  static auto factor = 126.0f / (pow(a, 126.0f) - 1.0f);
+  event.velocity     = (factor * (pow(a, event.velocity * 127.0f - 1.0f) - 1.0f) + 1.0f) / 127.0f;
+}
+
+// TODO velocity 1 does not select thehighest amplitude samples... -> maybe bug in sample selection
+//event.velocity=1.0;
+
+
 	std::size_t instrument_id = event.instrument;
 	Instrument* instr = nullptr;
 
@@ -294,16 +307,29 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 // TEST dynamic expander
 //printf("event_sample.scale: %f, event.velocity: %f, sample->getPower(): %f, instr->getMinPower(): %f, instr->getMaxPower(): %f\n", event_sample.scale, event.velocity, sample->getPower(), instr->getMinPower(), instr->getMaxPower());
 
-auto target_max_power_db = 10 * log10(instr->getMaxPower());
-auto sel_power_db        = 10 * log10(sample->getPower());
-auto target_dynamic_db   = 40.0; // dB
+if(settings.drumkit_is_log_power)
+{
+  // powers in instrument XML are in dB and curve is already applied to event.velocity:
+  auto target_max_power_db = instr->getMaxPower();
+  auto sel_power_db        = sample->getPower();
+  auto target_dynamic_db   = 50.0; // dB
+  auto target_power_db     = event.velocity * target_dynamic_db + target_max_power_db - target_dynamic_db;
+  auto diff_power_db       = target_power_db - sel_power_db;
+  event_sample.scale       = pow(10.0, diff_power_db / 20);
+}
+else
+{
+  auto target_max_power_db = 10 * log10(instr->getMaxPower());
+  auto sel_power_db        = 10 * log10(sample->getPower());
+  auto target_dynamic_db   = 40.0; // dB
 
-static auto a               = 0.981;
-static auto factor          = 126.0f / (pow(a, 126.0f) - 1.0f);
-auto        y               = (factor * (pow(a, event.velocity * 127.0f - 1.0f) - 1.0f) + 1.0f) / 127.0f;
-auto        target_power_db = y * target_dynamic_db + target_max_power_db - target_dynamic_db;
-auto        diff_power_db   = target_power_db - sel_power_db;
-event_sample.scale          = pow(10.0, diff_power_db / 20);
+  static auto a               = 0.981;
+  static auto factor          = 126.0f / (pow(a, 126.0f) - 1.0f);
+  auto        y               = (factor * (pow(a, event.velocity * 127.0f - 1.0f) - 1.0f) + 1.0f) / 127.0f;
+  auto        target_power_db = y * target_dynamic_db + target_max_power_db - target_dynamic_db;
+  auto        diff_power_db   = target_power_db - sel_power_db;
+  event_sample.scale          = pow(10.0, diff_power_db / 20);
+}
 
 //printf("event_sample.scale: %f, diff_power_db: %f, target_power_db: %f, sel_power_db: %f\n", event_sample.scale, diff_power_db, target_power_db, sel_power_db);
 

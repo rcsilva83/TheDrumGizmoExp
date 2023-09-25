@@ -3,7 +3,7 @@
  *            settings.h
  *
  *  Tue Mar 22 10:59:46 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -53,6 +53,7 @@ struct Settings
 	Atomic<std::string> drumkit_description{""};
 	Atomic<std::string> drumkit_version{""};
 	Atomic<std::size_t> drumkit_samplerate{44100};
+	Atomic<bool> drumkit_is_log_power{false};
 
 	//! The maximum amount of memory in bytes that the AudioCache
 	//! is allowed to use for preloading. Default is 1GB.

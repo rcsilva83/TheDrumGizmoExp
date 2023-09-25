@@ -139,6 +139,7 @@ struct DrumkitDOM
 {
 	std::string version;
 	double samplerate;
+	bool islogpower;
 
 	MetadataDOM metadata;
 
