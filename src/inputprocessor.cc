@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -215,6 +215,13 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		return false;
 	}
 
+	// In case log-power and dynamic expander is used, apply a special velocity curve
+	if(settings.drumkit_is_log_power)
+	{
+		auto a = 0.981; // compatible to Roland sound modules
+		event.velocity = (126.0f / (pow(a, 126.0f) - 1.0f) * (pow(a, event.velocity * 127.0f - 1.0f) - 1.0f) + 1.0f) / 127.0f;
+	}
+
 	std::size_t instrument_id = event.instrument;
 	Instrument* instr = nullptr;
 
@@ -298,6 +305,13 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 			if(settings.normalized_samples.load() && sample->getNormalized())
 			{
 				event_sample.scale *= event.velocity;
+			}
+
+			// Dynamic expander (only enabled if log-power is configured)
+			if(settings.drumkit_is_log_power)
+			{
+				auto target_dynamic_db = 50.0; // dB, defined maximum dynamic after expander
+				event_sample.scale = pow(10.0, (event.velocity * target_dynamic_db + instr->getMaxPower() - target_dynamic_db - sample->getPower()) / 20);
 			}
 		}
 	}

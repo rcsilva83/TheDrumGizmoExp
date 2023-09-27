@@ -60,6 +60,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 	drumkit.metadata._version = dom.version;
 	drumkit.metadata._description = dom.metadata.description;
 	drumkit.metadata._samplerate = dom.samplerate;
+	drumkit.metadata._islogpower = dom.islogpower;
 
 	for(const auto& channel: dom.channels)
 	{

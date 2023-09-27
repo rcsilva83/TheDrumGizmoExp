@@ -51,6 +51,7 @@ public:
 	void clear();
 
 	bool isValid() const;
+	bool isLogPower() const;
 
 	float getSamplerate() const;
 
@@ -74,5 +75,6 @@ private:
 		std::string _description;
 		float _samplerate{44100.0f};
 		VersionStr _version;
+		bool _islogpower{false};
 	} metadata;
 };

@@ -136,6 +136,7 @@ bool DrumKitLoader::loadkit(const std::string& file)
 	settings.drumkit_description.store("");
 	settings.drumkit_version.store("");
 	settings.drumkit_samplerate.store(44100);
+	settings.drumkit_is_log_power.store(false);
 	settings.load_status_text.store("");
 
 	settings.drumkit_load_status.store(LoadStatus::Parsing);
@@ -219,6 +220,7 @@ bool DrumKitLoader::loadkit(const std::string& file)
 	settings.drumkit_description = kit.getDescription();
 	settings.drumkit_version = kit.getVersion();
 	settings.drumkit_samplerate = kit.getSamplerate();
+	settings.drumkit_is_log_power = kit.isLogPower();
 	// only load the default midi map if there is one and no midimap is selected yet
 	if (drumkitdom.metadata.default_midimap_file != "" && settings.midimap_file == "")
 	{

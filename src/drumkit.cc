@@ -55,6 +55,11 @@ bool DrumKit::isValid() const
 	return this == magic;
 }
 
+bool DrumKit::isLogPower() const
+{
+  return metadata._islogpower;
+}
+
 std::string DrumKit::getFile() const
 {
 	return _file;
