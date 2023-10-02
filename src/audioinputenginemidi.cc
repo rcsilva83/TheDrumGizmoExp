@@ -78,7 +78,7 @@ bool AudioInputEngineMidi::loadMidiMap(const std::string& file,
 		instrmap[instruments[i]->getName()] = i;
 	}
 
-	mmap.swap(instrmap, midimap_parser.midimap, midimap_parser.midimultimap, midimap_parser.controlthreshmap);
+	mmap.swap(instrmap, midimap_parser.midimap, midimap_parser.controlthreshmap);
 
 	midimap = file;
 	is_valid = true;
@@ -110,8 +110,7 @@ static const std::uint8_t TypeMask = 0xF0;
 
 
 // TODO better implementation: use member variable for controller value, set MIDI key on command line
-int hihat_controller = 0; // open hi-hat
-int hihat_midi_key   = 26;
+int hihat_midi_key = 26;
 
 void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
                                        std::size_t midi_buffer_length,
@@ -133,7 +132,7 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		{
 			auto key = midi_buffer[1];
 			auto velocity = midi_buffer[2];
-			auto instrument_idx = mmap.lookup(key, hihat_controller);
+			auto instrument_idx = mmap.lookup(key, controller4_value);
 			if(velocity != 0 && instrument_idx != -1)
 			{
 				// maps velocities to [.5/127, 126.5/127]
@@ -147,10 +146,10 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 auto instrument_idx1 = mmap.lookup(hihat_midi_key);
 if(instrument_idx == instrument_idx1)
 {
-  if(hihat_controller < 100) // quick hack: hard-coded value
+  if(controller4_value < 100) // quick hack: hard-coded value
   {
     events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
-                       1000000 + hihat_controller, .0f, .0f });
+                       1000000 + controller4_value, .0f, .0f });
   }
 }
 */
@@ -185,17 +184,46 @@ if(instrument_idx == instrument_idx1)
 				return;
 			}
 
-			if(controller_number == 4) // hi-hat pedal
+			if(controller_number == 4) // usually, controller 4 is the hi-hat controller
 			{
-
+/*
+        // in case the hi-hat was just closed, choke current hi-hat samples
+        if(controller4_value < 100 && value > 100)
+        {
+// TODO
 // quick hack: if hi-hat control pedal is down, choke hi-hat instrument
 auto instrument_idx = mmap.lookup(hihat_midi_key);
-hihat_controller = value;
-if(value > 100 && instrument_idx != -1) // quick hack: hard-coded value
+if(instrument_idx != -1)
 {
   events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
                      offset, .0f, .0f });
 }
+        }
+*/
+
+        // Store value for use in next NoteOn event.
+        controller4_value = value;
+
+
+// TODO here, we only apply the choke on controller4 == 0 but we have to apply it to all possible hi-hat instruments
+
+// quick hack: if hi-hat control pedal is down, choke hi-hat instrument
+auto instrument_idx = mmap.lookup(hihat_midi_key, 0);
+if(value > 100 && instrument_idx != -1) // quick hack: hard-coded value
+{
+
+/*
+// TEST to force hihat group choke -> does not work
+events.push_back({ EventType::OnSet, (std::size_t)instrument_idx,
+                   offset, .0f, .0f });
+*/
+
+  events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
+                     offset, .0f, .0f });
+
+//printf("choke on instrument index: %d\n", instrument_idx);
+}
+
 
 			}
 		}

@@ -42,7 +42,7 @@ int MidiMapper::lookup(int note, int controller)
 		return -1;
 	}
 
-	if(controller >= 0 && midimultimap.count(note) > 1)
+	if(controller >= 0 && !controlthreshmap[note].empty())
 	{
 		// find instrument where controller is above threshold with smallest distance to threshold
 		int diff = 10000;
@@ -62,13 +62,12 @@ int MidiMapper::lookup(int note, int controller)
 	return instrmap_it->second;
 }
 
-void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap, midimultimap_t& midimultimap, controlthreshmap_t& controlthreshmap)
+void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap, controlthreshmap_t& controlthreshmap)
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
 	std::swap(this->instrmap, instrmap);
 	std::swap(this->midimap, midimap);
-	std::swap(this->midimultimap, midimultimap);
 	std::swap(this->controlthreshmap, controlthreshmap);
 }
 

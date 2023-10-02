@@ -57,7 +57,6 @@ bool MidiMapParser::parseFile(const std::string& filename)
 		}
 
 		midimap[note] = instr;
-		midimultimap.insert(std::make_pair(note, instr));
 	}
 
 	return true;

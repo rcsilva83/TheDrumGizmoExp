@@ -35,6 +35,5 @@ public:
 	bool parseFile(const std::string& filename);
 
 	midimap_t midimap;
-	midimultimap_t midimultimap;
 	controlthreshmap_t controlthreshmap;
 };

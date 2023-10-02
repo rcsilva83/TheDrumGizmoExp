@@ -72,4 +72,5 @@ private:
 	ConfigFile refs;
 
 	float positional_information{0.0f};
+	int controller4_value{0};
 };
