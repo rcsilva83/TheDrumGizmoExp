@@ -31,23 +31,27 @@
 #include <mutex>
 
 typedef std::map<int, std::string> midimap_t;
+typedef std::multimap<int, std::string> midimultimap_t;
 typedef std::map<std::string, int> instrmap_t;
+typedef std::map<int, std::map<std::string, int> > controlthreshmap_t;
 
 class MidiMapper
 {
 public:
 	//! Lookup note in map and return its index.
 	//! \returns -1 if not found or the note index.
-	int lookup(int note);
+	int lookup(int note, int controller = -1);
 
 	//! Set new map sets.
-	void swap(instrmap_t& instrmap, midimap_t& midimap);
+	void swap(instrmap_t& instrmap, midimap_t& midimap, midimultimap_t& midimultimap, controlthreshmap_t& controlthreshmap);
 
 	const midimap_t& getMap();
 
 private:
 	instrmap_t instrmap;
 	midimap_t midimap;
+	midimultimap_t midimultimap;
+	controlthreshmap_t controlthreshmap;
 
 	std::mutex mutex;
 };

@@ -26,7 +26,7 @@
  */
 #include "midimapper.h"
 
-int MidiMapper::lookup(int note)
+int MidiMapper::lookup(int note, int controller)
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
@@ -42,15 +42,34 @@ int MidiMapper::lookup(int note)
 		return -1;
 	}
 
+	if(controller >= 0 && midimultimap.count(note) > 1)
+	{
+		// find instrument where controller is above threshold with smallest distance to threshold
+		int diff = 10000;
+		std::string instr = controlthreshmap[note].begin()->first;
+		for(auto& c : controlthreshmap[note])
+		{
+			int cur_diff = controller - c.second;
+			if(cur_diff >= 0 && cur_diff < diff)
+			{
+				diff = cur_diff;
+				instr = c.first;
+			}
+		}
+		instrmap_it = instrmap.find(instr);
+	}
+
 	return instrmap_it->second;
 }
 
-void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap)
+void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap, midimultimap_t& midimultimap, controlthreshmap_t& controlthreshmap)
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
 	std::swap(this->instrmap, instrmap);
 	std::swap(this->midimap, midimap);
+	std::swap(this->midimultimap, midimultimap);
+	std::swap(this->controlthreshmap, controlthreshmap);
 }
 
 const midimap_t& MidiMapper::getMap()

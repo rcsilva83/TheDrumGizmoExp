@@ -45,12 +45,19 @@ bool MidiMapParser::parseFile(const std::string& filename)
 		constexpr int bad_value = 10000;
 		auto note = map_node.attribute("note").as_int(bad_value);
 		auto instr = map_node.attribute("instr").as_string();
+		auto controlthresh = map_node.attribute("controlthresh").as_int(bad_value);
 		if(std::string(instr) == "" || note == bad_value)
 		{
 			continue;
 		}
 
+		if(controlthresh != bad_value)
+		{
+			controlthreshmap[note][instr] = controlthresh;
+		}
+
 		midimap[note] = instr;
+		midimultimap.insert(std::make_pair(note, instr));
 	}
 
 	return true;

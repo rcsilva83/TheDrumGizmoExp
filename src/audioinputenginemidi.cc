@@ -78,7 +78,7 @@ bool AudioInputEngineMidi::loadMidiMap(const std::string& file,
 		instrmap[instruments[i]->getName()] = i;
 	}
 
-	mmap.swap(instrmap, midimap_parser.midimap);
+	mmap.swap(instrmap, midimap_parser.midimap, midimap_parser.midimultimap, midimap_parser.controlthreshmap);
 
 	midimap = file;
 	is_valid = true;
@@ -133,7 +133,7 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		{
 			auto key = midi_buffer[1];
 			auto velocity = midi_buffer[2];
-			auto instrument_idx = mmap.lookup(key);
+			auto instrument_idx = mmap.lookup(key, hihat_controller);
 			if(velocity != 0 && instrument_idx != -1)
 			{
 				// maps velocities to [.5/127, 126.5/127]
@@ -141,6 +141,8 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 				events.push_back({ EventType::OnSet, (std::size_t)instrument_idx,
 				                   offset, centered_velocity, positional_information });
 
+
+/*
 // quick hack, add 1000000 to offset to transport hi-hat controller value
 auto instrument_idx1 = mmap.lookup(hihat_midi_key);
 if(instrument_idx == instrument_idx1)
@@ -151,6 +153,7 @@ if(instrument_idx == instrument_idx1)
                        1000000 + hihat_controller, .0f, .0f });
   }
 }
+*/
 
 			}
 		}
