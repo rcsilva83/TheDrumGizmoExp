@@ -108,10 +108,6 @@ static const std::uint8_t TypeMask = 0xF0;
 // See:
 // https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
 
-
-// TODO better implementation: use member variable for controller value, set MIDI key on command line
-int hihat_midi_key = 26;
-
 void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
                                        std::size_t midi_buffer_length,
                                        std::size_t offset,
@@ -142,6 +138,8 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 
 
 /*
+// TODO better implementation: use member variable for controller value, set MIDI key on command line
+int hihat_midi_key = 26;
 // quick hack, add 1000000 to offset to transport hi-hat controller value
 auto instrument_idx1 = mmap.lookup(hihat_midi_key);
 if(instrument_idx == instrument_idx1)
@@ -186,45 +184,18 @@ if(instrument_idx == instrument_idx1)
 
 			if(controller_number == 4) // usually, controller 4 is the hi-hat controller
 			{
-/*
-        // in case the hi-hat was just closed, choke current hi-hat samples
-        if(controller4_value < 100 && value > 100)
-        {
-// TODO
-// quick hack: if hi-hat control pedal is down, choke hi-hat instrument
-auto instrument_idx = mmap.lookup(hihat_midi_key);
-if(instrument_idx != -1)
-{
-  events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
-                     offset, .0f, .0f });
-}
-        }
-*/
+				// in case the hi-hat was just closed, choke current hi-hat samples
+				if(controller4_value < mmap.getMaxControlthresh() && value >= mmap.getMaxControlthresh())
+				{
+					for(auto instrument_idx : mmap.getInstWithControlthresh())
+					{
+						events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
+								               offset, .0f, .0f });
+					}
+				}
 
-        // Store value for use in next NoteOn event.
-        controller4_value = value;
-
-
-// TODO here, we only apply the choke on controller4 == 0 but we have to apply it to all possible hi-hat instruments
-
-// quick hack: if hi-hat control pedal is down, choke hi-hat instrument
-auto instrument_idx = mmap.lookup(hihat_midi_key, 0);
-if(value > 100 && instrument_idx != -1) // quick hack: hard-coded value
-{
-
-/*
-// TEST to force hihat group choke -> does not work
-events.push_back({ EventType::OnSet, (std::size_t)instrument_idx,
-                   offset, .0f, .0f });
-*/
-
-  events.push_back({ EventType::Choke, (std::size_t)instrument_idx,
-                     offset, .0f, .0f });
-
-//printf("choke on instrument index: %d\n", instrument_idx);
-}
-
-
+				// Store value for use in next NoteOn event.
+				controller4_value = value;
 			}
 		}
 		break;

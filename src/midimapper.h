@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <mutex>
+#include <vector>
 
 typedef std::map<int, std::string> midimap_t;
 typedef std::map<std::string, int> instrmap_t;
@@ -41,6 +42,12 @@ public:
 	//! \returns -1 if not found or the note index.
 	int lookup(int note, int controller = -1);
 
+	//! Get all instruments with controller thresholds defined.
+	std::vector<int>& getInstWithControlthresh() { return instwithcontrolthresh; }
+
+	//! Get the maximum configured control threshold
+	int getMaxControlthresh() { return maxcontrolthresh; }
+
 	//! Set new map sets.
 	void swap(instrmap_t& instrmap, midimap_t& midimap, controlthreshmap_t& controlthreshmap);
 
@@ -50,6 +57,8 @@ private:
 	instrmap_t instrmap;
 	midimap_t midimap;
 	controlthreshmap_t controlthreshmap;
+	std::vector<int> instwithcontrolthresh;
+	int maxcontrolthresh{0};
 
 	std::mutex mutex;
 };

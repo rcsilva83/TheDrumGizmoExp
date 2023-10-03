@@ -47,13 +47,13 @@ int MidiMapper::lookup(int note, int controller)
 		// find instrument where controller is above threshold with smallest distance to threshold
 		int diff = 10000;
 		std::string instr = controlthreshmap[note].begin()->first;
-		for(auto& c : controlthreshmap[note])
+		for(auto& control_thresh : controlthreshmap[note])
 		{
-			int cur_diff = controller - c.second;
+			int cur_diff = controller - control_thresh.second;
 			if(cur_diff >= 0 && cur_diff < diff)
 			{
 				diff = cur_diff;
-				instr = c.first;
+				instr = control_thresh.first;
 			}
 		}
 		instrmap_it = instrmap.find(instr);
@@ -69,6 +69,26 @@ void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap, controlthreshmap
 	std::swap(this->instrmap, instrmap);
 	std::swap(this->midimap, midimap);
 	std::swap(this->controlthreshmap, controlthreshmap);
+
+	// find instruments which define a control threshold and store it
+	for(auto& control_thresh : this->controlthreshmap)
+	{
+		for(auto& instr : control_thresh.second)
+		{
+			auto instrmap_it = this->instrmap.find(instr.first);
+			if(instrmap_it != this->instrmap.end())
+			{
+				instwithcontrolthresh.push_back(instrmap_it->second);
+			}
+			maxcontrolthresh = std::max(maxcontrolthresh, instr.second);
+		}
+	}
+
+	// in case no controller threshold is defined, use fix definition
+	if(maxcontrolthresh == 0)
+	{
+		maxcontrolthresh = 100;
+	}
 }
 
 const midimap_t& MidiMapper::getMap()
