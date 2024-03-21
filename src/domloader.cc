@@ -27,6 +27,7 @@
 #include "domloader.h"
 
 #include <unordered_map>
+#include <memory>
 
 #include <hugin.hpp>
 
@@ -34,8 +35,6 @@
 #include "drumkit.h"
 #include "path.h"
 #include "channel.h"
-
-#include "cpp11fix.h"
 
 struct channel_attribute_t
 {

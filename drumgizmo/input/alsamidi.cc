@@ -25,7 +25,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "cpp11fix.h" // required for c++11
+#include <memory>
 #include "alsamidi.h"
 
 struct AlsaMidiInitError

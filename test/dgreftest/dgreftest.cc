@@ -39,7 +39,7 @@
 #include "midiinputengine.h"
 #include "wavfileoutputengine.h"
 
-#include <cpp11fix.h> // required for c++11
+#include <memory>
 
 std::unique_ptr<AudioOutputEngine> createOutput(const std::string& name)
 {

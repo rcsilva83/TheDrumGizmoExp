@@ -100,7 +100,6 @@ EXTRA_DIST = \
 	configfile.h \
 	configparser.h \
 	directory.h \
-	cpp11fix.h \
 	dgxmlparser.h \
 	domloader.h \
 	drumgizmo.h \

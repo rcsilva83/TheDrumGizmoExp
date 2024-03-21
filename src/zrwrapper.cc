@@ -26,9 +26,9 @@
  */
 #include "zrwrapper.h"
 
-#include <zita-resampler/resampler.h>
+#include <memory>
 
-#include "cpp11fix.h"
+#include <zita-resampler/resampler.h>
 
 ZRWrapper::ZRWrapper()
 	: resampler(std::make_unique<Resampler>())

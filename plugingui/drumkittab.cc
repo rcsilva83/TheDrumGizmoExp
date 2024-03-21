@@ -29,8 +29,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
-
-#include "cpp11fix.h" // required for c++11
+#include <memory>
 
 #include <dggui/painter.h>
 

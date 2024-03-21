@@ -26,7 +26,7 @@
  */
 #include <iostream>
 
-#include "cpp11fix.h" // required for c++11
+#include <memory>
 #include "enginefactory.h"
 
 EngineFactory::EngineFactory()

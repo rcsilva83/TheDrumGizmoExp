@@ -25,22 +25,14 @@ dnl Compile with C++11 support.
 dnl ===========================
 AC_LANG_PUSH([C++])
 TMP_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS=-std=c++11
-AC_MSG_CHECKING([whether CXX supports -std=c++11])
+CXXFLAGS=-std=c++14
+AC_MSG_CHECKING([whether CXX supports -std=c++14])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
 	[AC_MSG_RESULT([yes])],
 	[
-	 AC_MSG_RESULT([no])
-	 CXXFLAGS=-std=c++0x
-	 AC_MSG_CHECKING([whether CXX supports -std=c++0x])
-	 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-	 	[AC_MSG_RESULT([yes])],
-	 	[
-	 	 AC_MSG_RESULT([no])
-	 	 AC_MSG_ERROR([Compiler does not support c++11])
-	 	]
-	 )
-]
+		AC_MSG_RESULT([no])
+		AC_MSG_ERROR([Compiler does not support c++14])
+	]
 )
 CXXFLAGS="$TMP_CXXFLAGS $CXXFLAGS"
 OBJCXXFLAGS="$OBJCXXFLAGS $CXXFLAGS"

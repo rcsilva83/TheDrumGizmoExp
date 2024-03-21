@@ -27,7 +27,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "cpp11fix.h" // required for c++11
+#include <memory>
 #include "jackmidi.h"
 
 JackMidiInputEngine::JackMidiInputEngine(JackClient& client)

@@ -27,6 +27,7 @@
 #include "inputprocessor.h"
 
 #include <list>
+#include <memory>
 
 #include <hugin.hpp>
 
@@ -36,8 +37,6 @@
 #include "powermapfilter.h"
 #include "staminafilter.h"
 #include "velocityfilter.h"
-
-#include "cpp11fix.h"
 
 class VelocityStorer
 	: public InputFilter

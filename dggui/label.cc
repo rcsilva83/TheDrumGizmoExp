@@ -29,7 +29,7 @@
 #include "painter.h"
 #include "guievent.h"
 
-#include <cpp11fix.h>
+#include <memory>
 
 namespace dggui
 {
