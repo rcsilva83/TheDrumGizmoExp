@@ -609,6 +609,12 @@ std::pair<std::size_t, std::size_t> NativeWindowCocoa::getSize() const
 	}
 }
 
+bool NativeWindowCocoa::isHiDPI()
+{
+  float dpi = [priv->window backingScaleFactor];
+  return dpi > 1.0f;
+}
+
 void NativeWindowCocoa::move(int x, int y)
 {
 	NSRect screen = [[NSScreen mainScreen] frame];

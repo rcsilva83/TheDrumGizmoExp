@@ -59,6 +59,11 @@ public:
 	//! Query size of the native window.
 	virtual std::pair<std::size_t, std::size_t> getSize() const = 0;
 
+	//! While there isn’t a universally agreed-upon meaning for what constitutes
+	//! HiDPI, a common benchmark is that displays with more than double the PPI
+	//! of the old standard (72-96) can arguably be classified as HiDPI.
+	virtual bool isHiDPI() = 0;
+
 	//! Move the window to a new position.
 	//! Note: negative value are allowed.
 	virtual void move(int x, int y) = 0;

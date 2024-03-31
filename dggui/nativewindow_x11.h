@@ -50,6 +50,7 @@ public:
 	void setAlwaysOnTop(bool always_on_top) override;
 	void resize(std::size_t width, std::size_t height) override;
 	std::pair<std::size_t, std::size_t> getSize() const override;
+	bool isHiDPI() override;;
 	void move(int x, int y) override;
 	std::pair<int, int> getPosition() const override;
 	void show() override;

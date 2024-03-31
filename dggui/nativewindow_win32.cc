@@ -489,6 +489,15 @@ std::pair<std::size_t, std::size_t> NativeWindowWin32::getSize() const
 	return std::make_pair(rect.right - rect.left, rect.bottom - rect.top);
 }
 
+bool NativeWindowWin32::isHiDPI()
+{
+	HDC hDC = GetDC(m_hwnd);
+	INT xres = GetDeviceCaps(hDC, LOGPIXELSX);
+	INT yres = GetDeviceCaps(hDC, LOGPIXELSY);
+	ReleaseDC(m_hwnd, hDC);
+	return xres >= 2 * 96 || yres >= 2 * 96;
+}
+
 void NativeWindowWin32::move(int x, int y)
 {
 	SetWindowPos(m_hwnd, always_on_top ? HWND_TOPMOST : nullptr,

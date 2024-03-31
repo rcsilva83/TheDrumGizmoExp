@@ -240,6 +240,15 @@ std::pair<std::size_t, std::size_t> NativeWindowX11::getSize() const
 	return {width, height};
 }
 
+bool NativeWindowX11::isHiDPI()
+{
+	auto xres = ((((double) DisplayWidth(display, screen)) * 25.4) /
+	             ((double) DisplayWidthMM(display, screen))) + 0.5;
+	auto yres = ((((double) DisplayHeight(display, screen)) * 25.4) /
+	             ((double) DisplayHeightMM(display, screen))) + 0.5;
+	return xres >= 2 * 96 || yres >= 2 * 96;
+}
+
 void NativeWindowX11::move(int x, int y)
 {
 	if(display == nullptr)
