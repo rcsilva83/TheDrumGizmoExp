@@ -27,11 +27,13 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 #include "audioinputengine.h"
 #include "midimapper.h"
 #include "instrument.h"
 #include "configfile.h"
+#include "instrumentstate.h"
 
 class AudioInputEngineMidi
 	: public AudioInputEngine
@@ -65,6 +67,7 @@ public:
 
 protected:
 	MidiMapper mmap;
+	std::map<int, InstrumentState> instrument_states;
 
 private:
 	std::string midimap;

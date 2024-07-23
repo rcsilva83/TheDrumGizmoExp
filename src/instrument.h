@@ -49,7 +49,7 @@ public:
 	Instrument(Settings& settings, Random& rand);
 	~Instrument();
 
-	const Sample* sample(level_t level, size_t pos);
+	const Sample* sample(level_t level, float openness, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;

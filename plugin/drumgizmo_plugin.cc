@@ -410,16 +410,23 @@ bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
 	bool result = AudioInputEngineMidi::loadMidiMap(file, i);
 	std::vector<std::pair<int, std::string>> midnam;
 
+    // Create MIDNAM mappings.
+	// FIXME: Can CC entries somehow be added to the MIDNAM file?
+	//        For now, limiting this to note mappings.
 	const auto& midimap = mmap.getMap();
 	std::map<int, std::string> map;
 	for(const auto& entry : midimap)
 	{
-		// in case of multiple instruments mapped to one note, use '/' as separator
-		if(!map[entry.note_id].empty())
+		if(entry.from_kind == MapFrom::Note &&
+		   entry.to_kind   == MapTo::PlayInstrument)
 		{
-			map[entry.note_id] += "/";
+			// in case of multiple instruments mapped to one note, use '/' as separator
+			if(!map[entry.from_id].empty())
+			{
+				map[entry.from_id] += "/";
+			}
+			map[entry.from_id] += entry.instrument_name;
 		}
-		map[entry.note_id] += entry.instrument_name;
 	}
 
 	midnam.reserve(map.size());

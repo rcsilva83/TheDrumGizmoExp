@@ -25,26 +25,56 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include "midimapper.h"
+#include <set>
 
-std::vector<int> MidiMapper::lookup(int note_id)
+int MidiMapper::lookup_instrument(std::string name) {
+	const std::lock_guard<std::mutex> guard(mutex);
+	auto instrmap_it = instrmap.find(name);
+	if(instrmap_it != instrmap.end())
+	{
+		return instrmap_it->second;
+	}
+	return -1;
+}
+
+std::vector<int> MidiMapper::lookup_instruments(std::vector<MidimapEntry> const& entries) {
+	const std::lock_guard<std::mutex> guard(mutex);
+	std::set<int> rval;
+	for(const auto& entry : entries)
+	{
+		auto it = instrmap.find(entry.instrument_name);
+		if (it != instrmap.end()) {
+			rval.insert(it->second);
+		}
+	}
+	return std::vector<int>(rval.begin(), rval.end());
+}
+
+std::vector<MidimapEntry> MidiMapper::lookup(
+		int     from_id,
+		MapFrom from_kind,
+		MapTo   to_kind,
+		InstrumentStateKind state_kind)
 {
-	std::vector<int> instruments;
+	std::vector<MidimapEntry> rval;
 
 	const std::lock_guard<std::mutex> guard(mutex);
 
 	for(const auto& map_entry : midimap)
 	{
-		if(map_entry.note_id == note_id)
+		bool match = true;
+		match = match && (from_id == -1 || from_id == map_entry.from_id);
+		match = match && (from_kind == MapFrom::NoneOrAny || from_kind == map_entry.from_kind);
+		match = match && (to_kind == MapTo::NoneOrAny || to_kind == map_entry.to_kind);
+		match = match && (state_kind == InstrumentStateKind::NoneOrAny || state_kind == map_entry.maybe_instrument_state_kind);
+
+		if(match)
 		{
-			auto instrmap_it = instrmap.find(map_entry.instrument_name);
-			if(instrmap_it != instrmap.end())
-			{
-				instruments.push_back(instrmap_it->second);
-			}
+			rval.push_back(map_entry);
 		}
 	}
 
-	return instruments;
+	return rval;
 }
 
 void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap)

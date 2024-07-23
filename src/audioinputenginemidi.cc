@@ -26,6 +26,7 @@
  */
 #include "audioinputenginemidi.h"
 
+#include "instrument.h"
 #include "midimapparser.h"
 
 #include <cassert>
@@ -70,6 +71,7 @@ bool AudioInputEngineMidi::loadMidiMap(const std::string& midimap_file,
 	for(size_t i = 0; i < instruments.size(); i++)
 	{
 		instrmap[instruments[i]->getName()] = static_cast<int>(i);
+		instrument_states[i] = InstrumentState{};
 	}
 
 	mmap.swap(instrmap, midimap_parser.midimap);
@@ -94,6 +96,7 @@ bool AudioInputEngineMidi::isValid() const
 constexpr std::uint8_t NoteOff{0x80};
 constexpr std::uint8_t NoteOn{0x90};
 constexpr std::uint8_t NoteAftertouch{0xA0};
+constexpr std::uint8_t ControlChange{0xB0};
 
 // Note type mask:
 constexpr std::uint8_t NoteMask{0xF0};
@@ -108,42 +111,84 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
 		return;
 	}
 
-	auto key = midi_buffer[1]; // NOLINT - span
-	auto velocity = midi_buffer[2]; // NOLINT - span
-	auto instrument_idx = mmap.lookup(key);
-	auto instruments = mmap.lookup(key);
-	for(const auto& instrument_idx : instruments)
+	switch(midi_buffer[0] & NoteMask) // NOLINT - span
 	{
-		switch(midi_buffer[0] & NoteMask) // NOLINT - span
+	case NoteOff:
+		// Ignore for now
+		break;
+
+	case NoteOn:
 		{
-		case NoteOff:
-			// Ignore for now
-			break;
-
-		case NoteOn:
-			if(velocity != 0)
+			auto key = midi_buffer[1]; // NOLINT - span
+			auto velocity = midi_buffer[2]; // NOLINT - span
+			auto map_entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+			auto instruments = mmap.lookup_instruments(map_entries);
+			for(const auto& instrument_idx : instruments)
 			{
-				constexpr float lower_offset{0.5f};
-				constexpr float midi_velocity_max{127.0f};
-				// maps velocities to [.5/127, 126.5/127]
-				assert(velocity <= 127); // MIDI only support up to 127
-				auto centered_velocity =
-					(static_cast<float>(velocity) - lower_offset) / midi_velocity_max;
-				events.push_back({EventType::OnSet, (std::size_t)instrument_idx,
-				                  offset, centered_velocity});
+				if(velocity != 0)
+				{
+					constexpr float lower_offset{0.5f};
+					constexpr float midi_velocity_max{127.0f};
+					// maps velocities to [.5/127, 126.5/127]
+					assert(velocity <= 127); // MIDI only support up to 127
+					auto centered_velocity =
+						(static_cast<float>(velocity) - lower_offset) / midi_velocity_max;
+					float position = 0.0f;
+					float openness = 0.0f; // TODO
+					auto instr_it = instrument_states.find(instrument_idx);
+					if(instr_it != instrument_states.end())
+					{
+						openness = instr_it->second.openness;
+					}
+					events.push_back({EventType::OnSet, (std::size_t)instrument_idx,
+					                  offset, centered_velocity, openness});
+				}
 			}
-			break;
+		}
+		break;
 
-		case NoteAftertouch:
-			if(velocity > 0)
+	case NoteAftertouch:
+		{
+			auto key = midi_buffer[1]; // NOLINT - span
+			auto velocity = midi_buffer[2]; // NOLINT - span
+			auto map_entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+			auto instruments = mmap.lookup_instruments(map_entries);
+			for(const auto& instrument_idx : instruments)
 			{
-				events.push_back({EventType::Choke, (std::size_t)instrument_idx,
-				                  offset, .0f});
+				if(velocity > 0)
+				{
+					events.push_back({EventType::Choke, (std::size_t)instrument_idx,
+					                  offset, .0f, .0f});
+				}
 			}
-			break;
+		}
+		break;
 
-		default:
-			break;
+	case ControlChange:
+		{
+			auto controller_number = midi_buffer[1]; // NOLINT - span
+			auto value = midi_buffer[2]; // NOLINT - span
+
+			auto map_entries = mmap.lookup(controller_number,
+			                               MapFrom::CC,
+										   MapTo::InstrumentState);
+			for(const auto& entry : map_entries)
+			{
+				auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+				if (instrument_idx >= 0) {
+					auto state_it = instrument_states.find(instrument_idx);
+					if (state_it != instrument_states.end()) {
+						InstrumentState &state = state_it->second;
+						auto const max = (float) entry.state_max;
+						auto const min = (float) entry.state_min;
+						auto const in_clamped = std::min(std::max((float)value, std::min(min, max)), std::max(min, max));
+						float fvalue = (in_clamped - min) / (max - min);
+						if (entry.maybe_instrument_state_kind == InstrumentStateKind::Openness) {
+							state_it->second.openness = fvalue;
+						}
+					}
+				}
+			}
 		}
 	}
 }
