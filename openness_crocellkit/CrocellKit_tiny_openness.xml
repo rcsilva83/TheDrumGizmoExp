@@ -223,6 +223,9 @@
       <channelmap in="KDrumOutside" out="KDrumOutside"/>
     </instrument>
     <instrument name="HihatContinuous" file="HihatContinuous.xml">
+      <chokes>
+        <choke instrument="HihatContinuous"/>
+      </chokes>
       <channelmap in="AmbLeft" out="AmbLeft"/>
       <channelmap in="AmbRight" out="AmbRight"/>
       <channelmap in="OHLeft" out="OHLeft"/>
