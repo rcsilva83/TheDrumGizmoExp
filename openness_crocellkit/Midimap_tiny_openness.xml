@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<midimap>
+	<map note="52" instr="ChinaR"/>
+	<map note="49" instr="CrashL"/>
+	<map note="57" instr="CrashR"/>
+	<map note="36" instr="KDrumR"/>
+	<map note="51" instr="RideR"/>
+	<map note="53" instr="RideRBell"/>
+	<map note="38" instr="Snare"/>
+	<map note="48" instr="Tom1"/>
+	<map note="47" instr="Tom2"/>
+	<map note="41" instr="FTom2"/>
+
+	<map note="42" instr="HihatContinuous"/>
+	<map note="46" instr="HihatContinuous"/>
+	<map note="22" instr="HihatContinuous"/>
+	<map note="26" instr="HihatContinuous"/>
+	<map cc="4" instr="HihatContinuous" control="openness" min="90" max="0"/>
+</midimap>
