@@ -100,6 +100,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 			{
 				auto sample = new Sample(sampledom.name, sampledom.power,
 				                         sampledom.position,
+										 sampledom.openness,
 				                         sampledom.normalized);
 				for(const auto& audiofiledom : sampledom.audiofiles)
 				{

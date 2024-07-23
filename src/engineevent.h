@@ -44,4 +44,5 @@ struct event_t
 	std::size_t offset;      //!< The offset position in the input buffer
 	float velocity;          //!< The velocity if the type is a note on [0; 1]
 	float position;          //!< The position of the note. 0 := center, 1 := rim
+	float openness;          //!< The openness of the instrument. 0 := closed, 1 := open
 };

@@ -50,7 +50,7 @@ public:
 	~Instrument();
 
 	// FIXME: variable naming
-	const Sample* sample(level_t level, float position, std::size_t pos);
+	const Sample* sample(level_t level, float position, float openness, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;

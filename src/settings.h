@@ -3,7 +3,7 @@
  *            settings.h
  *
  *  Tue Mar 22 10:59:46 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -77,16 +77,20 @@ struct Settings
 	static float constexpr velocity_modifier_weight_default = 0.25f;
 	static float constexpr velocity_stddev_default = .45f;
 	static float constexpr position_stddev_default = 0.f; // FIXME: set to something sensible
+	static float constexpr openness_stddev_default = 0.f; // FIXME: set to something sensible
 	static float constexpr sample_selection_f_close_default = .85f;
 	static float constexpr sample_selection_f_position_default = 1.f;
+	static float constexpr sample_selection_f_openness_default = 1.f;
 	static float constexpr sample_selection_f_diverse_default = .16f;
 	static float constexpr sample_selection_f_random_default = .07f;
 	Atomic<float> velocity_modifier_falloff{velocity_modifier_falloff_default};
 	Atomic<float> velocity_modifier_weight{velocity_modifier_weight_default};
 	Atomic<float> velocity_stddev{velocity_stddev_default};
 	Atomic<float> position_stddev{position_stddev_default};
+	Atomic<float> openness_stddev{openness_stddev_default};
 	Atomic<float> sample_selection_f_close{sample_selection_f_close_default};
 	Atomic<float> sample_selection_f_position{sample_selection_f_position_default};
+	Atomic<float> sample_selection_f_openness{sample_selection_f_openness_default};
 	Atomic<float> sample_selection_f_diverse{sample_selection_f_diverse_default};
 	Atomic<float> sample_selection_f_random{sample_selection_f_random_default};
 
@@ -205,8 +209,10 @@ struct SettingsGetter
 	SettingRef<float> velocity_modifier_weight;
 	SettingRef<float> velocity_stddev;
 	SettingRef<float> position_stddev;
+	SettingRef<float> openness_stddev;
 	SettingRef<float> sample_selection_f_close;
 	SettingRef<float> sample_selection_f_position;
+	SettingRef<float> sample_selection_f_openness;
 	SettingRef<float> sample_selection_f_diverse;
 	SettingRef<float> sample_selection_f_random;
 
@@ -282,8 +288,10 @@ struct SettingsGetter
 		, velocity_modifier_weight{settings.velocity_modifier_weight}
 		, velocity_stddev{settings.velocity_stddev}
 		, position_stddev{settings.position_stddev}
+		, openness_stddev{settings.openness_stddev}
 		, sample_selection_f_close{settings.sample_selection_f_close}
 		, sample_selection_f_position{settings.sample_selection_f_position}
+		, sample_selection_f_openness{settings.sample_selection_f_openness}
 		, sample_selection_f_diverse{settings.sample_selection_f_diverse}
 		, sample_selection_f_random{settings.sample_selection_f_random}
 		, sample_selection_retry_count(settings.sample_selection_retry_count)
@@ -354,8 +362,10 @@ public:
 	Notifier<float> velocity_modifier_weight;
 	Notifier<float> velocity_stddev;
 	Notifier<float> position_stddev;
+	Notifier<float> openness_stddev;
 	Notifier<float> sample_selection_f_close;
 	Notifier<float> sample_selection_f_position;
+	Notifier<float> sample_selection_f_openness;
 	Notifier<float> sample_selection_f_diverse;
 	Notifier<float> sample_selection_f_random;
 	Notifier<std::size_t> sample_selection_retry_count;
@@ -435,8 +445,10 @@ public:
 		EVAL(velocity_modifier_weight);
 		EVAL(velocity_stddev);
 		EVAL(position_stddev);
+		EVAL(openness_stddev)
 		EVAL(sample_selection_f_close);
 		EVAL(sample_selection_f_position);
+		EVAL(sample_selection_f_openness);
 		EVAL(sample_selection_f_diverse);
 		EVAL(sample_selection_f_random);
 		EVAL(sample_selection_retry_count);

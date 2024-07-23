@@ -55,12 +55,12 @@ bool Instrument::isValid() const
 }
 
 // FIXME: very bad variable naming of parameters
-const Sample* Instrument::sample(level_t level, float position , std::size_t pos)
+const Sample* Instrument::sample(level_t level, float position , float openness, std::size_t pos)
 {
 	if(version >= VersionStr("2.0"))
 	{
 		// Version 2.0
-		return sample_selection.get(level * mod, position, pos);
+		return sample_selection.get(level * mod, position, openness, pos);
 	}
 	else
 	{

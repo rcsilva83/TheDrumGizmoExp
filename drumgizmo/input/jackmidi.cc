@@ -3,7 +3,7 @@
  *            jackmidi.cc
  *
  *  Mo 25. Jan 11:26:06 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -50,7 +50,7 @@ bool JackMidiInputEngine::init(const Instruments& instruments)
 {
 	if(!loadMidiMap(midimap_file, instruments))
 	{
-		std::cerr << "[MidifileInputEngine] Failed to parse midimap '"
+		std::cerr << "[JackMidiInputEngine] Failed to parse midimap '"
 		          << midimap_file << "'\n";
 		return false;
 	}
@@ -114,7 +114,7 @@ void JackMidiInputEngine::process(jack_nframes_t num_frames)
 	// It might not be though in case the system is under heavy load.
 	// Make room for both the new and old events to make sure we don't throw
 	// anything away.
-	events.reserve(events.size() + num_events);
+    // FIXME	events.reserve(events.size() + num_events);
 
 	for(jack_nframes_t i = 0; i < num_events; ++i)
 	{

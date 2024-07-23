@@ -66,25 +66,29 @@ public:
 		mapper.swap(instrmap, midimap);
 
 		{
-			auto is = mapper.lookup(54);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(54, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(1u, is.size());
 			uASSERT_EQUAL(0, is[0]);
 		}
 
 		{
-			auto is = mapper.lookup(60);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(60, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(1u, is.size());
 			uASSERT_EQUAL(1, is[0]);
 		}
 
 		{
-			auto is = mapper.lookup(55);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(55, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(1u, is.size());
 			uASSERT_EQUAL(2, is[0]);
 		}
 
 		{
-			auto is = mapper.lookup(62);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(62, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(2u, is.size());
 			// We don't care about the order, so just count the instances
 			uASSERT_EQUAL(1u, std::count(is.begin(), is.end(), 3));
@@ -92,7 +96,8 @@ public:
 		}
 
 		{
-			auto is = mapper.lookup(56);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(56, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(1u, is.size());
 			uASSERT_EQUAL(4, is[0]);
 		}
@@ -124,13 +129,15 @@ public:
 
 		// no such note id
 		{
-			auto is = mapper.lookup(42);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(42, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(0u, is.size());
 		}
 
 		// no such instrument
 		{
-			auto is = mapper.lookup(60);
+			auto is = mapper.lookup_instruments(
+				mapper.lookup(60, MapFrom::Note, MapTo::PlayInstrument));
 			uASSERT_EQUAL(0u, is.size());
 		}
 	}

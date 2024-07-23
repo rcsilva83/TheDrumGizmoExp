@@ -404,6 +404,7 @@ bool DrumGizmoPlugin::Input::isFreewheeling() const
 	return plugin.getFreeWheel();
 }
 
+// TODO what is going on here
 bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
                                          const Instruments& i)
 {
@@ -415,11 +416,11 @@ bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
 	for(const auto& entry : midimap)
 	{
 		// in case of multiple instruments mapped to one note, use '/' as separator
-		if(!map[entry.note_id].empty())
+		if(!map[entry.from_id].empty())
 		{
-			map[entry.note_id] += "/";
+			map[entry.from_id] += "/";
 		}
-		map[entry.note_id] += entry.instrument_name;
+		map[entry.from_id] += entry.instrument_name;
 	}
 
 	midnam.reserve(map.size());

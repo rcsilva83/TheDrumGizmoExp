@@ -59,24 +59,24 @@ public:
 		const auto& midimap = parser.midimap;
 		uASSERT_EQUAL(6u, midimap.size());
 
-		uASSERT_EQUAL(54, midimap[0].note_id);
+		uASSERT_EQUAL(54, midimap[0].from_id);
 		uASSERT_EQUAL(std::string("Crash_left_tip"), midimap[0].instrument_name);
 
-		uASSERT_EQUAL(60, midimap[1].note_id);
+		uASSERT_EQUAL(60, midimap[1].from_id);
 		uASSERT_EQUAL(std::string("Crash_left_whisker"), midimap[1].instrument_name);
 
-		uASSERT_EQUAL(55, midimap[2].note_id);
+		uASSERT_EQUAL(55, midimap[2].from_id);
 		uASSERT_EQUAL(std::string("Crash_right_tip"), midimap[2].instrument_name);
 
 		// These next two note numbers are intentionally the same and trigger two
 		// different instruments:
-		uASSERT_EQUAL(62, midimap[3].note_id);
+		uASSERT_EQUAL(62, midimap[3].from_id);
 		uASSERT_EQUAL(std::string("Crash_right_whisker"), midimap[3].instrument_name);
 
-		uASSERT_EQUAL(62, midimap[4].note_id);
+		uASSERT_EQUAL(62, midimap[4].from_id);
 		uASSERT_EQUAL(std::string("Hihat_closed"), midimap[4].instrument_name);
 
-		uASSERT_EQUAL(56, midimap[5].note_id);
+		uASSERT_EQUAL(56, midimap[5].from_id);
 		uASSERT_EQUAL(std::string("Hihat_closed"), midimap[5].instrument_name);
 	}
 

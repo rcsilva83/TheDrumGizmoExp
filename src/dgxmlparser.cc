@@ -351,26 +351,33 @@ bool parseInstrumentFile(const std::string& filename, InstrumentDOM& dom, LogFun
 		dom.samples.emplace_back();
 		res &= attrcpy(dom.samples.back().name, sample, "name", logger, filename);
 
-		// Power only part of >= v2.0 instruments.
-		if(dom.version == "1.0")
-		{
-			dom.samples.back().power = 0.0;
-		}
-		else
+		// Power and normalized sample support only part of >= v2.0 instruments.
+		dom.samples.back().power = 0.0;
+		dom.samples.back().normalized = false; // optional - defaults to false
+		if(dom.version != "1.0")
 		{
 			res &= attrcpy(dom.samples.back().power, sample, "power",
 			               logger, filename);
 
-			dom.samples.back().position = 0.0; // optional - defaults to 0
+			res &= attrcpy(dom.samples.back().normalized, sample, "normalized",
+			               logger, filename, true);
+		}
+
+		// Position and openness support only part of >= v3.0 instruments.
+		dom.samples.back().position = 0.0; // optional - defaults to 0
+		dom.samples.back().openness = 0.0; // optional - defaults to 0
+		if(dom.version != "1.0" && dom.version != "2.0")
+		{
+			// Get and clamp to [0; 1] range.
 			res &= attrcpy(dom.samples.back().position, sample, "position",
 			               logger, filename, true);
-			// Clamp to [0; 1] range.
 			dom.samples.back().position =
 				std::min(1.0, std::max(dom.samples.back().position, 0.0));
 
-			dom.samples.back().normalized = false; // optional - defaults to false
-			res &= attrcpy(dom.samples.back().normalized, sample, "normalized",
+			res &= attrcpy(dom.samples.back().openness, sample, "openness",
 			               logger, filename, true);
+			dom.samples.back().openness =
+				std::min(1.0, std::max(dom.samples.back().openness, 0.0));
 		}
 
 		for(pugi::xml_node audiofile: sample.children("audiofile"))

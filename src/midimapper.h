@@ -31,10 +31,33 @@
 #include <mutex>
 #include <vector>
 
+enum class MapFrom {
+	Note,
+	CC,
+	None
+};
+
+enum class MapTo {
+	PlayInstrument,
+	InstrumentState,
+	None
+};
+
+enum class InstrumentStateKind {
+	Position,
+	Openness,
+	None
+};
+
 struct MidimapEntry
 {
-	int note_id;
+	MapFrom from_kind;
+	MapTo   to_kind;
+	int     from_id;  // note or CC number
 	std::string instrument_name;
+	InstrumentStateKind maybe_instrument_state_kind;
+	uint8_t state_min; // cc value mapping to state 0.0
+	uint8_t state_max; // cc value mapping to state 1.0
 };
 
 using midimap_t = std::vector<MidimapEntry>;
@@ -43,8 +66,16 @@ using instrmap_t = std::map<std::string, int>;
 class MidiMapper
 {
 public:
-	//! Lookup note in map and returns the corresponding instrument index list.
-	std::vector<int> lookup(int note_id);
+	//! Lookup midi map entries matching the given query.
+	std::vector<MidimapEntry> lookup(
+		int     from_id = -1,              // note or cc #. -1 matches all notes/cc's
+		MapFrom from_kind = MapFrom::None, // None will return both CC and note maps
+		MapTo   to_kind = MapTo::None,     // None will return both instrument hits and controls
+		InstrumentStateKind state_kind = InstrumentStateKind::None // None maps all state control kinds
+		);
+
+	int lookup_instrument(std::string name);
+	std::vector<int> lookup_instruments(std::vector<MidimapEntry> const& entries);
 
 	//! Set new map sets.
 	void swap(instrmap_t& instrmap, midimap_t& midimap);

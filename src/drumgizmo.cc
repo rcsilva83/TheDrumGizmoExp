@@ -26,11 +26,9 @@
  */
 #include "drumgizmo.h"
 
-#include <cmath>
 #include <cstdio>
 #include <cassert>
 #include <cstring>
-#include <mutex>
 
 #include "audiotypes.h"
 #include <config.h>

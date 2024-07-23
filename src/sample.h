@@ -38,13 +38,14 @@ class Sample
 {
 public:
 	Sample(const std::string& name, double power, double position,
-	       bool normalized = false);
+	       double openness, bool normalized = false);
 	~Sample();
 
 	AudioFile* getAudioFile(const Channel& channel) const;
 
 	double getPower() const;
 	double getPosition() const;
+	double getOpenness() const;
 	bool getNormalized() const;
 
 private:
@@ -58,6 +59,7 @@ private:
 	std::string name;
 	double power;
 	double position{0.0};
+	double openness{0.0};
 	bool normalized;
 	AudioFiles audiofiles;
 };

@@ -143,6 +143,7 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 		current_event = smf_get_next_event(smf);
 	}
 
+	// TODO: handle CC
 	while(current_event && current_event->time_seconds < current_max_time)
 	{
 		if(!smf_event_is_metadata(current_event))
@@ -155,7 +156,8 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 				int key = current_event->midi_buffer[1];
 				int velocity = current_event->midi_buffer[2];
 
-				auto instruments = mmap.lookup(key);
+				auto entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+				auto instruments = mmap.lookup_instruments(entries);
 				for(const auto& instrument_idx : instruments)
 				{
 					events.emplace_back();

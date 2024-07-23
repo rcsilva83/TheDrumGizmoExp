@@ -29,10 +29,11 @@
 #include <sndfile.h>
 
 Sample::Sample(const std::string& name, double power, double position,
-               bool normalized)
+               double openness, bool normalized)
 	: name{name}
 	, power{power}
 	, position{position}
+	, openness{openness}
 	, normalized(normalized)
 	, audiofiles{}
 {
@@ -74,6 +75,11 @@ double Sample::getPower() const
 double Sample::getPosition() const
 {
 	return position;
+}
+
+double Sample::getOpenness() const
+{
+	return openness;
 }
 
 bool Sample::getNormalized() const
