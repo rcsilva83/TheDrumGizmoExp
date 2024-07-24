@@ -50,7 +50,7 @@ public:
 	~Instrument();
 
 	// FIXME: variable naming
-	const Sample* sample(level_t level, float position, std::size_t pos);
+	const Sample* sample(float power, float instrument_power_range, float position, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;
@@ -68,8 +68,12 @@ public:
 	//! Get the number of audio files (as in single channel) in this instrument.
 	std::size_t getNumberOfFiles() const;
 
-	float getMaxPower() const;
-	float getMinPower() const;
+	struct PowerRange
+	{
+		double min;
+		double max;
+	};
+	PowerRange getPowers(float position) const;
 
 	const std::vector<Choke>& getChokes();
 
@@ -98,7 +102,6 @@ private:
 	std::deque<InstrumentChannel> instrument_channels;
 
 	size_t lastpos;
-	float mod;
 	Settings& settings;
 	Random& rand;
 	PowerList powerlist;

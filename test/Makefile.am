@@ -8,7 +8,7 @@ TESTS = resource enginetest paintertest configfile audiocache \
 	randomtest atomictest syncedsettingstest imagecachetest \
 	semaphoretest drumkitcreatortest bytesizeparsertest notifiertest \
 	dgxmlparsertest domloadertest configparsertest midimapparsertest \
-	eventsdstest powermaptest midimappertest
+	eventsdstest powermaptest midimappertest positionpowertest
 
 if WITH_NLS
 TESTS += translationtest
@@ -352,6 +352,17 @@ midimappertest_SOURCES = \
 	$(top_srcdir)/pugixml/src/pugixml.cpp \
 	scopedfile.cc \
 	midimappertest.cc \
+	uunit/uunit.cc
+
+positionpowertest_CXXFLAGS = \
+	-I$(top_srcdir)/test/uunit -DOUTPUT=\"positionpowertest\" \
+	$(DEBUG_FLAGS) \
+	-I$(top_srcdir)/src
+positionpowertest_LDFLAGS =
+positionpowertest_SOURCES = \
+	$(top_srcdir)/src/sample.cc \
+	$(top_srcdir)/src/position_power.cc \
+	position_power_test.cc \
 	uunit/uunit.cc
 
 RES = \

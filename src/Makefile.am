@@ -77,6 +77,7 @@ libdg_la_SOURCES = \
 	$(top_srcdir)/src/thread.cc \
 	$(top_srcdir)/src/velocityfilter.cc \
 	$(top_srcdir)/src/positionfilter.cc \
+	$(top_srcdir)/src/position_power.cc \
 	$(top_srcdir)/src/versionstr.cc
 
 EXTRA_DIST = \

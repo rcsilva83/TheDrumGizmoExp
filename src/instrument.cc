@@ -29,6 +29,7 @@
 #include <hugin.hpp>
 
 #include "sample.h"
+#include "position_power.h"
 
 Instrument::Instrument(Settings& settings, Random& rand)
 	: settings(settings)
@@ -36,7 +37,6 @@ Instrument::Instrument(Settings& settings, Random& rand)
 	, sample_selection(settings, rand, powerlist)
 {
 	DEBUG(instrument, "new %p\n", this);
-	mod = 1.0;
 	lastpos = 0;
 
 	magic = this;
@@ -55,17 +55,17 @@ bool Instrument::isValid() const
 }
 
 // FIXME: very bad variable naming of parameters
-const Sample* Instrument::sample(level_t level, float position , std::size_t pos)
+const Sample* Instrument::sample(float power, float instrument_power_range, float position, std::size_t pos)
 {
 	if(version >= VersionStr("2.0"))
 	{
 		// Version 2.0
-		return sample_selection.get(level * mod, position, pos);
+		return sample_selection.get(power, instrument_power_range, position, pos);
 	}
 	else
 	{
 		// Version 1.0
-		auto s = samples.get(level * mod);
+		auto s = samples.get(power);
 		if(s.size() == 0)
 		{
 			return nullptr;
@@ -130,27 +130,15 @@ std::size_t Instrument::getNumberOfFiles() const
 	return audiofiles.size();
 }
 
-float Instrument::getMaxPower() const
+Instrument::PowerRange Instrument::getPowers(float position) const
 {
 	if(version >= VersionStr("2.0"))
 	{
-		return powerlist.getMaxPower();
+		return positionPower(samplelist, position);
 	}
 	else
 	{
-		return 1.0f;
-	}
-}
-
-float Instrument::getMinPower() const
-{
-	if(version >= VersionStr("2.0"))
-	{
-		return powerlist.getMinPower();
-	}
-	else
-	{
-		return 0.0f;
+		return { 0.0f, 1.0f };
 	}
 }
 

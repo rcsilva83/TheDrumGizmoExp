@@ -45,7 +45,9 @@ float pow2(float f)
 } // end anonymous namespace
 
 SampleSelection::SampleSelection(Settings& settings, Random& rand, const PowerList& powerlist)
-	: settings(settings), rand(rand), powerlist(powerlist)
+	: settings(settings)
+	, rand(rand)
+	, powerlist(powerlist)
 {
 }
 
@@ -56,7 +58,7 @@ void SampleSelection::finalise()
 
 // FIXME: For the position, weird hacks via the powerlist are necessary. Refactor!
 // FIXME: bad variable naming
-const Sample* SampleSelection::get(level_t level, float position, std::size_t pos)
+const Sample* SampleSelection::get(float power, float instrument_power_span, float position, std::size_t pos)
 {
 	const auto& samples = powerlist.getPowerListItems();
 	if(!samples.size())
@@ -76,31 +78,35 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 
 	// Note the magic values in front of the settings factors.
 	const float f_close = 4.*settings.sample_selection_f_close.load();
-	const float f_position = 1000.*settings.sample_selection_f_position.load(); // FIXME: huge factor for now
+	const float f_position = 4.*settings.sample_selection_f_position.load();
 	const float f_diverse = (1./2.)*settings.sample_selection_f_diverse.load();
 	const float f_random = (1./3.)*settings.sample_selection_f_random.load();
 
-	float power_range = powerlist.getMaxPower() - powerlist.getMinPower();
-	// If all power values are the same then power_range is invalid but we want
+	// If all power values are the same then instrument_power_span is invalid but we want
 	// to avoid division by zero.
-	if (power_range == 0.) { power_range = 1.0; }
+	if (instrument_power_span == 0.)
+	{
+		instrument_power_span = 1.0;
+	}
 
 	// start with most promising power value and then stop when reaching far values
 	// which cannot become opt anymore
-	auto closest_it = std::lower_bound(samples.begin(), samples.end(), level);
+	auto closest_it = std::lower_bound(samples.begin(), samples.end(), power);
 	std::size_t up_index = std::distance(samples.begin(), closest_it);
 	std::size_t down_index = (up_index == 0 ? 0 : up_index - 1);
 
 	float up_value_lb;
-	if (up_index < samples.size()) {
-		auto const close_up = (samples[up_index].power-level)/power_range;
+	if (up_index < samples.size())
+	{
+		auto const close_up = (samples[up_index].power-power)/instrument_power_span;
 		up_value_lb = f_close*pow2(close_up);
 	}
-	else {
+	else
+	{
 		--up_index;
 		up_value_lb = std::numeric_limits<float>::max();
 	}
-	auto const close_down = (samples[down_index].power-level)/power_range;
+	auto const close_down = (samples[down_index].power-power)/instrument_power_span;
 	float down_value_lb = (up_index != 0 ? f_close*pow2(close_down) : std::numeric_limits<float>::max());
 
 	std::size_t count = 0;
@@ -117,7 +123,7 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 			if (up_index != samples.size()-1)
 			{
 				++up_index;
-				up_value_lb = f_close*pow2((samples[up_index].power-level)/power_range);
+				up_value_lb = f_close*pow2((samples[up_index].power-power)/instrument_power_span);
 			}
 			else
 			{
@@ -130,7 +136,7 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 			if (down_index != 0)
 			{
 				--down_index;
-				down_value_lb = f_close*pow2((samples[down_index].power-level)/power_range);
+				down_value_lb = f_close*pow2((samples[down_index].power-power)/instrument_power_span);
 			}
 			else
 			{
@@ -139,7 +145,7 @@ const Sample* SampleSelection::get(level_t level, float position, std::size_t po
 		}
 
 		auto random = rand.floatInRange(0.,1.);
-		auto close = (samples[current_index].power - level)/power_range;
+		auto close = (samples[current_index].power - power)/instrument_power_span;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
 		auto closepos = samples[current_index].sample->getPosition() - position;
 		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
