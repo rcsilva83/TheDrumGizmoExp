@@ -131,31 +131,34 @@ void CurveMap::reset()
 
 void CurveMap::setFixed0(CurveValuePair new_value)
 {
-	if (fixed[0] != new_value)
+	auto prev = fixed[0];
+	fixed[0].in = clamp(new_value.in, eps, fixed[1].in - eps);
+	fixed[0].out = clamp(new_value.out, eps, fixed[1].out - eps);
+	if (fixed[0] != prev)
 	{
 		spline_needs_update = true;
-		fixed[0].in = clamp(new_value.in, eps, fixed[1].in - eps);
-		fixed[0].out = clamp(new_value.out, eps, fixed[1].out - eps);
 	}
 }
 
 void CurveMap::setFixed1(CurveValuePair new_value)
 {
-	if (fixed[1] != new_value)
+	auto prev = fixed[1];
+	fixed[1].in = clamp(new_value.in, fixed[0].in + eps, fixed[2].in - eps);
+	fixed[1].out = clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
+	if (fixed[1] != prev)
 	{
 		spline_needs_update = true;
-		fixed[1].in = clamp(new_value.in, fixed[0].in + eps, fixed[2].in - eps);
-		fixed[1].out = clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
 	}
 }
 
 void CurveMap::setFixed2(CurveValuePair new_value)
 {
-	if (fixed[2] != new_value)
+	auto prev = fixed[2];
+	fixed[2].in = clamp(new_value.in, fixed[1].in + eps, 1 - eps);
+	fixed[2].out = clamp(new_value.out, fixed[1].out + eps, 1 - eps);
+	if (fixed[2] != prev)
 	{
 		spline_needs_update = true;
-		fixed[2].in = clamp(new_value.in, fixed[1].in + eps, 1 - eps);
-		fixed[2].out = clamp(new_value.out, fixed[1].out + eps, 1 - eps);
 	}
 }
 
