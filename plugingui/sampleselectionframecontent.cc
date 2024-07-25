@@ -63,9 +63,17 @@ SampleselectionframeContent::SampleselectionframeContent(dggui::Widget* parent,
 	f_random.setControl(&f_random_knob);
 	layout.addItem(&f_random);
 
+	f_position.resize(80, 80);
+	f_position_knob.resize(30, 30);
+	f_position_knob.showValue(false);
+	f_position_knob.setDefaultValue(Settings::sample_selection_f_position_default);
+	f_position.setControl(&f_position_knob);
+	layout.addItem(&f_position);
+
 	layout.setPosition(&f_close, dggui::GridLayout::GridRange{0, 1, 0, 1});
 	layout.setPosition(&f_diverse, dggui::GridLayout::GridRange{1, 2, 0, 1});
 	layout.setPosition(&f_random, dggui::GridLayout::GridRange{2, 3, 0, 1});
+	layout.setPosition(&f_position, dggui::GridLayout::GridRange{3, 4, 0, 1});
 
 	CONNECT(this, settings_notifier.sample_selection_f_close,
 	        this, &SampleselectionframeContent::fCloseSettingsValueChanged);
@@ -73,6 +81,8 @@ SampleselectionframeContent::SampleselectionframeContent(dggui::Widget* parent,
 	        this, &SampleselectionframeContent::fDiverseSettingsValueChanged);
 	CONNECT(this, settings_notifier.sample_selection_f_random,
 	        this, &SampleselectionframeContent::fRandomSettingsValueChanged);
+	CONNECT(this, settings_notifier.sample_selection_f_position,
+	        this, &SampleselectionframeContent::fPositionSettingsValueChanged);
 
 	CONNECT(&f_close_knob, valueChangedNotifier,
 	        this, &SampleselectionframeContent::fCloseKnobValueChanged);
@@ -80,6 +90,8 @@ SampleselectionframeContent::SampleselectionframeContent(dggui::Widget* parent,
 	        this, &SampleselectionframeContent::fDiverseKnobValueChanged);
 	CONNECT(&f_random_knob, valueChangedNotifier,
 	        this, &SampleselectionframeContent::fRandomKnobValueChanged);
+	CONNECT(&f_position_knob, valueChangedNotifier,
+	        this, &SampleselectionframeContent::fPositionKnobValueChanged);
 }
 
 void SampleselectionframeContent::fCloseKnobValueChanged(float value)
@@ -97,6 +109,11 @@ void SampleselectionframeContent::fRandomKnobValueChanged(float value)
 	settings.sample_selection_f_random.store(value);
 }
 
+void SampleselectionframeContent::fPositionKnobValueChanged(float value)
+{
+	settings.sample_selection_f_position.store(value);
+}
+
 void SampleselectionframeContent::fCloseSettingsValueChanged(float value)
 {
 	f_close_knob.setValue(value);
@@ -110,6 +127,11 @@ void SampleselectionframeContent::fDiverseSettingsValueChanged(float value)
 void SampleselectionframeContent::fRandomSettingsValueChanged(float value)
 {
 	f_random_knob.setValue(value);
+}
+
+void SampleselectionframeContent::fPositionSettingsValueChanged(float value)
+{
+	f_position_knob.setValue(value);
 }
 
 } // GUI::

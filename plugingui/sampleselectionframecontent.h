@@ -52,20 +52,24 @@ private:
 	void fCloseKnobValueChanged(float value);
 	void fDiverseKnobValueChanged(float value);
 	void fRandomKnobValueChanged(float value);
+	void fPositionKnobValueChanged(float value);
 
 	void fCloseSettingsValueChanged(float value);
 	void fDiverseSettingsValueChanged(float value);
 	void fRandomSettingsValueChanged(float value);
+	void fPositionSettingsValueChanged(float value);
 
-	dggui::GridLayout layout{this, 3, 1};
+	dggui::GridLayout layout{this, 4, 1};
 
 	LabeledControl f_close{this, _("pClose")};
 	LabeledControl f_diverse{this, _("pDiverse")};
 	LabeledControl f_random{this, _("pRandom")};
+	LabeledControl f_position{this, _("pPosition")};
 
 	dggui::Knob f_close_knob{&f_close};
 	dggui::Knob f_diverse_knob{&f_diverse};
 	dggui::Knob f_random_knob{&f_random};
+	dggui::Knob f_position_knob{&f_position};
 
 	Settings& settings;
 	SettingsNotifier& settings_notifier;
