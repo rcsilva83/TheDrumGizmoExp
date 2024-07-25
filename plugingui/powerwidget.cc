@@ -31,7 +31,6 @@
 
 #include <notifier.h>
 #include <settings.h>
-#include <powermap.h>
 
 #include <hugin.hpp>
 #include <cmath>

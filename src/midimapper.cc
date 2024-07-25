@@ -25,26 +25,64 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include "midimapper.h"
+#include <set>
 
-std::vector<int> MidiMapper::lookup(int note_id)
+#include <cpp11fix.h>
+
+MidimapEntry::MidimapEntry(int note_id,
+				           std::string instrument_name,
+				           CurveMap *maybe_curve_map) :
+	note_id(note_id)
+	, instrument_name(instrument_name)
 {
-	std::vector<int> instruments;
+	if (maybe_curve_map)
+	{
+		this->maybe_curve_map = std::make_unique<CurveMap>(*maybe_curve_map);
+	}
+}
+
+MidimapEntry::MidimapEntry(const MidimapEntry& other)
+{
+	*this = other;
+}
+
+MidimapEntry &MidimapEntry::operator=(const MidimapEntry& other)
+{
+	note_id = other.note_id;
+	instrument_name = other.instrument_name;
+	if (other.maybe_curve_map)
+	{
+		maybe_curve_map = std::make_unique<CurveMap>(*other.maybe_curve_map);
+	}
+
+	return *this;
+}
+
+int MidiMapper::lookup_instrument(std::string name) {
+	const std::lock_guard<std::mutex> guard(mutex);
+	auto instrmap_it = instrmap.find(name);
+	if(instrmap_it != instrmap.end())
+	{
+		return instrmap_it->second;
+	}
+	return -1;
+}
+
+std::vector<MidimapEntry> MidiMapper::lookup(int note_id)
+{
+	std::vector<MidimapEntry> rval;
 
 	const std::lock_guard<std::mutex> guard(mutex);
 
 	for(const auto& map_entry : midimap)
 	{
-		if(map_entry.note_id == note_id)
+		if(note_id == map_entry.note_id)
 		{
-			auto instrmap_it = instrmap.find(map_entry.instrument_name);
-			if(instrmap_it != instrmap.end())
-			{
-				instruments.push_back(instrmap_it->second);
-			}
+			rval.push_back(map_entry);
 		}
 	}
 
-	return instruments;
+	return rval;
 }
 
 void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap)

@@ -34,7 +34,7 @@
 #include <dggui/label.h>
 #include <dggui/font.h>
 
-#include <powermap.h>
+#include <curvemap.h>
 
 struct Settings;
 class SettingsNotifier;
@@ -75,7 +75,7 @@ private:
 		virtual void mouseLeaveEvent() override;
 
 	private:
-		Powermap power_map;
+		CurveMap power_map;
 
 		void parameterChangedFloat(float);
 		void parameterChangedBool(bool);

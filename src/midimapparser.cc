@@ -25,9 +25,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include "midimapparser.h"
+#include "parsecurvemap.h"
 
 #include <pugixml.hpp>
 #include <hugin.hpp>
+
+#include <cpp11fix.h>
 
 bool MidiMapParser::parseFile(const std::string& filename)
 {
@@ -42,15 +45,26 @@ bool MidiMapParser::parseFile(const std::string& filename)
 	pugi::xml_node midimap_node = doc.child("midimap");
 	for(pugi::xml_node map_node : midimap_node.children("map"))
 	{
-		constexpr int bad_value = 10000;
-		auto note = map_node.attribute("note").as_int(bad_value);
-		auto instr = map_node.attribute("instr").as_string();
-		if(std::string(instr) == "" || note == bad_value)
+		constexpr int default_int   = 10000;
+		auto note =  map_node.attribute("note").as_int(default_int);
+		auto instr = std::string(map_node.attribute("instr").as_string());
+
+		std::unique_ptr<CurveMap> maybe_curve;
+		auto maybe_curve_node = map_node.child("curve");
+		if (maybe_curve_node) {
+			CurveMap curve;
+			if (parse_curve_map (maybe_curve_node, curve)) {
+				maybe_curve = std::make_unique<CurveMap>();
+				*maybe_curve = curve;
+			}
+		}
+
+		if(std::string(instr) == "" || note == default_int)
 		{
 			continue;
 		}
 
-		MidimapEntry entry{note, instr};
+		MidimapEntry entry(note, instr, maybe_curve.get());
 		midimap.push_back(entry);
 	}
 

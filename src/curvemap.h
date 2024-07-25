@@ -1,6 +1,6 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            powermap.h
+ *            curvemap.h
  *
  *  Fri Apr 17 23:06:12 CEST 2020
  *  Copyright 2020 André Nusser
@@ -29,48 +29,71 @@
 #include <array>
 #include <vector>
 
-class Powermap
-{
-public:
-	using Power = float;
-	using Powers = std::vector<Power>;
-	struct PowerPair
-	{
-		Power in;
-		Power out;
+class CurveMapTestAccessor;
 
-		bool operator!=(const PowerPair& other)
+class CurveMap
+{
+	friend class CurveMapTestAccessor;
+public:
+	using CurveValue = float;
+	using CurveValues = std::vector<CurveValue>;
+
+	bool operator==(const CurveMap& other) const;
+
+	struct CurveValuePair
+	{
+		CurveValue in;
+		CurveValue out;
+
+		bool operator==(const CurveValuePair& other)
 		{
-			return in != other.in || out != other.out;
+			return in == other.in || out == other.out;
+		}
+		bool operator!=(const CurveValuePair& other)
+		{
+			return !(*this == other);
 		}
 	};
 
-	Powermap();
+	CurveMap();
 
-	Power map(Power in);
+	CurveValue map(CurveValue in);
 	void reset();
 
-	void setFixed0(PowerPair new_value);
-	void setFixed1(PowerPair new_value);
-	void setFixed2(PowerPair new_value);
+	void setFixed0(CurveValuePair new_value);
+	void setFixed1(CurveValuePair new_value);
+	void setFixed2(CurveValuePair new_value);
 	void setShelf(bool enable);
 
-	PowerPair getFixed0() const;
-	PowerPair getFixed1() const;
-	PowerPair getFixed2() const;
+	//! If enabled, inversion inverts (1 - x) the input value before mapping
+	//! it through the curve.
+	void setInvert(bool enable);
+
+	CurveValuePair getFixed0() const;
+	CurveValuePair getFixed1() const;
+	CurveValuePair getFixed2() const;
+	bool getShelf() const;
+	bool getInvert() const;
 
 private:
 	// input parameters (state of this class)
-	std::array<PowerPair, 3> fixed;
+	std::array<CurveValuePair, 3> fixed;
 	bool shelf;
+	bool invert;
 
 	// spline parameters (deterministically computed from the input parameters)
 	bool spline_needs_update;
 	std::array<float, 5> m;
-	const Power eps = 1e-4;
+	static constexpr CurveValue eps = 1e-4;
 
 	void updateSpline();
-	std::vector<float> calcSlopes(const Powers& X, const Powers& P);
+	std::vector<float> calcSlopes(const CurveValues& X, const CurveValues& P);
 
-	Power clamp(Power in, Power min, Power max) const;
+	CurveValue clamp(CurveValue in, CurveValue min, CurveValue max) const;
+};
+
+class CurveMapTestAccessor
+{
+public:
+	static constexpr CurveMap::CurveValue eps = CurveMap::eps;
 };

@@ -1,10 +1,10 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            powermaptest.cc
+ *            parsecurvemap.h
  *
- *  Sun Apr 19 23:23:37 CEST 2020
- *  Copyright 2020 André Nusser
- *  andre.nusser@googlemail.com
+ *  Wed Jul 24 12:55:00 CEST 2024
+ *  Copyright 2024 Sander Vocke
+ *
  ****************************************************************************/
 
 /*
@@ -24,28 +24,10 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#pragma once
 
-#include "../src/powermap.h"
+#include <pugixml.hpp>
+#include "curvemap.h"
 
-class test_powermaptest
-	: public uUnit
-{
-public:
-	test_powermaptest()
-	{
-		uUNIT_TEST(test_powermaptest::check_values);
-	}
-
-	void check_values()
-	{
-		Powermap powermap;
-
-		// TODO
-		// std::cout << powermap.map(.8) << std::endl;
-		// uUNIT_ASSERT_EQUAL(powermap.map(.8), .8);
-	}
-};
-
-// Registers the fixture into the 'registry'
-static test_powermaptest test;
+// Returns true if success (out is replaced), false if failure (out unchanged)
+bool parse_curve_map(pugi::xml_node curvemap_node, CurveMap &out);

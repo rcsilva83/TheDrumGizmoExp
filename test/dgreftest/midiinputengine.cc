@@ -155,9 +155,14 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 				int key = current_event->midi_buffer[1];
 				int velocity = current_event->midi_buffer[2];
 
-				auto instruments = mmap.lookup(key);
-				for(const auto& instrument_idx : instruments)
+				auto entries = mmap.lookup(key);
+				for(const auto& entry : entries)
 				{
+					auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+					if (instrument_idx < 0)
+					{
+						continue;
+					}
 					events.emplace_back();
 					auto& event = events.back();
 					event.type = EventType::OnSet;
@@ -165,6 +170,10 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 					event.offset = evpos - pos;
 					event.instrument = instrument_idx;
 					event.velocity = velocity / 127.0;
+					if (entry.maybe_curve_map)
+					{
+						event.velocity = entry.maybe_curve_map->map(event.velocity);
+					}
 				}
 			}
 		}

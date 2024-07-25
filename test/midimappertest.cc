@@ -26,6 +26,7 @@
 #include <uunit.h>
 
 #include <algorithm>
+#include <vector>
 
 #include <midimapper.h>
 
@@ -45,12 +46,12 @@ public:
 	{
 		midimap_t midimap
 		{
-			{ 54, "Crash_left_tip" },
-			{ 60, "Crash_left_whisker" },
-			{ 55, "Crash_right_tip" },
-			{ 62, "Crash_right_whisker" },
-			{ 62, "Hihat_closed" },
-			{ 56, "Hihat_closed" },
+			MidimapEntry(54, "Crash_left_tip"),
+			MidimapEntry(60, "Crash_left_whisker"),
+			MidimapEntry(55, "Crash_right_tip"),
+			MidimapEntry(62, "Crash_right_whisker"),
+			MidimapEntry(62, "Hihat_closed"),
+			MidimapEntry(56, "Hihat_closed"),
 		};
 
 		instrmap_t instrmap
@@ -66,35 +67,48 @@ public:
 		mapper.swap(instrmap, midimap);
 
 		{
-			auto is = mapper.lookup(54);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(0, is[0]);
+			auto es = mapper.lookup(54);
+			uASSERT_EQUAL(1u, es.size());
+
+			auto i = mapper.lookup_instrument(es[0].instrument_name);
+			uASSERT_EQUAL(0, i);
 		}
 
 		{
-			auto is = mapper.lookup(60);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(1, is[0]);
+			auto es = mapper.lookup(60);
+			uASSERT_EQUAL(1u, es.size());
+
+			auto i = mapper.lookup_instrument(es[0].instrument_name);
+			uASSERT_EQUAL(1, i);
 		}
 
 		{
-			auto is = mapper.lookup(55);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(2, is[0]);
+			auto es = mapper.lookup(55);
+			uASSERT_EQUAL(1u, es.size());
+
+			auto i = mapper.lookup_instrument(es[0].instrument_name);
+			uASSERT_EQUAL(2, i);
 		}
 
 		{
-			auto is = mapper.lookup(62);
-			uASSERT_EQUAL(2u, is.size());
+			auto es = mapper.lookup(62);
+			uASSERT_EQUAL(2u, es.size());
+
+			std::vector<int> is;
+			is.push_back(mapper.lookup_instrument(es[0].instrument_name));
+			is.push_back(mapper.lookup_instrument(es[1].instrument_name));
+
 			// We don't care about the order, so just count the instances
 			uASSERT_EQUAL(1u, std::count(is.begin(), is.end(), 3));
 			uASSERT_EQUAL(1u, std::count(is.begin(), is.end(), 4));
 		}
 
 		{
-			auto is = mapper.lookup(56);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(4, is[0]);
+			auto es = mapper.lookup(56);
+			uASSERT_EQUAL(1u, es.size());
+
+			auto i = mapper.lookup_instrument(es[0].instrument_name);
+			uASSERT_EQUAL(4, i);
 		}
 	}
 
@@ -102,12 +116,12 @@ public:
 	{
 		midimap_t midimap
 		{
-			{ 54, "Crash_left_tip" },
-			{ 60, "Crash_left_whisker_MISSING" },
-			{ 55, "Crash_right_tip" },
-			{ 62, "Crash_right_whisker" },
-			{ 62, "Hihat_closed" },
-			{ 56, "Hihat_closed" },
+			MidimapEntry(54, "Crash_left_tip" ),
+			MidimapEntry(60, "Crash_left_whisker_MISSING" ),
+			MidimapEntry(55, "Crash_right_tip" ),
+			MidimapEntry(62, "Crash_right_whisker" ),
+			MidimapEntry(62, "Hihat_closed" ),
+			MidimapEntry(56, "Hihat_closed" ),
 		};
 
 		instrmap_t instrmap
@@ -124,14 +138,17 @@ public:
 
 		// no such note id
 		{
-			auto is = mapper.lookup(42);
-			uASSERT_EQUAL(0u, is.size());
+			auto es = mapper.lookup(42);
+			uASSERT_EQUAL(0u, es.size());
 		}
 
 		// no such instrument
 		{
-			auto is = mapper.lookup(60);
-			uASSERT_EQUAL(0u, is.size());
+			auto es = mapper.lookup(60);
+			uASSERT_EQUAL(1u, es.size());
+
+			auto is = mapper.lookup_instrument(es[0].instrument_name);
+			uASSERT_EQUAL(-1, is);
 		}
 	}
 };

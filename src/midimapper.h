@@ -30,11 +30,24 @@
 #include <string>
 #include <mutex>
 #include <vector>
+#include <memory>
+
+#include "curvemap.h"
 
 struct MidimapEntry
 {
 	int note_id;
 	std::string instrument_name;
+
+	//! An optional curve map which will map the given velocity
+	//! or CC value to a new value.
+	std::unique_ptr<CurveMap> maybe_curve_map;
+
+	MidimapEntry &operator=(const MidimapEntry& other);
+	MidimapEntry(const MidimapEntry& other);
+	MidimapEntry(int note_id,
+				 std::string instrument_name,
+				 CurveMap *maybe_curve_map = nullptr);
 };
 
 using midimap_t = std::vector<MidimapEntry>;
@@ -43,8 +56,11 @@ using instrmap_t = std::map<std::string, int>;
 class MidiMapper
 {
 public:
-	//! Lookup note in map and returns the corresponding instrument index list.
-	std::vector<int> lookup(int note_id);
+	//! Lookup midi map entries matching the given note.
+	std::vector<MidimapEntry> lookup(int note_id);
+
+	//! Lookup instrument by name.
+	int lookup_instrument(std::string name);
 
 	//! Set new map sets.
 	void swap(instrmap_t& instrmap, midimap_t& midimap);
