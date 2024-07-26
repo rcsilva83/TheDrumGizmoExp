@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include "powermap.h"
+#include "curvemap.h"
 
 #include <cassert>
 #include <cmath>
@@ -32,31 +32,31 @@
 namespace
 {
 
-using Power = Powermap::Power;
-using PowerPair = Powermap::PowerPair;
+using CurveValue = CurveMap::CurveValue;
+using CurveValuePair = CurveMap::CurveValuePair;
 
-Power h00(Power x)
+CurveValue h00(CurveValue x)
 {
 	return (1 + 2 * x) * pow(1 - x, 2);
 }
 
-Power h10(Power x)
+CurveValue h10(CurveValue x)
 {
 	return x * pow(1 - x, 2);
 }
 
-Power h01(Power x)
+CurveValue h01(CurveValue x)
 {
 	return x * x * (3 - 2 * x);
 }
 
-Power h11(Power x)
+CurveValue h11(CurveValue x)
 {
 	return x * x * (x - 1);
 }
 
-Power computeValue(const Power x, const PowerPair& P0, const PowerPair& P1,
-                   const Power m0, const Power m1)
+CurveValue computeValue(const CurveValue x, const CurveValuePair& P0, const CurveValuePair& P1,
+                        const CurveValue m0, const CurveValue m1)
 {
 	const auto x0 = P0.in;
 	const auto x1 = P1.in;
@@ -74,21 +74,22 @@ Power computeValue(const Power x, const PowerPair& P0, const PowerPair& P1,
 
 } // end anonymous namespace
 
-Powermap::Powermap()
-{
-	reset();
-}
+constexpr std::array<CurveValuePair, 3> CurveMap::default_fixed;
 
-Power Powermap::map(Power in)
+CurveValue CurveMap::map(CurveValue in)
 {
 	assert(in >= 0. && in <= 1.);
+	if (invert)
+	{
+		in = 1.0 - in;
+	}
 
 	if (spline_needs_update)
 	{
 		updateSpline();
 	}
 
-	Power out;
+	CurveValue out;
 	if (in < fixed[0].in)
 	{
 		out = shelf ? fixed[0].out
@@ -113,84 +114,100 @@ Power Powermap::map(Power in)
 	return out;
 }
 
-void Powermap::reset()
+void CurveMap::reset()
 {
-	setFixed0({eps, eps});
-	setFixed1({.5, .5});
-	setFixed2({1 - eps, 1 - eps});
-	// FIXME: better false?
-	shelf = true;
+	*this = CurveMap{};
 
 	updateSpline();
 }
 
-void Powermap::setFixed0(PowerPair new_value)
+void CurveMap::setFixed0(CurveValuePair new_value)
 {
-	if (fixed[0] != new_value)
+	auto prev = fixed[0];
+	fixed[0].in = clamp(new_value.in, eps, fixed[1].in - eps);
+	fixed[0].out = clamp(new_value.out, eps, fixed[1].out - eps);
+	if (fixed[0] != prev)
 	{
 		spline_needs_update = true;
-		fixed[0].in = clamp(new_value.in, eps, fixed[1].in - eps);
-		fixed[0].out = clamp(new_value.out, eps, fixed[1].out - eps);
 	}
 }
 
-void Powermap::setFixed1(PowerPair new_value)
+void CurveMap::setFixed1(CurveValuePair new_value)
 {
-	if (fixed[1] != new_value)
+	auto prev = fixed[1];
+	fixed[1].in = clamp(new_value.in, fixed[0].in + eps, fixed[2].in - eps);
+	fixed[1].out = clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
+	if (fixed[1] != prev)
 	{
 		spline_needs_update = true;
-		fixed[1].in = clamp(new_value.in, fixed[0].in + eps, fixed[2].in - eps);
-		fixed[1].out = clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
 	}
 }
 
-void Powermap::setFixed2(PowerPair new_value)
+void CurveMap::setFixed2(CurveValuePair new_value)
 {
-	if (fixed[2] != new_value)
+	auto prev = fixed[2];
+	fixed[2].in = clamp(new_value.in, fixed[1].in + eps, 1 - eps);
+	fixed[2].out = clamp(new_value.out, fixed[1].out + eps, 1 - eps);
+	if (fixed[2] != prev)
 	{
 		spline_needs_update = true;
-		fixed[2].in = clamp(new_value.in, fixed[1].in + eps, 1 - eps);
-		fixed[2].out = clamp(new_value.out, fixed[1].out + eps, 1 - eps);
 	}
 }
 
-void Powermap::setShelf(bool enable)
+void CurveMap::setInvert(bool enable)
+{
+	if (invert != enable)
+	{
+		spline_needs_update = true;
+		invert = enable;
+	}
+}
+
+void CurveMap::setShelf(bool enable)
 {
 	if (shelf != enable)
 	{
 		spline_needs_update = true;
-		this->shelf = enable;
+		shelf = enable;
 	}
 }
 
-PowerPair Powermap::getFixed0() const
+CurveValuePair CurveMap::getFixed0() const
 {
 	return fixed[0];
 }
 
-PowerPair Powermap::getFixed1() const
+CurveValuePair CurveMap::getFixed1() const
 {
 	return fixed[1];
 }
 
-PowerPair Powermap::getFixed2() const
+CurveValuePair CurveMap::getFixed2() const
 {
 	return fixed[2];
 }
 
+bool CurveMap::getInvert() const {
+	return invert;
+}
+
+bool CurveMap::getShelf() const {
+	return shelf;
+}
+
 // This mostly followes the wikipedia article for monotone cubic splines:
 // https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
-void Powermap::updateSpline()
+void CurveMap::updateSpline()
 {
 	assert(0. <= fixed[0].in && fixed[0].in < fixed[1].in &&
 	       fixed[1].in < fixed[2].in && fixed[2].in <= 1.);
 	assert(0. <= fixed[0].out && fixed[0].out <= fixed[1].out &&
 	       fixed[1].out <= fixed[2].out && fixed[2].out <= 1.);
 
-	Powers X = shelf ? Powers{fixed[0].in, fixed[1].in, fixed[2].in}
-	                 : Powers{0., fixed[0].in, fixed[1].in, fixed[2].in, 1.};
-	Powers Y = shelf ? Powers{fixed[0].out, fixed[1].out, fixed[2].out}
-	                 : Powers{0., fixed[0].out, fixed[1].out, fixed[2].out, 1.};
+	CurveValues X = shelf ? CurveValues{fixed[0].in, fixed[1].in, fixed[2].in}
+	                 : CurveValues{0., fixed[0].in, fixed[1].in, fixed[2].in, 1.};
+	CurveValues Y = shelf ? CurveValues{fixed[0].out, fixed[1].out, fixed[2].out}
+	                 : CurveValues{0., fixed[0].out, fixed[1].out, fixed[2].out, 1.};
 
 	auto slopes = calcSlopes(X, Y);
 
@@ -215,12 +232,12 @@ void Powermap::updateSpline()
 
 // This follows the monotone cubic spline algorithm of Steffen, from:
 // "A Simple Method for Monotonic Interpolation in One Dimension"
-std::vector<float> Powermap::calcSlopes(const Powers& X, const Powers& Y)
+std::vector<float> CurveMap::calcSlopes(const CurveValues& X, const CurveValues& Y)
 {
-	Powers m(X.size());
+	CurveValues m(X.size());
 
-	Powers d(X.size() - 1);
-	Powers h(X.size() - 1);
+	CurveValues d(X.size() - 1);
+	CurveValues h(X.size() - 1);
 	for (std::size_t i = 0; i < d.size(); ++i)
 	{
 		h[i] = X[i + 1] - X[i];
@@ -245,7 +262,16 @@ std::vector<float> Powermap::calcSlopes(const Powers& X, const Powers& Y)
 	return m;
 }
 
-Power Powermap::clamp(Power in, Power min, Power max) const
+CurveValue CurveMap::clamp(CurveValue in, CurveValue min, CurveValue max) const
 {
 	return std::max(min, std::min(in, max));
+}
+
+bool CurveMap::operator==(const CurveMap& other) const
+{
+	return getFixed0() == other.getFixed0() &&
+		getFixed1() == other.getFixed1() &&
+		getFixed2() == other.getFixed2() &&
+		getShelf() == other.getShelf() &&
+		getInvert() == other.getInvert();
 }

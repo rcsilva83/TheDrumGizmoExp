@@ -8,7 +8,7 @@ TESTS = resource enginetest paintertest configfile audiocache \
 	randomtest atomictest syncedsettingstest imagecachetest \
 	semaphoretest drumkitcreatortest bytesizeparsertest notifiertest \
 	dgxmlparsertest domloadertest configparsertest midimapparsertest \
-	eventsdstest powermaptest midimappertest
+	eventsdstest curvemaptest midimappertest
 
 if WITH_NLS
 TESTS += translationtest
@@ -329,14 +329,14 @@ eventsdstest_SOURCES = \
 	eventsdstest.cc \
 	uunit/uunit.cc
 
-powermaptest_CXXFLAGS = \
-	-I$(top_srcdir)/test/uunit -DOUTPUT=\"powermaptest\" \
+curvemaptest_CXXFLAGS = \
+	-I$(top_srcdir)/test/uunit -DOUTPUT=\"curvemaptest\" \
 	$(DEBUG_FLAGS) \
 	-I$(top_srcdir)/src
-powermaptest_LDFLAGS =
-powermaptest_SOURCES = \
-	$(top_srcdir)/src/powermap.cc \
-	powermaptest.cc \
+curvemaptest_LDFLAGS =
+curvemaptest_SOURCES = \
+	$(top_srcdir)/src/curvemap.cc \
+	curvemaptest.cc \
 	uunit/uunit.cc
 
 midimappertest_CXXFLAGS = \

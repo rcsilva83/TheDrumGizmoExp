@@ -67,7 +67,7 @@ libdg_la_SOURCES = \
 	$(top_srcdir)/src/midimapper.cc \
 	$(top_srcdir)/src/path.cc \
 	$(top_srcdir)/src/powerlist.cc \
-	$(top_srcdir)/src/powermap.cc \
+	$(top_srcdir)/src/curvemap.cc \
 	$(top_srcdir)/src/powermapfilter.cc \
 	$(top_srcdir)/src/random.cc \
 	$(top_srcdir)/src/sample.cc \
@@ -126,7 +126,7 @@ EXTRA_DIST = \
 	path.h \
 	platform.h \
 	powerlist.h \
-	powermap.h \
+	curvemap.h \
 	powermapfilter.h \
 	random.h \
 	range.h \

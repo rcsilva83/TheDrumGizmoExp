@@ -27,7 +27,7 @@
 #pragma once
 
 #include "inputfilter.h"
-#include "powermap.h"
+#include "curvemap.h"
 
 struct Settings;
 
@@ -43,5 +43,5 @@ public:
 
 private:
 	Settings& settings;
-	Powermap powermap;
+	CurveMap powermap;
 };
