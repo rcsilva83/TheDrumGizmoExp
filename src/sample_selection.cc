@@ -89,6 +89,7 @@ const Sample* SampleSelection::get(float power, float instrument_power_span, flo
 		instrument_power_span = 1.0;
 	}
 
+#if 0
 	// start with most promising power value and then stop when reaching far values
 	// which cannot become opt anymore
 	auto closest_it = std::lower_bound(samples.begin(), samples.end(), power);
@@ -165,6 +166,30 @@ const Sample* SampleSelection::get(float power, float instrument_power_span, flo
 		++count;
 	}
 	while (up_value_lb <= value_opt || down_value_lb <= value_opt);
+#else
+	for(std::size_t current_index = 0; current_index < samples.size(); ++current_index)
+	{
+		auto random = rand.floatInRange(0.,1.);
+		auto close = (samples[current_index].power - power)/instrument_power_span;
+		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
+		auto closepos = samples[current_index].sample->getPosition() - position;
+		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
+		auto value = f_close*pow2(close) + f_position*pow2(closepos) + f_diverse*diverse + f_random*random;
+
+		if (value < value_opt)
+		{
+			index_opt = current_index;
+			power_opt = samples[current_index].power;
+			pos_opt = samples[current_index].sample->getPosition();
+			value_opt = value;
+			random_opt = random;
+			close_opt = close;
+			diverse_opt = diverse;
+			closepos_opt = closepos;
+		}
+	}
+	int count{}; // not used
+#endif
 
 	DEBUG(rand, "Chose sample with index: %d, value: %f, power: %f, position: %f, random: %f, close: %f, diverse: %f, closepos: %f, count: %d", (int)index_opt, value_opt, power_opt, pos_opt, random_opt, close_opt, diverse_opt, closepos_opt, (int)count);
 
