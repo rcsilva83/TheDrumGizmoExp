@@ -26,25 +26,72 @@
  */
 #include "midimapper.h"
 
-std::vector<int> MidiMapper::lookup(int note_id)
+#include <cpp11fix.h>
+
+MidimapEntry::MidimapEntry(MapFrom from_kind,
+	             int from_id,
+				 MapTo to_kind,
+				 std::string instrument_name,
+				 InstrumentStateKind maybe_instrument_state_kind
+				 ) :
+	from_kind(from_kind)
+	, from_id(from_id)
+	, to_kind(to_kind)
+	, instrument_name(instrument_name)
+	, maybe_instrument_state_kind(maybe_instrument_state_kind)
+{}
+
+MidimapEntry::MidimapEntry(const MidimapEntry& other)
 {
-	std::vector<int> instruments;
+	*this = other;
+}
+
+MidimapEntry &MidimapEntry::operator=(const MidimapEntry& other)
+{
+	from_kind = other.from_kind;
+	from_id = other.from_id;
+	to_kind = other.to_kind;
+	instrument_name = other.instrument_name;
+	maybe_instrument_state_kind = other.maybe_instrument_state_kind;
+
+	return *this;
+}
+
+int MidiMapper::lookup_instrument(std::string name) {
+	const std::lock_guard<std::mutex> guard(mutex);
+	auto instrmap_it = instrmap.find(name);
+	if(instrmap_it != instrmap.end())
+	{
+		return instrmap_it->second;
+	}
+	return -1;
+}
+
+std::vector<MidimapEntry> MidiMapper::lookup(
+		int     from_id,
+		MapFrom from_kind,
+		MapTo   to_kind,
+		InstrumentStateKind state_kind)
+{
+	std::vector<MidimapEntry> rval;
 
 	const std::lock_guard<std::mutex> guard(mutex);
 
 	for(const auto& map_entry : midimap)
 	{
-		if(map_entry.note_id == note_id)
+		bool match = true;
+		match = match && (from_id == -1 || from_id == map_entry.from_id);
+		match = match && (from_kind == MapFrom::NoneOrAny || from_kind == map_entry.from_kind);
+		match = match && (to_kind == MapTo::NoneOrAny || to_kind == map_entry.to_kind);
+		match = match && (state_kind == InstrumentStateKind::NoneOrAny || state_kind == map_entry.maybe_instrument_state_kind);
+
+		if(match)
 		{
-			auto instrmap_it = instrmap.find(map_entry.instrument_name);
-			if(instrmap_it != instrmap.end())
-			{
-				instruments.push_back(instrmap_it->second);
-			}
+			rval.push_back(map_entry);
 		}
 	}
 
-	return instruments;
+	return rval;
 }
 
 void MidiMapper::swap(instrmap_t& instrmap, midimap_t& midimap)

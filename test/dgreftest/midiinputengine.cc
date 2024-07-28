@@ -143,6 +143,7 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 		current_event = smf_get_next_event(smf);
 	}
 
+	// FIXME: not sure if this section should support CC control?
 	while(current_event && current_event->time_seconds < current_max_time)
 	{
 		if(!smf_event_is_metadata(current_event))
@@ -155,16 +156,20 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 				int key = current_event->midi_buffer[1];
 				int velocity = current_event->midi_buffer[2];
 
-				auto instruments = mmap.lookup(key);
-				for(const auto& instrument_idx : instruments)
+				auto entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+				for(const auto& entry : entries)
 				{
-					events.emplace_back();
-					auto& event = events.back();
-					event.type = EventType::OnSet;
-					size_t evpos = current_event->time_seconds * (samplerate / speed);
-					event.offset = evpos - pos;
-					event.instrument = instrument_idx;
-					event.velocity = velocity / 127.0;
+					auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+					if (instrument_idx >= 0)
+					{
+						events.emplace_back();
+						auto& event = events.back();
+						event.type = EventType::OnSet;
+						size_t evpos = current_event->time_seconds * (samplerate / speed);
+						event.offset = evpos - pos;
+						event.instrument = instrument_idx;
+						event.velocity_or_state = velocity / 127.0;
+					}
 				}
 			}
 		}
@@ -182,7 +187,7 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 		else
 		{
 			assert(len >= 1);
-			events.push_back({EventType::Stop, 0, len-1, 0.f});
+			events.push_back({EventType::Stop, 0, len-1, InstrumentStateKind::NoneOrAny, 0.f});
 		}
 	}
 }

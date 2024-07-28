@@ -58,7 +58,8 @@ struct AudioFileDOM
 struct SampleDOM
 {
 	std::string name;
-	double power; // >= v2.0 only
+	double power;    // >= v2.0 only
+	double openness; // >= v2.0 only
 	bool normalized; // >= v2.0 only
 	std::vector<AudioFileDOM> audiofiles;
 };
@@ -76,6 +77,7 @@ struct InstrumentDOM
 	std::string description;
 	std::vector<SampleDOM> samples;
 	std::vector<InstrumentChannelDOM> instrument_channels;
+	float openness_choke_threshold {0.0f}; // <= 0 means disabled
 
 	// v1.0 only
 	std::vector<VelocityDOM> velocities;

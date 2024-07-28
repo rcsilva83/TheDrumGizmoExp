@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -36,7 +36,6 @@
 #include "powermapfilter.h"
 #include "staminafilter.h"
 #include "velocityfilter.h"
-
 #include "cpp11fix.h"
 
 class VelocityStorer
@@ -50,7 +49,7 @@ public:
 
 	bool filter(event_t& event, std::size_t pos) override
 	{
-		original_velocity = event.velocity;
+		original_velocity = event.velocity_or_state;
 		return true;
 	}
 
@@ -70,7 +69,7 @@ public:
 
 	bool filter(event_t& event, std::size_t pos) override
 	{
-		settings.velocity_modifier_current.store(event.velocity / original_velocity);
+		settings.velocity_modifier_current.store(event.velocity_or_state / original_velocity);
 		return true;
 	}
 
@@ -94,6 +93,10 @@ InputProcessor::InputProcessor(Settings& settings,
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
 	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
+
+	// To prevent needing run-time allocation for first-time instruments
+	constexpr size_t reserved_n_instruments = 256;
+	instrument_states.reserve(reserved_n_instruments);
 }
 
 bool InputProcessor::process(std::vector<event_t>& events,
@@ -113,6 +116,22 @@ bool InputProcessor::process(std::vector<event_t>& events,
 		if(event.type == EventType::Choke)
 		{
 			if(!processChoke(event, pos, resample_ratio))
+			{
+				continue;
+			}
+		}
+
+		if(event.type == EventType::ChangeInstrumentState)
+		{
+			if(!processStateChange(event, pos))
+			{
+				continue;
+			}
+		}
+
+		if(event.type == EventType::ResetInstrumentStates)
+		{
+			if(!processResetStates())
 			{
 				continue;
 			}
@@ -207,6 +226,77 @@ void InputProcessor::applyDirectedChoke(Settings& settings, DrumKit& kit,
 	}
 }
 
+bool InputProcessor::processResetStates()
+{
+	instrument_states.clear();
+	return true;
+}
+
+bool InputProcessor::processOpennessChange(event_t& event, Instrument &inst, float openness, size_t pos)
+{
+	auto &state = instrument_states[event.instrument]; // Constructs if necessary
+	auto threshold = inst.getOpennessChokeThreshold();
+
+	if(threshold > 0.0f &&
+	   state.openness > threshold && openness <= threshold)
+	{
+		// We crossed the openness threshold and should choke all running samples that have
+		// higher openness.
+		for(const auto& ch : kit.channels)
+		{
+			if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
+			{
+				continue;
+			}
+
+			for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
+			{
+				if(event_sample.instrument_id == event.instrument && // Only applies to self
+				event_sample.openness > threshold &&           // Only samples that are more open than the threshold
+				event_sample.rampdown_count == -1)             // Only if not already ramping
+				{
+					// Fixed group rampdown time of 68ms, independent of samplerate
+					applyChoke(settings, event_sample, 68, event.offset, pos);
+				}
+			}
+		}
+	}
+
+	state.openness = event.velocity_or_state;
+	return true;
+}
+
+bool InputProcessor::processStateChange(event_t& event, size_t pos)
+{
+	if(!kit.isValid())
+	{
+		return false;
+	}
+
+	std::size_t instrument_id = event.instrument;
+	Instrument* instr = nullptr;
+
+	if(instrument_id < kit.instruments.size())
+	{
+		instr = kit.instruments[instrument_id].get();
+	}
+
+	if(instr == nullptr || !instr->isValid())
+	{
+		ERR(inputprocessor, "Missing Instrument %d.\n", (int)instrument_id);
+		return false;
+	}
+
+	switch (event.state_kind)
+	{
+		case InstrumentStateKind::Openness:
+			return processOpennessChange(event, *instr, event.velocity_or_state, pos);
+		default:
+			ERR(inputprocessor, "Unsupported state change");
+			return false;
+	}
+}
+
 bool InputProcessor::processOnset(event_t& event, std::size_t pos,
                                   double resample_ratio)
 {
@@ -229,7 +319,7 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		return false;
 	}
 
-	original_velocity = event.velocity;
+	original_velocity = event.velocity_or_state;
 	for(auto& filter : filters)
 	{
 		// This line might change the 'event' variable
@@ -250,8 +340,11 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	auto const power_max = instr->getMaxPower();
 	auto const power_min = instr->getMinPower();
 	float const power_span = power_max - power_min;
-	float const instrument_level = power_min + event.velocity*power_span;
-	const auto sample = instr->sample(instrument_level, event.offset + pos);
+	float const instrument_level = power_min + event.velocity_or_state*power_span;
+
+	auto state_it = instrument_states.find(instrument_id);
+	auto openness = (state_it != instrument_states.end()) ? state_it->second.openness : 0.0f;
+	const auto sample = instr->sample(instrument_level, openness, event.offset + pos);
 
 	if(sample == nullptr)
 	{
@@ -292,12 +385,12 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 
 			auto& event_sample =
 				events_ds.emplace<SampleEvent>(ch.num, ch.num, 1.0, af,
-				                               instr->getGroup(), instrument_id);
+				                               instr->getGroup(), instrument_id, openness);
 
 			event_sample.offset = (event.offset + pos) * resample_ratio;
 			if(settings.normalized_samples.load() && sample->getNormalized())
 			{
-				event_sample.scale *= event.velocity;
+				event_sample.scale *= event.velocity_or_state;
 			}
 		}
 	}

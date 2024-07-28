@@ -69,6 +69,7 @@ protected:
 private:
 	std::string midimap;
 	bool is_valid{false};
+	bool reloaded{true};
 
 	ConfigFile refs{REFSFILE};
 };

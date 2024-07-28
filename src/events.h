@@ -71,7 +71,7 @@ class SampleEvent
 {
 public:
 	SampleEvent(channel_t ch, float g, AudioFile* af, const std::string& grp,
-	            std::size_t instrument_id)
+	            std::size_t instrument_id, float openness)
 		: Event(Event::Type::SampleEvent, ch)
 		, cache_id(CACHE_NOID)
 		, gain(g)
@@ -81,6 +81,7 @@ public:
 		, rampdown_count(-1)
 		, ramp_length(0)
 		, instrument_id(instrument_id)
+		, openness(openness)
 	{
 	}
 
@@ -105,4 +106,5 @@ public:
 	std::size_t rampdown_offset{0};
 	float scale{1.0f};
 	std::size_t instrument_id;
+	float openness; //< Openness related to this sample.
 };

@@ -63,7 +63,7 @@ bool StaminaFilter::filter(event_t& event, size_t pos)
 		lastpos = 0;
 	}
 
-	event.velocity *= mod;
+	event.velocity_or_state *= mod;
 
 	if(enable_velocity_modifier)
 	{

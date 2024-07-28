@@ -89,7 +89,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 				continue;
 			}
 
-			auto instrument = std::make_unique<Instrument>(settings, random);
+			auto instrument = std::make_unique<Instrument>(settings, random, instrumentdom.openness_choke_threshold);
 			instrument->setGroup(instrumentref.group);
 			instrument->_name = instrumentdom.name;
 			instrument->version = instrumentdom.version;
@@ -99,6 +99,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 			for(const auto& sampledom : instrumentdom.samples)
 			{
 				auto sample = new Sample(sampledom.name, sampledom.power,
+										 sampledom.openness,
 				                         sampledom.normalized);
 				for(const auto& audiofiledom : sampledom.audiofiles)
 				{

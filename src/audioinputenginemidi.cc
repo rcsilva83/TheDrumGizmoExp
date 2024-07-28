@@ -26,6 +26,7 @@
  */
 #include "audioinputenginemidi.h"
 
+#include "instrument.h"
 #include "midimapparser.h"
 
 #include <cassert>
@@ -75,8 +76,8 @@ bool AudioInputEngineMidi::loadMidiMap(const std::string& midimap_file,
 	mmap.swap(instrmap, midimap_parser.midimap);
 
 	midimap = file;
+	reloaded = true;
 	is_valid = true;
-
 	return true;
 }
 
@@ -94,6 +95,7 @@ bool AudioInputEngineMidi::isValid() const
 constexpr std::uint8_t NoteOff{0x80};
 constexpr std::uint8_t NoteOn{0x90};
 constexpr std::uint8_t NoteAftertouch{0xA0};
+constexpr std::uint8_t ControlChange{0xB0};
 
 // Note type mask:
 constexpr std::uint8_t NoteMask{0xF0};
@@ -103,47 +105,86 @@ void AudioInputEngineMidi::processNote(const std::uint8_t* midi_buffer,
                                        std::size_t offset,
                                        std::vector<event_t>& events)
 {
+	if(reloaded)
+	{
+		events.push_back({EventType::ResetInstrumentStates, 0, 0, InstrumentStateKind::NoneOrAny, 0.0f});
+		reloaded = false;
+	}
+
 	if(midi_buffer_length < 3)
 	{
 		return;
 	}
 
-	auto key = midi_buffer[1]; // NOLINT - span
-	auto velocity = midi_buffer[2]; // NOLINT - span
-	auto instrument_idx = mmap.lookup(key);
-	auto instruments = mmap.lookup(key);
-	for(const auto& instrument_idx : instruments)
+	switch(midi_buffer[0] & NoteMask) // NOLINT - span
 	{
-		switch(midi_buffer[0] & NoteMask) // NOLINT - span
+	case NoteOff:
+		// Ignore for now
+		break;
+
+	case NoteOn:
 		{
-		case NoteOff:
-			// Ignore for now
-			break;
-
-		case NoteOn:
-			if(velocity != 0)
+			auto key = midi_buffer[1]; // NOLINT - span
+			auto velocity = midi_buffer[2]; // NOLINT - span
+			auto map_entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+			for(const auto& entry : map_entries)
 			{
-				constexpr float lower_offset{0.5f};
-				constexpr float midi_velocity_max{127.0f};
-				// maps velocities to [.5/127, 126.5/127]
-				assert(velocity <= 127); // MIDI only support up to 127
-				auto centered_velocity =
-					(static_cast<float>(velocity) - lower_offset) / midi_velocity_max;
-				events.push_back({EventType::OnSet, (std::size_t)instrument_idx,
-				                  offset, centered_velocity});
+				auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+				if(instrument_idx >= 0 && velocity != 0)
+				{
+					constexpr float lower_offset{0.5f};
+					constexpr float midi_velocity_max{127.0f};
+					// maps velocities to [.5/127, 126.5/127]
+					assert(velocity <= 127); // MIDI only support up to 127
+					auto centered_velocity =
+						(static_cast<float>(velocity) - lower_offset) / midi_velocity_max;
+					events.push_back({EventType::OnSet, (std::size_t)instrument_idx,
+					                  offset, InstrumentStateKind::NoneOrAny, centered_velocity});
+				}
 			}
-			break;
+		}
+		break;
 
-		case NoteAftertouch:
-			if(velocity > 0)
+	case NoteAftertouch:
+		{
+			auto key = midi_buffer[1]; // NOLINT - span
+			auto velocity = midi_buffer[2]; // NOLINT - span
+			auto map_entries = mmap.lookup(key, MapFrom::Note, MapTo::PlayInstrument);
+			for(const auto& entry : map_entries)
 			{
-				events.push_back({EventType::Choke, (std::size_t)instrument_idx,
-				                  offset, .0f});
+				auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+				if(instrument_idx >= 0 && velocity > 0)
+				{
+					events.push_back({EventType::Choke, (std::size_t)instrument_idx,
+					                  offset, InstrumentStateKind::NoneOrAny, .0f});
+				}
 			}
-			break;
+		}
+		break;
 
-		default:
-			break;
+	case ControlChange:
+		{
+			auto controller_number = midi_buffer[1]; // NOLINT - span
+			auto value = midi_buffer[2]; // NOLINT - span
+
+			auto map_entries = mmap.lookup(controller_number,
+			                               MapFrom::CC,
+										   MapTo::InstrumentState);
+			for(const auto& entry : map_entries)
+			{
+				auto instrument_idx = mmap.lookup_instrument(entry.instrument_name);
+				if (instrument_idx >= 0) {
+					constexpr float lower_offset{0.5f};
+					constexpr float cc_value_max{127.0f};
+					auto centered_value =
+						(static_cast<float>(value) - lower_offset) / cc_value_max;
+
+					events.push_back({EventType::ChangeInstrumentState,
+										(std::size_t)instrument_idx, 0,
+										entry.maybe_instrument_state_kind,
+										centered_value});
+				}
+			}
 		}
 	}
 }

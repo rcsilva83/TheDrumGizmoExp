@@ -1,10 +1,10 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            velocityfilter.cc
+ *            instrumentstate.h
  *
- *  Sun May 12 16:01:41 CEST 2019
- *  Copyright 2019 André Nusser
- *  andre.nusser@googlemail.com
+ *  Wed Jul 24 12:55:00 CEST 2024
+ *  Copyright 2024 Sander Vocke
+ *
  ****************************************************************************/
 
 /*
@@ -24,25 +24,17 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include "velocityfilter.h"
+#pragma once
 
-#include "random.h"
-#include "settings.h"
+enum class InstrumentStateKind {
+    Openness,
+    NoneOrAny
+};
 
-VelocityFilter::VelocityFilter(Settings& settings, Random& random)
-	: settings(settings), random(random)
-{
-}
+//! Tracks the persistent state of an instrument during play.
+struct InstrumentState {
 
-bool VelocityFilter::filter(event_t& event, size_t pos)
-{
-	if (settings.enable_velocity_modifier.load())
-	{
-		float mean = event.velocity_or_state;
-		float stddev = settings.velocity_stddev.load();
-		// the 30.0f were determined empirically
-		event.velocity_or_state = random.normalDistribution(mean, stddev / 30.0f);
-	}
-
-	return true;
-}
+    //! Openness (typically for a hi-hat).
+    //! 0.0-1.0, where 0.0 is closed and 1.0 is fully open.
+    float openness = 0.0;
+};

@@ -3,7 +3,7 @@
  *            midifile.cc
  *
  *  Mi 20. Jan 16:07:57 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -166,7 +166,7 @@ void MidifileInputEngine::run(size_t pos, size_t len, std::vector<event_t>& even
 		else
 		{
 			assert(len >= 1);
-			events.push_back({EventType::Stop, 0, len-1, 0.f});
+			events.push_back({EventType::Stop, 0, len-1, InstrumentStateKind::NoneOrAny, 0.f});
 		}
 	}
 }

@@ -30,11 +30,40 @@
 #include <string>
 #include <mutex>
 #include <vector>
+#include <memory>
+
+#include "instrumentstate.h"
+
+enum class MapFrom {
+	Note,
+	CC,
+	NoneOrAny
+};
+
+enum class MapTo {
+	PlayInstrument,
+	InstrumentState,
+	NoneOrAny
+};
 
 struct MidimapEntry
 {
-	int note_id;
+	MapFrom from_kind; // What kind of input is mapped from
+	int     from_id;   // note or CC number
+	MapTo   to_kind;   // What kind of action is mapped to
+
 	std::string instrument_name;
+
+	// For mapping to control state changes
+	InstrumentStateKind maybe_instrument_state_kind;
+
+	MidimapEntry &operator=(const MidimapEntry& other);
+	MidimapEntry(const MidimapEntry& other);
+	MidimapEntry(MapFrom from_kind,
+	             int from_id,
+				 MapTo to_kind,
+				 std::string instrument_name,
+				 InstrumentStateKind maybe_instrument_state_kind);
 };
 
 using midimap_t = std::vector<MidimapEntry>;
@@ -43,8 +72,15 @@ using instrmap_t = std::map<std::string, int>;
 class MidiMapper
 {
 public:
-	//! Lookup note in map and returns the corresponding instrument index list.
-	std::vector<int> lookup(int note_id);
+	//! Lookup midi map entries matching the given query.
+	std::vector<MidimapEntry> lookup(
+		int     from_id = -1,              // note or cc #. -1 matches all notes/cc's
+		MapFrom from_kind = MapFrom::NoneOrAny, // NoneOrAny will return both CC and note maps
+		MapTo   to_kind = MapTo::NoneOrAny,     // NoneOrAny will return both instrument hits and controls
+		InstrumentStateKind state_kind = InstrumentStateKind::NoneOrAny // NoneOrAny maps all state control kinds
+		);
+
+	int lookup_instrument(std::string name);
 
 	//! Set new map sets.
 	void swap(instrmap_t& instrmap, midimap_t& midimap);

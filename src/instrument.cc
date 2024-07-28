@@ -30,10 +30,11 @@
 
 #include "sample.h"
 
-Instrument::Instrument(Settings& settings, Random& rand)
+Instrument::Instrument(Settings& settings, Random& rand, float openness_choke_threshold)
 	: settings(settings)
 	, rand(rand)
 	, sample_selection(settings, rand, powerlist)
+	, openness_choke_threshold(openness_choke_threshold)
 {
 	DEBUG(instrument, "new %p\n", this);
 	mod = 1.0;
@@ -54,12 +55,12 @@ bool Instrument::isValid() const
 	return this == magic;
 }
 
-const Sample* Instrument::sample(level_t level, size_t pos)
+const Sample* Instrument::sample(level_t level, float openness, std::size_t pos)
 {
 	if(version >= VersionStr("2.0"))
 	{
 		// Version 2.0
-		return sample_selection.get(level * mod, pos);
+		return sample_selection.get(level * mod, openness, pos);
 	}
 	else
 	{
@@ -151,6 +152,11 @@ float Instrument::getMinPower() const
 	{
 		return 0.0f;
 	}
+}
+
+float Instrument::getOpennessChokeThreshold() const
+{
+	return openness_choke_threshold;
 }
 
 const std::vector<Choke>& Instrument::getChokes()

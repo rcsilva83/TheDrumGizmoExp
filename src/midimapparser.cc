@@ -29,6 +29,8 @@
 #include <pugixml.hpp>
 #include <hugin.hpp>
 
+#include <cpp11fix.h>
+
 bool MidiMapParser::parseFile(const std::string& filename)
 {
 	pugi::xml_document doc;
@@ -42,16 +44,42 @@ bool MidiMapParser::parseFile(const std::string& filename)
 	pugi::xml_node midimap_node = doc.child("midimap");
 	for(pugi::xml_node map_node : midimap_node.children("map"))
 	{
-		constexpr int bad_value = 10000;
-		auto note = map_node.attribute("note").as_int(bad_value);
-		auto instr = map_node.attribute("instr").as_string();
-		if(std::string(instr) == "" || note == bad_value)
-		{
-			continue;
-		}
+		constexpr int default_int   = 10000;
+		auto note =  map_node.attribute("note").as_int(default_int);
+		auto cc =    map_node.attribute("cc").as_int(default_int);
+		auto instr = std::string(map_node.attribute("instr").as_string());
+		auto control_str = std::string(map_node.attribute("control").as_string());
+		auto control = (control_str == "openness" ? InstrumentStateKind::Openness :
+						InstrumentStateKind::NoneOrAny);
 
-		MidimapEntry entry{note, instr};
-		midimap.push_back(entry);
+		bool is_conflict = (note != default_int && cc != default_int);
+		bool is_note_play_instrument =
+		   (!is_conflict && instr != "" && note != default_int);
+		bool is_cc_control =
+		   (!is_conflict && instr != "" && control != InstrumentStateKind::NoneOrAny && cc != default_int);
+
+		if (is_note_play_instrument)
+		{
+			MidimapEntry entry(
+				MapFrom::Note,
+				note,
+				MapTo::PlayInstrument,
+				instr,
+				InstrumentStateKind::NoneOrAny
+			);
+			midimap.push_back(entry);
+		}
+		else if (is_cc_control)
+		{
+			MidimapEntry entry(
+				MapFrom::CC,
+				cc,
+				MapTo::InstrumentState,
+				instr,
+				control
+			);
+			midimap.push_back(entry);
+		}
 	}
 
 	return true;

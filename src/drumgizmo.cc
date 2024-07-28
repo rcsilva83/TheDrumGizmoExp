@@ -26,11 +26,9 @@
  */
 #include "drumgizmo.h"
 
-#include <cmath>
 #include <cstdio>
 #include <cassert>
 #include <cstring>
-#include <mutex>
 
 #include "audiotypes.h"
 #include <config.h>
@@ -174,7 +172,7 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 			}
 		}
 
-		events.push_back({EventType::OnSet, instrument_index, 0, velocity});
+		events.push_back({EventType::OnSet, instrument_index, 0, InstrumentStateKind::NoneOrAny, velocity});
 	}
 
 	bool active_events_left =

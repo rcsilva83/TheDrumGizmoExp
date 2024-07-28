@@ -27,6 +27,7 @@
 #pragma once
 
 #include <cstddef>
+#include "instrumentstate.h"
 
 //! Event types
 enum class EventType
@@ -34,13 +35,16 @@ enum class EventType
 	OnSet,
 	Choke,
 	Stop,
+	ChangeInstrumentState,
+	ResetInstrumentStates
 };
 
 //! POD datatype for input event transport.
 struct event_t
 {
-	EventType type; //!< The type of the event.
-	std::size_t instrument; //!< The instrument number.
-	std::size_t offset; //!< The offset position in the input buffer
-	float velocity; //!< The velocity if the type is a note on [0; 1]
+	EventType type;                 //!< The type of the event.
+	std::size_t instrument;         //!< The instrument number.
+	std::size_t offset;             //!< The offset position in the input buffer
+	InstrumentStateKind state_kind; //!< For instrument state changes: the state to change
+	float velocity_or_state;        //!< State value, or the velocity if the type is a note on [0; 1]
 };

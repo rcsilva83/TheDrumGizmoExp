@@ -105,7 +105,7 @@ void TestInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 		event.instrument = rand() % 32;
 	}
 
-	event.velocity = (float)rand()/(float)RAND_MAX;
+	event.velocity_or_state = (float)rand()/(float)RAND_MAX;
 	event.offset = len;
 }
 

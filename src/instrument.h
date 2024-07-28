@@ -46,10 +46,10 @@ struct Choke;
 class Instrument
 {
 public:
-	Instrument(Settings& settings, Random& rand);
+	Instrument(Settings& settings, Random& rand, float openness_choke_threshold);
 	~Instrument();
 
-	const Sample* sample(level_t level, size_t pos);
+	const Sample* sample(level_t level, float openness, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;
@@ -69,6 +69,8 @@ public:
 
 	float getMaxPower() const;
 	float getMinPower() const;
+
+	float getOpennessChokeThreshold() const;
 
 	const std::vector<Choke>& getChokes();
 
@@ -98,6 +100,7 @@ private:
 
 	size_t lastpos;
 	float mod;
+	float openness_choke_threshold;
 	Settings& settings;
 	Random& rand;
 	PowerList powerlist;

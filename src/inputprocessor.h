@@ -3,7 +3,7 @@
  *            inputprocessor.h
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -28,6 +28,7 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
 #include <memory>
 
 
@@ -37,6 +38,7 @@
 #include "id.h"
 #include "inputfilter.h"
 #include "engineevent.h"
+#include "instrumentstate.h"
 
 struct Settings;
 class Random;
@@ -62,7 +64,10 @@ private:
 
 	bool processOnset(event_t& event, std::size_t pos, double resample_ratio);
 	bool processChoke(event_t& event, std::size_t pos, double resample_ratio);
+	bool processStateChange(event_t& event, std::size_t pos);
+	bool processResetStates();
 	bool processStop(event_t& event);
+	bool processOpennessChange(event_t& event, Instrument &inst, float openness, size_t pos);
 
 	//! Applies choke with rampdown time in ms to event starting at offset.
 	void applyChoke(Settings& settings, SampleEvent& event,
@@ -86,4 +91,5 @@ private:
 
 	Settings& settings;
 	float original_velocity{0.0f};
+	std::unordered_map<std::size_t, InstrumentState> instrument_states;
 };

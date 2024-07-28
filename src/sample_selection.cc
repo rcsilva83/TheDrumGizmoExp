@@ -54,7 +54,7 @@ void SampleSelection::finalise()
 	last.assign(powerlist.getPowerListItems().size(), 0);
 }
 
-const Sample* SampleSelection::get(level_t level, std::size_t pos)
+const Sample* SampleSelection::get(level_t level, float openness, std::size_t pos)
 {
 	const auto& samples = powerlist.getPowerListItems();
 	if(!samples.size())
@@ -64,6 +64,7 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 
 	std::size_t index_opt = 0;
 	float power_opt{0.f};
+	float openness_opt{0.f};
 	float value_opt{std::numeric_limits<float>::max()};
 	// the following three values are mostly for debugging
 	float random_opt = 0.;
@@ -72,6 +73,7 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 
 	// Note the magic values in front of the settings factors.
 	const float f_close = 4.*settings.sample_selection_f_close.load();
+	const float f_openness = 10.*settings.sample_selection_f_openness.load();
 	const float f_diverse = (1./2.)*settings.sample_selection_f_diverse.load();
 	const float f_random = (1./3.)*settings.sample_selection_f_random.load();
 
@@ -136,12 +138,19 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 		auto random = rand.floatInRange(0.,1.);
 		auto close = (samples[current_index].power - level)/power_range;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
-		auto value = f_close*pow2(close) + f_diverse*diverse + f_random*random;
+		auto closeopenness = samples[current_index].sample->getOpenness() - openness;
+		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
+		auto value =
+		     f_close*pow2(close)
+		   + f_openness*pow2(closeopenness)
+		   + f_diverse*diverse
+		   + f_random*random;
 
 		if (value < value_opt)
 		{
 			index_opt = current_index;
 			power_opt = samples[current_index].power;
+			openness_opt = samples[current_index].sample->getOpenness();
 			value_opt = value;
 			random_opt = random;
 			close_opt = close;
@@ -151,7 +160,7 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 	}
 	while (up_value_lb <= value_opt || down_value_lb <= value_opt);
 
-	DEBUG(rand, "Chose sample with index: %d, value: %f, power %f, random: %f, close: %f, diverse: %f, count: %d", (int)index_opt, value_opt, power_opt, random_opt, close_opt, diverse_opt, (int)count);
+	DEBUG(rand, "Chose sample with index: %d, value: %f, power: %f, openness: %f, random: %f, close: %f, diverse: %f, count: %d", (int)index_opt, value_opt, power_opt, openness_opt, random_opt, close_opt, diverse_opt, (int)count);
 
 	last[index_opt] = pos;
 	return samples[index_opt].sample;
