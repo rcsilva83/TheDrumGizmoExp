@@ -334,6 +334,14 @@ bool parseInstrumentFile(const std::string& filename, InstrumentDOM& dom, LogFun
 	res &= attrcpy(dom.version, instrument, "version", logger, filename, true);
 	res &= attrcpy(dom.description, instrument, "description", logger, filename, true);
 
+	if(pugi::xml_node maybe_node = instrument.child("openness_choke_threshold"))
+	{
+		if(pugi::xml_text maybe_text = maybe_node.text())
+		{
+			dom.openness_choke_threshold = atof_nol(maybe_text.get());
+		}
+	}
+
 	pugi::xml_node channels = instrument.child("channels");
 	for(pugi::xml_node channel : channels.children("channel"))
 	{

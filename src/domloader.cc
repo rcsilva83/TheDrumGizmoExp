@@ -37,6 +37,8 @@
 
 #include "cpp11fix.h"
 
+#include <iostream>
+
 struct channel_attribute_t
 {
 	std::string cname;
@@ -89,6 +91,7 @@ bool DOMLoader::loadDom(const std::string& basepath,
 				continue;
 			}
 
+			std::cout << "Instrument: " << instrumentdom.name << ", openness threshold: " << instrumentdom.openness_choke_threshold << std::endl;
 			auto instrument = std::make_unique<Instrument>(settings, random, instrumentdom.openness_choke_threshold);
 			instrument->setGroup(instrumentref.group);
 			instrument->_name = instrumentdom.name;

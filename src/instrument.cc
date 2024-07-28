@@ -31,10 +31,10 @@
 #include "sample.h"
 
 Instrument::Instrument(Settings& settings, Random& rand, float openness_choke_threshold)
-	: settings(settings)
+	: openness_choke_threshold(openness_choke_threshold)
+	, settings(settings)
 	, rand(rand)
 	, sample_selection(settings, rand, powerlist)
-	, openness_choke_threshold(openness_choke_threshold)
 {
 	DEBUG(instrument, "new %p\n", this);
 	mod = 1.0;

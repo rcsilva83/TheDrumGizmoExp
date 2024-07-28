@@ -313,6 +313,7 @@ midimapparsertest_CXXFLAGS = \
 midimapparsertest_LDFLAGS =
 midimapparsertest_SOURCES = \
 	$(top_srcdir)/hugin/hugin.c \
+	$(top_srcdir)/src/midimapper.cc \
 	$(top_srcdir)/src/midimapparser.cc \
 	$(top_srcdir)/pugixml/src/pugixml.cpp \
 	scopedfile.cc \

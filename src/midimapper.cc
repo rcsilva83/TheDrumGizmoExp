@@ -32,8 +32,7 @@ MidimapEntry::MidimapEntry(MapFrom from_kind,
 	             int from_id,
 				 MapTo to_kind,
 				 std::string instrument_name,
-				 InstrumentStateKind maybe_instrument_state_kind
-				 ) :
+				 InstrumentStateKind maybe_instrument_state_kind) :
 	from_kind(from_kind)
 	, from_id(from_id)
 	, to_kind(to_kind)

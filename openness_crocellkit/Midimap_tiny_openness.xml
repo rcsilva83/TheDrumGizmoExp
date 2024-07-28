@@ -15,5 +15,5 @@
 	<map note="46" instr="HihatContinuous"/>
 	<map note="22" instr="HihatContinuous"/>
 	<map note="26" instr="HihatContinuous"/>
-	<map cc="4" instr="HihatContinuous" control="openness" min="90" max="0"/>
+	<map cc="4" instr="HihatContinuous" control="openness"/>
 </midimap>

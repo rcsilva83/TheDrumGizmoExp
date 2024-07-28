@@ -38,6 +38,8 @@
 #include "velocityfilter.h"
 #include "cpp11fix.h"
 
+#include <iostream>
+
 class VelocityStorer
 	: public InputFilter
 {
@@ -236,10 +238,11 @@ bool InputProcessor::processOpennessChange(event_t& event, Instrument &inst, flo
 {
 	auto &state = instrument_states[event.instrument]; // Constructs if necessary
 	auto threshold = inst.getOpennessChokeThreshold();
+	std::cout << "openness: " << openness << " threshold: " << threshold << "\n";
 
-	if(threshold > 0.0f &&
-	   state.openness > threshold && openness <= threshold)
+	if(threshold > 0.0f && openness <= threshold)
 	{
+		std::cout << "A\n";
 		// We crossed the openness threshold and should choke all running samples that have
 		// higher openness.
 		for(const auto& ch : kit.channels)
@@ -251,10 +254,12 @@ bool InputProcessor::processOpennessChange(event_t& event, Instrument &inst, flo
 
 			for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 			{
+				std::cout << "B\n";
 				if(event_sample.instrument_id == event.instrument && // Only applies to self
 				event_sample.openness > threshold &&           // Only samples that are more open than the threshold
 				event_sample.rampdown_count == -1)             // Only if not already ramping
 				{
+					std::cout << "C\n";
 					// Fixed group rampdown time of 68ms, independent of samplerate
 					applyChoke(settings, event_sample, 68, event.offset, pos);
 				}
