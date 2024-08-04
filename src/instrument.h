@@ -50,7 +50,8 @@ public:
 	~Instrument();
 
 	// FIXME: variable naming
-	const Sample* sample(float power, float instrument_power_range, float position, std::size_t pos);
+	const Sample* sample(float power, float instrument_power_range, float position,
+	                     float instrument_position_range, std::size_t pos);
 
 	std::size_t getID() const;
 	const std::string& getName() const;
@@ -74,6 +75,7 @@ public:
 		double max;
 	};
 	PowerRange getPowers(float position) const;
+	PowerRange getPositionRange() const;
 
 	const std::vector<Choke>& getChokes();
 
@@ -107,6 +109,7 @@ private:
 	PowerList powerlist;
 	std::vector<Choke> chokes;
 	SampleSelection sample_selection;
+	PowerRange position_range{};
 };
 
 using Instruments = std::vector<std::unique_ptr<Instrument>>;

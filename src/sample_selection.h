@@ -40,7 +40,8 @@ public:
 	SampleSelection(Settings& settings, Random& rand, const PowerList& powerlist);
 
 	void finalise();
-	const Sample* get(float power, float instrument_power_span, float position, std::size_t pos);
+	const Sample* get(float power, float instrument_power_span, float position,
+	                  float instrument_position_span, std::size_t pos);
 
 private:
 	Settings& settings;

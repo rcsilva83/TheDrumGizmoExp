@@ -55,12 +55,14 @@ bool Instrument::isValid() const
 }
 
 // FIXME: very bad variable naming of parameters
-const Sample* Instrument::sample(float power, float instrument_power_range, float position, std::size_t pos)
+const Sample* Instrument::sample(float power, float instrument_power_range, float position,
+                                 float instrument_position_range, std::size_t pos)
 {
 	if(version >= VersionStr("2.0"))
 	{
 		// Version 2.0
-		return sample_selection.get(power, instrument_power_range, position, pos);
+		return sample_selection.get(power, instrument_power_range,
+		                            position, instrument_position_range, pos);
 	}
 	else
 	{
@@ -93,6 +95,18 @@ void Instrument::finalise()
 
 		powerlist.finalise();
 		sample_selection.finalise();
+
+		position_range.min = std::numeric_limits<double>::max();
+		position_range.max = std::numeric_limits<double>::min();
+		if(samplelist.empty())
+		{
+			position_range = {0,1};
+		}
+		for(const auto& sample : samplelist)
+		{
+			position_range.min =  std::min(sample->getPosition(), position_range.min);
+			position_range.max =  std::max(sample->getPosition(), position_range.max);
+		}
 	}
 }
 
@@ -140,6 +154,11 @@ Instrument::PowerRange Instrument::getPowers(float position) const
 	{
 		return { 0.0f, 1.0f };
 	}
+}
+
+Instrument::PowerRange Instrument::getPositionRange() const
+{
+	return position_range;
 }
 
 const std::vector<Choke>& Instrument::getChokes()

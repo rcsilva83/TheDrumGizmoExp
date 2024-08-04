@@ -37,7 +37,7 @@
 #include "staminafilter.h"
 #include "velocityfilter.h"
 #include "positionfilter.h"
-
+#include <iostream>
 #include "cpp11fix.h"
 
 class VelocityStorer
@@ -252,7 +252,12 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	const auto power_range = instr->getPowers(event.position);
 	const auto power_span = power_range.max - power_range.min;
 	const auto note_power = power_range.min + event.velocity * power_span;
-	const auto sample = instr->sample(note_power, power_span, event.position, event.offset + pos);
+
+	const auto position_range = instr->getPositionRange();
+	const auto position_span = position_range.max - position_range.min;
+	const auto note_position = position_range.min + event.position * position_span;
+
+	const auto sample = instr->sample(note_power, power_span, note_position, position_span, event.offset + pos);
 
 	if(sample == nullptr)
 	{

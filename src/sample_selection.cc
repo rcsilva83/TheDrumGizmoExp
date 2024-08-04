@@ -33,6 +33,7 @@
 #include "settings.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace
 {
@@ -58,7 +59,8 @@ void SampleSelection::finalise()
 
 // FIXME: For the position, weird hacks via the powerlist are necessary. Refactor!
 // FIXME: bad variable naming
-const Sample* SampleSelection::get(float power, float instrument_power_span, float position, std::size_t pos)
+const Sample* SampleSelection::get(float power, float instrument_power_span,
+                                   float position,  float instrument_positon_span, std::size_t pos)
 {
 	const auto& samples = powerlist.getPowerListItems();
 	if(!samples.size())
@@ -75,7 +77,7 @@ const Sample* SampleSelection::get(float power, float instrument_power_span, flo
 	float closepos_opt = 0.;
 	float random_opt = 0.;
 	float diverse_opt = 0.;
-
+	std::cout << "Input position: " << position << " power: " << power << "\n";
 	// Note the magic values in front of the settings factors.
 	const float f_close = 4.*settings.sample_selection_f_close.load();
 	const float f_position = 4.*settings.sample_selection_f_position.load();
@@ -148,7 +150,7 @@ const Sample* SampleSelection::get(float power, float instrument_power_span, flo
 		auto random = rand.floatInRange(0.,1.);
 		auto close = (samples[current_index].power - power)/instrument_power_span;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
-		auto closepos = samples[current_index].sample->getPosition() - position;
+		auto closepos = (samples[current_index].sample->getPosition() - position) / instrument_positon_span;
 		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
 		auto value = f_close*pow2(close) + f_position*pow2(closepos) + f_diverse*diverse + f_random*random;
 
@@ -172,7 +174,7 @@ const Sample* SampleSelection::get(float power, float instrument_power_span, flo
 		auto random = rand.floatInRange(0.,1.);
 		auto close = (samples[current_index].power - power)/instrument_power_span;
 		auto diverse = 1./(1. + (float)(pos - last[current_index])/settings.samplerate);
-		auto closepos = samples[current_index].sample->getPosition() - position;
+		auto closepos = (samples[current_index].sample->getPosition() - position) / instrument_positon_span;
 		// note that the value below for close and closepos is actually the weighted squared l2 distance in 2d
 		auto value = f_close*pow2(close) + f_position*pow2(closepos) + f_diverse*diverse + f_random*random;
 
