@@ -31,6 +31,7 @@
 #include <vector>
 #include <limits>
 #include <mutex>
+#include <atomic>
 
 #include "audio.h"
 #include "channel.h"
@@ -73,6 +74,6 @@ private:
 	friend class InstrumentParserTest;
 
 	void* magic{};
-	volatile bool is_loaded{false};
+	std::atomic<bool> is_loaded{false};
 	InstrumentChannel* instrument_channel{};
 };

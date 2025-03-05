@@ -31,6 +31,8 @@
 #include <cassert>
 #include <cstring>
 #include <mutex>
+#include <thread>
+#include <chrono>
 
 #include "audiotypes.h"
 #include <config.h>
@@ -360,6 +362,11 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 		bool removeevent = false;
 
 		AudioFile& af = *sample_event.file;
+
+		while(freewheel && !af.isLoaded())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
 
 		if(!af.isLoaded() || !af.isValid() || (s == nullptr))
 		{

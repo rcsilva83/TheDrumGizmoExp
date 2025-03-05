@@ -64,7 +64,7 @@ void AudioFile::unload()
 	// Make sure we don't unload the object while loading it...
 	const std::lock_guard<std::mutex> guard(mutex);
 
-	is_loaded = false;
+	is_loaded.store(false);
 
 	preloadedsize = 0;
 	size = 0;
@@ -168,12 +168,12 @@ void AudioFile::load(const LogFunction& logger, std::size_t sample_limit)
 	this->data = data;
 	this->size = size;
 	this->preloadedsize = preloadedsize;
-	is_loaded = true;
+	is_loaded.store(true);
 }
 
 bool AudioFile::isLoaded() const
 {
-	return is_loaded;
+	return is_loaded.load();
 }
 
 main_state_t AudioFile::mainState() const
