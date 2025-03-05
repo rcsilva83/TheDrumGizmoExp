@@ -30,6 +30,8 @@
 
 #include <translation.h>
 
+#include <algorithm>
+
 namespace GUI
 {
 
@@ -70,9 +72,9 @@ ResamplingframeContent::ResamplingframeContent(dggui::Widget* parent,
 void ResamplingframeContent::resize(std::size_t width, std::size_t height)
 {
 	Widget::resize(width, height);
-	text_field.resize(width - 50, height);
-	quality_knob.move(width - 36, 20);
-	quality_label.move(width - 40, 0);
+	text_field.resize(std::max(width, std::size_t{51}) - 50, height);
+	quality_knob.move(std::max(width, std::size_t{37}) - 36, 20);
+	quality_label.move(std::max(width, std::size_t{41}) - 40, 0);
 }
 
 void ResamplingframeContent::updateContent()
