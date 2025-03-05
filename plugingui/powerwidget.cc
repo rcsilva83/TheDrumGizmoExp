@@ -119,7 +119,7 @@ PowerWidget::Canvas::Canvas(dggui::Widget* parent,
 
 void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 {
-	if(width() < 1 || height() < 1)
+	if(width() < 4 || height() < 4)
 	{
 		return;
 	}
