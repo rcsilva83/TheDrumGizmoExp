@@ -64,7 +64,7 @@ void AudioFile::unload()
 	// Make sure we don't unload the object while loading it...
 	const std::lock_guard<std::mutex> guard(mutex);
 
-	is_loaded.store(false);
+	load_state.store(LoadState::not_loaded);
 
 	preloadedsize = 0;
 	size = 0;
@@ -84,6 +84,8 @@ void AudioFile::load(const LogFunction& logger, std::size_t sample_limit)
 		return;
 	}
 
+	load_state.store(LoadState::loading);
+
 	SF_INFO sf_info{};
 	SNDFILE *file_handle = sf_open(filename.c_str(), SFM_READ, &sf_info);
 	if(file_handle == nullptr)
@@ -95,6 +97,7 @@ void AudioFile::load(const LogFunction& logger, std::size_t sample_limit)
 			logger(LogLevel::Warning, "Could not load '" + filename +
 			       "': " + sf_strerror(file_handle));
 		}
+		load_state.store(LoadState::failed);
 		return;
 	}
 
@@ -106,6 +109,7 @@ void AudioFile::load(const LogFunction& logger, std::size_t sample_limit)
 			logger(LogLevel::Warning, "Could not load '" + filename +
 			       "': no audio channels available.");
 		}
+		load_state.store(LoadState::failed);
 		return;
 	}
 
@@ -168,12 +172,21 @@ void AudioFile::load(const LogFunction& logger, std::size_t sample_limit)
 	this->data = data;
 	this->size = size;
 	this->preloadedsize = preloadedsize;
-	is_loaded.store(true);
+	load_state.store(LoadState::loaded);
 }
 
 bool AudioFile::isLoaded() const
 {
-	return is_loaded.load();
+	return load_state.load() == LoadState::loaded;
+}
+
+bool AudioFile::isLoading() const
+{
+	auto state = load_state.load();
+	return
+		state == LoadState::loading || // in progress
+		state == LoadState::not_loaded // not yet started loading
+		;
 }
 
 main_state_t AudioFile::mainState() const

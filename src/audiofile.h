@@ -52,6 +52,7 @@ public:
 	void unload();
 
 	bool isLoaded() const;
+	bool isLoading() const;
 
 	volatile std::size_t size{0}; // Full size of the file
 	volatile std::size_t preloadedsize{0}; // Number of samples preloaded (in data)
@@ -74,6 +75,13 @@ private:
 	friend class InstrumentParserTest;
 
 	void* magic{};
-	std::atomic<bool> is_loaded{false};
+	enum class LoadState
+	{
+		not_loaded,
+		loaded,
+		loading,
+		failed,
+	};
+	std::atomic<LoadState> load_state{LoadState::not_loaded};
 	InstrumentChannel* instrument_channel{};
 };

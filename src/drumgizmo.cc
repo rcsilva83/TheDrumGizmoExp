@@ -363,7 +363,7 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 
 		AudioFile& af = *sample_event.file;
 
-		while(freewheel && !af.isLoaded())
+		while(freewheel && !af.isLoading())
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
