@@ -91,7 +91,7 @@ public:
 		has_alpha = alpha;
 
 		image_data.resize(_width * _height);
-		image_data_raw.resize(_width * _height);
+		image_data_raw.resize(4 * _width * _height);
 
 		// Store x and y coordinates as red and green colour components
 		for(std::uint8_t x = 0; x < _width; ++x)
