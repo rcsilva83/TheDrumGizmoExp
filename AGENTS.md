@@ -111,6 +111,12 @@ There is no dedicated lint command. Debug builds use `-Wall -Werror -Wextra`.
   5. Same-directory project (`#include "localfile.h"` with quotes)
 - Use `""` for same-directory includes, `<>` for cross-directory and system
 
+## Text Encoding
+
+- Save source and documentation files as **UTF-8** (without BOM)
+- Preserve author names exactly as written in license headers (do not transliterate)
+- If a file contains non-ASCII characters (for example `ö`), keep them intact and avoid mojibake replacements
+
 ## Naming Conventions
 
 | Element            | Style                    | Examples                                  |
