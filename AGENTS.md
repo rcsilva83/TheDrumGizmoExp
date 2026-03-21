@@ -1,8 +1,8 @@
 # AGENTS.md -- DrumGizmo
 
 DrumGizmo is a multichannel, multilayered, cross-platform drum plugin
-and standalone application written in C++11. It uses the Autotools
-build system (autoconf/automake/libtool). Version: 0.9.20 (pre-1.0).
+and standalone application written in C++11. It now supports a CMake build
+in parallel with the legacy Autotools flow. Version: 0.9.20 (pre-1.0).
 
 ## Project Structure
 
@@ -21,6 +21,25 @@ test/uunit/     Unit test framework (submodule)
 
 ## Build Commands
 
+### CMake (preferred)
+```sh
+cmake -S . -B build
+cmake --build build -j$(nproc)
+```
+
+Useful options for parity testing:
+```sh
+cmake -S . -B build \
+  -DDG_WITH_DEBUG=ON \
+  -DDG_NUM_CHANNELS=16 \
+  -DDG_ENABLE_CLI=ON
+```
+
+### CMake install
+```sh
+cmake --install build --prefix "$PWD/install"
+```
+
 ### Initial Setup (from git)
 ```sh
 git submodule init && git submodule update
@@ -33,6 +52,8 @@ git submodule init && git submodule update
 make            # Build everything
 make -j$(nproc) # Parallel build
 ```
+
+Autotools commands above are still supported during migration.
 
 ### Run All Tests
 ```sh

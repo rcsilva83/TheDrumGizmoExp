@@ -3,7 +3,7 @@
  *            enginefactory.h
  *
  *  Mi 20. Jan 10:46:07 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -26,8 +26,10 @@
  */
 #pragma once
 #include <list>
-#include <string>
 #include <memory>
+#include <string>
+
+#include <config.h>
 
 #include "audioinputengine.h"
 #include "audiooutputengine.h"
@@ -88,7 +90,6 @@
 #ifdef HAVE_INPUT_ALSAMIDI
 #include "input/alsamidi.h"
 #endif
-
 
 //! Factory for various input- and output engines
 class EngineFactory
