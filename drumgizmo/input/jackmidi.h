@@ -3,7 +3,7 @@
  *            jackmidi.h
  *
  *  Mo 25. Jan 11:26:06 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -25,21 +25,19 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
-#include <memory>
 #include <jack/jack.h>
 #include <jack/midiport.h>
+#include <memory>
 
-#include "audioinputenginemidi.h"
-#include "midimapper.h"
-#include "midimapparser.h"
 #include "../jackclient.h"
+#include "audioinputenginemidi.h"
+#include "midimapparser.h"
+#include "midimapper.h"
 
-class JackMidiInputEngine
-	: public AudioInputEngineMidi
-	, public JackProcess
+class JackMidiInputEngine : public AudioInputEngineMidi, public JackProcess
 {
 public:
-	JackMidiInputEngine(JackClient& client);
+	explicit JackMidiInputEngine(JackClient& client);
 	~JackMidiInputEngine();
 
 	// based on AudioInputEngineMidi

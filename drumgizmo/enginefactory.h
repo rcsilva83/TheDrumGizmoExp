@@ -100,11 +100,17 @@ public:
 
 	//! Query list of available input engines' names
 	//! \return const reference to the list
-	const std::list<std::string>& getInputEngines() const;
+	const std::list<std::string>& getInputEngines() const
+	{
+		return input;
+	}
 
 	//! Query list of available output engines' names
 	//! \return const reference to the list
-	const std::list<std::string>& getOutputEngines() const;
+	const std::list<std::string>& getOutputEngines() const
+	{
+		return output;
+	}
 
 	//! Create input engine by name
 	//! \param name Name of the input engine that should be initialized

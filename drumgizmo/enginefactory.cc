@@ -3,7 +3,7 @@
  *            enginefactory.cc
  *
  *  Mi 20. Jan 10:46:07 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -30,10 +30,10 @@
 #include "enginefactory.h"
 
 EngineFactory::EngineFactory()
-	: input{}
-	, output{}
+    : input{}
+    , output{}
 #ifdef USE_JACK
-	, jack{nullptr}
+    , jack{nullptr}
 #endif
 {
 // list available input engines
@@ -84,17 +84,8 @@ void EngineFactory::prepareJack()
 }
 #endif
 
-const std::list<std::string>& EngineFactory::getInputEngines() const
-{
-	return input;
-}
-
-const std::list<std::string>& EngineFactory::getOutputEngines() const
-{
-	return output;
-}
-
-std::unique_ptr<AudioInputEngine> EngineFactory::createInput(const std::string& name)
+std::unique_ptr<AudioInputEngine> EngineFactory::createInput(
+    const std::string& name)
 {
 #ifdef HAVE_INPUT_DUMMY
 	if(name == "dummy")
@@ -140,7 +131,8 @@ std::unique_ptr<AudioInputEngine> EngineFactory::createInput(const std::string& 
 	return nullptr;
 }
 
-std::unique_ptr<AudioOutputEngine> EngineFactory::createOutput(const std::string& name)
+std::unique_ptr<AudioOutputEngine> EngineFactory::createOutput(
+    const std::string& name)
 {
 #ifdef HAVE_OUTPUT_DUMMY
 	if(name == "dummy")
