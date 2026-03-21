@@ -3,7 +3,7 @@
  *            enginefactory.cc
  *
  *  Mi 20. Jan 10:46:07 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 

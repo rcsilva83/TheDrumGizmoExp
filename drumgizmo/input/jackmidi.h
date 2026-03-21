@@ -3,7 +3,7 @@
  *            jackmidi.h
  *
  *  Mo 25. Jan 11:26:06 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
