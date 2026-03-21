@@ -201,13 +201,40 @@ jobs:
             exit 0
           fi
 
-          cppcheck \
-            --error-exitcode=1 \
-            --enable=warning,style,performance,portability \
-            --std=c++11 \
-            --suppress=missingIncludeSystem \
-            --inline-suppr \
-            "${files[@]}"
+          c_files=()
+          cpp_files=()
+          for file in "${files[@]}"; do
+            case "$file" in
+              *.c)
+                c_files+=("$file")
+                ;;
+              *)
+                cpp_files+=("$file")
+                ;;
+            esac
+          done
+
+          if [ "${#cpp_files[@]}" -gt 0 ]; then
+            cppcheck \
+              --error-exitcode=1 \
+              --enable=warning,style,performance,portability \
+              --language=c++ \
+              --std=c++11 \
+              --suppress=missingIncludeSystem \
+              --inline-suppr \
+              "${cpp_files[@]}"
+          fi
+
+          if [ "${#c_files[@]}" -gt 0 ]; then
+            cppcheck \
+              --error-exitcode=1 \
+              --enable=warning,style,performance,portability \
+              --language=c \
+              --std=c11 \
+              --suppress=missingIncludeSystem \
+              --inline-suppr \
+              "${c_files[@]}"
+          fi
 
           clang-format --dry-run --Werror "${files[@]}"
 
