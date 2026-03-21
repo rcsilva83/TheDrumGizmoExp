@@ -32,6 +32,8 @@ jobs:
 
       - name: Configure
         run: |
+          git submodule init
+          git submodule update
           ./autogen.sh
           ./configure --with-test
 
@@ -87,6 +89,8 @@ jobs:
           CXXFLAGS: --coverage -O0 -g
           LDFLAGS: --coverage
         run: |
+          git submodule init
+          git submodule update
           ./autogen.sh
           ./configure --with-test
 
@@ -168,6 +172,8 @@ jobs:
 
       - name: Configure and build
         run: |
+          git submodule init
+          git submodule update
           ./autogen.sh
           ./configure --with-test
           make -j"$(nproc)"
