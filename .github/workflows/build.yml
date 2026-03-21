@@ -108,12 +108,14 @@ jobs:
           mkdir -p coverage
           gcovr \
             --root . \
+            --merge-mode-functions=merge-use-line-min \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --xml-pretty \
             --output coverage.xml
           gcovr \
             --root . \
+            --merge-mode-functions=merge-use-line-min \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --html-details \
