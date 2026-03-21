@@ -1,0 +1,272 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+
+      - name: Configure
+        run: |
+          git submodule init
+          git submodule update
+          ./autogen.sh
+          ./configure --with-test --without-nls
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run tests
+        run: make check
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: |
+            test-suite.log
+            test/**/test-suite.log
+            test/*.log
+            test/**/*.log
+          if-no-files-found: ignore
+
+  coverage:
+    name: Coverage reports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            python3 \
+            python3-pip \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+          python3 -m pip install --upgrade gcovr
+
+      - name: Configure with coverage flags
+        env:
+          CFLAGS: --coverage -O0 -g
+          CXXFLAGS: --coverage -O0 -g
+          LDFLAGS: --coverage
+        run: |
+          git submodule init
+          git submodule update
+          ./autogen.sh
+          ./configure --with-test --without-nls
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run tests
+        run: make check
+
+      - name: Generate coverage reports
+        run: |
+          rm -f a-conftest.gcno a-conftest.gcda conftest.gcno conftest.gcda
+          mkdir -p coverage
+          gcovr \
+            --root . \
+            --merge-mode-functions=merge-use-line-min \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --xml-pretty \
+            --output coverage.xml
+          gcovr \
+            --root . \
+            --merge-mode-functions=merge-use-line-min \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --html-details \
+            --output coverage/index.html
+
+      - name: Publish coverage summary
+        run: |
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse("coverage.xml").getroot()
+
+          def as_int(value):
+            try:
+              return int(value)
+            except (TypeError, ValueError):
+              return 0
+
+          def as_percent(covered, total, rate):
+            if total > 0:
+              return covered / total * 100
+            try:
+              return float(rate) * 100
+            except (TypeError, ValueError):
+              return 0.0
+
+          line_covered = as_int(root.attrib.get("lines-covered"))
+          line_total = as_int(root.attrib.get("lines-valid"))
+          branch_covered = as_int(root.attrib.get("branches-covered"))
+          branch_total = as_int(root.attrib.get("branches-valid"))
+
+          line_percent = as_percent(line_covered, line_total, root.attrib.get("line-rate"))
+          branch_percent = as_percent(branch_covered, branch_total, root.attrib.get("branch-rate"))
+
+          summary = os.environ["GITHUB_STEP_SUMMARY"]
+          with open(summary, "a", encoding="utf-8") as handle:
+            handle.write("## Coverage reports\n\n")
+            handle.write("| Metric | Covered | Total | Coverage |\n")
+            handle.write("| --- | ---: | ---: | ---: |\n")
+            handle.write(f"| Lines | {line_covered} | {line_total} | {line_percent:.2f}% |\n")
+            handle.write(f"| Branches | {branch_covered} | {branch_total} | {branch_percent:.2f}% |\n\n")
+            handle.write("Detailed HTML and XML reports are available in the `coverage-reports` artifact.\n")
+          PY
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            coverage/
+
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install static analysis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck clang-format
+
+      - name: Run cppcheck and clang-format
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}...${{ github.sha }}"
+          else
+            if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              range="${{ github.event.before }}...${{ github.sha }}"
+            else
+              range="HEAD~1...HEAD"
+            fi
+          fi
+
+          mapfile -t files < <(git diff --name-only "$range" -- '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No C/C++ file changes detected; skipping static analysis."
+            exit 0
+          fi
+
+          cppcheck \
+            --error-exitcode=1 \
+            --enable=warning,style,performance,portability \
+            --std=c++11 \
+            --suppress=missingIncludeSystem \
+            --inline-suppr \
+            "${files[@]}"
+
+          clang-format --dry-run --Werror "${files[@]}"
+
+  linux-binary:
+    name: Linux binary
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+
+      - name: Configure and build
+        run: |
+          git submodule init
+          git submodule update
+          ./autogen.sh
+          ./configure --with-test --without-nls
+          make -j"$(nproc)"
+
+      - name: Package binaries
+        run: |
+          mkdir -p dist/bin
+          if [ -x drumgizmo/drumgizmo ]; then
+            cp drumgizmo/drumgizmo dist/bin/drumgizmo
+          else
+            cp drumgizmo/.libs/drumgizmo dist/bin/drumgizmo
+          fi
+
+          if [ -x drumgizmo/dgvalidator ]; then
+            cp drumgizmo/dgvalidator dist/bin/dgvalidator
+          else
+            cp drumgizmo/.libs/dgvalidator dist/bin/dgvalidator
+          fi
+
+          tar -czf drumgizmo-linux-binaries.tar.gz -C dist/bin drumgizmo dgvalidator
+
+      - name: Upload Linux binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binaries
+          path: |
+            dist/bin/drumgizmo
+            dist/bin/dgvalidator
+            drumgizmo-linux-binaries.tar.gz
