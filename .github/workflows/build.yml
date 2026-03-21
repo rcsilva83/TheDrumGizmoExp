@@ -223,6 +223,7 @@ jobs:
               --std=c++11 \
               --suppress=missingIncludeSystem \
               --suppress=toomanyconfigs \
+              --suppress=unusedStructMember \
               --inline-suppr \
               "${cpp_files[@]}"
           fi
@@ -235,6 +236,7 @@ jobs:
               --std=c11 \
               --suppress=missingIncludeSystem \
               --suppress=toomanyconfigs \
+              --suppress=unusedStructMember \
               --inline-suppr \
               "${c_files[@]}"
           fi
