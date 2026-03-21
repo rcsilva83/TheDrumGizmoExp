@@ -104,9 +104,20 @@ jobs:
 
       - name: Generate coverage reports
         run: |
+          rm -f a-conftest.gcno a-conftest.gcda conftest.gcno conftest.gcda
           mkdir -p coverage
-          gcovr --root . --xml-pretty --output coverage.xml
-          gcovr --root . --html-details --output coverage/index.html
+          gcovr \
+            --root . \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --xml-pretty \
+            --output coverage.xml
+          gcovr \
+            --root . \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --html-details \
+            --output coverage/index.html
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
@@ -195,8 +206,18 @@ jobs:
       - name: Package binaries
         run: |
           mkdir -p dist/bin
-          cp drumgizmo/.libs/drumgizmo dist/bin/drumgizmo
-          cp drumgizmo/.libs/dgvalidator dist/bin/dgvalidator
+          if [ -x drumgizmo/drumgizmo ]; then
+            cp drumgizmo/drumgizmo dist/bin/drumgizmo
+          else
+            cp drumgizmo/.libs/drumgizmo dist/bin/drumgizmo
+          fi
+
+          if [ -x drumgizmo/dgvalidator ]; then
+            cp drumgizmo/dgvalidator dist/bin/dgvalidator
+          else
+            cp drumgizmo/.libs/dgvalidator dist/bin/dgvalidator
+          fi
+
           tar -czf drumgizmo-linux-binaries.tar.gz -C dist/bin drumgizmo dgvalidator
 
       - name: Upload Linux binaries
