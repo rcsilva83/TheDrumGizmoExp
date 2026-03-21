@@ -1,0 +1,189 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+
+      - name: Configure
+        run: |
+          ./autogen.sh
+          ./configure --with-test
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run tests
+        run: make check
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: |
+            test-suite.log
+            test/**/test-suite.log
+            test/*.log
+            test/**/*.log
+          if-no-files-found: ignore
+
+  coverage:
+    name: Coverage reports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            python3 \
+            python3-pip \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+          python3 -m pip install --upgrade gcovr
+
+      - name: Configure with coverage flags
+        env:
+          CFLAGS: --coverage -O0 -g
+          CXXFLAGS: --coverage -O0 -g
+          LDFLAGS: --coverage
+        run: |
+          ./autogen.sh
+          ./configure --with-test
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Run tests
+        run: make check
+
+      - name: Generate coverage reports
+        run: |
+          mkdir -p coverage
+          gcovr --root . --xml-pretty --output coverage.xml
+          gcovr --root . --html-details --output coverage/index.html
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            coverage/
+
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install static analysis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck clang-format
+
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+            --error-exitcode=1 \
+            --enable=warning,style,performance,portability \
+            --std=c++11 \
+            --suppress=missingIncludeSystem \
+            --inline-suppr \
+            src drumgizmo dggui plugingui test plugin
+
+      - name: Verify clang-format
+        run: |
+          mapfile -t files < <(git ls-files '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
+          if [ "${#files[@]}" -eq 0 ]; then
+            exit 0
+          fi
+          clang-format --dry-run --Werror "${files[@]}"
+
+  linux-binary:
+    name: Linux binary
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            g++ \
+            make \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+
+      - name: Configure and build
+        run: |
+          ./autogen.sh
+          ./configure --with-test
+          make -j"$(nproc)"
+
+      - name: Package binaries
+        run: |
+          mkdir -p dist/bin
+          cp drumgizmo/.libs/drumgizmo dist/bin/drumgizmo
+          cp drumgizmo/.libs/dgvalidator dist/bin/dgvalidator
+          tar -czf drumgizmo-linux-binaries.tar.gz -C dist/bin drumgizmo dgvalidator
+
+      - name: Upload Linux binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binaries
+          path: |
+            dist/bin/drumgizmo
+            dist/bin/dgvalidator
+            drumgizmo-linux-binaries.tar.gz
