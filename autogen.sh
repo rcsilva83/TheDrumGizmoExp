@@ -18,7 +18,15 @@ AC_INIT([actest], [1.0.0])
 AC_PROG_OBJCXX
 EOF
 [ -f acinclude.m4 ] && rm acinclude.m4
-autoreconf -W error actest 2>/dev/null || echo "AC_DEFUN([AC_PROG_OBJCXX],[echo ' - ObjC++ hack - not support by this platform, but not needed either.'])" > acinclude.m4
+autoreconf -W error actest 2>/dev/null || cat << 'EOF' > acinclude.m4
+AC_DEFUN([AC_PROG_OBJCXX],[
+  echo ' - ObjC++ hack - not support by this platform, falling back to C++ compiler.'
+  OBJCXX=${OBJCXX-"$CXX"}
+  AC_SUBST([OBJCXX])
+  OBJCXXFLAGS=${OBJCXXFLAGS-"$CXXFLAGS"}
+  AC_SUBST([OBJCXXFLAGS])
+])
+EOF
 rm -Rf actest
 
 # Now run autoreconf
