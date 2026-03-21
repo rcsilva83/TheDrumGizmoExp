@@ -121,6 +121,46 @@ jobs:
             --html-details \
             --output coverage/index.html
 
+      - name: Publish coverage summary
+        run: |
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse("coverage.xml").getroot()
+
+          def as_int(value):
+            try:
+              return int(value)
+            except (TypeError, ValueError):
+              return 0
+
+          def as_percent(covered, total, rate):
+            if total > 0:
+              return covered / total * 100
+            try:
+              return float(rate) * 100
+            except (TypeError, ValueError):
+              return 0.0
+
+          line_covered = as_int(root.attrib.get("lines-covered"))
+          line_total = as_int(root.attrib.get("lines-valid"))
+          branch_covered = as_int(root.attrib.get("branches-covered"))
+          branch_total = as_int(root.attrib.get("branches-valid"))
+
+          line_percent = as_percent(line_covered, line_total, root.attrib.get("line-rate"))
+          branch_percent = as_percent(branch_covered, branch_total, root.attrib.get("branch-rate"))
+
+          summary = os.environ["GITHUB_STEP_SUMMARY"]
+          with open(summary, "a", encoding="utf-8") as handle:
+            handle.write("## Coverage reports\n\n")
+            handle.write("| Metric | Covered | Total | Coverage |\n")
+            handle.write("| --- | ---: | ---: | ---: |\n")
+            handle.write(f"| Lines | {line_covered} | {line_total} | {line_percent:.2f}% |\n")
+            handle.write(f"| Branches | {branch_covered} | {branch_total} | {branch_percent:.2f}% |\n\n")
+            handle.write("Detailed HTML and XML reports are available in the `coverage-reports` artifact.\n")
+          PY
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
