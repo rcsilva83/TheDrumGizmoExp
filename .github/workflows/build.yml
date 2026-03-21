@@ -222,6 +222,7 @@ jobs:
               --language=c++ \
               --std=c++11 \
               --suppress=missingIncludeSystem \
+              --suppress=toomanyconfigs \
               --inline-suppr \
               "${cpp_files[@]}"
           fi
@@ -233,6 +234,7 @@ jobs:
               --language=c \
               --std=c11 \
               --suppress=missingIncludeSystem \
+              --suppress=toomanyconfigs \
               --inline-suppr \
               "${c_files[@]}"
           fi
