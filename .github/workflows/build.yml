@@ -123,6 +123,9 @@ jobs:
             --root . \
             --object-directory build-coverage \
             --verbose \
+            -j 1 \
+            --gcov-ignore-parse-errors=all \
+            --gcov-ignore-errors=source_not_found \
             --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
@@ -133,6 +136,9 @@ jobs:
             --root . \
             --object-directory build-coverage \
             --verbose \
+            -j 1 \
+            --gcov-ignore-parse-errors=all \
+            --gcov-ignore-errors=source_not_found \
             --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
