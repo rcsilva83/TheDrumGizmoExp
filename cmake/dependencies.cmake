@@ -24,24 +24,3 @@ if(NOT EXISTS "${DG_CPM_FILE}")
 endif()
 
 include("${DG_CPM_FILE}")
-
-set(DG_SNDFILE_VERSION "1.2.2" CACHE STRING "libsndfile version")
-set(DG_SNDFILE_GITHUB_REPOSITORY "libsndfile/libsndfile" CACHE STRING "libsndfile repository")
-
-CPMAddPackage(
-	NAME sndfile
-	GITHUB_REPOSITORY "${DG_SNDFILE_GITHUB_REPOSITORY}"
-	GIT_TAG "${DG_SNDFILE_VERSION}"
-	OPTIONS
-		"BUILD_PROGRAMS OFF"
-		"BUILD_EXAMPLES OFF"
-		"BUILD_TESTING OFF"
-		"BUILD_REGTEST OFF"
-		"ENABLE_CPACK OFF"
-		"ENABLE_PACKAGE_CONFIG OFF"
-		"INSTALL_PKGCONFIG_MODULE OFF"
-)
-
-if(NOT TARGET SndFile::sndfile)
-	message(FATAL_ERROR "Expected SndFile::sndfile target from libsndfile CPM dependency")
-endif()
