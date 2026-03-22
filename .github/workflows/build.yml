@@ -122,6 +122,7 @@ jobs:
           .venv/bin/python -m gcovr \
             --root . \
             --object-directory build-coverage \
+            --verbose \
             --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
@@ -131,6 +132,7 @@ jobs:
           .venv/bin/python -m gcovr \
             --root . \
             --object-directory build-coverage \
+            --verbose \
             --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
