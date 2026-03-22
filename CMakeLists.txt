@@ -13,6 +13,13 @@ include(CheckCXXCompilerFlag)
 include(GNUInstallDirs)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/dependencies.cmake")
 
+set(DG_HUGIN_INCLUDE_DIR "${DG_HUGIN_SOURCE_DIR}")
+set(DG_ZITA_RESAMPLER_LIB_DIR "${DG_ZITA_RESAMPLER_SOURCE_DIR}/libs")
+set(DG_GETOPTPP_INCLUDE_DIR "${DG_GETOPTPP_SOURCE_DIR}")
+set(DG_LODEPNG_SOURCE_FILE "${DG_LODEPNG_SOURCE_DIR}/lodepng.cpp")
+set(DG_PLUGINGIZMO_INCLUDE_DIR "${DG_PLUGINGIZMO_SOURCE_DIR}")
+set(DG_PUGL_INCLUDE_DIR "${DG_PUGL_SOURCE_DIR}")
+
 function(dg_assert_files_exist)
 	foreach(dg_file IN LISTS ARGN)
 		if(NOT EXISTS "${dg_file}")
@@ -141,35 +148,35 @@ if(DG_NEED_PLUGIN_GUI)
 		pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11>=1.0)
 		pkg_check_modules(XEXT REQUIRED IMPORTED_TARGET xext>=1.0)
 		find_package(OpenGL REQUIRED)
-		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_x11.c")
+		dg_assert_files_exist("${DG_PUGL_SOURCE_DIR}/pugl/pugl_x11.c")
 		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
 		list(APPEND DG_GUI_LINK_LIBRARIES OpenGL::GL PkgConfig::X11 PkgConfig::XEXT)
-		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_x11.c)
-		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc "${DG_PUGL_SOURCE_DIR}/pugl/pugl_x11.c")
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${DG_PUGL_INCLUDE_DIR}")
 	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "pugl-win32")
-		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_win.cpp")
+		dg_assert_files_exist("${DG_PUGL_SOURCE_DIR}/pugl/pugl_win.cpp")
 		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
 		list(APPEND DG_GUI_LINK_LIBRARIES opengl32 gdi32 user32 setupapi ws2_32 comctl32)
-		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_win.cpp)
-		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc "${DG_PUGL_SOURCE_DIR}/pugl/pugl_win.cpp")
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${DG_PUGL_INCLUDE_DIR}")
 	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "pugl-cocoa")
 		enable_language(OBJC)
 		enable_language(OBJCXX)
 		find_package(OpenGL REQUIRED)
-		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_osx.m")
+		dg_assert_files_exist("${DG_PUGL_SOURCE_DIR}/pugl/pugl_osx.m")
 		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
 		list(APPEND DG_GUI_LINK_LIBRARIES OpenGL::GL "-framework Cocoa")
-		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_osx.m)
-		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc "${DG_PUGL_SOURCE_DIR}/pugl/pugl_osx.m")
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${DG_PUGL_INCLUDE_DIR}")
 	else()
 		message(FATAL_ERROR "Unsupported DG_GUI_BACKEND value: ${DG_SELECTED_GUI_BACKEND}")
 	endif()
 
 	if(DG_ENABLE_LV2)
 		dg_assert_files_exist(
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/pluginlv2.cc"
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/midievent.cc"
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/ttlgen.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginlv2.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/ttlgen.cc"
 		)
 		pkg_check_modules(LV2 REQUIRED IMPORTED_TARGET lv2>=1.0)
 		check_include_file(dlfcn.h DG_HAVE_DLFCN_H)
@@ -190,8 +197,8 @@ if(DG_NEED_PLUGIN_GUI)
 
 	if(DG_ENABLE_VST)
 		dg_assert_files_exist(
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/pluginvst.cc"
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/midievent.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginvst.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 		)
 		if(DG_VST_SDK_PATH STREQUAL "")
 			message(FATAL_ERROR "VST support requested but DG_VST_SDK_PATH was not provided")
@@ -268,14 +275,14 @@ configure_file(
 
 add_library(dg_zr STATIC
 	src/zrwrapper.cc
-	zita-resampler/libs/resampler.cc
-	zita-resampler/libs/resampler-table.cc
+	"${DG_ZITA_RESAMPLER_SOURCE_DIR}/libs/resampler.cc"
+	"${DG_ZITA_RESAMPLER_SOURCE_DIR}/libs/resampler-table.cc"
 )
 target_compile_definitions(dg_zr PRIVATE _USE_MATH_DEFINES)
 target_compile_options(dg_zr PRIVATE -ffast-math)
 target_include_directories(dg_zr PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
-	"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+	"${DG_ZITA_RESAMPLER_LIB_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"
 )
 target_link_libraries(dg_zr PRIVATE Threads::Threads)
@@ -333,8 +340,8 @@ add_library(dg_core STATIC
 )
 target_include_directories(dg_core PUBLIC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
-	"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
-	"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+	"${DG_HUGIN_INCLUDE_DIR}"
+	"${DG_ZITA_RESAMPLER_LIB_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"
 )
 target_compile_definitions(dg_core PRIVATE ${DG_COMMON_COMPILE_DEFINITIONS})
@@ -353,11 +360,11 @@ endif()
 
 if(DG_ENABLE_CLI)
 	add_library(dg_hugin STATIC
-		hugin/hugin.c
-		hugin/hugin_filter.c
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${DG_HUGIN_SOURCE_DIR}/hugin_filter.c"
 	)
 	target_compile_definitions(dg_hugin PRIVATE WITH_HUG_MUTEX WITH_HUG_FILTER)
-	target_include_directories(dg_hugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/hugin")
+	target_include_directories(dg_hugin PUBLIC "${DG_HUGIN_INCLUDE_DIR}")
 
 	set(DG_CLI_COMMON_SOURCES
 		drumgizmo/enginefactory.cc
@@ -434,8 +441,8 @@ if(DG_ENABLE_CLI)
 	target_compile_options(drumgizmo PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 	target_include_directories(drumgizmo PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}/src"
-		"${CMAKE_CURRENT_SOURCE_DIR}/getoptpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+		"${DG_GETOPTPP_INCLUDE_DIR}"
+		"${DG_HUGIN_INCLUDE_DIR}"
 		"${CMAKE_CURRENT_BINARY_DIR}"
 	)
 	target_link_libraries(drumgizmo PRIVATE ${DG_CLI_COMMON_LINK_LIBRARIES})
@@ -445,7 +452,7 @@ if(DG_ENABLE_CLI)
 		add_executable(dgvalidator
 			drumgizmo/dgvalidator.cc
 			${DG_CLI_COMMON_SOURCES}
-			dggui/lodepng/lodepng.cpp
+			"${DG_LODEPNG_SOURCE_FILE}"
 			dggui/image.cc
 			dggui/resource.cc
 			dggui/colour.cc
@@ -463,8 +470,8 @@ if(DG_ENABLE_CLI)
 		target_include_directories(dgvalidator PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
 			"${CMAKE_CURRENT_SOURCE_DIR}/src"
-			"${CMAKE_CURRENT_SOURCE_DIR}/getoptpp"
-			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+			"${DG_GETOPTPP_INCLUDE_DIR}"
+			"${DG_HUGIN_INCLUDE_DIR}"
 			"${CMAKE_CURRENT_BINARY_DIR}"
 		)
 		target_link_libraries(dgvalidator PRIVATE ${DG_CLI_COMMON_LINK_LIBRARIES})
@@ -474,14 +481,14 @@ endif()
 
 if(DG_NEED_PLUGIN_GUI)
 	dg_assert_files_exist(
-		"${CMAKE_CURRENT_SOURCE_DIR}/dggui/lodepng/lodepng.cpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/getoptpp/getoptpp.hpp"
+		"${DG_LODEPNG_SOURCE_FILE}"
+		"${DG_GETOPTPP_SOURCE_DIR}/getoptpp.hpp"
 	)
 
 	add_executable(rcgen
 		dggui/rcgentool.cc
 	)
-	target_include_directories(rcgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/getoptpp")
+	target_include_directories(rcgen PRIVATE "${DG_GETOPTPP_INCLUDE_DIR}")
 
 	set(DG_DGGUI_SOURCES
 		dggui/button.cc
@@ -525,7 +532,7 @@ if(DG_NEED_PLUGIN_GUI)
 		dggui/verticalline.cc
 		dggui/widget.cc
 		dggui/window.cc
-		dggui/lodepng/lodepng.cpp
+		"${DG_LODEPNG_SOURCE_FILE}"
 		${DG_DGGUI_BACKEND_SOURCES}
 	)
 
@@ -545,7 +552,7 @@ if(DG_NEED_PLUGIN_GUI)
 	target_compile_options(dg_dggui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 	target_include_directories(dg_dggui PUBLIC
 		"${CMAKE_CURRENT_SOURCE_DIR}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+		"${DG_HUGIN_INCLUDE_DIR}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/src"
 		"${CMAKE_CURRENT_BINARY_DIR}"
 		${DG_DGGUI_BACKEND_INCLUDE_DIRS}
@@ -661,7 +668,7 @@ if(DG_NEED_PLUGIN_GUI)
 	target_compile_options(dg_plugingui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 	target_include_directories(dg_plugingui PUBLIC
 		"${CMAKE_CURRENT_SOURCE_DIR}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+		"${DG_HUGIN_INCLUDE_DIR}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/src"
 		"${CMAKE_CURRENT_BINARY_DIR}"
 	)
@@ -670,7 +677,7 @@ if(DG_NEED_PLUGIN_GUI)
 	if(DG_ENABLE_PLUGINGUI_TEST)
 		add_executable(plugingui
 			plugingui/testmain.cc
-			hugin/hugin.c
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		)
 		target_compile_definitions(plugingui PRIVATE
 			${DG_COMMON_COMPILE_DEFINITIONS}
@@ -681,7 +688,7 @@ if(DG_NEED_PLUGIN_GUI)
 		target_include_directories(plugingui PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
 			"${CMAKE_CURRENT_SOURCE_DIR}/src"
-			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+			"${DG_HUGIN_INCLUDE_DIR}"
 			"${CMAKE_CURRENT_BINARY_DIR}"
 		)
 		target_link_libraries(plugingui PRIVATE dg_plugingui dg_core dg_nls)
@@ -689,9 +696,9 @@ if(DG_NEED_PLUGIN_GUI)
 
 	if(DG_ENABLE_LV2)
 		add_executable(ttlgen
-			plugin/plugingizmo/ttlgen.cc
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/ttlgen.cc"
 		)
-		target_include_directories(ttlgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo")
+		target_include_directories(ttlgen PRIVATE "${DG_PLUGINGIZMO_INCLUDE_DIR}")
 		target_link_libraries(ttlgen PRIVATE ${DG_DL_LIBRARIES})
 
 		set(DG_LV2_UI_TYPE X11UI)
@@ -702,9 +709,9 @@ if(DG_NEED_PLUGIN_GUI)
 		endif()
 
 		add_library(drumgizmo_lv2 MODULE
-			hugin/hugin.c
-			plugin/plugingizmo/midievent.cc
-			plugin/plugingizmo/pluginlv2.cc
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginlv2.cc"
 			plugin/drumgizmo_plugin.cc
 		)
 		set_target_properties(drumgizmo_lv2 PROPERTIES
@@ -720,11 +727,11 @@ if(DG_NEED_PLUGIN_GUI)
 		target_compile_options(drumgizmo_lv2 PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden)
 		target_include_directories(drumgizmo_lv2 PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo"
+			"${DG_PLUGINGIZMO_INCLUDE_DIR}"
 			"${CMAKE_CURRENT_SOURCE_DIR}/plugingui"
 			"${CMAKE_CURRENT_SOURCE_DIR}/src"
-			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
-			"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+			"${DG_HUGIN_INCLUDE_DIR}"
+			"${DG_ZITA_RESAMPLER_LIB_DIR}"
 			"${CMAKE_CURRENT_BINARY_DIR}"
 		)
 		target_link_libraries(drumgizmo_lv2 PRIVATE PkgConfig::LV2 dg_plugingui dg_core dg_nls)
@@ -764,9 +771,9 @@ if(DG_NEED_PLUGIN_GUI)
 		)
 
 		add_library(drumgizmo_vst MODULE
-			hugin/hugin.c
-			plugin/plugingizmo/midievent.cc
-			plugin/plugingizmo/pluginvst.cc
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
+			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginvst.cc"
 			plugin/drumgizmo_plugin.cc
 		)
 		set_target_properties(drumgizmo_vst PROPERTIES
@@ -781,11 +788,11 @@ if(DG_NEED_PLUGIN_GUI)
 		target_compile_options(drumgizmo_vst PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden ${DG_VST_COMPILE_OPTIONS})
 		target_include_directories(drumgizmo_vst PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
-			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo"
+			"${DG_PLUGINGIZMO_INCLUDE_DIR}"
 			"${CMAKE_CURRENT_SOURCE_DIR}/plugingui"
 			"${CMAKE_CURRENT_SOURCE_DIR}/src"
-			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
-			"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+			"${DG_HUGIN_INCLUDE_DIR}"
+			"${DG_ZITA_RESAMPLER_LIB_DIR}"
 			"${CMAKE_CURRENT_BINARY_DIR}"
 			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x"
 			"${DG_VST_SDK_PATH}/pluginterfaces/vst2.x"
