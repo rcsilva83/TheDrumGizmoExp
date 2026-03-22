@@ -11,6 +11,7 @@ include(CheckIncludeFile)
 include(CheckLibraryExists)
 include(CheckCXXCompilerFlag)
 include(GNUInstallDirs)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/dependencies.cmake")
 
 function(dg_assert_files_exist)
 	foreach(dg_file IN LISTS ARGN)
