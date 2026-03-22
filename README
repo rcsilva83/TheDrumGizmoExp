@@ -1,9 +1,9 @@
 Installation Instructions
 *************************
 
-Quick Build (CMake, preferred)
-==============================
-DrumGizmo now supports both CMake and the legacy Autotools build system.
+Quick Build (CMake)
+===================
+DrumGizmo uses CMake as the default and supported build system.
 
 Basic CMake flow:
 -----------------
@@ -18,7 +18,9 @@ $ ctest --test-dir build -R randomtest --output-on-failure
 Common CMake options:
 ---------------------
 * -DDG_WITH_DEBUG=ON
+* -DDG_ENABLE_TESTS=ON
 * -DDG_ENABLE_CLI=ON
+* -DDG_ENABLE_DGVALIDATOR=ON
 * -DDG_ENABLE_LV2=ON
 * -DDG_ENABLE_VST=ON -DDG_VST_SDK_PATH=/path/to/vstsdk24
 * -DDG_GUI_BACKEND=auto|x11|win32|cocoa|pugl-x11|pugl-win32|pugl-cocoa
@@ -30,12 +32,6 @@ Plugin/GUI notes:
 * LV2 and VST builds require the `plugin/plugingizmo` submodule.
 * GUI-enabled plugin builds require `getoptpp`, `dggui/lodepng`, and (for pugl backends) the `pugl` submodule.
 * With `-DDG_WITH_NLS=ON`, `msgfmt` is required to generate locale resources.
-
-Legacy Autotools flow remains available via:
-$ ./autogen.sh
-$ ./configure --prefix=$PWD/install --with-test --with-debug --enable-lv2
-$ make -j$(nproc)
-$ make install
 
 NOTE1: Certain audio-centric Linux distros such as KxStudio has DrumGizmo
 included in the repository. To install it on such systems, use the distros
@@ -68,30 +64,24 @@ Compiling source tarball
 ------------------------
 $ tar xvzf drumgizmo-[version].tar.gz (you probably already did this)
 $ cd drumgizmo-[version]
-$ ./configure --prefix=$PWD/install --enable-lv2
-$ make
-$ make install
+$ cmake -S . -B build -DDG_ENABLE_LV2=ON
+$ cmake --build build -j$(nproc)
+$ cmake --install build --prefix "$PWD/install"
 
 Compiling from git sources
 --------------------------
 $ git clone http://git.drumgizmo.org/drumgizmo.git
 $ cd drumgizmo
-$ git submodule init
-$ git submodule update
-$ ./autogen.sh
-$ ./configure --prefix=$PWD/install --enable-lv2
-
-If you want to compile only the LV2 parts of the plugin use
-'--disable-editor --disable-cli' as additional parameters to the configure
-script.
+$ git submodule update --init --recursive
+$ cmake -S . -B build -DDG_ENABLE_LV2=ON -DDG_ENABLE_CLI=OFF
 
 Now compile and install
-$ make
-$ make install
+$ cmake --build build -j$(nproc)
+$ cmake --install build --prefix "$PWD/install"
 
 Installing for use with Ardour3
 -------------------------------
-When the make install step has been successfully performed the source directory
+When the install step has been successfully performed the source directory
 will contain a folder named install. In this folder the:
 
   install/lib/lv2/drumgizmo.lv2

@@ -10,7 +10,7 @@ Check list for releasing:
 
  [ ]  Make sure plugin/README_VST.txt is up-to-date.
 
- [ ]  Test dist with testdist.sh script.
+ [ ]  Test source tarball with the CMake flow (configure, build, test, install).
 
  [ ]  Test the VSTs from latest Jenkins build.
 

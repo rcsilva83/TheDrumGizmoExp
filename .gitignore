@@ -32,7 +32,6 @@ INSTALL
 *.core
 test_*
 *.exe
-Makefile.am.test
 .deps
 .libs
 *.dll
