@@ -311,7 +311,7 @@ jobs:
             fi
           fi
 
-          mapfile -t files < <(git diff --name-only "$range" -- '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMRTUXB "$range" -- '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No C/C++ file changes detected; skipping static analysis."
             exit 0
