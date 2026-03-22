@@ -73,7 +73,7 @@ jobs:
             ninja-build \
             g++ \
             python3 \
-            python3-pip \
+            python3-venv \
             gettext \
             libx11-dev \
             libxext-dev \
@@ -83,10 +83,12 @@ jobs:
             libsmf-dev
 
       - name: Install gcovr via pip
-        run: python3 -m pip install --user --upgrade gcovr
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip gcovr
 
       - name: Check gcovr version
-        run: python3 -m gcovr --version
+        run: .venv/bin/python -m gcovr --version
 
       - name: Configure with coverage flags
         run: |
@@ -114,14 +116,14 @@ jobs:
         run: |
           rm -f a-conftest.gcno a-conftest.gcda conftest.gcno conftest.gcda
           mkdir -p coverage
-          python3 -m gcovr \
+          .venv/bin/python -m gcovr \
             --root . \
             --object-directory build-coverage \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --xml-pretty \
             --output coverage.xml
-          python3 -m gcovr \
+          .venv/bin/python -m gcovr \
             --root . \
             --object-directory build-coverage \
             --exclude '.*/a-conftest\..*' \
