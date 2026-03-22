@@ -72,8 +72,6 @@ endif()
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 
-pkg_check_modules(SNDFILE REQUIRED IMPORTED_TARGET sndfile>=1.0.20)
-
 set(DRUMGIZMO_VERSION "0.0.0")
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version.h" DG_VERSION_LINE REGEX "^#define VERSION \"[0-9.]+\"$")
 if(DG_VERSION_LINE)
@@ -343,7 +341,7 @@ target_include_directories(dg_core PUBLIC
 )
 target_compile_definitions(dg_core PRIVATE ${DG_COMMON_COMPILE_DEFINITIONS})
 target_compile_options(dg_core PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
-target_link_libraries(dg_core PUBLIC PkgConfig::SNDFILE Threads::Threads dg_zr dg_pugi)
+target_link_libraries(dg_core PUBLIC SndFile::sndfile Threads::Threads dg_zr dg_pugi)
 
 check_library_exists(rt clock_gettime "" DG_HAVE_LIBRT)
 if(DG_HAVE_LIBRT)
