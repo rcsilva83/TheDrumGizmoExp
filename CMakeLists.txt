@@ -12,6 +12,14 @@ include(CheckLibraryExists)
 include(CheckCXXCompilerFlag)
 include(GNUInstallDirs)
 
+function(dg_assert_files_exist)
+	foreach(dg_file IN LISTS ARGN)
+		if(NOT EXISTS "${dg_file}")
+			message(FATAL_ERROR "Required file was not found: ${dg_file}")
+		endif()
+	endforeach()
+endfunction()
+
 set(DG_DEFAULT_INPUT_OSS OFF)
 set(DG_DEFAULT_OUTPUT_OSS OFF)
 if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
@@ -23,12 +31,23 @@ option(DG_WITH_DEBUG "Enable debug logging and debug warnings" OFF)
 option(DG_ENABLE_CLI "Build CLI binaries" ON)
 option(DG_ENABLE_DGVALIDATOR "Build dgvalidator" ON)
 option(DG_WITH_NLS "Build with NLS support" OFF)
+option(DG_ENABLE_LV2 "Build the LV2 plugin" OFF)
+option(DG_ENABLE_VST "Build the VST plugin" OFF)
+option(DG_ENABLE_PLUGINGUI_TEST "Build the plugin GUI test app" OFF)
 
 set(DG_NUM_CHANNELS 16 CACHE STRING "Number of output channels")
 set_property(CACHE DG_NUM_CHANNELS PROPERTY STRINGS 8 16 24 32)
 
 set(DG_SSE_LEVEL "auto" CACHE STRING "SSE level: auto, 0, 1, 2, 3")
 set_property(CACHE DG_SSE_LEVEL PROPERTY STRINGS auto 0 1 2 3)
+
+set(DG_GUI_BACKEND "auto" CACHE STRING "GUI backend: auto, x11, win32, cocoa, pugl-x11, pugl-win32, pugl-cocoa")
+set_property(CACHE DG_GUI_BACKEND PROPERTY STRINGS auto x11 win32 cocoa pugl-x11 pugl-win32 pugl-cocoa)
+
+set(DG_LV2_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/lv2" CACHE PATH "LV2 install root directory")
+set(DG_VST_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/vst" CACHE PATH "VST install directory")
+set(DG_LV2_PLUGIN_URI "http://drumgizmo.org/lv2" CACHE STRING "LV2 plugin URI")
+set(DG_VST_SDK_PATH "" CACHE PATH "Path to VST SDK 2.4 source tree")
 
 option(DG_ENABLE_INPUT_DUMMY "Enable dummy input engine" ON)
 option(DG_ENABLE_INPUT_TEST "Enable test input engine" ON)
@@ -42,6 +61,11 @@ option(DG_ENABLE_OUTPUT_ALSA "Enable ALSA output engine" ON)
 option(DG_ENABLE_OUTPUT_WAVFILE "Enable wavfile output engine" ON)
 option(DG_ENABLE_OUTPUT_JACKAUDIO "Enable JACK output engine" ON)
 option(DG_ENABLE_OUTPUT_OSS "Enable OSS output engine" ${DG_DEFAULT_OUTPUT_OSS})
+
+set(DG_NEED_PLUGIN_GUI OFF)
+if(DG_ENABLE_LV2 OR DG_ENABLE_VST OR DG_ENABLE_PLUGINGUI_TEST)
+	set(DG_NEED_PLUGIN_GUI ON)
+endif()
 
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
@@ -74,6 +98,113 @@ endif()
 
 if(DG_ALSA_REQUIRED)
 	pkg_check_modules(ALSA REQUIRED IMPORTED_TARGET alsa>=1.0.18)
+endif()
+
+set(DG_SELECTED_GUI_BACKEND "${DG_GUI_BACKEND}")
+if(DG_NEED_PLUGIN_GUI)
+	if(DG_SELECTED_GUI_BACKEND STREQUAL "auto")
+		if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+			set(DG_SELECTED_GUI_BACKEND "cocoa")
+		elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES ".*BSD")
+			set(DG_SELECTED_GUI_BACKEND "x11")
+		elseif(WIN32)
+			set(DG_SELECTED_GUI_BACKEND "win32")
+		else()
+			message(FATAL_ERROR "Could not determine a GUI backend for this platform. Set DG_GUI_BACKEND explicitly.")
+		endif()
+	endif()
+
+	set(DG_GUI_COMPILE_DEFINITIONS)
+	set(DG_GUI_LINK_LIBRARIES)
+	set(DG_DGGUI_BACKEND_SOURCES)
+	set(DG_DGGUI_BACKEND_INCLUDE_DIRS)
+
+	if(DG_SELECTED_GUI_BACKEND STREQUAL "x11")
+		pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11>=1.0)
+		pkg_check_modules(XEXT REQUIRED IMPORTED_TARGET xext>=1.0)
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_X11)
+		list(APPEND DG_GUI_LINK_LIBRARIES PkgConfig::X11 PkgConfig::XEXT)
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_x11.cc)
+	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "win32")
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_WIN32)
+		list(APPEND DG_GUI_LINK_LIBRARIES gdi32 setupapi ws2_32 comctl32)
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_win32.cc)
+	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "cocoa")
+		enable_language(OBJC)
+		enable_language(OBJCXX)
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_COCOA)
+		list(APPEND DG_GUI_LINK_LIBRARIES "-framework Cocoa")
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_cocoa.mm)
+	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "pugl-x11")
+		pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11>=1.0)
+		pkg_check_modules(XEXT REQUIRED IMPORTED_TARGET xext>=1.0)
+		find_package(OpenGL REQUIRED)
+		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_x11.c")
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
+		list(APPEND DG_GUI_LINK_LIBRARIES OpenGL::GL PkgConfig::X11 PkgConfig::XEXT)
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_x11.c)
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "pugl-win32")
+		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_win.cpp")
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
+		list(APPEND DG_GUI_LINK_LIBRARIES opengl32 gdi32 user32 setupapi ws2_32 comctl32)
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_win.cpp)
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+	elseif(DG_SELECTED_GUI_BACKEND STREQUAL "pugl-cocoa")
+		enable_language(OBJC)
+		enable_language(OBJCXX)
+		find_package(OpenGL REQUIRED)
+		dg_assert_files_exist("${CMAKE_CURRENT_SOURCE_DIR}/pugl/pugl/pugl_osx.m")
+		list(APPEND DG_GUI_COMPILE_DEFINITIONS UI_PUGL PUGL_HAVE_GL)
+		list(APPEND DG_GUI_LINK_LIBRARIES OpenGL::GL "-framework Cocoa")
+		list(APPEND DG_DGGUI_BACKEND_SOURCES dggui/nativewindow_pugl.cc pugl/pugl/pugl_osx.m)
+		list(APPEND DG_DGGUI_BACKEND_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/pugl")
+	else()
+		message(FATAL_ERROR "Unsupported DG_GUI_BACKEND value: ${DG_SELECTED_GUI_BACKEND}")
+	endif()
+
+	if(DG_ENABLE_LV2)
+		dg_assert_files_exist(
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/pluginlv2.cc"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/midievent.cc"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/ttlgen.cc"
+		)
+		pkg_check_modules(LV2 REQUIRED IMPORTED_TARGET lv2>=1.0)
+		check_include_file(dlfcn.h DG_HAVE_DLFCN_H)
+		if(NOT DG_HAVE_DLFCN_H)
+			message(FATAL_ERROR "LV2 support requested but dlfcn.h was not found")
+		endif()
+
+		set(DG_DL_LIBRARIES)
+		check_library_exists(c dlopen "" DG_HAVE_DLOPEN_IN_LIBC)
+		if(NOT DG_HAVE_DLOPEN_IN_LIBC)
+			check_library_exists(dl dlopen "" DG_HAVE_DLOPEN_IN_LIBDL)
+			if(NOT DG_HAVE_DLOPEN_IN_LIBDL)
+				message(FATAL_ERROR "LV2 support requested but no library with dlopen was found")
+			endif()
+			list(APPEND DG_DL_LIBRARIES dl)
+		endif()
+	endif()
+
+	if(DG_ENABLE_VST)
+		dg_assert_files_exist(
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/pluginvst.cc"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo/midievent.cc"
+		)
+		if(DG_VST_SDK_PATH STREQUAL "")
+			message(FATAL_ERROR "VST support requested but DG_VST_SDK_PATH was not provided")
+		endif()
+		dg_assert_files_exist(
+			"${DG_VST_SDK_PATH}/pluginterfaces/vst2.x/aeffect.h"
+			"${DG_VST_SDK_PATH}/pluginterfaces/vst2.x/aeffectx.h"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffect.h"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffect.cpp"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffectx.h"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffectx.cpp"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/aeffeditor.h"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/vstplugmain.cpp"
+		)
+	endif()
 endif()
 
 check_function_exists(wordexp HAVE_WORDEXP)
@@ -151,6 +282,16 @@ add_library(dg_pugi STATIC
 	pugixml/src/pugixml.cpp
 )
 target_include_directories(dg_pugi PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/pugixml/src")
+
+add_library(dg_nls STATIC
+	src/translation.cc
+)
+target_compile_definitions(dg_nls PRIVATE ${DG_COMMON_COMPILE_DEFINITIONS})
+target_compile_options(dg_nls PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
+target_include_directories(dg_nls PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/src"
+	"${CMAKE_CURRENT_BINARY_DIR}"
+)
 
 add_library(dg_core STATIC
 	src/audiocachefile.cc
@@ -330,5 +471,329 @@ if(DG_ENABLE_CLI)
 		)
 		target_link_libraries(dgvalidator PRIVATE ${DG_CLI_COMMON_LINK_LIBRARIES})
 		install(TARGETS dgvalidator RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	endif()
+endif()
+
+if(DG_NEED_PLUGIN_GUI)
+	dg_assert_files_exist(
+		"${CMAKE_CURRENT_SOURCE_DIR}/dggui/lodepng/lodepng.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/getoptpp/getoptpp.hpp"
+	)
+
+	add_executable(rcgen
+		dggui/rcgentool.cc
+	)
+	target_include_directories(rcgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/getoptpp")
+
+	set(DG_DGGUI_SOURCES
+		dggui/button.cc
+		dggui/button_base.cc
+		dggui/checkbox.cc
+		dggui/colour.cc
+		dggui/combobox.cc
+		dggui/dialog.cc
+		dggui/eventhandler.cc
+		dggui/font.cc
+		dggui/frame.cc
+		dggui/helpbutton.cc
+		dggui/image.cc
+		dggui/imagecache.cc
+		dggui/knob.cc
+		dggui/label.cc
+		dggui/layout.cc
+		dggui/led.cc
+		dggui/lineedit.cc
+		dggui/listbox.cc
+		dggui/listboxbasic.cc
+		dggui/listboxthin.cc
+		dggui/painter.cc
+		dggui/pixelbuffer.cc
+		dggui/powerbutton.cc
+		dggui/progressbar.cc
+		dggui/rc_data.cc
+		dggui/resource.cc
+		dggui/scrollbar.cc
+		dggui/slider.cc
+		dggui/stackedwidget.cc
+		dggui/tabbutton.cc
+		dggui/tabwidget.cc
+		dggui/textedit.cc
+		dggui/texture.cc
+		dggui/texturedbox.cc
+		dggui/toggle.cc
+		dggui/tooltip.cc
+		dggui/uitranslation.cc
+		dggui/utf8.cc
+		dggui/verticalline.cc
+		dggui/widget.cc
+		dggui/window.cc
+		dggui/lodepng/lodepng.cpp
+		${DG_DGGUI_BACKEND_SOURCES}
+	)
+
+	add_library(dg_dggui STATIC
+		${DG_DGGUI_SOURCES}
+	)
+	target_compile_definitions(dg_dggui PRIVATE
+		${DG_COMMON_COMPILE_DEFINITIONS}
+		${DG_GUI_COMPILE_DEFINITIONS}
+		WITH_HUG_MUTEX
+		LODEPNG_NO_COMPILE_ENCODER
+		LODEPNG_NO_COMPILE_DISK
+		LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+		LODEPNG_NO_COMPILE_ERROR_TEXT
+		LODEPNG_NO_COMPILE_CPP
+	)
+	target_compile_options(dg_dggui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
+	target_include_directories(dg_dggui PUBLIC
+		"${CMAKE_CURRENT_SOURCE_DIR}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src"
+		"${CMAKE_CURRENT_BINARY_DIR}"
+		${DG_DGGUI_BACKEND_INCLUDE_DIRS}
+	)
+	target_link_libraries(dg_dggui PUBLIC Threads::Threads ${DG_GUI_LINK_LIBRARIES})
+
+	set(DG_PLUGINGUI_RESOURCES
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/bg.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/bypass_button.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/font.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/fontemboss.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/help_button.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/knob.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/logo.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/png_error"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/progress.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/pushbutton.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/sidebar.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/slider.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/stddev_horizontal.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/stddev_horizontal_disabled.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/stddev_vertical.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/stddev_vertical_disabled.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/switch_back_off.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/switch_back_on.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/switch_front.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/tab.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/thinlistbox.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/topbar.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/toplogo.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/vertline.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/widget.png"
+		"${CMAKE_CURRENT_SOURCE_DIR}/ABOUT"
+		"${CMAKE_CURRENT_SOURCE_DIR}/ABOUT.fr"
+		"${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS"
+		"${CMAKE_CURRENT_SOURCE_DIR}/AUTHORS.fr"
+		"${CMAKE_CURRENT_SOURCE_DIR}/BUGS"
+		"${CMAKE_CURRENT_SOURCE_DIR}/BUGS.fr"
+		"${CMAKE_CURRENT_SOURCE_DIR}/COPYING"
+	)
+
+	set(DG_NLS_RESOURCES)
+	if(DG_WITH_NLS)
+		find_program(MSGFMT_EXECUTABLE msgfmt)
+		if(NOT MSGFMT_EXECUTABLE)
+			message(FATAL_ERROR "DG_WITH_NLS is ON but msgfmt was not found")
+		endif()
+
+		file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/plugingui/locale")
+		set(DG_NLS_RESOURCES
+			"${CMAKE_CURRENT_BINARY_DIR}/plugingui/locale/da.mo"
+			"${CMAKE_CURRENT_BINARY_DIR}/plugingui/locale/fr.mo"
+		)
+		add_custom_command(
+			OUTPUT ${DG_NLS_RESOURCES}
+			COMMAND ${MSGFMT_EXECUTABLE} -c -v -o "${CMAKE_CURRENT_BINARY_DIR}/plugingui/locale/da.mo" "${CMAKE_CURRENT_SOURCE_DIR}/plugingui/locale/da.po"
+			COMMAND ${MSGFMT_EXECUTABLE} -c -v -o "${CMAKE_CURRENT_BINARY_DIR}/plugingui/locale/fr.mo" "${CMAKE_CURRENT_SOURCE_DIR}/plugingui/locale/fr.po"
+			DEPENDS
+				"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/locale/da.po"
+				"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/locale/fr.po"
+			VERBATIM
+		)
+	endif()
+
+	set(DG_PLUGINGUI_RESOURCE_DATA "${CMAKE_CURRENT_BINARY_DIR}/plugingui/resource_data.cc")
+	add_custom_command(
+		OUTPUT "${DG_PLUGINGUI_RESOURCE_DATA}"
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/plugingui"
+		COMMAND $<TARGET_FILE:rcgen>
+			-s "${CMAKE_CURRENT_SOURCE_DIR}/plugingui/"
+			-s "${CMAKE_CURRENT_BINARY_DIR}/plugingui/"
+			-o "${DG_PLUGINGUI_RESOURCE_DATA}"
+			${DG_PLUGINGUI_RESOURCES}
+			${DG_NLS_RESOURCES}
+		DEPENDS rcgen ${DG_PLUGINGUI_RESOURCES} ${DG_NLS_RESOURCES}
+		VERBATIM
+	)
+
+	add_library(dg_plugingui STATIC
+		plugingui/abouttab.cc
+		plugingui/bleedcontrolframecontent.cc
+		plugingui/diskstreamingframecontent.cc
+		plugingui/drumkitframecontent.cc
+		plugingui/drumkittab.cc
+		plugingui/filebrowser.cc
+		plugingui/humaniservisualiser.cc
+		plugingui/humanizerframecontent.cc
+		plugingui/maintab.cc
+		plugingui/mainwindow.cc
+		plugingui/pluginconfig.cc
+		plugingui/powerwidget.cc
+		plugingui/resamplingframecontent.cc
+		plugingui/sampleselectionframecontent.cc
+		plugingui/statusframecontent.cc
+		plugingui/timingframecontent.cc
+		plugingui/visualizerframecontent.cc
+		plugingui/voicelimitframecontent.cc
+		"${DG_PLUGINGUI_RESOURCE_DATA}"
+	)
+	target_compile_definitions(dg_plugingui PRIVATE
+		${DG_COMMON_COMPILE_DEFINITIONS}
+		${DG_GUI_COMPILE_DEFINITIONS}
+		WITH_HUG_MUTEX
+		LODEPNG_NO_COMPILE_ENCODER
+		LODEPNG_NO_COMPILE_DISK
+		LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+		LODEPNG_NO_COMPILE_ERROR_TEXT
+		LODEPNG_NO_COMPILE_CPP
+	)
+	target_compile_options(dg_plugingui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
+	target_include_directories(dg_plugingui PUBLIC
+		"${CMAKE_CURRENT_SOURCE_DIR}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src"
+		"${CMAKE_CURRENT_BINARY_DIR}"
+	)
+	target_link_libraries(dg_plugingui PUBLIC dg_dggui dg_core dg_nls Threads::Threads)
+
+	if(DG_ENABLE_PLUGINGUI_TEST)
+		add_executable(plugingui
+			plugingui/testmain.cc
+			hugin/hugin.c
+		)
+		target_compile_definitions(plugingui PRIVATE
+			${DG_COMMON_COMPILE_DEFINITIONS}
+			${DG_GUI_COMPILE_DEFINITIONS}
+			WITH_HUG_MUTEX
+		)
+		target_compile_options(plugingui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
+		target_include_directories(plugingui PRIVATE
+			"${CMAKE_CURRENT_SOURCE_DIR}"
+			"${CMAKE_CURRENT_SOURCE_DIR}/src"
+			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+			"${CMAKE_CURRENT_BINARY_DIR}"
+		)
+		target_link_libraries(plugingui PRIVATE dg_plugingui dg_core dg_nls)
+	endif()
+
+	if(DG_ENABLE_LV2)
+		add_executable(ttlgen
+			plugin/plugingizmo/ttlgen.cc
+		)
+		target_include_directories(ttlgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo")
+		target_link_libraries(ttlgen PRIVATE ${DG_DL_LIBRARIES})
+
+		set(DG_LV2_UI_TYPE X11UI)
+		if(DG_SELECTED_GUI_BACKEND STREQUAL "win32" OR DG_SELECTED_GUI_BACKEND STREQUAL "pugl-win32")
+			set(DG_LV2_UI_TYPE WindowsUI)
+		elseif(DG_SELECTED_GUI_BACKEND STREQUAL "cocoa" OR DG_SELECTED_GUI_BACKEND STREQUAL "pugl-cocoa")
+			set(DG_LV2_UI_TYPE CocoaUI)
+		endif()
+
+		add_library(drumgizmo_lv2 MODULE
+			hugin/hugin.c
+			plugin/plugingizmo/midievent.cc
+			plugin/plugingizmo/pluginlv2.cc
+			plugin/drumgizmo_plugin.cc
+		)
+		set_target_properties(drumgizmo_lv2 PROPERTIES
+			PREFIX ""
+			OUTPUT_NAME drumgizmo
+		)
+		target_compile_definitions(drumgizmo_lv2 PRIVATE
+			${DG_COMMON_COMPILE_DEFINITIONS}
+			${DG_GUI_COMPILE_DEFINITIONS}
+			LV2
+			LV2_PLUGIN_URI=\"${DG_LV2_PLUGIN_URI}\"
+		)
+		target_compile_options(drumgizmo_lv2 PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden)
+		target_include_directories(drumgizmo_lv2 PRIVATE
+			"${CMAKE_CURRENT_SOURCE_DIR}"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugingui"
+			"${CMAKE_CURRENT_SOURCE_DIR}/src"
+			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+			"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+			"${CMAKE_CURRENT_BINARY_DIR}"
+		)
+		target_link_libraries(drumgizmo_lv2 PRIVATE PkgConfig::LV2 dg_plugingui dg_core dg_nls)
+
+		set(DG_LV2_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/plugin/manifest.ttl")
+		add_custom_command(
+			OUTPUT "${DG_LV2_MANIFEST}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/plugin"
+			COMMAND $<TARGET_FILE:ttlgen> "$<TARGET_FILE:drumgizmo_lv2>" "${DG_LV2_MANIFEST}" "${DG_LV2_UI_TYPE}"
+			DEPENDS ttlgen drumgizmo_lv2
+			VERBATIM
+		)
+		add_custom_target(drumgizmo_lv2_manifest ALL DEPENDS "${DG_LV2_MANIFEST}")
+
+		install(TARGETS drumgizmo_lv2
+			LIBRARY DESTINATION "${DG_LV2_INSTALL_DIR}/drumgizmo.lv2"
+			RUNTIME DESTINATION "${DG_LV2_INSTALL_DIR}/drumgizmo.lv2"
+		)
+		install(FILES "${DG_LV2_MANIFEST}" DESTINATION "${DG_LV2_INSTALL_DIR}/drumgizmo.lv2")
+	endif()
+
+	if(DG_ENABLE_VST)
+		set(DG_VST_COMPILE_OPTIONS "-D__int64=long long int")
+		if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES ".*BSD")
+			list(APPEND DG_VST_COMPILE_OPTIONS -D__cdecl=)
+		endif()
+
+		add_library(dg_vstsdk STATIC
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffectx.cpp"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/audioeffect.cpp"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x/vstplugmain.cpp"
+		)
+		target_compile_options(dg_vstsdk PRIVATE -w ${DG_VST_COMPILE_OPTIONS})
+		target_include_directories(dg_vstsdk PRIVATE
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x"
+			"${DG_VST_SDK_PATH}/pluginterfaces/vst2.x"
+		)
+
+		add_library(drumgizmo_vst MODULE
+			hugin/hugin.c
+			plugin/plugingizmo/midievent.cc
+			plugin/plugingizmo/pluginvst.cc
+			plugin/drumgizmo_plugin.cc
+		)
+		set_target_properties(drumgizmo_vst PROPERTIES
+			PREFIX ""
+			OUTPUT_NAME drumgizmo_vst
+		)
+		target_compile_definitions(drumgizmo_vst PRIVATE
+			${DG_COMMON_COMPILE_DEFINITIONS}
+			${DG_GUI_COMPILE_DEFINITIONS}
+			VST
+		)
+		target_compile_options(drumgizmo_vst PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden ${DG_VST_COMPILE_OPTIONS})
+		target_include_directories(drumgizmo_vst PRIVATE
+			"${CMAKE_CURRENT_SOURCE_DIR}"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugingizmo"
+			"${CMAKE_CURRENT_SOURCE_DIR}/plugingui"
+			"${CMAKE_CURRENT_SOURCE_DIR}/src"
+			"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
+			"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
+			"${CMAKE_CURRENT_BINARY_DIR}"
+			"${DG_VST_SDK_PATH}/public.sdk/source/vst2.x"
+			"${DG_VST_SDK_PATH}/pluginterfaces/vst2.x"
+		)
+		target_link_libraries(drumgizmo_vst PRIVATE dg_vstsdk dg_plugingui dg_core dg_nls)
+
+		install(TARGETS drumgizmo_vst
+			LIBRARY DESTINATION "${DG_VST_INSTALL_DIR}"
+			RUNTIME DESTINATION "${DG_VST_INSTALL_DIR}"
+		)
 	endif()
 endif()
