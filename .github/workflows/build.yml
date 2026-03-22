@@ -73,7 +73,7 @@ jobs:
             ninja-build \
             g++ \
             python3 \
-            gcovr \
+            python3-pip \
             gettext \
             libx11-dev \
             libxext-dev \
@@ -82,8 +82,11 @@ jobs:
             libasound2-dev \
             libsmf-dev
 
+      - name: Install gcovr via pip
+        run: python3 -m pip install --user --upgrade gcovr
+
       - name: Check gcovr version
-        run: gcovr --version
+        run: python3 -m gcovr --version
 
       - name: Configure with coverage flags
         run: |
@@ -111,14 +114,14 @@ jobs:
         run: |
           rm -f a-conftest.gcno a-conftest.gcda conftest.gcno conftest.gcda
           mkdir -p coverage
-          gcovr \
+          python3 -m gcovr \
             --root . \
             --object-directory build-coverage \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --xml-pretty \
             --output coverage.xml
-          gcovr \
+          python3 -m gcovr \
             --root . \
             --object-directory build-coverage \
             --exclude '.*/a-conftest\..*' \
