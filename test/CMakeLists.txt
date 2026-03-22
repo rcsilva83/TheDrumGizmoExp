@@ -9,7 +9,7 @@ set(DG_TEST_COMMON_INCLUDE_DIRS
 function(dg_add_uunit_test target)
 	set(options)
 	set(one_value_args)
-	set(multi_value_args SOURCES INCLUDE_DIRS LINK_LIBRARIES COMPILE_DEFINITIONS COMPILE_OPTIONS)
+	set(multi_value_args SOURCES INCLUDE_DIRS LINK_LIBRARIES COMPILE_DEFINITIONS COMPILE_OPTIONS DEPENDENCIES)
 	cmake_parse_arguments(DG_TEST "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
 	add_executable(${target}
@@ -34,9 +34,16 @@ function(dg_add_uunit_test target)
 	if(DG_TEST_LINK_LIBRARIES)
 		target_link_libraries(${target} PRIVATE ${DG_TEST_LINK_LIBRARIES})
 	endif()
+	if(DG_TEST_DEPENDENCIES)
+		add_dependencies(${target} ${DG_TEST_DEPENDENCIES})
+	endif()
 
 	add_test(NAME ${target} COMMAND ${target})
 endfunction()
+
+if(DG_PLUGINGUI_RESOURCE_DATA)
+	set_source_files_properties("${DG_PLUGINGUI_RESOURCE_DATA}" PROPERTIES GENERATED TRUE)
+endif()
 
 dg_add_uunit_test(resource
 	SOURCES
@@ -45,10 +52,12 @@ dg_add_uunit_test(resource
 		"${CMAKE_SOURCE_DIR}/src/random.cc"
 		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
 		"${CMAKE_SOURCE_DIR}/test/resource_test.cc"
-		"${CMAKE_BINARY_DIR}/plugingui/resource_data.cc"
+		"${DG_PLUGINGUI_RESOURCE_DATA}"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}"
 		"${CMAKE_SOURCE_DIR}/hugin"
+	DEPENDENCIES
+		dg_plugingui_resource_data
 	LINK_LIBRARIES
 		PkgConfig::SNDFILE
 )
@@ -138,10 +147,12 @@ dg_add_uunit_test(paintertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/hugin/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/paintertest.cc"
-		"${CMAKE_BINARY_DIR}/plugingui/resource_data.cc"
+		"${DG_PLUGINGUI_RESOURCE_DATA}"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}"
 		"${CMAKE_SOURCE_DIR}/hugin"
+	DEPENDENCIES
+		dg_plugingui_resource_data
 	LINK_LIBRARIES
 		dg_dggui
 		Threads::Threads

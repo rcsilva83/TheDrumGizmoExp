@@ -55,7 +55,6 @@ jobs:
             -G Ninja \
             -DDG_ENABLE_TESTS=ON \
             -DDG_WITH_NLS=OFF \
-            -DDG_WITH_DEBUG=ON \
             -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
             -DDG_GUI_BACKEND=x11
@@ -132,7 +131,6 @@ jobs:
             -G Ninja \
             -DDG_ENABLE_TESTS=ON \
             -DDG_WITH_NLS=OFF \
-            -DDG_WITH_DEBUG=ON \
             -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
             -DDG_GUI_BACKEND=x11

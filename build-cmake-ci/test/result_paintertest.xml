@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding='ISO-8859-1' standalone='yes' ?>
+<TestRun>
+	<FailedTests>
+	</FailedTests>
+	<SuccessfulTests>
+		<Test id="1">
+			<Name>PainterTest::testDrawImage</Name>
+		</Test>
+		<Test id="2">
+			<Name>PainterTest::testDrawText</Name>
+		</Test>
+		<Test id="3">
+			<Name>PainterTest::testClipping</Name>
+		</Test>
+	</SuccessfulTests>
+	<Statistics>
+		<Tests>3</Tests>
+		<FailuresTotal>0</FailuresTotal>
+		<Errors>0</Errors>
+		<Failures>0</Failures>
+	</Statistics>
+</TestRun>

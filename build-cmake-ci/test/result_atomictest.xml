@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding='ISO-8859-1' standalone='yes' ?>
+<TestRun>
+	<FailedTests>
+	</FailedTests>
+	<SuccessfulTests>
+		<Test id="1">
+			<Name>AtomicTest::podAtomicsUseStandardImpl</Name>
+		</Test>
+		<Test id="2">
+			<Name>AtomicTest::nonPodAtomicsUseOwnImpl</Name>
+		</Test>
+		<Test id="3">
+			<Name>AtomicTest::podAtomicCanBeDefaultInitialized</Name>
+		</Test>
+		<Test id="4">
+			<Name>AtomicTest::nonPodAtomicCanBeDefaultInitialized</Name>
+		</Test>
+		<Test id="5">
+			<Name>AtomicTest::podAtomicCanBeValueInitialized</Name>
+		</Test>
+		<Test id="6">
+			<Name>AtomicTest::nonPodAtomicCanBeValueInitialized</Name>
+		</Test>
+		<Test id="7">
+			<Name>AtomicTest::podAtomicCanBeValueAssigned</Name>
+		</Test>
+		<Test id="8">
+			<Name>AtomicTest::nonPodAtomicCanBeValueAssigned</Name>
+		</Test>
+		<Test id="9">
+			<Name>AtomicTest::podAtomicsAreLockFree</Name>
+		</Test>
+	</SuccessfulTests>
+	<Statistics>
+		<Tests>9</Tests>
+		<FailuresTotal>0</FailuresTotal>
+		<Errors>0</Errors>
+		<Failures>0</Failures>
+	</Statistics>
+</TestRun>

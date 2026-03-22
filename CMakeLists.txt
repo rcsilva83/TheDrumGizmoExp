@@ -626,6 +626,9 @@ if(DG_NEED_PLUGIN_GUI)
 		DEPENDS rcgen ${DG_PLUGINGUI_RESOURCES} ${DG_NLS_RESOURCES}
 		VERBATIM
 	)
+	add_custom_target(dg_plugingui_resource_data
+		DEPENDS "${DG_PLUGINGUI_RESOURCE_DATA}"
+	)
 
 	add_library(dg_plugingui STATIC
 		plugingui/abouttab.cc

@@ -1,0 +1,24 @@
+resource 1 0.00590318
+audiocache 1 7.42314
+audiocachefile 1 52.6201
+audiocacheidmanager 1 0.0020286
+audiocacheeventhandler 1 0.00279991
+enginetest 1 2.05763
+paintertest 1 0.0137467
+configfile 1 0.00371233
+randomtest 1 0.035871
+atomictest 1 0.00192477
+syncedsettingstest 1 0.00169451
+imagecachetest 1 0.00164064
+semaphoretest 1 1.10214
+drumkitcreatortest 1 0.00449992
+bytesizeparsertest 1 0.00194779
+notifiertest 1 0.00160457
+dgxmlparsertest 1 0.00227373
+domloadertest 1 0.00265321
+configparsertest 1 0.00175628
+midimapparsertest 1 0.00190406
+eventsdstest 1 0.00173628
+powermaptest 1 0.00173322
+midimappertest 1 0.00165185
+---

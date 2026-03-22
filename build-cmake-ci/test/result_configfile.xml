@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding='ISO-8859-1' standalone='yes' ?>
+<TestRun>
+	<FailedTests>
+	</FailedTests>
+	<SuccessfulTests>
+		<Test id="1">
+			<Name>test_configtest::loading_no_newline</Name>
+		</Test>
+		<Test id="2">
+			<Name>test_configtest::loading_equal_sign</Name>
+		</Test>
+		<Test id="3">
+			<Name>test_configtest::loading_newline</Name>
+		</Test>
+		<Test id="4">
+			<Name>test_configtest::loading_padding_space</Name>
+		</Test>
+		<Test id="5">
+			<Name>test_configtest::loading_padding_space_newline</Name>
+		</Test>
+		<Test id="6">
+			<Name>test_configtest::loading_padding_tab</Name>
+		</Test>
+		<Test id="7">
+			<Name>test_configtest::loading_padding_tab_newline</Name>
+		</Test>
+		<Test id="8">
+			<Name>test_configtest::loading_comment</Name>
+		</Test>
+		<Test id="9">
+			<Name>test_configtest::loading_inline_comment</Name>
+		</Test>
+		<Test id="10">
+			<Name>test_configtest::loading_single_quoted_string</Name>
+		</Test>
+		<Test id="11">
+			<Name>test_configtest::loading_double_quoted_string</Name>
+		</Test>
+		<Test id="12">
+			<Name>test_configtest::loading_error_no_key</Name>
+		</Test>
+		<Test id="13">
+			<Name>test_configtest::loading_error_no_value</Name>
+		</Test>
+		<Test id="14">
+			<Name>test_configtest::loading_error_string_not_terminated_single</Name>
+		</Test>
+		<Test id="15">
+			<Name>test_configtest::loading_error_string_not_terminated_double</Name>
+		</Test>
+		<Test id="16">
+			<Name>test_configtest::empty_value</Name>
+		</Test>
+	</SuccessfulTests>
+	<Statistics>
+		<Tests>16</Tests>
+		<FailuresTotal>0</FailuresTotal>
+		<Errors>0</Errors>
+		<Failures>0</Failures>
+	</Statistics>
+</TestRun>

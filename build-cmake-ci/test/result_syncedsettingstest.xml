@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding='ISO-8859-1' standalone='yes' ?>
+<TestRun>
+	<FailedTests>
+	</FailedTests>
+	<SuccessfulTests>
+		<Test id="1">
+			<Name>SyncedSettingsTest::groupCanBeDefaultInitialized</Name>
+		</Test>
+		<Test id="2">
+			<Name>SyncedSettingsTest::groupDataCanBeCopied</Name>
+		</Test>
+		<Test id="3">
+			<Name>SyncedSettingsTest::accessorCanGetFields</Name>
+		</Test>
+		<Test id="4">
+			<Name>SyncedSettingsTest::accessorCanSetFields</Name>
+		</Test>
+		<Test id="5">
+			<Name>SyncedSettingsTest::groupHasCopyCtor</Name>
+		</Test>
+		<Test id="6">
+			<Name>SyncedSettingsTest::groupHasMoveCtor</Name>
+		</Test>
+		<Test id="7">
+			<Name>SyncedSettingsTest::groupHasCopyAssignOp</Name>
+		</Test>
+		<Test id="8">
+			<Name>SyncedSettingsTest::groupHasMoveAssignOp</Name>
+		</Test>
+		<Test id="9">
+			<Name>SyncedSettingsTest::mimicRealUse</Name>
+		</Test>
+	</SuccessfulTests>
+	<Statistics>
+		<Tests>9</Tests>
+		<FailuresTotal>0</FailuresTotal>
+		<Errors>0</Errors>
+		<Failures>0</Failures>
+	</Statistics>
+</TestRun>
