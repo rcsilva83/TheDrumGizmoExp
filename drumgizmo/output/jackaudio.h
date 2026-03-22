@@ -3,7 +3,7 @@
  *            jackaudio.h
  *
  *  Fr 22. Jan 09:43:30 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian GlÃ¶ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -25,18 +25,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
-#include <vector>
 #include <sem.h>
+#include <vector>
 
-#include "audiooutputengine.h"
 #include "../jackclient.h"
+#include "audiooutputengine.h"
 
-class JackAudioOutputEngine
-	: public AudioOutputEngine
-	, public JackProcess
+class JackAudioOutputEngine : public AudioOutputEngine, public JackProcess
 {
 public:
-	JackAudioOutputEngine(JackClient& client);
+	explicit JackAudioOutputEngine(JackClient& client);
 	~JackAudioOutputEngine();
 
 	// based on AudioOutputEngine
@@ -57,14 +55,13 @@ public:
 	void jackLatencyCallback(jack_latency_callback_mode_t mode) override;
 
 private:
-
 	struct Channel
 	{
 		JackPort port;
 		std::vector<sample_t> samples;
 
 		Channel(JackClient& client, const std::string& name,
-		        std::size_t buffer_size);
+		    std::size_t buffer_size);
 	};
 
 	JackClient& client;

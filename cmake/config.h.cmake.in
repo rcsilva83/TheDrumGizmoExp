@@ -1,0 +1,21 @@
+#pragma once
+
+#define VERSION "@DRUMGIZMO_VERSION@"
+#define NUM_CHANNELS @DG_NUM_CHANNELS@
+
+#cmakedefine WITH_NLS
+#cmakedefine HAVE_WORDEXP
+
+#cmakedefine HAVE_INPUT_DUMMY
+#cmakedefine HAVE_INPUT_TEST
+#cmakedefine HAVE_INPUT_MIDIFILE
+#cmakedefine HAVE_INPUT_JACKMIDI
+#cmakedefine HAVE_INPUT_ALSAMIDI
+#cmakedefine HAVE_INPUT_OSS
+#cmakedefine HAVE_INPUT_OSSMIDI
+
+#cmakedefine HAVE_OUTPUT_DUMMY
+#cmakedefine HAVE_OUTPUT_WAVFILE
+#cmakedefine HAVE_OUTPUT_ALSA
+#cmakedefine HAVE_OUTPUT_JACKAUDIO
+#cmakedefine HAVE_OUTPUT_OSS

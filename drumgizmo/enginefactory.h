@@ -3,7 +3,7 @@
  *            enginefactory.h
  *
  *  Mi 20. Jan 10:46:07 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian GlÃ¶ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -26,8 +26,10 @@
  */
 #pragma once
 #include <list>
-#include <string>
 #include <memory>
+#include <string>
+
+#include <config.h>
 
 #include "audioinputengine.h"
 #include "audiooutputengine.h"
@@ -89,7 +91,6 @@
 #include "input/alsamidi.h"
 #endif
 
-
 //! Factory for various input- and output engines
 class EngineFactory
 {
@@ -99,11 +100,17 @@ public:
 
 	//! Query list of available input engines' names
 	//! \return const reference to the list
-	const std::list<std::string>& getInputEngines() const;
+	const std::list<std::string>& getInputEngines() const
+	{
+		return input;
+	}
 
 	//! Query list of available output engines' names
 	//! \return const reference to the list
-	const std::list<std::string>& getOutputEngines() const;
+	const std::list<std::string>& getOutputEngines() const
+	{
+		return output;
+	}
 
 	//! Create input engine by name
 	//! \param name Name of the input engine that should be initialized

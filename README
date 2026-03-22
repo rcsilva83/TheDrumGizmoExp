@@ -1,5 +1,29 @@
 Installation Instructions
 *************************
+
+Quick Build (CMake, preferred)
+==============================
+DrumGizmo now supports both CMake and the legacy Autotools build system.
+
+Basic CMake flow:
+-----------------
+$ cmake -S . -B build
+$ cmake --build build -j$(nproc)
+$ cmake --install build --prefix "$PWD/install"
+
+Common CMake options:
+---------------------
+* -DDG_WITH_DEBUG=ON
+* -DDG_ENABLE_CLI=ON
+* -DDG_NUM_CHANNELS=16
+* -DDG_SSE_LEVEL=auto
+
+Legacy Autotools flow remains available via:
+$ ./autogen.sh
+$ ./configure --prefix=$PWD/install --with-test --with-debug --enable-lv2
+$ make -j$(nproc)
+$ make install
+
 NOTE1: Certain audio-centric Linux distros such as KxStudio has DrumGizmo
 included in the repository. To install it on such systems, use the distros
 package manager, search for it and install it. Please refer to each distro's
