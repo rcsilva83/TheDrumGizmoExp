@@ -112,7 +112,7 @@ jobs:
       - name: Install gcovr via pip
         run: |
           python3 -m venv .venv
-          .venv/bin/python -m pip install --upgrade pip gcovr
+          .venv/bin/python -m pip install --upgrade pip gcovr==8.6
 
       - name: Check gcovr version
         run: .venv/bin/python -m gcovr --version
@@ -121,7 +121,8 @@ jobs:
         run: |
           .venv/bin/python -m gcovr \
             --root . \
-            build-coverage \
+            --object-directory build-coverage \
+            --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --xml-pretty \
@@ -129,7 +130,8 @@ jobs:
 
           .venv/bin/python -m gcovr \
             --root . \
-            build-coverage \
+            --object-directory build-coverage \
+            --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --html-details \
