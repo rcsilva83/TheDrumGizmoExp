@@ -82,6 +82,9 @@ jobs:
             libasound2-dev \
             libsmf-dev
 
+      - name: Check gcovr version
+        run: gcovr --version
+
       - name: Configure with coverage flags
         run: |
           git submodule update --init --recursive
@@ -111,7 +114,6 @@ jobs:
           gcovr \
             --root . \
             --object-directory build-coverage \
-            --merge-mode-functions=merge-use-line-min \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --xml-pretty \
@@ -119,7 +121,6 @@ jobs:
           gcovr \
             --root . \
             --object-directory build-coverage \
-            --merge-mode-functions=merge-use-line-min \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
             --html-details \
