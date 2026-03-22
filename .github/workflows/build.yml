@@ -6,8 +6,12 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and test
+    name: Build and test (${{ matrix.build-system }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build-system: [autotools, cmake]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,6 +26,8 @@ jobs:
             automake \
             libtool \
             pkg-config \
+            cmake \
+            ninja-build \
             g++ \
             make \
             gettext \
@@ -32,30 +38,139 @@ jobs:
             libasound2-dev \
             libsmf-dev
 
-      - name: Configure
+      - name: Configure (Autotools)
+        if: matrix.build-system == 'autotools'
         run: |
           git submodule init
           git submodule update
           ./autogen.sh
           ./configure --with-test --without-nls
 
-      - name: Build
+      - name: Configure (CMake)
+        if: matrix.build-system == 'cmake'
+        run: |
+          git submodule init
+          git submodule update
+          cmake -S . -B build-cmake \
+            -G Ninja \
+            -DDG_ENABLE_TESTS=ON \
+            -DDG_WITH_NLS=OFF \
+            -DDG_ENABLE_LV2=OFF \
+            -DDG_ENABLE_VST=OFF \
+            -DDG_GUI_BACKEND=x11
+
+      - name: Build (Autotools)
+        if: matrix.build-system == 'autotools'
         run: make -j"$(nproc)"
 
-      - name: Run tests
+      - name: Build (CMake)
+        if: matrix.build-system == 'cmake'
+        run: cmake --build build-cmake -j"$(nproc)"
+
+      - name: Run tests (Autotools)
+        if: matrix.build-system == 'autotools'
         run: make check
+
+      - name: Run tests (CMake)
+        if: matrix.build-system == 'cmake'
+        run: ctest --test-dir build-cmake --output-on-failure
 
       - name: Upload test logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs
+          name: test-logs-${{ matrix.build-system }}
           path: |
             test-suite.log
             test/**/test-suite.log
             test/*.log
             test/**/*.log
+            build-cmake/Testing/**/Test.xml
+            build-cmake/Testing/Temporary/LastTest.log
           if-no-files-found: ignore
+
+  build-parity:
+    name: Build parity check
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            cmake \
+            ninja-build \
+            g++ \
+            make \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
+
+      - name: Build with Autotools
+        run: |
+          git submodule init
+          git submodule update
+          ./autogen.sh
+          ./configure --with-test --without-nls
+          make -j"$(nproc)"
+
+      - name: Build with CMake
+        run: |
+          cmake -S . -B build-cmake \
+            -G Ninja \
+            -DDG_ENABLE_TESTS=ON \
+            -DDG_WITH_NLS=OFF \
+            -DDG_ENABLE_LV2=OFF \
+            -DDG_ENABLE_VST=OFF \
+            -DDG_GUI_BACKEND=x11
+          cmake --build build-cmake -j"$(nproc)"
+
+      - name: Compare runtime version outputs
+        run: |
+          if [ -x drumgizmo/drumgizmo ]; then
+            AUTOTOOLS_DRUMGIZMO=drumgizmo/drumgizmo
+          else
+            AUTOTOOLS_DRUMGIZMO=drumgizmo/.libs/drumgizmo
+          fi
+
+          if [ -x drumgizmo/dgvalidator ]; then
+            AUTOTOOLS_DGVALIDATOR=drumgizmo/dgvalidator
+          else
+            AUTOTOOLS_DGVALIDATOR=drumgizmo/.libs/dgvalidator
+          fi
+
+          CMAKE_DRUMGIZMO=build-cmake/drumgizmo
+          CMAKE_DGVALIDATOR=build-cmake/dgvalidator
+
+          AUTOTOOLS_DRUMGIZMO_VERSION="$($AUTOTOOLS_DRUMGIZMO --version)"
+          CMAKE_DRUMGIZMO_VERSION="$($CMAKE_DRUMGIZMO --version)"
+          test "$AUTOTOOLS_DRUMGIZMO_VERSION" = "$CMAKE_DRUMGIZMO_VERSION"
+
+          AUTOTOOLS_DGVALIDATOR_VERSION="$($AUTOTOOLS_DGVALIDATOR --version)"
+          CMAKE_DGVALIDATOR_VERSION="$($CMAKE_DGVALIDATOR --version)"
+          test "$AUTOTOOLS_DGVALIDATOR_VERSION" = "$CMAKE_DGVALIDATOR_VERSION"
+
+      - name: Publish parity summary
+        run: |
+          {
+            echo "## Build parity"
+            echo
+            echo "Autotools and CMake produced matching version output for:"
+            echo
+            echo "- drumgizmo"
+            echo "- dgvalidator"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   coverage:
     name: Coverage reports
@@ -196,7 +311,7 @@ jobs:
             fi
           fi
 
-          mapfile -t files < <(git diff --name-only "$range" -- '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMRTUXB "$range" -- '*.c' '*.cc' '*.cpp' '*.h' '*.hh' '*.hpp')
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No C/C++ file changes detected; skipping static analysis."
             exit 0

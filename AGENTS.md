@@ -70,15 +70,19 @@ Autotools commands above are still supported during migration.
 
 ### Run All Tests
 ```sh
-make check                  # Build and run all tests (requires --with-test)
+ctest --test-dir build --output-on-failure # CMake flow
+make check                                # Autotools flow (requires --with-test)
 ```
 
 ### Run a Single Test
 ```sh
-# From the test/ build directory:
-make <testname> && ./<testname>
+# CMake:
+ctest --test-dir build -R <testname> --output-on-failure
 # Example:
-make randomtest && ./randomtest
+ctest --test-dir build -R randomtest --output-on-failure
+
+# Autotools (from the test/ build directory):
+make <testname> && ./<testname>
 ```
 
 Available test targets: `resource`, `enginetest`, `paintertest`, `configfile`,

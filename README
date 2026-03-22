@@ -9,7 +9,11 @@ Basic CMake flow:
 -----------------
 $ cmake -S . -B build
 $ cmake --build build -j$(nproc)
+$ ctest --test-dir build --output-on-failure
 $ cmake --install build --prefix "$PWD/install"
+
+Run a single CMake test:
+$ ctest --test-dir build -R randomtest --output-on-failure
 
 Common CMake options:
 ---------------------

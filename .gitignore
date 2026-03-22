@@ -89,3 +89,5 @@ cov-int/
 ttlgen
 manifest.ttl
 dgvalidator
+build/
+build-*/

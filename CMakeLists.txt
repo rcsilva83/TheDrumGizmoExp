@@ -28,6 +28,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
 endif()
 
 option(DG_WITH_DEBUG "Enable debug logging and debug warnings" OFF)
+option(DG_ENABLE_TESTS "Build unit tests" OFF)
 option(DG_ENABLE_CLI "Build CLI binaries" ON)
 option(DG_ENABLE_DGVALIDATOR "Build dgvalidator" ON)
 option(DG_WITH_NLS "Build with NLS support" OFF)
@@ -63,7 +64,7 @@ option(DG_ENABLE_OUTPUT_JACKAUDIO "Enable JACK output engine" ON)
 option(DG_ENABLE_OUTPUT_OSS "Enable OSS output engine" ${DG_DEFAULT_OUTPUT_OSS})
 
 set(DG_NEED_PLUGIN_GUI OFF)
-if(DG_ENABLE_LV2 OR DG_ENABLE_VST OR DG_ENABLE_PLUGINGUI_TEST)
+if(DG_ENABLE_LV2 OR DG_ENABLE_VST OR DG_ENABLE_PLUGINGUI_TEST OR DG_ENABLE_TESTS)
 	set(DG_NEED_PLUGIN_GUI ON)
 endif()
 
@@ -625,6 +626,9 @@ if(DG_NEED_PLUGIN_GUI)
 		DEPENDS rcgen ${DG_PLUGINGUI_RESOURCES} ${DG_NLS_RESOURCES}
 		VERBATIM
 	)
+	add_custom_target(dg_plugingui_resource_data
+		DEPENDS "${DG_PLUGINGUI_RESOURCE_DATA}"
+	)
 
 	add_library(dg_plugingui STATIC
 		plugingui/abouttab.cc
@@ -796,4 +800,9 @@ if(DG_NEED_PLUGIN_GUI)
 			RUNTIME DESTINATION "${DG_VST_INSTALL_DIR}"
 		)
 	endif()
+endif()
+
+if(DG_ENABLE_TESTS)
+	enable_testing()
+	add_subdirectory(test)
 endif()
