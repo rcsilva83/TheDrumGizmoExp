@@ -243,12 +243,12 @@ dg_add_uunit_test(dgxmlparsertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/hugin/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/dgxmlparser.cc"
-		"${CMAKE_SOURCE_DIR}/pugixml/src/pugixml.cpp"
 		"${CMAKE_SOURCE_DIR}/test/dgxmlparsertest.cc"
 		"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}/hugin"
-		"${CMAKE_SOURCE_DIR}/pugixml/src"
+	LINK_LIBRARIES
+		dg_pugi
 )
 
 dg_add_uunit_test(domloadertest
@@ -266,23 +266,23 @@ dg_add_uunit_test(configparsertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/hugin/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/configparser.cc"
-		"${CMAKE_SOURCE_DIR}/pugixml/src/pugixml.cpp"
 		"${CMAKE_SOURCE_DIR}/test/configparsertest.cc"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}/hugin"
-		"${CMAKE_SOURCE_DIR}/pugixml/src"
+	LINK_LIBRARIES
+		dg_pugi
 )
 
 dg_add_uunit_test(midimapparsertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/hugin/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
-		"${CMAKE_SOURCE_DIR}/pugixml/src/pugixml.cpp"
 		"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 		"${CMAKE_SOURCE_DIR}/test/midimapparsertest.cc"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}/hugin"
-		"${CMAKE_SOURCE_DIR}/pugixml/src"
+	LINK_LIBRARIES
+		dg_pugi
 )
 
 dg_add_uunit_test(eventsdstest
@@ -301,12 +301,12 @@ dg_add_uunit_test(midimappertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/hugin/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/midimapper.cc"
-		"${CMAKE_SOURCE_DIR}/pugixml/src/pugixml.cpp"
 		"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 		"${CMAKE_SOURCE_DIR}/test/midimappertest.cc"
 	INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}/hugin"
-		"${CMAKE_SOURCE_DIR}/pugixml/src"
+	LINK_LIBRARIES
+		dg_pugi
 )
 
 if(DG_WITH_NLS)

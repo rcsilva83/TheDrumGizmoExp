@@ -280,10 +280,7 @@ target_include_directories(dg_zr PRIVATE
 )
 target_link_libraries(dg_zr PRIVATE Threads::Threads)
 
-add_library(dg_pugi STATIC
-	pugixml/src/pugixml.cpp
-)
-target_include_directories(dg_pugi PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/pugixml/src")
+add_library(dg_pugi ALIAS pugixml)
 
 add_library(dg_nls STATIC
 	src/translation.cc
@@ -337,7 +334,6 @@ add_library(dg_core STATIC
 target_include_directories(dg_core PUBLIC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
 	"${CMAKE_CURRENT_SOURCE_DIR}/hugin"
-	"${CMAKE_CURRENT_SOURCE_DIR}/pugixml/src"
 	"${CMAKE_CURRENT_SOURCE_DIR}/zita-resampler/libs"
 	"${CMAKE_CURRENT_BINARY_DIR}"
 )

@@ -2,6 +2,7 @@ set(DG_CPM_VERSION "0.40.8" CACHE STRING "CPM.cmake version")
 set(DG_CPM_URL "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${DG_CPM_VERSION}/CPM.cmake" CACHE STRING "CPM.cmake download URL")
 set(DG_CPM_SOURCE_CACHE "${CMAKE_BINARY_DIR}/cpm-cache" CACHE PATH "Directory used by CPM.cmake to cache dependency sources")
 set(DG_CPM_FILE "${CMAKE_BINARY_DIR}/cmake/CPM_${DG_CPM_VERSION}.cmake" CACHE FILEPATH "Downloaded CPM.cmake file")
+set(DG_PUGIXML_VERSION "1.15" CACHE STRING "pugixml version")
 
 if(NOT DEFINED ENV{CPM_SOURCE_CACHE})
 	set(ENV{CPM_SOURCE_CACHE} "${DG_CPM_SOURCE_CACHE}")
@@ -24,3 +25,15 @@ if(NOT EXISTS "${DG_CPM_FILE}")
 endif()
 
 include("${DG_CPM_FILE}")
+
+CPMAddPackage(
+	NAME pugixml
+	GITHUB_REPOSITORY zeux/pugixml
+	VERSION ${DG_PUGIXML_VERSION}
+	OPTIONS
+		"BUILD_SHARED_LIBS OFF"
+)
+
+if(NOT TARGET pugixml)
+	message(FATAL_ERROR "CPM failed to provide the pugixml target")
+endif()
