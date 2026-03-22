@@ -32,8 +32,21 @@ Useful options for parity testing:
 cmake -S . -B build \
   -DDG_WITH_DEBUG=ON \
   -DDG_NUM_CHANNELS=16 \
-  -DDG_ENABLE_CLI=ON
+  -DDG_ENABLE_CLI=ON \
+  -DDG_ENABLE_LV2=ON \
+  -DDG_GUI_BACKEND=x11
 ```
+
+Additional plugin options:
+```sh
+cmake -S . -B build \
+  -DDG_ENABLE_VST=ON \
+  -DDG_VST_SDK_PATH=/path/to/vstsdk24
+```
+
+Notes:
+- LV2/VST builds require the `plugin/plugingizmo` submodule.
+- GUI/plugin builds require `getoptpp` and `dggui/lodepng`; pugl backends also require the `pugl` submodule.
 
 ### CMake install
 ```sh

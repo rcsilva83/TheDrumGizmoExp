@@ -15,8 +15,17 @@ Common CMake options:
 ---------------------
 * -DDG_WITH_DEBUG=ON
 * -DDG_ENABLE_CLI=ON
+* -DDG_ENABLE_LV2=ON
+* -DDG_ENABLE_VST=ON -DDG_VST_SDK_PATH=/path/to/vstsdk24
+* -DDG_GUI_BACKEND=auto|x11|win32|cocoa|pugl-x11|pugl-win32|pugl-cocoa
 * -DDG_NUM_CHANNELS=16
 * -DDG_SSE_LEVEL=auto
+
+Plugin/GUI notes:
+-----------------
+* LV2 and VST builds require the `plugin/plugingizmo` submodule.
+* GUI-enabled plugin builds require `getoptpp`, `dggui/lodepng`, and (for pugl backends) the `pugl` submodule.
+* With `-DDG_WITH_NLS=ON`, `msgfmt` is required to generate locale resources.
 
 Legacy Autotools flow remains available via:
 $ ./autogen.sh
