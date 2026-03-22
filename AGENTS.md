@@ -1,13 +1,13 @@
 # AGENTS.md -- DrumGizmo
 
 DrumGizmo is a multichannel, multilayered, cross-platform drum plugin
-and standalone application written in C++11. It now supports a CMake build
-in parallel with the legacy Autotools flow. Version: 0.9.20 (pre-1.0).
+and standalone application written in C++11. It uses CMake as the build
+system. Version: 0.9.20 (pre-1.0).
 
 ## Project Structure
 
 ```
-src/            Core engine library (libdg.la) -- no namespace
+src/            Core engine library (libdg) -- no namespace
 dggui/          GUI framework (namespace dggui)
 plugingui/      Plugin GUI application (namespace GUI)
 plugin/         LV2/VST plugin wrappers
@@ -55,23 +55,18 @@ cmake --install build --prefix "$PWD/install"
 
 ### Initial Setup (from git)
 ```sh
-git submodule init && git submodule update
-./autogen.sh
-./configure --prefix=$PWD/install --with-test --with-debug --enable-lv2
+git submodule update --init --recursive
 ```
 
 ### Build
 ```sh
-make            # Build everything
-make -j$(nproc) # Parallel build
+cmake -S . -B build
+cmake --build build -j$(nproc)
 ```
-
-Autotools commands above are still supported during migration.
 
 ### Run All Tests
 ```sh
-ctest --test-dir build --output-on-failure # CMake flow
-make check                                # Autotools flow (requires --with-test)
+ctest --test-dir build --output-on-failure
 ```
 
 ### Run a Single Test
@@ -80,9 +75,6 @@ make check                                # Autotools flow (requires --with-test
 ctest --test-dir build -R <testname> --output-on-failure
 # Example:
 ctest --test-dir build -R randomtest --output-on-failure
-
-# Autotools (from the test/ build directory):
-make <testname> && ./<testname>
 ```
 
 Available test targets: `resource`, `enginetest`, `paintertest`, `configfile`,

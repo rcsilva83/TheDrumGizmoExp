@@ -218,20 +218,21 @@ fi
 if [ ! -f drumgizmo-${DRUMGIZMO_VERSION}/build-done ]; then
   PATH=/usr/local/opt/gettext/bin:$PATH
   cd drumgizmo-${DRUMGIZMO_VERSION}
-  ./configure --prefix=${PREFIX} \
-    --disable-input-midifile \
-    --disable-input-jackmidi \
-    --disable-output-jackaudio \
-    --disable-input-alsamidi \
-    --disable-output-alsa \
-    --enable-cli \
-    --without-debug \
-    --with-test \
-    --disable-lv2 \
-    --enable-vst \
-    --with-vst-sources=$HOME/VST3_SDK
-  make ${MAKE_ARGS}
-  make install
+  cmake -S . -B build \
+    -DDG_ENABLE_INPUT_MIDIFILE=OFF \
+    -DDG_ENABLE_INPUT_JACKMIDI=OFF \
+    -DDG_ENABLE_OUTPUT_JACKAUDIO=OFF \
+    -DDG_ENABLE_INPUT_ALSAMIDI=OFF \
+    -DDG_ENABLE_OUTPUT_ALSA=OFF \
+    -DDG_ENABLE_CLI=ON \
+    -DDG_WITH_DEBUG=OFF \
+    -DDG_ENABLE_TESTS=ON \
+    -DDG_ENABLE_LV2=OFF \
+    -DDG_ENABLE_VST=ON \
+    -DDG_VST_SDK_PATH=$HOME/VST3_SDK \
+    -DCMAKE_INSTALL_PREFIX=${PREFIX}
+  cmake --build build ${MAKE_ARGS}
+  cmake --install build
   touch build-done
   cd ..
 fi
@@ -243,7 +244,8 @@ echo Make macOS package:
 otool -L ${PREFIX}/lib/vst/drumgizmo_vst.so
 
 if [ ! -f drumgizmo.vst.tar.gz ]; then
-  exit "Missing VST package template: drumgizmo.vst.tar.gz "
+  echo "Missing VST package template: drumgizmo.vst.tar.gz"
+  exit 1
 fi
 
 if [ ! -d ${DRUMGIZMO_VERSION}/drumgizmo.vst ]; then
