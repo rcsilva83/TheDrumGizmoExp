@@ -73,6 +73,7 @@ jobs:
             ninja-build \
             g++ \
             python3 \
+            python3-venv \
             gettext \
             libx11-dev \
             libxext-dev \
@@ -108,18 +109,31 @@ jobs:
           rm -f a-conftest.gcno a-conftest.gcda conftest.gcno conftest.gcda
           mkdir -p coverage
 
+      - name: Install gcovr via pip
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip gcovr
+
+      - name: Check gcovr version
+        run: .venv/bin/python -m gcovr --version
+
       - name: Generate coverage reports
-        uses: threeal/gcovr-action@v1.2.0
-        with:
-          root: ..
-          working-directory: build-coverage
-          excludes: |
-            .*/a-conftest\..*
-            .*/conftest\..*
-          xml-out: ../coverage.xml
-          html-out: ../coverage/index.html
-          html-details: true
-          print-summary: true
+        run: |
+          .venv/bin/python -m gcovr \
+            --root . \
+            build-coverage \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --xml-pretty \
+            --output coverage.xml
+
+          .venv/bin/python -m gcovr \
+            --root . \
+            build-coverage \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
+            --html-details \
+            --output coverage/index.html
 
       - name: Publish coverage summary
         run: |
