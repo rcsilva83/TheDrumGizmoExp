@@ -28,58 +28,56 @@
 
 #include <functional>
 #include <list>
-#include <utility>
 #include <set>
+#include <utility>
 
 namespace aux
 {
-	template<int>
-	struct placeholder
-	{
-	};
-}
+template <int> struct placeholder
+{
+};
+} // namespace aux
 
 namespace std
 {
-	template<int N>
-	struct is_placeholder<aux::placeholder<N>>
-		: integral_constant<int, N+1>
-	{
-	};
-}
+template <int N>
+struct is_placeholder<aux::placeholder<N>> : integral_constant<int, N + 1>
+{
+};
+} // namespace std
 
 namespace aux
 {
-	// std::integer_sequence introduced in C++14 so remove this once we start requiring that.
+// std::integer_sequence introduced in C++14 so remove this once we start
+// requiring that.
 
-	template<int... Ns>
-	struct int_sequence
-	{
-	};
-
-	template<int N, int... Ns>
-	struct gen_int_sequence
-		: gen_int_sequence<N-1, N-1, Ns...>
-	{
-	};
-
-	template<int... Ns>
-	struct gen_int_sequence<0, Ns...>
-		: int_sequence<Ns...>
-	{
-	};
+template <int... Ns> struct int_sequence
+{
 };
 
+template <int N, int... Ns>
+struct gen_int_sequence : gen_int_sequence<N - 1, N - 1, Ns...>
+{
+};
 
-//namespace GUI {
+template <int... Ns> struct gen_int_sequence<0, Ns...> : int_sequence<Ns...>
+{
+};
+}; // namespace aux
+
+// namespace GUI {
 
 class Listener;
-class NotifierBase {
+class NotifierBase
+{
 public:
-	virtual void disconnect(Listener* object) {}
+	virtual void disconnect(Listener* object)
+	{
+	}
 };
 
-class Listener {
+class Listener
+{
 public:
 	virtual ~Listener()
 	{
@@ -103,12 +101,15 @@ private:
 	std::set<NotifierBase*> signals;
 };
 
-template<typename... Args>
-class Notifier : public NotifierBase {
+template <typename... Args> class Notifier : public NotifierBase
+{
 public:
-	Notifier() {}
+	Notifier()
+	{
+	}
 
-	//! \brief When dtor is called it will automatically disconnect all its listeners.
+	//! \brief When dtor is called it will automatically disconnect all its
+	//! listeners.
 	~Notifier()
 	{
 		for(auto& slot : slots)
@@ -120,10 +121,11 @@ public:
 	using callback_type = std::function<void(Args...)>;
 
 	//! \brief Connect object to this Notifier.
-	template<typename O, typename F>
-	void connect(O* p, const F& fn)
+	template <typename O, typename F> void connect(O* p, const F& fn)
 	{
-		slots.emplace_back(std::make_pair(p, std::move(construct_mem_fn(fn, p, aux::gen_int_sequence<sizeof...(Args)>{}))));
+		slots.emplace_back(
+		    std::make_pair(p, std::move(construct_mem_fn(fn, p,
+		                          aux::gen_int_sequence<sizeof...(Args)>{}))));
 		if(p && dynamic_cast<Listener*>(p))
 		{
 			dynamic_cast<Listener*>(p)->registerNotifier(this);
@@ -131,11 +133,13 @@ public:
 	}
 
 	//! \brief Disconnect object from this Notifier.
+	// cppcheck-suppress missingOverride
 	void disconnect(Listener* object)
 	{
 		for(auto it = slots.begin(); it != slots.end(); ++it)
 		{
 			if(it->first == object)
+			// cppcheck-suppress useStlAlgorithm
 			{
 				slots.erase(it);
 				return;
@@ -156,12 +160,12 @@ public:
 private:
 	std::list<std::pair<Listener*, callback_type>> slots;
 
-	template<typename F, typename O, int... Ns>
-	callback_type construct_mem_fn(const F& fn, O* p, aux::int_sequence<Ns...>) const
+	template <typename F, typename O, int... Ns>
+	callback_type construct_mem_fn(
+	    const F& fn, O* p, aux::int_sequence<Ns...>) const
 	{
 		return std::bind(fn, p, aux::placeholder<Ns>{}...);
 	}
-
 };
 
 //} // GUI::

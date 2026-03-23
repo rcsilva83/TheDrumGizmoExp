@@ -33,6 +33,7 @@ struct semaphore_private_t;
 class Semaphore
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Semaphore(std::size_t initial_count = 0);
 	~Semaphore();
 
@@ -45,5 +46,5 @@ public:
 	void wait();
 
 private:
-	struct semaphore_private_t *prv{nullptr};
+	struct semaphore_private_t* prv{nullptr};
 };

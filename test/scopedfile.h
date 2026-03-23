@@ -26,12 +26,13 @@
  */
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 class ScopedFile
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	ScopedFile(const std::string& data);
 	~ScopedFile();
 

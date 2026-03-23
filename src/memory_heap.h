@@ -37,25 +37,24 @@
 //
 // The members add, get, remove correspond to new, dereference, delete. Thus, we
 // first add an object and this gives us and index. With this index we can then
-// retrieve the object until we remove it. As soon as it is removed, you shouldn't
-// use the index anymore to retrieve it (similarly, as you shouldn't use a pointer
-// after calling delete on it).
-template <typename T>
-class MemoryHeap
+// retrieve the object until we remove it. As soon as it is removed, you
+// shouldn't use the index anymore to retrieve it (similarly, as you shouldn't
+// use a pointer after calling delete on it).
+template <typename T> class MemoryHeap
 {
 public:
 	using Index = std::size_t;
 	using Indices = std::vector<Index>;
 
 	MemoryHeap() = default;
+	// cppcheck-suppress noExplicitConstructor
 	MemoryHeap(std::size_t size)
 	{
 		memory.reserve(size);
 		free_indices.reserve(size);
 	}
 
-	template <typename... Args>
-	Index emplace(Args&&... args);
+	template <typename... Args> Index emplace(Args&&... args);
 
 	Index add(const T& element);
 	T& get(Index index);
@@ -68,13 +67,12 @@ private:
 	Indices free_indices;
 };
 
-template <typename T>
-auto MemoryHeap<T>::add(const T& element) -> Index
+template <typename T> auto MemoryHeap<T>::add(const T& element) -> Index
 {
-	if (free_indices.empty())
+	if(free_indices.empty())
 	{
 		memory.push_back(element);
-		return memory.size()-1;
+		return memory.size() - 1;
 	}
 
 	auto free_index = free_indices.back();
@@ -87,10 +85,10 @@ template <typename T>
 template <typename... Args>
 auto MemoryHeap<T>::emplace(Args&&... args) -> Index
 {
-	if (free_indices.empty())
+	if(free_indices.empty())
 	{
 		memory.emplace_back(std::forward<Args>(args)...);
-		return memory.size()-1;
+		return memory.size() - 1;
 	}
 
 	auto free_index = free_indices.back();
@@ -101,28 +99,24 @@ auto MemoryHeap<T>::emplace(Args&&... args) -> Index
 
 // Note: MemoryHeap never really deletes anything -- it just overwrites, so
 // old indices will always return a valid item wrt. memory.
-template <typename T>
-T& MemoryHeap<T>::get(Index index)
+template <typename T> T& MemoryHeap<T>::get(Index index)
 {
 	assert(index < memory.size());
 	return memory[index];
 }
 
-template <typename T>
-const T& MemoryHeap<T>::get(Index index) const
+template <typename T> const T& MemoryHeap<T>::get(Index index) const
 {
 	assert(index < memory.size());
 	return memory[index];
 }
 
-template <typename T>
-void MemoryHeap<T>::remove(Index index)
+template <typename T> void MemoryHeap<T>::remove(Index index)
 {
 	free_indices.push_back(index);
 }
 
-template <typename T>
-void MemoryHeap<T>::clear()
+template <typename T> void MemoryHeap<T>::clear()
 {
 	memory.clear();
 	free_indices.clear();

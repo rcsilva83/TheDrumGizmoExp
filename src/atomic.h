@@ -26,18 +26,17 @@
  */
 #pragma once
 
-#include <type_traits>
 #include <atomic>
+#include <type_traits>
 
 #include <mutex>
 
-template <typename T, typename = void>
-class Atomic;
+template <typename T, typename = void> class Atomic;
 
 // use std::atomic if possible
 template <typename T>
 class Atomic<T, typename std::enable_if<std::is_pod<T>::value>::type>
-	: public std::atomic<T>
+    : public std::atomic<T>
 {
 public:
 	// inherit methods
@@ -51,31 +50,27 @@ class Atomic<T, typename std::enable_if<!std::is_pod<T>::value>::type>
 {
 public:
 	using self_type =
-		Atomic<T, typename std::enable_if<!std::is_pod<T>::value>::type>;
+	    Atomic<T, typename std::enable_if<!std::is_pod<T>::value>::type>;
 
-	Atomic()
-		: data{}
-		, mutex{}
+	Atomic() : data{}, mutex{}
 	{
 	}
 
-	Atomic(T data)
-		: data{std::move(data)}
-		, mutex{}
+	// cppcheck-suppress noExplicitConstructor
+	Atomic(T data) : data{std::move(data)}, mutex{}
 	{
 	}
 
-	Atomic(self_type const & other)
-		: data{}
-		, mutex{}
+	// cppcheck-suppress noExplicitConstructor
+	Atomic(self_type const& other) : data{}, mutex{}
 	{
 		std::lock_guard<std::mutex> lock{other.mutex};
+		// cppcheck-suppress useInitializationList
 		data = other.data;
 	}
 
-	Atomic(self_type&& other)
-		: data{}
-		, mutex{}
+	// cppcheck-suppress noExplicitConstructor
+	Atomic(self_type&& other) : data{}, mutex{}
 	{
 		std::lock_guard<std::mutex> lock{other.mutex};
 		std::swap(data, other.data);
@@ -104,12 +99,14 @@ public:
 		this->data = std::move(data);
 	}
 
-	T load() const {
+	T load() const
+	{
 		std::lock_guard<std::mutex> lock{mutex};
 		return data;
 	}
 
-	T exchange(T data){
+	T exchange(T data)
+	{
 		std::lock_guard<std::mutex> lock{mutex};
 		std::swap(data, this->data);
 		return data;
@@ -148,8 +145,8 @@ private:
 template <typename T> class SettingRef
 {
 public:
-	SettingRef(Atomic<T>& value)
-		: value(value)
+	// cppcheck-suppress noExplicitConstructor
+	SettingRef(Atomic<T>& value) : value(value)
 	{
 		// string isn't lock free either
 		assert((std::is_same<T, std::string>::value || value.is_lock_free()));

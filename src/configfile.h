@@ -26,13 +26,14 @@
  */
 #pragma once
 
-#include <string>
-#include <map>
 #include <fstream>
+#include <map>
+#include <string>
 
 class ConfigFile
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	ConfigFile(const std::string& filename);
 	virtual ~ConfigFile();
 

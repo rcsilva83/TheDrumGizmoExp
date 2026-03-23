@@ -26,8 +26,8 @@
  */
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "audio.h"
 
@@ -44,16 +44,17 @@ enum class main_state_t
 class Channel
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Channel(const std::string& name = "");
 
 	std::string name;
 	channel_t num;
 };
 
-class InstrumentChannel
-	: public Channel
+class InstrumentChannel : public Channel
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	InstrumentChannel(const std::string& name = "");
 
 	main_state_t main{main_state_t::unset};

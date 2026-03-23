@@ -26,8 +26,8 @@
  */
 #pragma once
 
-#include <vector>
 #include <map>
+#include <vector>
 
 template <typename T1, typename T2> class RangeMap
 {
@@ -68,10 +68,11 @@ std::vector<T2> RangeMap<T1, T2>::get(T1 from, T1 to)
 		    (from <= a && to >= b) ||            // containing
 		    (from <= a && to >= a && to <= b) || // overlapping lower
 		    (from >= a && from <= b && to >= b)  // overlapping upper
-		    )
+		)
 		{
 			res.push_back(i->second);
 		}
+		// cppcheck-suppress postfixOperator
 		i++;
 	}
 
@@ -91,6 +92,7 @@ template <typename T1, typename T2> std::vector<T2> RangeMap<T1, T2>::get(T1 at)
 		{
 			res.push_back(i->second);
 		}
+		// cppcheck-suppress postfixOperator
 		i++;
 	}
 

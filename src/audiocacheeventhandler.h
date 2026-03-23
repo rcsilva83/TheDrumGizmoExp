@@ -26,22 +26,22 @@
  */
 #pragma once
 
+#include <atomic>
 #include <list>
 #include <mutex>
-#include <atomic>
 
-#include "thread.h"
 #include "sem.h"
+#include "thread.h"
 
 #include "audiocachefile.h"
 #include "audiocacheidmanager.h"
 
 class CacheEvent;
 
-class AudioCacheEventHandler
-	: protected Thread
+class AudioCacheEventHandler : protected Thread
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	AudioCacheEventHandler(AudioCacheIDManager& id_manager);
 	~AudioCacheEventHandler();
 
@@ -68,9 +68,8 @@ public:
 	//! This methods are supplied to make this class lockable by std::lock_guard
 	void unlock();
 
-	void pushLoadNextEvent(AudioCacheFile* afile, size_t channel,
-	                       size_t pos, sample_t* buffer,
-	                       volatile bool* ready);
+	void pushLoadNextEvent(AudioCacheFile* afile, size_t channel, size_t pos,
+	    sample_t* buffer, volatile bool* ready);
 	void pushCloseEvent(cacheid_t id);
 
 	void setChunkSize(size_t chunksize);
