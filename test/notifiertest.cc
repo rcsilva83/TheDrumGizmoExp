@@ -128,7 +128,7 @@ TEST_CASE("NotifierTest")
 		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(42, probe.received[0]);
 		// cppcheck-suppress containerOutOfBounds
-		CHECK_EQ(7,  probe.received[1]);
+		CHECK_EQ(7, probe.received[1]);
 	}
 
 	SUBCASE("notifier_with_two_arguments")
@@ -143,9 +143,9 @@ TEST_CASE("NotifierTest")
 
 		CHECK_EQ(2u, probe.ints.size());
 		// cppcheck-suppress containerOutOfBounds
-		CHECK_EQ(1,    probe.ints[0]);
+		CHECK_EQ(1, probe.ints[0]);
 		// cppcheck-suppress containerOutOfBounds
-		CHECK_EQ(3,    probe.ints[1]);
+		CHECK_EQ(3, probe.ints[1]);
 		CHECK_EQ(2u, probe.floats.size());
 		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(2.5f, probe.floats[0]);

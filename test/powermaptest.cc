@@ -80,11 +80,11 @@ TEST_CASE("test_powermaptest")
 		const float eps = 1e-4f;
 
 		// Default control points set by reset().
-		CHECK_EQ(powermap.getFixed0().in,  doctest::Approx(eps));
+		CHECK_EQ(powermap.getFixed0().in, doctest::Approx(eps));
 		CHECK_EQ(powermap.getFixed0().out, doctest::Approx(eps));
-		CHECK_EQ(powermap.getFixed1().in,  doctest::Approx(0.5f));
+		CHECK_EQ(powermap.getFixed1().in, doctest::Approx(0.5f));
 		CHECK_EQ(powermap.getFixed1().out, doctest::Approx(0.5f));
-		CHECK_EQ(powermap.getFixed2().in,  doctest::Approx(1.0f - eps));
+		CHECK_EQ(powermap.getFixed2().in, doctest::Approx(1.0f - eps));
 		CHECK_EQ(powermap.getFixed2().out, doctest::Approx(1.0f - eps));
 	}
 
@@ -94,7 +94,7 @@ TEST_CASE("test_powermaptest")
 		// pass through that point: map(0.3) must equal 0.7.
 		Powermap powermap;
 		powermap.setFixed1({0.3f, 0.7f});
-		CHECK_EQ(powermap.getFixed1().in,  doctest::Approx(0.3f));
+		CHECK_EQ(powermap.getFixed1().in, doctest::Approx(0.3f));
 		CHECK_EQ(powermap.getFixed1().out, doctest::Approx(0.7f));
 		CHECK_EQ(powermap.map(0.3f), doctest::Approx(0.7f));
 	}
@@ -105,7 +105,7 @@ TEST_CASE("test_powermaptest")
 		powermap.setFixed1({0.3f, 0.7f});
 		powermap.reset();
 
-		CHECK_EQ(powermap.getFixed1().in,  doctest::Approx(0.5f));
+		CHECK_EQ(powermap.getFixed1().in, doctest::Approx(0.5f));
 		CHECK_EQ(powermap.getFixed1().out, doctest::Approx(0.5f));
 		CHECK_EQ(powermap.map(0.5f), doctest::Approx(0.5f));
 	}

@@ -56,20 +56,17 @@ Power h11(Power x)
 }
 
 Power computeValue(const Power x, const PowerPair& P0, const PowerPair& P1,
-                   const Power m0, const Power m1)
+    const Power m0, const Power m1)
 {
 	const auto x0 = P0.in;
 	const auto x1 = P1.in;
 	const auto y0 = P0.out;
 	const auto y1 = P1.out;
 	const auto dx = x1 - x0;
-	const auto x_prime = (x - x0)/dx;
+	const auto x_prime = (x - x0) / dx;
 
-	return
-		h00(x_prime) * y0 +
-		h10(x_prime) * dx * m0 +
-		h01(x_prime) * y1 +
-		h11(x_prime) * dx * m1;
+	return h00(x_prime) * y0 + h10(x_prime) * dx * m0 + h01(x_prime) * y1 +
+	       h11(x_prime) * dx * m1;
 }
 
 } // end anonymous namespace
@@ -83,22 +80,22 @@ Power Powermap::map(Power in)
 {
 	assert(in >= 0. && in <= 1.);
 
-	if (spline_needs_update)
+	if(spline_needs_update)
 	{
 		updateSpline();
 	}
 
 	Power out;
-	if (in < fixed[0].in)
+	if(in < fixed[0].in)
 	{
 		out = shelf ? fixed[0].out
-		            : computeValue(in, {0.,0.}, fixed[0], m[0], m[1]);
+		            : computeValue(in, {0., 0.}, fixed[0], m[0], m[1]);
 	}
-	else if (in < fixed[1].in)
+	else if(in < fixed[1].in)
 	{
 		out = computeValue(in, fixed[0], fixed[1], m[1], m[2]);
 	}
-	else if (in < fixed[2].in)
+	else if(in < fixed[2].in)
 	{
 		out = computeValue(in, fixed[1], fixed[2], m[2], m[3]);
 	}
@@ -106,7 +103,7 @@ Power Powermap::map(Power in)
 	{
 		// in >= fixed[2].in
 		out = shelf ? fixed[2].out
-		            : computeValue(in, fixed[2], {1.,1.}, m[3], m[4]);
+		            : computeValue(in, fixed[2], {1., 1.}, m[3], m[4]);
 	}
 
 	assert(out >= 0. && out <= 1.);
@@ -130,7 +127,7 @@ void Powermap::reset()
 
 void Powermap::setFixed0(PowerPair new_value)
 {
-	if (fixed[0] != new_value)
+	if(fixed[0] != new_value)
 	{
 		spline_needs_update = true;
 		fixed[0].in = clamp(new_value.in, eps, fixed[1].in - eps);
@@ -140,17 +137,18 @@ void Powermap::setFixed0(PowerPair new_value)
 
 void Powermap::setFixed1(PowerPair new_value)
 {
-	if (fixed[1] != new_value)
+	if(fixed[1] != new_value)
 	{
 		spline_needs_update = true;
 		fixed[1].in = clamp(new_value.in, fixed[0].in + eps, fixed[2].in - eps);
-		fixed[1].out = clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
+		fixed[1].out =
+		    clamp(new_value.out, fixed[0].out + eps, fixed[2].out - eps);
 	}
 }
 
 void Powermap::setFixed2(PowerPair new_value)
 {
-	if (fixed[2] != new_value)
+	if(fixed[2] != new_value)
 	{
 		spline_needs_update = true;
 		fixed[2].in = clamp(new_value.in, fixed[1].in + eps, 1 - eps);
@@ -160,7 +158,7 @@ void Powermap::setFixed2(PowerPair new_value)
 
 void Powermap::setShelf(bool enable)
 {
-	if (shelf != enable)
+	if(shelf != enable)
 	{
 		spline_needs_update = true;
 		this->shelf = enable;
@@ -198,7 +196,7 @@ void Powermap::updateSpline()
 
 	auto slopes = calcSlopes(X, Y);
 
-	if (shelf)
+	if(shelf)
 	{
 		assert(slopes.size() == 3);
 		this->m[1] = slopes[0];
@@ -208,7 +206,7 @@ void Powermap::updateSpline()
 	else
 	{
 		assert(slopes.size() == 5);
-		for (std::size_t i = 0; i < m.size(); ++i)
+		for(std::size_t i = 0; i < m.size(); ++i)
 		{
 			this->m[i] = slopes[i];
 		}
@@ -221,32 +219,31 @@ void Powermap::updateSpline()
 // "A Simple Method for Monotonic Interpolation in One Dimension"
 std::vector<float> Powermap::calcSlopes(const Powers& X, const Powers& Y)
 {
-	Powers m(X.size());
+	Powers slopes(X.size());
 
 	Powers d(X.size() - 1);
 	Powers h(X.size() - 1);
-	for (std::size_t i = 0; i < d.size(); ++i)
+	for(std::size_t i = 0; i < d.size(); ++i)
 	{
 		h[i] = X[i + 1] - X[i];
 		d[i] = (Y[i + 1] - Y[i]) / h[i];
 	}
 
-	m.front() = d.front();
-	for (std::size_t i = 1; i < m.size() - 1; ++i)
+	slopes.front() = d.front();
+	for(std::size_t i = 1; i < slopes.size() - 1; ++i)
 	{
-		m[i] = (d[i - 1] + d[i]) / 2.;
+		slopes[i] = (d[i - 1] + d[i]) / 2.;
 	}
-	m.back() = d.back();
+	slopes.back() = d.back();
 
-	for (std::size_t i = 1; i < m.size() - 1; ++i)
+	for(std::size_t i = 1; i < slopes.size() - 1; ++i)
 	{
-		const auto min_d = 2*std::min(d[i - 1], d[i]);
-		m[i] =
-			std::min<float>(min_d,
-			                (h[i] * d[i - 1] + h[i - 1] * d[i]) / (h[i - 1] + h[i]));
+		const auto min_d = 2 * std::min(d[i - 1], d[i]);
+		slopes[i] = std::min<float>(
+		    min_d, (h[i] * d[i - 1] + h[i - 1] * d[i]) / (h[i - 1] + h[i]));
 	}
 
-	return m;
+	return slopes;
 }
 
 Power Powermap::clamp(Power in, Power min, Power max) const
