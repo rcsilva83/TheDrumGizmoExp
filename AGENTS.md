@@ -13,11 +13,10 @@ plugingui/      Plugin GUI application (namespace GUI)
 plugin/         LV2/VST plugin wrappers
 drumgizmo/      CLI application
 test/           Unit tests (uUnit framework)
-hugin/          Logging library (fetched by CPM)
-pugixml/        XML parser (fetched by CPM)
-zita-resampler/ Audio resampler (fetched by CPM)
-test/uunit/     Unit test framework (fetched by CPM)
 ```
+
+External libraries are fetched by CPM at configure time and are not stored as
+git submodules in this repository.
 
 ## Build Commands
 
