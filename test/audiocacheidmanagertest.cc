@@ -28,8 +28,7 @@
 
 #include <audiocacheidmanager.h>
 
-class TestableAudioCacheIDManager
-	: public AudioCacheIDManager
+class TestableAudioCacheIDManager : public AudioCacheIDManager
 {
 public:
 	int getAvailableIDs()
@@ -45,19 +44,22 @@ TEST_CASE("AudioCacheIDManagerTest")
 		TestableAudioCacheIDManager manager;
 		manager.init(2);
 
-		cache_t c1; c1.afile = (AudioCacheFile*)1;
+		cache_t c1;
+		c1.afile = (AudioCacheFile*)1;
 		auto id1 = manager.registerID(c1);
 		CHECK(id1 != CACHE_DUMMYID);
 		CHECK(id1 != CACHE_NOID);
 		CHECK_EQ(1, manager.getAvailableIDs());
 
-		cache_t c2; c2.afile = (AudioCacheFile*)2;
+		cache_t c2;
+		c2.afile = (AudioCacheFile*)2;
 		auto id2 = manager.registerID(c2);
 		CHECK(id2 != CACHE_DUMMYID);
 		CHECK(id2 != CACHE_NOID);
 		CHECK_EQ(0, manager.getAvailableIDs());
 
-		cache_t c3; c3.afile = (AudioCacheFile*)3;
+		cache_t c3;
+		c3.afile = (AudioCacheFile*)3;
 		auto id3 = manager.registerID(c3);
 		CHECK(id3 == CACHE_DUMMYID);
 		CHECK_EQ(0, manager.getAvailableIDs());
@@ -71,7 +73,8 @@ TEST_CASE("AudioCacheIDManagerTest")
 		manager.releaseID(id1);
 		CHECK_EQ(1, manager.getAvailableIDs());
 
-		cache_t c4; c4.afile = (AudioCacheFile*)4;
+		cache_t c4;
+		c4.afile = (AudioCacheFile*)4;
 		auto id4 = manager.registerID(c4);
 		CHECK(id4 != CACHE_DUMMYID);
 		CHECK(id4 != CACHE_NOID);

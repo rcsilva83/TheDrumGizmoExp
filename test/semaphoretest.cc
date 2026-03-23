@@ -34,7 +34,7 @@
 #include "../src/sem.h"
 
 std::chrono::nanoseconds dist(const std::chrono::duration<float>& a,
-                              const std::chrono::duration<float>& b)
+    const std::chrono::duration<float>& b)
 {
 	if(a > b)
 	{
@@ -57,8 +57,8 @@ TEST_CASE("SemaphoreTest")
 			auto stop = std::chrono::steady_clock::now();
 
 			// Allow +/-1ms skew
-			CHECK(dist((stop - start), std::chrono::milliseconds(1000))
-			               < std::chrono::milliseconds(60));
+			CHECK(dist((stop - start), std::chrono::milliseconds(1000)) <
+			      std::chrono::milliseconds(60));
 		}
 
 		{ // 100ms timeout
@@ -68,8 +68,8 @@ TEST_CASE("SemaphoreTest")
 			auto stop = std::chrono::steady_clock::now();
 
 			// Allow +/-1ms skew
-			CHECK(dist((stop - start), std::chrono::milliseconds(100))
-			               < std::chrono::milliseconds(60));
+			CHECK(dist((stop - start), std::chrono::milliseconds(100)) <
+			      std::chrono::milliseconds(60));
 		}
 	}
 }

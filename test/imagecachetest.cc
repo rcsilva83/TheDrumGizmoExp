@@ -26,11 +26,10 @@
  */
 #include <doctest/doctest.h>
 
-#include <dggui/imagecache.h>
 #include <dggui/image.h>
+#include <dggui/imagecache.h>
 
-class TestableImageCache
-	: public dggui::ImageCache
+class TestableImageCache : public dggui::ImageCache
 {
 public:
 	std::size_t count(const std::string& filename)

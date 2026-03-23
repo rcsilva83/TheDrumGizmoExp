@@ -30,13 +30,12 @@
 
 #include "drumkit_creator.h"
 
-class ResourceTester
-	: public dggui::Resource
+class ResourceTester : public dggui::Resource
 {
 public:
-	ResourceTester(const std::string& name)
-		: dggui::Resource(name)
-	{}
+	ResourceTester(const std::string& name) : dggui::Resource(name)
+	{
+	}
 
 	bool probeIsInternal()
 	{

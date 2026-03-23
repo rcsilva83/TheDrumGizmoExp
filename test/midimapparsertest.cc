@@ -32,59 +32,60 @@
 
 TEST_CASE("MidimapParserTest")
 {
-SUBCASE("test")
-{
-ScopedFile scoped_file(
-"<?xml version='1.0' encoding='UTF-8'?>\n" \
-"<midimap>\n" \
-"<map note=\"54\" instr=\"Crash_left_tip\"/>\n" \
-"<map note=\"60\" instr=\"Crash_left_whisker\"/>\n" \
-"<map note=\"55\" instr=\"Crash_right_tip\"/>\n" \
-"<map note=\"62\" instr=\"Crash_right_whisker\"/>\n" \
-"<map note=\"62\" instr=\"Hihat_closed\"/>\n" \
-"<map note=\"56\" instr=\"Hihat_closed\"/>\n" \
-"</midimap>");
+	SUBCASE("test")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap>\n"
+		    "\t<map note=\"54\" instr=\"Crash_left_tip\"/>\n"
+		    "\t<map note=\"60\" instr=\"Crash_left_whisker\"/>\n"
+		    "\t<map note=\"55\" instr=\"Crash_right_tip\"/>\n"
+		    "\t<map note=\"62\" instr=\"Crash_right_whisker\"/>\n"
+		    "\t<map note=\"62\" instr=\"Hihat_closed\"/>\n"
+		    "\t<map note=\"56\" instr=\"Hihat_closed\"/>\n"
+		    "</midimap>");
 
-MidiMapParser parser;
-CHECK(parser.parseFile(scoped_file.filename()));
+		MidiMapParser parser;
+		CHECK(parser.parseFile(scoped_file.filename()));
 
-const auto& midimap = parser.midimap;
-CHECK_EQ(6u, midimap.size());
+		const auto& midimap = parser.midimap;
+		CHECK_EQ(6u, midimap.size());
 
-CHECK_EQ(54, midimap[0].note_id);
-CHECK_EQ(std::string("Crash_left_tip"), midimap[0].instrument_name);
+		CHECK_EQ(54, midimap[0].note_id);
+		CHECK_EQ(std::string("Crash_left_tip"), midimap[0].instrument_name);
 
-CHECK_EQ(60, midimap[1].note_id);
-CHECK_EQ(std::string("Crash_left_whisker"), midimap[1].instrument_name);
+		CHECK_EQ(60, midimap[1].note_id);
+		CHECK_EQ(std::string("Crash_left_whisker"), midimap[1].instrument_name);
 
-CHECK_EQ(55, midimap[2].note_id);
-CHECK_EQ(std::string("Crash_right_tip"), midimap[2].instrument_name);
+		CHECK_EQ(55, midimap[2].note_id);
+		CHECK_EQ(std::string("Crash_right_tip"), midimap[2].instrument_name);
 
-// These next two note numbers are intentionally the same and trigger two
-// different instruments:
-CHECK_EQ(62, midimap[3].note_id);
-CHECK_EQ(std::string("Crash_right_whisker"), midimap[3].instrument_name);
+		// These next two note numbers are intentionally the same and trigger
+		// two different instruments:
+		CHECK_EQ(62, midimap[3].note_id);
+		CHECK_EQ(
+		    std::string("Crash_right_whisker"), midimap[3].instrument_name);
 
-CHECK_EQ(62, midimap[4].note_id);
-CHECK_EQ(std::string("Hihat_closed"), midimap[4].instrument_name);
+		CHECK_EQ(62, midimap[4].note_id);
+		CHECK_EQ(std::string("Hihat_closed"), midimap[4].instrument_name);
 
-CHECK_EQ(56, midimap[5].note_id);
-CHECK_EQ(std::string("Hihat_closed"), midimap[5].instrument_name);
-}
+		CHECK_EQ(56, midimap[5].note_id);
+		CHECK_EQ(std::string("Hihat_closed"), midimap[5].instrument_name);
+	}
 
-SUBCASE("invalid")
-{
-ScopedFile scoped_file(
-"<?xml version='1.0' encoding='UTF-8'?>\n" \
-"<midimap\n" \
-"<map note=\"54\" instr=\"Crash_left_tip\"/>\n" \
-"<map note=\"60\" instr=\"Crash_left_whisker\"/>\n" \
-"<map note=\"55\" instr=\"Crash_right_tip\"/>\n" \
-"<map note=\"62\" instr=\"Crash_right_whisker\"/>\n" \
-"<map note=\"56\" instr=\"Hihat_closed\"/>\n" \
-"</midimap>");
+	SUBCASE("invalid")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap\n"
+		    "\t<map note=\"54\" instr=\"Crash_left_tip\"/>\n"
+		    "\t<map note=\"60\" instr=\"Crash_left_whisker\"/>\n"
+		    "\t<map note=\"55\" instr=\"Crash_right_tip\"/>\n"
+		    "\t<map note=\"62\" instr=\"Crash_right_whisker\"/>\n"
+		    "\t<map note=\"56\" instr=\"Hihat_closed\"/>\n"
+		    "</midimap>");
 
-MidiMapParser parser;
-CHECK(!parser.parseFile(scoped_file.filename()));
-}
+		MidiMapParser parser;
+		CHECK(!parser.parseFile(scoped_file.filename()));
+	}
 }

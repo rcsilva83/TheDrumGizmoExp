@@ -26,16 +26,15 @@
  */
 #include <doctest/doctest.h>
 
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "../src/configfile.h"
 
-class TestConfigFile
-	: public ConfigFile {
+class TestConfigFile : public ConfigFile
+{
 public:
-	TestConfigFile()
-		: ConfigFile("")
+	TestConfigFile() : ConfigFile("")
 	{
 	}
 

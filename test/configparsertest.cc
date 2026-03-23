@@ -32,14 +32,12 @@ TEST_CASE("ConfigParserTest")
 {
 	SUBCASE("test")
 	{
-		std::string xml =
-			"<?xml version='1.0' encoding='UTF-8'?>\n" \
-			"<config>\n" \
-			"  <value name=\"foo\">42</value>\n" \
-			"  <value name=\"bar\">true</value>\n" \
-			"  <value name=\"bas\">&quot;&lt;</value>\n" \
-			"</config>";
-
+		std::string xml = "<?xml version='1.0' encoding='UTF-8'?>\n"
+		                  "<config>\n"
+		                  "  <value name=\"foo\">42</value>\n"
+		                  "  <value name=\"bar\">true</value>\n"
+		                  "  <value name=\"bas\">&quot;&lt;</value>\n"
+		                  "</config>";
 
 		ConfigParser parser;
 		CHECK(parser.parseString(xml));
@@ -54,14 +52,12 @@ TEST_CASE("ConfigParserTest")
 
 	SUBCASE("invalid")
 	{
-		std::string xml =
-			"<?xml version='1.0' encoding='UTF-8'?>\n" \
-			"<config\n" \
-			"  <value name=\"foo\">42</value>\n" \
-			"  <value name=\"bar\">true</value>\n" \
-			"  <value name=\"bas\">&quot;&lt;</value>\n" \
-			"</config>";
-
+		std::string xml = "<?xml version='1.0' encoding='UTF-8'?>\n"
+		                  "<config\n"
+		                  "  <value name=\"foo\">42</value>\n"
+		                  "  <value name=\"bar\">true</value>\n"
+		                  "  <value name=\"bas\">&quot;&lt;</value>\n"
+		                  "</config>";
 
 		ConfigParser parser;
 		// Epxect parser error (missing '>' in line 2)

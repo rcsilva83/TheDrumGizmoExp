@@ -28,7 +28,6 @@
 
 #include "bytesizeparser.h"
 
-
 TEST_CASE("ByteSizeParserTest")
 {
 	SUBCASE("suffixTest")

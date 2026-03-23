@@ -3,7 +3,7 @@
  *            randomtest.cc
  *
  *  Sat Mar 26 08:48:53 CET 2016
- *  Copyright 2016 Andrï¿½ Nusser
+ *  Copyright 2016 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -28,8 +28,8 @@
 
 #include <random.h>
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 TEST_CASE("RandomTest")
 {
@@ -42,7 +42,7 @@ TEST_CASE("RandomTest")
 		float float_ub = 666.666;
 		int int_lb = -42;
 		int int_ub = 23;
-		for(int i = 0; i<10000; i++)
+		for(int i = 0; i < 10000; i++)
 		{
 			float rand_float = rand.floatInRange(float_lb, float_ub);
 			float rand_int = rand.intInRange(int_lb, int_ub);
@@ -53,14 +53,15 @@ TEST_CASE("RandomTest")
 		// check if the series of random numbers is the one we expect
 		// for a certain seed.
 		rand = Random(666);
-		CHECK_EQ(0, rand.intInRange(0,100));
-		CHECK_EQ(61, rand.intInRange(0,100));
-		CHECK_EQ(23, rand.intInRange(0,100));
+		CHECK_EQ(0, rand.intInRange(0, 100));
+		CHECK_EQ(61, rand.intInRange(0, 100));
+		CHECK_EQ(23, rand.intInRange(0, 100));
 	}
 
 	SUBCASE("normalTest")
 	{
-		// This test might theoretically fail but it is extremely unlikely to happen.
+		// This test might theoretically fail but it is extremely unlikely to
+		// happen.
 		Random rand;
 
 		float real_mean = 42.0;
@@ -69,29 +70,32 @@ TEST_CASE("RandomTest")
 
 		float sum = 0.;
 		float sum_of_squares = 0.;
-		for(int i=0; i<nr_of_samples; i++)
+		for(int i = 0; i < nr_of_samples; i++)
 		{
 			float rand_float = rand.normalDistribution(real_mean, real_stddev);
 			sum += rand_float;
-			sum_of_squares += rand_float*rand_float;
+			sum_of_squares += rand_float * rand_float;
 		}
 
-		float estimated_mean = sum/nr_of_samples;
-		float estimated_stddev = sqrt(sum_of_squares/nr_of_samples - estimated_mean*estimated_mean);
+		float estimated_mean = sum / nr_of_samples;
+		float estimated_stddev = sqrt(
+		    sum_of_squares / nr_of_samples - estimated_mean * estimated_mean);
 
 		float epsilon = 0.1;
-		CHECK(estimated_mean >= real_mean-epsilon && estimated_mean <= real_mean+epsilon);
-		CHECK(estimated_stddev >= real_stddev-epsilon && estimated_stddev <= real_stddev+epsilon);
+		CHECK(estimated_mean >= real_mean - epsilon &&
+		      estimated_mean <= real_mean + epsilon);
+		CHECK(estimated_stddev >= real_stddev - epsilon &&
+		      estimated_stddev <= real_stddev + epsilon);
 	}
 
 	SUBCASE("chooseTest")
 	{
 		Random rand;
 
-		std::vector<int> vec = { 42, 42, 42 };
+		std::vector<int> vec = {42, 42, 42};
 		int nr_of_samples = 1000;
 
-		for(int i=0; i<nr_of_samples; i++)
+		for(int i = 0; i < nr_of_samples; i++)
 		{
 			CHECK_EQ(42, rand.choose(vec));
 		}

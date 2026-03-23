@@ -26,11 +26,11 @@
  */
 #include <doctest/doctest.h>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
-#include <audiofile.h>
 #include <audiocache.h>
+#include <audiofile.h>
 #include <settings.h>
 
 #include "drumkit_creator.h"
@@ -47,7 +47,7 @@ struct AudioCacheTestFixture
 	//! \param thread Control if this test is running in threaded mode or not.
 	//! \param framesize The initial framesize to use.
 	void testHelper(const char* filename, int channel, bool threaded,
-	                int framesize, int num_channels)
+	    int framesize, int num_channels)
 	{
 		// Reference file:
 		AudioFile audio_file_ref(filename, channel);
@@ -76,9 +76,10 @@ struct AudioCacheTestFixture
 		    ++initial_samples_needed)
 		{
 
-			printf("open: initial_samples_needed: %d\n", (int)initial_samples_needed);
-			sample_t *samples =
-				audio_cache.open(audio_file, initial_samples_needed, channel, id);
+			printf("open: initial_samples_needed: %d\n",
+			    (int)initial_samples_needed);
+			sample_t* samples = audio_cache.open(
+			    audio_file, initial_samples_needed, channel, id);
 			size_t size = initial_samples_needed;
 			size_t offset = 0;
 
@@ -98,7 +99,8 @@ struct AudioCacheTestFixture
 					int timeout = 1000;
 					while(!audio_cache.isReady(id))
 					{
-						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						std::this_thread::sleep_for(
+						    std::chrono::milliseconds(1));
 						if(--timeout == 0)
 						{
 							FAIL(""); // timeout
@@ -111,15 +113,16 @@ struct AudioCacheTestFixture
 
 				CHECK_EQ(std::size_t(0), settings.number_of_underruns.load());
 
-				for(size_t i = 0; (i < size) && (offset < audio_file_ref.size); ++i)
+				for(size_t i = 0; (i < size) && (offset < audio_file_ref.size);
+				    ++i)
 				{
 					if(audio_file_ref.data[offset] != samples[i])
 					{
 						printf("-----> offset: %d, size: %d, diff: %d,"
 						       " i: %d, size: %d, block-diff: %d\n",
-						       (int)offset, (int)audio_file_ref.size,
-						       (int)(audio_file_ref.size - offset),
-						       (int)i, (int)size, (int)(size - i));
+						    (int)offset, (int)audio_file_ref.size,
+						    (int)(audio_file_ref.size - offset), (int)i,
+						    (int)size, (int)(size - i));
 					}
 					CHECK_EQ(audio_file_ref.data[offset], samples[i]);
 					++offset;
@@ -139,55 +142,65 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 	{
 		printf("\nsinglechannel_nonthreaded()\n");
 
-		auto filename = drumkit_creator.createSingleChannelWav("single_channel.wav");
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
 
 		// Conduct test
 		int channel = 0;
 		bool threaded = false;
 		int num_channels = 1;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
 	SUBCASE("singleChannelThreaded")
 	{
 		printf("\nsinglechannel_threaded()\n");
 
-		auto filename = drumkit_creator.createSingleChannelWav("single_channel.wav");
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
 
 		// Conduct test
 		int channel = 0;
 		bool threaded = true;
 		int num_channels = 1;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
 	SUBCASE("multiChannelNonThreaded")
 	{
 		printf("\nmultichannel_nonthreaded()\n");
 
-		auto filename = drumkit_creator.createMultiChannelWav("multi_channel.wav");
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
 
 		// Conduct test
 		int channel = 0;
 		bool threaded = false;
 		int num_channels = 13;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 		++channel;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
 	SUBCASE("multiChannelThreaded")
 	{
 		printf("\nmultichannel_threaded()\n");
 
-		auto filename = drumkit_creator.createMultiChannelWav("multi_channel.wav");
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
 
 		// Conduct test
 		int channel = 0;
 		bool threaded = true;
 		int num_channels = 13;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 		++channel;
-		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+		testHelper(
+		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 }

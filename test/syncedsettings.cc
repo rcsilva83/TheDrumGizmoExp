@@ -48,7 +48,7 @@ TEST_CASE_FIXTURE(SyncedSettingsTestFixture, "SyncedSettingsTest")
 	SUBCASE("groupDataCanBeCopied")
 	{
 		Group<TestData> data;
-		(TestData)data; // copies
+		(TestData) data; // copies
 	}
 
 	SUBCASE("accessorCanSetFields")
@@ -152,12 +152,14 @@ TEST_CASE_FIXTURE(SyncedSettingsTestFixture, "SyncedSettingsTest")
 	{
 		struct Settings
 		{
-			struct Foo {
+			struct Foo
+			{
 				float a{5};
 				float b{3};
 				bool enabled{true};
 			};
-			struct Bar {
+			struct Bar
+			{
 				std::string label{"empty"};
 				float bla{0.f};
 			};
@@ -178,13 +180,15 @@ TEST_CASE_FIXTURE(SyncedSettingsTestFixture, "SyncedSettingsTest")
 		// read foo settings
 		{
 			Accessor<Settings::Foo> tmp{s.foo};
-			if(tmp.data.enabled) {
+			if(tmp.data.enabled)
+			{
 				// do some while locked
 			}
 		}
 		// or:
 		Settings::Foo copy = s.foo;
-		if(copy.enabled) {
+		if(copy.enabled)
+		{
 			// do some stuff without locking
 		}
 		CHECK(copy.enabled);

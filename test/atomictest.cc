@@ -3,7 +3,7 @@
  *            atomic.cc
  *
  *  Wed Mar 23 09:17:12 CET 2016
- *  Copyright 2016 Christian Glï¿½ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -30,14 +30,12 @@
 
 struct AtomicTestFixture
 {
-	template <typename T>
-	bool isUsingStandardImpl()
+	template <typename T> bool isUsingStandardImpl()
 	{
 		return std::is_base_of<std::atomic<T>, Atomic<T>>::value;
 	}
 
-	template <typename T>
-	bool isLockFree()
+	template <typename T> bool isLockFree()
 	{
 		Atomic<T> a;
 		return a.is_lock_free();
@@ -119,9 +117,9 @@ TEST_CASE_FIXTURE(AtomicTestFixture, "AtomicTest")
 		CHECK(isLockFree<std::size_t>());
 
 		// NOTE: Not lock free on small systems
-		//CHECK(isLockFree<unsigned long long int>());
-		//CHECK(isLockFree<long long int>());
-		//CHECK(isLockFree<double>());
-		//CHECK(isLockFree<long double>());
+		// CHECK(isLockFree<unsigned long long int>());
+		// CHECK(isLockFree<long long int>());
+		// CHECK(isLockFree<double>());
+		// CHECK(isLockFree<long double>());
 	}
 }

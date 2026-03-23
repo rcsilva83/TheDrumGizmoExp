@@ -22,7 +22,8 @@
  *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with DrumGizmo; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA. */
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+ */
 #include <doctest/doctest.h>
 
 #include <algorithm>
@@ -35,23 +36,21 @@ TEST_CASE("MidiMapperTest")
 {
 	SUBCASE("test")
 	{
-		midimap_t midimap
-		{
-			{ 54, "Crash_left_tip" },
-			{ 60, "Crash_left_whisker" },
-			{ 55, "Crash_right_tip" },
-			{ 62, "Crash_right_whisker" },
-			{ 62, "Hihat_closed" },
-			{ 56, "Hihat_closed" },
+		midimap_t midimap{
+		    {54, "Crash_left_tip"},
+		    {60, "Crash_left_whisker"},
+		    {55, "Crash_right_tip"},
+		    {62, "Crash_right_whisker"},
+		    {62, "Hihat_closed"},
+		    {56, "Hihat_closed"},
 		};
 
-		instrmap_t instrmap
-		{
-			{ "Crash_left_tip", 0 },
-			{ "Crash_left_whisker", 1 },
-			{ "Crash_right_tip", 2 },
-			{ "Crash_right_whisker", 3 },
-			{ "Hihat_closed", 4 },
+		instrmap_t instrmap{
+		    {"Crash_left_tip", 0},
+		    {"Crash_left_whisker", 1},
+		    {"Crash_right_tip", 2},
+		    {"Crash_right_whisker", 3},
+		    {"Hihat_closed", 4},
 		};
 
 		MidiMapper mapper;
@@ -92,23 +91,21 @@ TEST_CASE("MidiMapperTest")
 
 	SUBCASE("exceptional")
 	{
-		midimap_t midimap
-		{
-			{ 54, "Crash_left_tip" },
-			{ 60, "Crash_left_whisker_MISSING" },
-			{ 55, "Crash_right_tip" },
-			{ 62, "Crash_right_whisker" },
-			{ 62, "Hihat_closed" },
-			{ 56, "Hihat_closed" },
+		midimap_t midimap{
+		    {54, "Crash_left_tip"},
+		    {60, "Crash_left_whisker_MISSING"},
+		    {55, "Crash_right_tip"},
+		    {62, "Crash_right_whisker"},
+		    {62, "Hihat_closed"},
+		    {56, "Hihat_closed"},
 		};
 
-		instrmap_t instrmap
-		{
-			{ "Crash_left_tip", 0 },
-			{ "Crash_left_whisker", 1 },
-			{ "Crash_right_tip", 2 },
-			{ "Crash_right_whisker", 3 },
-			{ "Hihat_closed", 4 },
+		instrmap_t instrmap{
+		    {"Crash_left_tip", 0},
+		    {"Crash_left_whisker", 1},
+		    {"Crash_right_tip", 2},
+		    {"Crash_right_whisker", 3},
+		    {"Hihat_closed", 4},
 		};
 
 		MidiMapper mapper;

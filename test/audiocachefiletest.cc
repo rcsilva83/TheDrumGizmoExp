@@ -33,12 +33,11 @@
 
 #include "drumkit_creator.h"
 
-class TestableAudioCacheFiles
-	: public AudioCacheFiles
+class TestableAudioCacheFiles : public AudioCacheFiles
 {
 public:
-	//CacheAudioFile& getAudioFile(const std::string& filename);
-	//void release(const std::string& filename);
+	// CacheAudioFile& getAudioFile(const std::string& filename);
+	// void release(const std::string& filename);
 	int getRef(const std::string& filename)
 	{
 		auto it = audiofiles.find(filename);
@@ -61,7 +60,8 @@ struct AudioCacheFileTestFixture
 		printf("Test buffer size: %d samples\n", (int)buffer_size);
 
 		// Create the audio file
-		auto filename = drumkit_creator.createMultiChannelWav("multi_channel.wav");
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
 
 		// Conduct tests
 		AudioFile* ref_file[13];
@@ -88,14 +88,12 @@ struct AudioCacheFileTestFixture
 				samples[c][i] = 42;
 			}
 
-			channels.push_back(
-				{
-					c, // channel
-					samples[c], // samples
-					buffer_size, // max_num_samples
-					&ready[c] // ready
-				}
-			);
+			channels.push_back({
+			    c,           // channel
+			    samples[c],  // samples
+			    buffer_size, // max_num_samples
+			    &ready[c]    // ready
+			});
 		}
 
 		for(size_t offset = 0; offset < file.getSize(); offset += buffer_size)
@@ -119,7 +117,7 @@ struct AudioCacheFileTestFixture
 
 			for(size_t c = 0; c < 13; ++c)
 			{
-				CHECK_EQ(true, ready[c]?true:false);
+				CHECK_EQ(true, ready[c] ? true : false);
 			}
 
 			sample_t diff[13] = {0.0};
@@ -127,7 +125,8 @@ struct AudioCacheFileTestFixture
 			{
 				for(size_t i = 0; i < read_size; ++i)
 				{
-					diff[c] += abs((long)(ref_file[c]->data[i + offset] - samples[c][i]));
+					diff[c] += abs(
+					    (long)(ref_file[c]->data[i + offset] - samples[c][i]));
 				}
 			}
 
@@ -149,7 +148,8 @@ TEST_CASE_FIXTURE(AudioCacheFileTestFixture, "AudioCacheFileTest")
 	SUBCASE("refTest")
 	{
 		// Create the audio file
-		auto filename = drumkit_creator.createSingleChannelWav("single_channel.wav");
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
 
 		// Conduct tests
 		TestableAudioCacheFiles audiofiles;
@@ -212,14 +212,12 @@ TEST_CASE_FIXTURE(AudioCacheFileTestFixture, "AudioCacheFileTest")
 				samples[c][i] = 42.0f;
 			}
 
-			channels.push_back(
-				{
-					c, // channel
-					samples[c], // samples
-					buffer_size, // max_num_samples
-					&ready[c] // ready
-				}
-			);
+			channels.push_back({
+			    c,           // channel
+			    samples[c],  // samples
+			    buffer_size, // max_num_samples
+			    &ready[c]    // ready
+			});
 		}
 
 		for(size_t c = 0; c < 13; ++c)
@@ -231,7 +229,7 @@ TEST_CASE_FIXTURE(AudioCacheFileTestFixture, "AudioCacheFileTest")
 
 		for(size_t c = 0; c < 13; ++c)
 		{
-			CHECK_EQ(false, ready[c]?true:false);
+			CHECK_EQ(false, ready[c] ? true : false);
 		}
 
 		for(size_t c = 0; c < 13; ++c)

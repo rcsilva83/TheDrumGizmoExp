@@ -64,28 +64,38 @@ TEST_CASE("EventsDSTest")
 
 		// iterate over
 		std::string group_concat = "";
-		for(const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
+		for(const auto& sample_event : events_ds.iterateOver<SampleEvent>(13))
 		{
 			group_concat.append(sample_event.group);
 		}
 		CHECK(group_concat == "abcd");
 
 		// get and getType
-		for(const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
+		for(const auto& sample_event : events_ds.iterateOver<SampleEvent>(13))
 		{
 			CHECK(events_ds.get<SampleEvent>(sample_event.id).channel == 13);
-			CHECK(events_ds.getType(sample_event.id) == Event::Type::SampleEvent);
+			CHECK(
+			    events_ds.getType(sample_event.id) == Event::Type::SampleEvent);
 		}
 
 		// remove
-		auto event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(42).back()).back();
+		auto event_id =
+		    events_ds
+		        .getEventIDsOf(events_ds.getSampleEventGroupIDsOf(42).back())
+		        .back();
 		events_ds.remove(event_id);
 		CHECK(events_ds.getSampleEventGroupIDsOf(42).size() == 1);
 
-		event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back()).back();
+		event_id =
+		    events_ds
+		        .getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back())
+		        .back();
 		events_ds.remove(event_id);
 		CHECK(!events_ds.getSampleEventGroupIDsOf(23).empty());
-		event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back()).back();
+		event_id =
+		    events_ds
+		        .getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back())
+		        .back();
 		events_ds.remove(event_id);
 		CHECK(events_ds.getSampleEventGroupIDsOf(23).empty());
 	}

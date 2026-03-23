@@ -26,47 +26,88 @@
  */
 #include <doctest/doctest.h>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include <drumgizmo.h>
 
 #include "drumkit_creator.h"
 
-class AudioOutputEngineDummy
-	: public AudioOutputEngine
+class AudioOutputEngineDummy : public AudioOutputEngine
 {
 public:
-	bool init(const Channels& channels) override { return true; }
+	bool init(const Channels& channels) override
+	{
+		return true;
+	}
 
-	void setParm(const std::string& parm, const std::string& value) override {}
+	void setParm(const std::string& parm, const std::string& value) override
+	{
+	}
 
-	bool start() override { return true; }
-	void stop() override {}
+	bool start() override
+	{
+		return true;
+	}
+	void stop() override
+	{
+	}
 
-	void pre(size_t nsamples) override {}
-	void run(int ch, sample_t *samples, size_t nsamples) override {}
-	void post(size_t nsamples) override {}
-	std::size_t getSamplerate() const override { return 44100; }
-	bool isFreewheeling() const override { return true; }
+	void pre(size_t nsamples) override
+	{
+	}
+	void run(int ch, sample_t* samples, size_t nsamples) override
+	{
+	}
+	void post(size_t nsamples) override
+	{
+	}
+	std::size_t getSamplerate() const override
+	{
+		return 44100;
+	}
+	bool isFreewheeling() const override
+	{
+		return true;
+	}
 };
 
-class AudioInputEngineDummy
-	: public AudioInputEngine
+class AudioInputEngineDummy : public AudioInputEngine
 {
 public:
-	bool init(const Instruments& instruments) override { return true; }
+	bool init(const Instruments& instruments) override
+	{
+		return true;
+	}
 
-	void setParm(const std::string& parm, const std::string& value) override {}
+	void setParm(const std::string& parm, const std::string& value) override
+	{
+	}
 
-	bool start() override { return true; }
-	void stop() override {}
+	bool start() override
+	{
+		return true;
+	}
+	void stop() override
+	{
+	}
 
-	void pre() override {}
-	void run(size_t pos, size_t len, std::vector<event_t>& events) override {}
-	void post() override {}
-	void setSampleRate(double sample_rate) override {}
-	bool isFreewheeling() const override { return true; }
+	void pre() override
+	{
+	}
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+	}
+	void post() override
+	{
+	}
+	void setSampleRate(double sample_rate) override
+	{
+	}
+	bool isFreewheeling() const override
+	{
+		return true;
+	}
 };
 
 struct test_engineFixture

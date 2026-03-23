@@ -30,12 +30,10 @@
 
 #include <notifier.h>
 
-class Probe
-	: public Listener
+class Probe : public Listener
 {
 public:
-	Probe(std::vector<Probe*>& triggers)
-		: triggers(triggers)
+	Probe(std::vector<Probe*>& triggers) : triggers(triggers)
 	{
 	}
 
@@ -64,7 +62,9 @@ TEST_CASE("NotifierTest")
 			ref.push_back(&foo1);
 			ref.push_back(&foo2);
 			CHECK_EQ(ref.size(), triggers.size());
+			// cppcheck-suppress containerOutOfBounds
 			CHECK_EQ(ref[0], triggers[0]);
+			// cppcheck-suppress containerOutOfBounds
 			CHECK_EQ(ref[1], triggers[1]);
 			notifier.disconnect(&foo1);
 			notifier.disconnect(&foo2);
@@ -79,7 +79,9 @@ TEST_CASE("NotifierTest")
 			ref.push_back(&foo2);
 			ref.push_back(&foo1);
 			CHECK_EQ(ref.size(), triggers.size());
+			// cppcheck-suppress containerOutOfBounds
 			CHECK_EQ(ref[0], triggers[0]);
+			// cppcheck-suppress containerOutOfBounds
 			CHECK_EQ(ref[1], triggers[1]);
 			notifier.disconnect(&foo1);
 			notifier.disconnect(&foo2);

@@ -28,46 +28,44 @@
 
 #include <locale>
 
-#include <translation.h>
 #include <dggui/uitranslation.h>
 #include <stdlib.h>
+#include <translation.h>
 
 TEST_CASE("TranslationTest")
 {
-SUBCASE("testFromFile")
-{
-Translation t;
-char buf[100000];
-FILE* fp = fopen(MO_SRC, "r");
-CHECK(fp != nullptr);
-auto sz = fread(buf, 1, sizeof(buf), fp);
-fclose(fp);
-CHECK(t.load(buf, sz));
+	SUBCASE("testFromFile")
+	{
+		Translation t;
+		char buf[100000];
+		FILE* fp = fopen(MO_SRC, "r");
+		CHECK(fp != nullptr);
+		auto sz = fread(buf, 1, sizeof(buf), fp);
+		fclose(fp);
+		CHECK(t.load(buf, sz));
 
-// Look up translation from .mo file
-CHECK_EQ(std::string("Trommes\xc3\xb8t"),
-          std::string(_("Drumkit")));
+		// Look up translation from .mo file
+		CHECK_EQ(std::string("Trommes\xe6t"), std::string(_("Drumkit")));
 
-// No translation, return key
-CHECK_EQ(std::string("No translation"),
-          std::string(_("No translation")));
-}
+		// No translation, return key
+		CHECK_EQ(
+		    std::string("No translation"), std::string(_("No translation")));
+	}
 
-SUBCASE("testFromLocale")
-{
+	SUBCASE("testFromLocale")
+	{
 #ifdef _WIN32
-_putenv_s("LANG", "da_DK.UTF-8");
+		_putenv_s("LANG", "da_DK.UTF-8");
 #else
-setenv("LANG", "da_DK.UTF-8", 1);
+		setenv("LANG", "da_DK.UTF-8", 1);
 #endif
-dggui::UITranslation t;
+		dggui::UITranslation t;
 
-// Look up translation from .mo file
-CHECK_EQ(std::string("Trommes\xc3\xb8t"),
-          std::string(_("Drumkit")));
+		// Look up translation from .mo file
+		CHECK_EQ(std::string("Trommes\xe6t"), std::string(_("Drumkit")));
 
-// No translation, return key
-CHECK_EQ(std::string("No translation"),
-          std::string(_("No translation")));
-}
+		// No translation, return key
+		CHECK_EQ(
+		    std::string("No translation"), std::string(_("No translation")));
+	}
 }
