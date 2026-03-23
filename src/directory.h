@@ -26,19 +26,21 @@
  */
 #pragma once
 
-#include <string>
 #include <list>
+#include <string>
 
 #include <libgen.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #define DIRECTORY_HIDDEN 1
 
-class Directory {
+class Directory
+{
 public:
-	typedef struct drive {
+	typedef struct drive
+	{
 		int number;
 		std::string name;
 	} drive_t;
@@ -64,13 +66,14 @@ public:
 	// Add filter, ie. directories or files only
 	EntryList entryList();
 
-	//void setSorting();
+	// void setSorting();
 
 	static std::string cwd();
 	static std::string root();
 	static std::string root(std::string path);
 	static std::string cleanPath(std::string path);
-	static Directory::EntryList listFiles(std::string path, unsigned char filter = 0);
+	static Directory::EntryList listFiles(
+	    std::string path, unsigned char filter = 0);
 	static bool isRoot(std::string path);
 	static Directory::DriveList drives();
 	static bool isDir(std::string path);
@@ -85,5 +88,5 @@ private:
 
 	typedef std::list<std::string> Path;
 	static Path parsePath(std::string path);
-	static std::string pathToStr(Path &path);
+	static std::string pathToStr(Path& path);
 };
