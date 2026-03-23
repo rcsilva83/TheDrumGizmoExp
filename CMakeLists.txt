@@ -348,6 +348,22 @@ target_compile_definitions(dg_core PRIVATE ${DG_COMMON_COMPILE_DEFINITIONS})
 target_compile_options(dg_core PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 target_link_libraries(dg_core PUBLIC PkgConfig::SNDFILE Threads::Threads dg_zr dg_pugi)
 
+dg_assert_files_exist("${DG_LODEPNG_SOURCE_FILE}")
+add_library(dg_lodepng STATIC
+	"${DG_LODEPNG_SOURCE_FILE}"
+)
+target_compile_definitions(dg_lodepng PUBLIC
+	LODEPNG_NO_COMPILE_ENCODER
+	LODEPNG_NO_COMPILE_DISK
+	LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+	LODEPNG_NO_COMPILE_ERROR_TEXT
+	LODEPNG_NO_COMPILE_CPP
+)
+target_compile_options(dg_lodepng PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
+target_include_directories(dg_lodepng PUBLIC
+	"${DG_LODEPNG_SOURCE_DIR}"
+)
+
 check_library_exists(rt clock_gettime "" DG_HAVE_LIBRT)
 if(DG_HAVE_LIBRT)
 	target_link_libraries(dg_core PUBLIC rt)
@@ -452,7 +468,6 @@ if(DG_ENABLE_CLI)
 		add_executable(dgvalidator
 			drumgizmo/dgvalidator.cc
 			${DG_CLI_COMMON_SOURCES}
-			"${DG_LODEPNG_SOURCE_FILE}"
 			dggui/image.cc
 			dggui/resource.cc
 			dggui/colour.cc
@@ -460,11 +475,6 @@ if(DG_ENABLE_CLI)
 		target_compile_definitions(dgvalidator PRIVATE
 			${DG_COMMON_COMPILE_DEFINITIONS}
 			${DG_CLI_COMMON_DEFINITIONS}
-			LODEPNG_NO_COMPILE_ENCODER
-			LODEPNG_NO_COMPILE_DISK
-			LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
-			LODEPNG_NO_COMPILE_ERROR_TEXT
-			LODEPNG_NO_COMPILE_CPP
 		)
 		target_compile_options(dgvalidator PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 		target_include_directories(dgvalidator PRIVATE
@@ -474,14 +484,13 @@ if(DG_ENABLE_CLI)
 			"${DG_HUGIN_INCLUDE_DIR}"
 			"${CMAKE_CURRENT_BINARY_DIR}"
 		)
-		target_link_libraries(dgvalidator PRIVATE ${DG_CLI_COMMON_LINK_LIBRARIES})
+		target_link_libraries(dgvalidator PRIVATE ${DG_CLI_COMMON_LINK_LIBRARIES} dg_lodepng)
 		install(TARGETS dgvalidator RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 	endif()
 endif()
 
 if(DG_NEED_PLUGIN_GUI)
 	dg_assert_files_exist(
-		"${DG_LODEPNG_SOURCE_FILE}"
 		"${DG_GETOPTPP_SOURCE_DIR}/getoptpp.hpp"
 	)
 
@@ -532,7 +541,6 @@ if(DG_NEED_PLUGIN_GUI)
 		dggui/verticalline.cc
 		dggui/widget.cc
 		dggui/window.cc
-		"${DG_LODEPNG_SOURCE_FILE}"
 		${DG_DGGUI_BACKEND_SOURCES}
 	)
 
@@ -543,11 +551,6 @@ if(DG_NEED_PLUGIN_GUI)
 		${DG_COMMON_COMPILE_DEFINITIONS}
 		${DG_GUI_COMPILE_DEFINITIONS}
 		WITH_HUG_MUTEX
-		LODEPNG_NO_COMPILE_ENCODER
-		LODEPNG_NO_COMPILE_DISK
-		LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
-		LODEPNG_NO_COMPILE_ERROR_TEXT
-		LODEPNG_NO_COMPILE_CPP
 	)
 	target_compile_options(dg_dggui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 	target_include_directories(dg_dggui PUBLIC
@@ -557,7 +560,7 @@ if(DG_NEED_PLUGIN_GUI)
 		"${CMAKE_CURRENT_BINARY_DIR}"
 		${DG_DGGUI_BACKEND_INCLUDE_DIRS}
 	)
-	target_link_libraries(dg_dggui PUBLIC Threads::Threads ${DG_GUI_LINK_LIBRARIES})
+	target_link_libraries(dg_dggui PUBLIC Threads::Threads ${DG_GUI_LINK_LIBRARIES} dg_lodepng)
 
 	set(DG_PLUGINGUI_RESOURCES
 		"${CMAKE_CURRENT_SOURCE_DIR}/plugingui/resources/bg.png"
@@ -659,11 +662,6 @@ if(DG_NEED_PLUGIN_GUI)
 		${DG_COMMON_COMPILE_DEFINITIONS}
 		${DG_GUI_COMPILE_DEFINITIONS}
 		WITH_HUG_MUTEX
-		LODEPNG_NO_COMPILE_ENCODER
-		LODEPNG_NO_COMPILE_DISK
-		LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
-		LODEPNG_NO_COMPILE_ERROR_TEXT
-		LODEPNG_NO_COMPILE_CPP
 	)
 	target_compile_options(dg_plugingui PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
 	target_include_directories(dg_plugingui PUBLIC
