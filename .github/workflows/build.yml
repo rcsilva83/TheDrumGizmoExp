@@ -32,7 +32,6 @@ jobs:
 
       - name: Configure
         run: |
-          git submodule update --init --recursive
           cmake -S . -B build \
             -G Ninja \
             -DDG_ENABLE_TESTS=ON \
@@ -84,7 +83,6 @@ jobs:
 
       - name: Configure with coverage flags
         run: |
-          git submodule update --init --recursive
           cmake -S . -B build-coverage \
             -G Ninja \
             -DDG_ENABLE_TESTS=ON \
@@ -293,7 +291,6 @@ jobs:
 
       - name: Configure and build
         run: |
-          git submodule update --init --recursive
           cmake -S . -B build-release \
             -G Ninja \
             -DDG_ENABLE_TESTS=OFF \
