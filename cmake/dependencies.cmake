@@ -11,6 +11,9 @@ set(DG_PUGL_GIT_TAG "8b8f97dac9dea213875db4cfc3a0bd2033b2f6a1" CACHE STRING "pug
 set(DG_PUGIXML_VERSION "1.15" CACHE STRING "pugixml version")
 set(DG_ZITA_RESAMPLER_GIT_TAG "76288efeead86fd5799d9771e50bf3222aaa8e71" CACHE STRING "zita-resampler commit")
 set(DG_UUNIT_GIT_TAG "a0ce0a75828401be43132fdfffa89f5ae903f501" CACHE STRING "uunit commit")
+set(DG_SNDFILE_VERSION "1.2.2" CACHE STRING "libsndfile version")
+set(DG_SMF_GIT_TAG "692e728d2c13caa3896880216f19f5565ea03886" CACHE STRING "libsmf commit") # libsmf 1.3+
+set(DG_SMF_PACKAGE_VERSION "1.3+" CACHE STRING "libsmf package version string")
 
 if(NOT DEFINED ENV{CPM_SOURCE_CACHE})
 	set(ENV{CPM_SOURCE_CACHE} "${DG_CPM_SOURCE_CACHE}")
@@ -91,6 +94,28 @@ CPMAddPackage(
 	DOWNLOAD_ONLY YES
 )
 
+CPMAddPackage(
+	NAME SndFile
+	GITHUB_REPOSITORY libsndfile/libsndfile
+	VERSION ${DG_SNDFILE_VERSION}
+	OPTIONS
+		"BUILD_SHARED_LIBS OFF"
+		"BUILD_PROGRAMS OFF"
+		"BUILD_EXAMPLES OFF"
+		"BUILD_TESTING OFF"
+		"ENABLE_EXTERNAL_LIBS OFF"
+		"ENABLE_MPEG OFF"
+		"INSTALL_PKGCONFIG_MODULE OFF"
+		"INSTALL_MANPAGES OFF"
+)
+
+CPMAddPackage(
+	NAME smf
+	GITHUB_REPOSITORY stump/libsmf
+	GIT_TAG ${DG_SMF_GIT_TAG}
+	DOWNLOAD_ONLY YES
+)
+
 set(DG_HUGIN_SOURCE_DIR "${hugin_SOURCE_DIR}")
 set(DG_PLUGINGIZMO_SOURCE_DIR "${pluginizmo_SOURCE_DIR}")
 set(DG_LODEPNG_SOURCE_DIR "${lodepng_SOURCE_DIR}")
@@ -99,6 +124,7 @@ set(DG_PUGL_SOURCE_DIR "${pugl_SOURCE_DIR}")
 set(DG_PUGIXML_SOURCE_DIR "${pugixml_SOURCE_DIR}")
 set(DG_ZITA_RESAMPLER_SOURCE_DIR "${zitaresampler_SOURCE_DIR}")
 set(DG_UUNIT_SOURCE_DIR "${uunit_SOURCE_DIR}")
+set(DG_SMF_SOURCE_DIR "${smf_SOURCE_DIR}")
 
 if(NOT EXISTS "${DG_HUGIN_SOURCE_DIR}/hugin.h")
 	message(FATAL_ERROR "CPM failed to provide hugin sources")
@@ -122,6 +148,14 @@ endif()
 
 if(NOT EXISTS "${DG_UUNIT_SOURCE_DIR}/uunit.cc")
 	message(FATAL_ERROR "CPM failed to provide uunit sources")
+endif()
+
+if(NOT EXISTS "${DG_SMF_SOURCE_DIR}/src/smf.c")
+	message(FATAL_ERROR "CPM failed to provide smf sources")
+endif()
+
+if(NOT TARGET SndFile::sndfile)
+	message(FATAL_ERROR "CPM failed to provide the SndFile target")
 endif()
 
 if(NOT TARGET pugixml)

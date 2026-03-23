@@ -79,8 +79,6 @@ endif()
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 
-pkg_check_modules(SNDFILE REQUIRED IMPORTED_TARGET sndfile>=1.0.20)
-
 set(DRUMGIZMO_VERSION "0.0.0")
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version.h" DG_VERSION_LINE REGEX "^#define VERSION \"[0-9.]+\"$")
 if(DG_VERSION_LINE)
@@ -98,7 +96,7 @@ if(DG_ENABLE_INPUT_ALSAMIDI OR DG_ENABLE_OUTPUT_ALSA)
 endif()
 
 if(DG_ENABLE_INPUT_MIDIFILE)
-	pkg_check_modules(SMF REQUIRED IMPORTED_TARGET smf>=1.2)
+	pkg_check_modules(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0>=2.2)
 endif()
 
 if(DG_JACK_REQUIRED)
@@ -289,6 +287,22 @@ target_link_libraries(dg_zr PRIVATE Threads::Threads)
 
 add_library(dg_pugi ALIAS pugixml)
 
+if(DG_ENABLE_INPUT_MIDIFILE)
+	file(WRITE "${CMAKE_BINARY_DIR}/smf-config/config.h" "#define PACKAGE_VERSION \"${DG_SMF_PACKAGE_VERSION}\"\n")
+	add_library(dg_smf STATIC
+		"${DG_SMF_SOURCE_DIR}/src/smf.c"
+		"${DG_SMF_SOURCE_DIR}/src/smf_decode.c"
+		"${DG_SMF_SOURCE_DIR}/src/smf_load.c"
+		"${DG_SMF_SOURCE_DIR}/src/smf_save.c"
+		"${DG_SMF_SOURCE_DIR}/src/smf_tempo.c"
+	)
+	target_include_directories(dg_smf
+		PUBLIC "${DG_SMF_SOURCE_DIR}/src"
+		PRIVATE "${CMAKE_BINARY_DIR}/smf-config"
+	)
+	target_link_libraries(dg_smf PUBLIC PkgConfig::GLIB2)
+endif()
+
 add_library(dg_nls STATIC
 	src/translation.cc
 )
@@ -346,7 +360,7 @@ target_include_directories(dg_core PUBLIC
 )
 target_compile_definitions(dg_core PRIVATE ${DG_COMMON_COMPILE_DEFINITIONS})
 target_compile_options(dg_core PRIVATE ${DG_COMMON_COMPILE_OPTIONS})
-target_link_libraries(dg_core PUBLIC PkgConfig::SNDFILE Threads::Threads dg_zr dg_pugi)
+target_link_libraries(dg_core PUBLIC SndFile::sndfile Threads::Threads dg_zr dg_pugi)
 
 dg_assert_files_exist("${DG_LODEPNG_SOURCE_FILE}")
 add_library(dg_lodepng STATIC
@@ -437,7 +451,7 @@ if(DG_ENABLE_CLI)
 
 	set(DG_CLI_COMMON_LINK_LIBRARIES dg_core dg_hugin)
 	if(DG_ENABLE_INPUT_MIDIFILE)
-		list(APPEND DG_CLI_COMMON_LINK_LIBRARIES PkgConfig::SMF)
+		list(APPEND DG_CLI_COMMON_LINK_LIBRARIES dg_smf)
 	endif()
 	if(DG_JACK_REQUIRED)
 		list(APPEND DG_CLI_COMMON_LINK_LIBRARIES PkgConfig::JACK)

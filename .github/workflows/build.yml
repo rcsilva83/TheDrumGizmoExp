@@ -25,10 +25,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure
         run: |
@@ -76,10 +75,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure with coverage flags
         run: |
@@ -313,10 +311,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure and build
         run: |
