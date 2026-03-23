@@ -34,6 +34,7 @@ namespace dggui
 class Resource
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Resource(const std::string& name);
 
 	const char* data();
@@ -45,8 +46,8 @@ protected:
 	std::string externalData;
 	bool isValid{false};
 	bool isInternal{false};
-	const char *internalData{nullptr};
+	const char* internalData{nullptr};
 	size_t internalSize{0};
 };
 
-} // dggui::
+} // namespace dggui

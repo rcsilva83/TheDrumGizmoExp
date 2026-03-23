@@ -96,17 +96,21 @@ void Image::setError()
 		return;
 	}
 
-	const unsigned char* ptr = (const unsigned char*)rc.data();
+	const std::uint8_t* ptr = reinterpret_cast<const std::uint8_t*>(rc.data());
 
 	std::uint32_t iw, ih;
 
-	iw = (uint32_t)ptr[0] | (uint32_t)ptr[1] << 8 | (uint32_t)ptr[2] << 16 |
-	     (uint32_t)ptr[3] << 24;
-	ptr += sizeof(uint32_t);
+	iw = static_cast<std::uint32_t>(ptr[0]) |
+	     static_cast<std::uint32_t>(ptr[1]) << 8 |
+	     static_cast<std::uint32_t>(ptr[2]) << 16 |
+	     static_cast<std::uint32_t>(ptr[3]) << 24;
+	ptr += sizeof(std::uint32_t);
 
-	ih = (uint32_t)ptr[0] | (uint32_t)ptr[1] << 8 | (uint32_t)ptr[2] << 16 |
-	     (uint32_t)ptr[3] << 24;
-	ptr += sizeof(uint32_t);
+	ih = static_cast<std::uint32_t>(ptr[0]) |
+	     static_cast<std::uint32_t>(ptr[1]) << 8 |
+	     static_cast<std::uint32_t>(ptr[2]) << 16 |
+	     static_cast<std::uint32_t>(ptr[3]) << 24;
+	ptr += sizeof(std::uint32_t);
 
 	_width = iw;
 	_height = ih;
@@ -135,8 +139,9 @@ void Image::load(const char* data, size_t size)
 	has_alpha = false;
 	unsigned int iw{0}, ih{0};
 	std::uint8_t* char_image_data{nullptr};
-	unsigned int res = lodepng_decode32((std::uint8_t**)&char_image_data, &iw,
-	    &ih, (const std::uint8_t*)data, size);
+	unsigned int res =
+	    lodepng_decode32(reinterpret_cast<unsigned char**>(&char_image_data),
+	        &iw, &ih, reinterpret_cast<const unsigned char*>(data), size);
 
 	if(res != 0)
 	{
@@ -160,7 +165,8 @@ void Image::load(const char* data, size_t size)
 	{
 		for(std::size_t x = 0; x < _width; ++x)
 		{
-			std::uint8_t* ptr = &char_image_data[(x + y * _width) * 4];
+			const std::uint8_t* const ptr =
+			    &char_image_data[(x + y * _width) * 4];
 			image_data.emplace_back(Colour{ptr[0], ptr[1], ptr[2], ptr[3]});
 			has_alpha |= ptr[3] != 0xff;
 		}

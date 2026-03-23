@@ -36,6 +36,7 @@ class Colour
 {
 public:
 	Colour();
+	// cppcheck-suppress noExplicitConstructor
 	Colour(float grey, float alpha = 1.0f);
 	Colour(float red, float green, float blue, float alpha = 1.0f);
 	Colour(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a);
@@ -46,16 +47,34 @@ public:
 	bool operator==(const Colour& other) const;
 	bool operator!=(const Colour& other) const;
 
-	inline std::uint8_t red() const { return pixel[0]; }
-	inline std::uint8_t green() const { return pixel[1]; }
-	inline std::uint8_t blue() const { return pixel[2]; }
-	inline std::uint8_t alpha() const { return pixel[3]; }
+	inline std::uint8_t red() const
+	{
+		return pixel[0];
+	}
+	inline std::uint8_t green() const
+	{
+		return pixel[1];
+	}
+	inline std::uint8_t blue() const
+	{
+		return pixel[2];
+	}
+	inline std::uint8_t alpha() const
+	{
+		return pixel[3];
+	}
 
-	std::uint8_t* data() { return pixel.data(); }
-	const std::uint8_t* data() const { return pixel.data(); }
+	std::uint8_t* data()
+	{
+		return pixel.data();
+	}
+	const std::uint8_t* data() const
+	{
+		return pixel.data();
+	}
 
 private:
 	std::array<std::uint8_t, 4> pixel{{255, 255, 255, 255}};
 };
 
-} // dggui::
+} // namespace dggui

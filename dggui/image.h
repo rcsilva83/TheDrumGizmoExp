@@ -29,18 +29,19 @@
 #include <string>
 #include <vector>
 
-#include "drawable.h"
 #include "colour.h"
+#include "drawable.h"
 #include "resource.h"
 
 namespace dggui
 {
 
-class Image
-	: public Drawable
+class Image : public Drawable
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Image(const char* data, size_t size);
+	// cppcheck-suppress noExplicitConstructor
 	Image(const std::string& filename);
 	Image(Image&& other);
 	virtual ~Image();
@@ -51,8 +52,8 @@ public:
 	size_t height() const override;
 
 	const Colour& getPixel(size_t x, size_t y) const override;
-	const std::uint8_t* line(std::size_t y,
-	                         std::size_t x_offset = 0) const override;
+	const std::uint8_t* line(
+	    std::size_t y, std::size_t x_offset = 0) const override;
 
 	bool hasAlpha() const override;
 
@@ -73,4 +74,4 @@ protected:
 	bool has_alpha{false};
 };
 
-} // dggui::
+} // namespace dggui
