@@ -59,7 +59,7 @@ dg_add_uunit_test(resource
 	DEPENDENCIES
 		dg_plugingui_resource_data
 	LINK_LIBRARIES
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(audiocache
@@ -80,7 +80,7 @@ dg_add_uunit_test(audiocache
 		DISABLE_HUGIN
 	LINK_LIBRARIES
 		Threads::Threads
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(audiocachefile
@@ -98,7 +98,7 @@ dg_add_uunit_test(audiocachefile
 		DISABLE_HUGIN
 	LINK_LIBRARIES
 		Threads::Threads
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(audiocacheidmanager
@@ -110,7 +110,7 @@ dg_add_uunit_test(audiocacheidmanager
 	COMPILE_DEFINITIONS
 		DISABLE_HUGIN
 	LINK_LIBRARIES
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(audiocacheeventhandler
@@ -127,7 +127,7 @@ dg_add_uunit_test(audiocacheeventhandler
 		DISABLE_HUGIN
 	LINK_LIBRARIES
 		Threads::Threads
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(enginetest
@@ -140,7 +140,7 @@ dg_add_uunit_test(enginetest
 	LINK_LIBRARIES
 		dg_core
 		Threads::Threads
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(paintertest
@@ -225,7 +225,7 @@ dg_add_uunit_test(drumkitcreatortest
 	COMPILE_DEFINITIONS
 		DISABLE_HUGIN
 	LINK_LIBRARIES
-		PkgConfig::SNDFILE
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(bytesizeparsertest
