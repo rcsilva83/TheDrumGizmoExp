@@ -25,10 +25,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure
         run: |
@@ -76,10 +75,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure with coverage flags
         run: |
@@ -323,6 +321,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-reports
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            cmake \
+            ninja-build \
+            g++ \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libglib2.0-dev \
+            libjack-jackd2-dev \
+            libasound2-dev
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Run Build Wrapper
@@ -358,10 +370,9 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
-            libsndfile1-dev \
+            libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            libsmf-dev
+            libasound2-dev
 
       - name: Configure and build
         run: |
