@@ -325,6 +325,8 @@ jobs:
     name: Sonar
     runs-on: ubuntu-latest
     needs: coverage
+    permissions:
+      security-events: write
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
@@ -369,6 +371,19 @@ jobs:
           args: >
             --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
             --define sonar.coverageReportPaths=coverage-sonar.xml
+
+      - name: Download SARIF report from SonarCloud
+        run: |
+          curl --fail --show-error --silent --location \
+            --header "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            "https://sonarcloud.io/api/issues/export_sarif?projectKey=rcsilva83_TheDrumGizmoExp" \
+            --output sonarcloud.sarif
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sonarcloud.sarif
+          category: sonarcloud
 
   linux-binary:
     name: Linux binary
