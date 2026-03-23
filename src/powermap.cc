@@ -115,11 +115,15 @@ Power Powermap::map(Power in)
 
 void Powermap::reset()
 {
-	setFixed0({eps, eps});
-	setFixed1({.5, .5});
-	setFixed2({1 - eps, 1 - eps});
+	// Assign directly to avoid order-dependent clamping in the setFixed*
+	// methods (setFixed1 clamps against fixed[2], which would not yet be
+	// initialised if we called the setters in top-down order).
+	fixed[0] = {eps, eps};
+	fixed[1] = {0.5f, 0.5f};
+	fixed[2] = {1.0f - eps, 1.0f - eps};
 	// FIXME: better false?
 	shelf = true;
+	spline_needs_update = true;
 
 	updateSpline();
 }
