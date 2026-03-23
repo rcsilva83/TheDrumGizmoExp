@@ -205,8 +205,8 @@ TEST_CASE("PainterTest")
 		{ // Text is offset to the left and up so nothing is to be drawn.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			// cppcheck-suppress signConversion
 			painter.drawText(
+			    // cppcheck-suppress signConversion
 			    -1 * (width + 1), -1 * (height + 1), font, someText);
 		}
 	}
