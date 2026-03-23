@@ -138,6 +138,19 @@ jobs:
             --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
+            --sonarqube \
+            --output coverage-sonar.xml
+
+          .venv/bin/python -m gcovr \
+            --root . \
+            --object-directory build-coverage \
+            --verbose \
+            -j 1 \
+            --gcov-ignore-parse-errors=all \
+            --gcov-ignore-errors=source_not_found \
+            --filter '(^|.*/)(src|dggui|plugingui|plugin|drumgizmo|test)/' \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
             --html-details \
             --output coverage/index.html
 
@@ -187,6 +200,7 @@ jobs:
           name: coverage-reports
           path: |
             coverage.xml
+            coverage-sonar.xml
             coverage/
 
   static-analysis:
@@ -349,7 +363,7 @@ jobs:
         with:
           args: >
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
-            --define sonar.coverageReportPaths=coverage.xml
+            --define sonar.coverageReportPaths=coverage-sonar.xml
 
   linux-binary:
     name: Linux binary
