@@ -8,8 +8,6 @@ jobs:
   build-and-test:
     name: Build and test
     runs-on: ubuntu-latest
-    env:
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -30,9 +28,6 @@ jobs:
             libglib2.0-dev \
             libjack-jackd2-dev \
             libasound2-dev
-
-      - name: Install Build Wrapper
-        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
 
       - name: Configure
         run: |
@@ -62,24 +57,6 @@ jobs:
           path: |
             build-coverage/**/*.gcno
             build-coverage/**/*.gcda
-
-      - name: Configure for Sonar analysis
-        run: |
-          cmake -S . -B build-sonar \
-            -DDG_ENABLE_TESTS=ON \
-            -DDG_WITH_NLS=OFF \
-            -DDG_ENABLE_LV2=OFF \
-            -DDG_ENABLE_VST=OFF \
-            -DDG_GUI_BACKEND=x11
-
-      - name: Build for Sonar analysis
-        run: build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build-sonar/ -j"$(nproc)"
-
-      - name: Upload build-wrapper output
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-wrapper-output
-          path: ${{ env.BUILD_WRAPPER_OUT_DIR }}/
 
       - name: Upload test logs
         if: always()
@@ -348,14 +325,35 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download coverage reports
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: coverage-reports
-      - name: Download build-wrapper output
-        uses: actions/download-artifact@v8
-        with:
-          name: build-wrapper-output
-          path: ${{ env.BUILD_WRAPPER_OUT_DIR }}/
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            cmake \
+            ninja-build \
+            g++ \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libglib2.0-dev \
+            libjack-jackd2-dev \
+            libasound2-dev
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
+      - name: Run Build Wrapper
+        run: |
+          mkdir build
+          cmake -S . -B build \
+            -DDG_ENABLE_TESTS=ON \
+            -DDG_WITH_NLS=OFF \
+            -DDG_ENABLE_LV2=OFF \
+            -DDG_ENABLE_VST=OFF \
+            -DDG_GUI_BACKEND=x11
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
