@@ -46,8 +46,8 @@ TEST_CASE("RandomTest")
 		{
 			float rand_float = rand.floatInRange(float_lb, float_ub);
 			float rand_int = rand.intInRange(int_lb, int_ub);
-			CHECK(rand_float >= float_lb && rand_float <= float_ub);
-			CHECK(rand_int >= int_lb && rand_int <= int_ub);
+			CHECK_UNARY(rand_float >= float_lb && rand_float <= float_ub);
+			CHECK_UNARY(rand_int >= int_lb && rand_int <= int_ub);
 		}
 
 		// check if the series of random numbers is the one we expect
@@ -82,10 +82,10 @@ TEST_CASE("RandomTest")
 		    sum_of_squares / nr_of_samples - estimated_mean * estimated_mean);
 
 		float epsilon = 0.1;
-		CHECK(estimated_mean >= real_mean - epsilon &&
-		      estimated_mean <= real_mean + epsilon);
-		CHECK(estimated_stddev >= real_stddev - epsilon &&
-		      estimated_stddev <= real_stddev + epsilon);
+		CHECK_UNARY(estimated_mean >= real_mean - epsilon &&
+		            estimated_mean <= real_mean + epsilon);
+		CHECK_UNARY(estimated_stddev >= real_stddev - epsilon &&
+		            estimated_stddev <= real_stddev + epsilon);
 	}
 
 	SUBCASE("chooseTest")
