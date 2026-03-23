@@ -3,7 +3,7 @@
  *            atomic.cc
  *
  *  Wed Mar 23 09:17:12 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -24,107 +24,12 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <atomic.h>
 
-class AtomicTest
-	: public uUnit
+struct AtomicTestFixture
 {
-public:
-	AtomicTest()
-	{
-		uUNIT_TEST(AtomicTest::podAtomicsUseStandardImpl);
-		uUNIT_TEST(AtomicTest::nonPodAtomicsUseOwnImpl);
-		uUNIT_TEST(AtomicTest::podAtomicCanBeDefaultInitialized);
-		uUNIT_TEST(AtomicTest::nonPodAtomicCanBeDefaultInitialized);
-		uUNIT_TEST(AtomicTest::podAtomicCanBeValueInitialized);
-		uUNIT_TEST(AtomicTest::nonPodAtomicCanBeValueInitialized);
-		uUNIT_TEST(AtomicTest::podAtomicCanBeValueAssigned);
-		uUNIT_TEST(AtomicTest::nonPodAtomicCanBeValueAssigned);
-		uUNIT_TEST(AtomicTest::podAtomicsAreLockFree);
-	}
-
-	void podAtomicsUseStandardImpl()
-	{
-		uUNIT_ASSERT(isUsingStandardImpl<bool>());
-		uUNIT_ASSERT(isUsingStandardImpl<unsigned short int>());
-		uUNIT_ASSERT(isUsingStandardImpl<short int>());
-		uUNIT_ASSERT(isUsingStandardImpl<unsigned int>());
-		uUNIT_ASSERT(isUsingStandardImpl<int>());
-		uUNIT_ASSERT(isUsingStandardImpl<unsigned long int>());
-		uUNIT_ASSERT(isUsingStandardImpl<long int>());
-		uUNIT_ASSERT(isUsingStandardImpl<unsigned long long int>());
-		uUNIT_ASSERT(isUsingStandardImpl<long long int>());
-		uUNIT_ASSERT(isUsingStandardImpl<float>());
-		uUNIT_ASSERT(isUsingStandardImpl<double>());
-		uUNIT_ASSERT(isUsingStandardImpl<long double>());
-	}
-
-	void nonPodAtomicsUseOwnImpl()
-	{
-		uUNIT_ASSERT(!isUsingStandardImpl<std::string>());
-	}
-
-	void podAtomicCanBeDefaultInitialized()
-	{
-		Atomic<int> i;
-		// note: i is initialized with garbage
-		(void)i; // prevent compiler 'unused' warning
-	}
-
-	void nonPodAtomicCanBeDefaultInitialized()
-	{
-		Atomic<std::string> s;
-		uUNIT_ASSERT_EQUAL(s.load(), std::string{});
-	}
-
-	void podAtomicCanBeValueInitialized()
-	{
-		Atomic<int> i{5};
-		uUNIT_ASSERT_EQUAL(i.load(), 5);
-	}
-
-	void nonPodAtomicCanBeValueInitialized()
-	{
-		Atomic<std::string> s{"hello world"};
-		uUNIT_ASSERT_EQUAL(s.load(), std::string{"hello world"});
-	}
-
-	void podAtomicCanBeValueAssigned()
-	{
-		Atomic<int> i;
-		i = 5;
-		uUNIT_ASSERT_EQUAL(i.load(), 5);
-	}
-
-	void nonPodAtomicCanBeValueAssigned()
-	{
-		Atomic<std::string> s;
-		s = "hello world";
-		uUNIT_ASSERT_EQUAL(s.load(), std::string{"hello world"});
-	}
-
-	void podAtomicsAreLockFree()
-	{
-		uUNIT_ASSERT(isLockFree<bool>());
-		uUNIT_ASSERT(isLockFree<unsigned short int>());
-		uUNIT_ASSERT(isLockFree<short int>());
-		uUNIT_ASSERT(isLockFree<unsigned int>());
-		uUNIT_ASSERT(isLockFree<int>());
-		uUNIT_ASSERT(isLockFree<unsigned long int>());
-		uUNIT_ASSERT(isLockFree<long int>());
-		uUNIT_ASSERT(isLockFree<float>());
-		uUNIT_ASSERT(isLockFree<std::size_t>());
-
-		// NOTE: Not lock free on small systems
-		//uUNIT_ASSERT(isLockFree<unsigned long long int>());
-		//uUNIT_ASSERT(isLockFree<long long int>());
-		//uUNIT_ASSERT(isLockFree<double>());
-		//uUNIT_ASSERT(isLockFree<long double>());
-	}
-
-private:
 	template <typename T>
 	bool isUsingStandardImpl()
 	{
@@ -139,5 +44,84 @@ private:
 	}
 };
 
-// Registers the fixture into the 'registry'
-static AtomicTest test;
+TEST_CASE_FIXTURE(AtomicTestFixture, "AtomicTest")
+{
+	SUBCASE("podAtomicsUseStandardImpl")
+	{
+		CHECK(isUsingStandardImpl<bool>());
+		CHECK(isUsingStandardImpl<unsigned short int>());
+		CHECK(isUsingStandardImpl<short int>());
+		CHECK(isUsingStandardImpl<unsigned int>());
+		CHECK(isUsingStandardImpl<int>());
+		CHECK(isUsingStandardImpl<unsigned long int>());
+		CHECK(isUsingStandardImpl<long int>());
+		CHECK(isUsingStandardImpl<unsigned long long int>());
+		CHECK(isUsingStandardImpl<long long int>());
+		CHECK(isUsingStandardImpl<float>());
+		CHECK(isUsingStandardImpl<double>());
+		CHECK(isUsingStandardImpl<long double>());
+	}
+
+	SUBCASE("nonPodAtomicsUseOwnImpl")
+	{
+		CHECK(!isUsingStandardImpl<std::string>());
+	}
+
+	SUBCASE("podAtomicCanBeDefaultInitialized")
+	{
+		Atomic<int> i;
+		// note: i is initialized with garbage
+		(void)i; // prevent compiler 'unused' warning
+	}
+
+	SUBCASE("nonPodAtomicCanBeDefaultInitialized")
+	{
+		Atomic<std::string> s;
+		CHECK_EQ(s.load(), std::string{});
+	}
+
+	SUBCASE("podAtomicCanBeValueInitialized")
+	{
+		Atomic<int> i{5};
+		CHECK_EQ(i.load(), 5);
+	}
+
+	SUBCASE("nonPodAtomicCanBeValueInitialized")
+	{
+		Atomic<std::string> s{"hello world"};
+		CHECK_EQ(s.load(), std::string{"hello world"});
+	}
+
+	SUBCASE("podAtomicCanBeValueAssigned")
+	{
+		Atomic<int> i;
+		i = 5;
+		CHECK_EQ(i.load(), 5);
+	}
+
+	SUBCASE("nonPodAtomicCanBeValueAssigned")
+	{
+		Atomic<std::string> s;
+		s = "hello world";
+		CHECK_EQ(s.load(), std::string{"hello world"});
+	}
+
+	SUBCASE("podAtomicsAreLockFree")
+	{
+		CHECK(isLockFree<bool>());
+		CHECK(isLockFree<unsigned short int>());
+		CHECK(isLockFree<short int>());
+		CHECK(isLockFree<unsigned int>());
+		CHECK(isLockFree<int>());
+		CHECK(isLockFree<unsigned long int>());
+		CHECK(isLockFree<long int>());
+		CHECK(isLockFree<float>());
+		CHECK(isLockFree<std::size_t>());
+
+		// NOTE: Not lock free on small systems
+		//CHECK(isLockFree<unsigned long long int>());
+		//CHECK(isLockFree<long long int>());
+		//CHECK(isLockFree<double>());
+		//CHECK(isLockFree<long double>());
+	}
+}

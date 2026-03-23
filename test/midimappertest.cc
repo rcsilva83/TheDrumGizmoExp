@@ -23,7 +23,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA. */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <algorithm>
 
@@ -31,17 +31,9 @@
 
 #include "scopedfile.h"
 
-class MidiMapperTest
-	: public uUnit
+TEST_CASE("MidiMapperTest")
 {
-public:
-	MidiMapperTest()
-	{
-		uTEST(MidiMapperTest::test);
-		uTEST(MidiMapperTest::exceptional);
-	}
-
-	void test()
+	SUBCASE("test")
 	{
 		midimap_t midimap
 		{
@@ -67,38 +59,38 @@ public:
 
 		{
 			auto is = mapper.lookup(54);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(0, is[0]);
+			CHECK_EQ(1u, is.size());
+			CHECK_EQ(0, is[0]);
 		}
 
 		{
 			auto is = mapper.lookup(60);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(1, is[0]);
+			CHECK_EQ(1u, is.size());
+			CHECK_EQ(1, is[0]);
 		}
 
 		{
 			auto is = mapper.lookup(55);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(2, is[0]);
+			CHECK_EQ(1u, is.size());
+			CHECK_EQ(2, is[0]);
 		}
 
 		{
 			auto is = mapper.lookup(62);
-			uASSERT_EQUAL(2u, is.size());
+			CHECK_EQ(2u, is.size());
 			// We don't care about the order, so just count the instances
-			uASSERT_EQUAL(1u, std::count(is.begin(), is.end(), 3));
-			uASSERT_EQUAL(1u, std::count(is.begin(), is.end(), 4));
+			CHECK_EQ(1u, std::count(is.begin(), is.end(), 3));
+			CHECK_EQ(1u, std::count(is.begin(), is.end(), 4));
 		}
 
 		{
 			auto is = mapper.lookup(56);
-			uASSERT_EQUAL(1u, is.size());
-			uASSERT_EQUAL(4, is[0]);
+			CHECK_EQ(1u, is.size());
+			CHECK_EQ(4, is[0]);
 		}
 	}
 
-	void exceptional()
+	SUBCASE("exceptional")
 	{
 		midimap_t midimap
 		{
@@ -125,16 +117,13 @@ public:
 		// no such note id
 		{
 			auto is = mapper.lookup(42);
-			uASSERT_EQUAL(0u, is.size());
+			CHECK_EQ(0u, is.size());
 		}
 
 		// no such instrument
 		{
 			auto is = mapper.lookup(60);
-			uASSERT_EQUAL(0u, is.size());
+			CHECK_EQ(0u, is.size());
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static MidiMapperTest test;
+}

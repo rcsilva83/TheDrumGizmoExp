@@ -24,28 +24,18 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include "../src/powermap.h"
 
-class test_powermaptest
-	: public uUnit
+TEST_CASE("test_powermaptest")
 {
-public:
-	test_powermaptest()
-	{
-		uUNIT_TEST(test_powermaptest::check_values);
-	}
-
-	void check_values()
+	SUBCASE("check_values")
 	{
 		Powermap powermap;
 
 		// TODO
 		// std::cout << powermap.map(.8) << std::endl;
-		// uUNIT_ASSERT_EQUAL(powermap.map(.8), .8);
+		// CHECK_EQ(powermap.map(.8), .8);
 	}
-};
-
-// Registers the fixture into the 'registry'
-static test_powermaptest test;
+}

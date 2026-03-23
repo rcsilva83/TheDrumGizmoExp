@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <cassert>
 
@@ -44,43 +44,32 @@ std::chrono::nanoseconds dist(const std::chrono::duration<float>& a,
 	return std::chrono::duration_cast<std::chrono::nanoseconds>(b - a);
 }
 
-class SemaphoreTest
-	: public uUnit
+TEST_CASE("SemaphoreTest")
 {
-public:
-	SemaphoreTest()
-	{
-		uUNIT_TEST(SemaphoreTest::timeoutTest);
-	}
-
-public:
-	void timeoutTest()
+	SUBCASE("timeoutTest")
 	{
 		Semaphore sem(0);
 
 		{ // 1000ms timeout
 			auto start = std::chrono::steady_clock::now();
 			bool res = sem.wait(std::chrono::milliseconds(1000));
-			uUNIT_ASSERT(!res); // false means timeout
+			CHECK(!res); // false means timeout
 			auto stop = std::chrono::steady_clock::now();
 
 			// Allow +/-1ms skew
-			uUNIT_ASSERT(dist((stop - start), std::chrono::milliseconds(1000))
+			CHECK(dist((stop - start), std::chrono::milliseconds(1000))
 			               < std::chrono::milliseconds(60));
 		}
 
 		{ // 100ms timeout
 			auto start = std::chrono::steady_clock::now();
 			bool res = sem.wait(std::chrono::milliseconds(100));
-			uUNIT_ASSERT(!res); // false means timeout
+			CHECK(!res); // false means timeout
 			auto stop = std::chrono::steady_clock::now();
 
 			// Allow +/-1ms skew
-			uUNIT_ASSERT(dist((stop - start), std::chrono::milliseconds(100))
+			CHECK(dist((stop - start), std::chrono::milliseconds(100))
 			               < std::chrono::milliseconds(60));
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static SemaphoreTest test;
+}

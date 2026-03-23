@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <thread>
 #include <chrono>
@@ -37,18 +37,8 @@
 
 #define FRAMESIZE 64
 
-class AudioCacheTest
-	: public uUnit
+struct AudioCacheTestFixture
 {
-public:
-	AudioCacheTest()
-	{
-		uUNIT_TEST(AudioCacheTest::singleChannelNonThreaded);
-		uUNIT_TEST(AudioCacheTest::singleChannelThreaded);
-		uUNIT_TEST(AudioCacheTest::multiChannelNonThreaded);
-		uUNIT_TEST(AudioCacheTest::multiChannelThreaded);
-	}
-
 	DrumkitCreator drumkit_creator;
 
 	//! Test runner.
@@ -95,7 +85,7 @@ public:
 			// Test pre cache:
 			for(size_t i = 0; i < size; ++i)
 			{
-				uUNIT_ASSERT_EQUAL(audio_file_ref.data[offset], samples[i]);
+				CHECK_EQ(audio_file_ref.data[offset], samples[i]);
 				++offset;
 			}
 
@@ -111,7 +101,7 @@ public:
 						std::this_thread::sleep_for(std::chrono::milliseconds(1));
 						if(--timeout == 0)
 						{
-							uUNIT_ASSERT(false); // timeout
+							FAIL(""); // timeout
 						}
 					}
 				}
@@ -119,7 +109,7 @@ public:
 				size = framesize;
 				samples = audio_cache.next(id, size);
 
-				uUNIT_ASSERT_EQUAL(std::size_t(0), settings.number_of_underruns.load());
+				CHECK_EQ(std::size_t(0), settings.number_of_underruns.load());
 
 				for(size_t i = 0; (i < size) && (offset < audio_file_ref.size); ++i)
 				{
@@ -131,7 +121,7 @@ public:
 						       (int)(audio_file_ref.size - offset),
 						       (int)i, (int)size, (int)(size - i));
 					}
-					uUNIT_ASSERT_EQUAL(audio_file_ref.data[offset], samples[i]);
+					CHECK_EQ(audio_file_ref.data[offset], samples[i]);
 					++offset;
 				}
 			}
@@ -141,8 +131,11 @@ public:
 
 		printf("done\n");
 	}
+};
 
-	void singleChannelNonThreaded()
+TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
+{
+	SUBCASE("singleChannelNonThreaded")
 	{
 		printf("\nsinglechannel_nonthreaded()\n");
 
@@ -155,7 +148,7 @@ public:
 		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
-	void singleChannelThreaded()
+	SUBCASE("singleChannelThreaded")
 	{
 		printf("\nsinglechannel_threaded()\n");
 
@@ -168,7 +161,7 @@ public:
 		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
-	void multiChannelNonThreaded()
+	SUBCASE("multiChannelNonThreaded")
 	{
 		printf("\nmultichannel_nonthreaded()\n");
 
@@ -183,7 +176,7 @@ public:
 		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
 
-	void multiChannelThreaded()
+	SUBCASE("multiChannelThreaded")
 	{
 		printf("\nmultichannel_threaded()\n");
 
@@ -197,8 +190,4 @@ public:
 		++channel;
 		testHelper(filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
 	}
-
-};
-
-// Registers the fixture into the 'registry'
-static AudioCacheTest test;
+}

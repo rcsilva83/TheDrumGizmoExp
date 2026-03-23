@@ -1,10 +1,8 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: c++ -*- */
 /***************************************************************************
- *            drumkitcreatortest.cc
+ *            doctest_main.cc
  *
- *  Sat Jan 14 15:55:39 CET 2017
- *  Copyright 2017 Andr� Nusser
- *  andre.nusser@googlemail.com
+ *  Provides the doctest main() entry point for test executables.
  ****************************************************************************/
 
 /*
@@ -24,19 +22,5 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
-
-#include "drumkit_creator.h"
-
-struct DrumkitcreatorTestFixture
-{
-	DrumkitCreator drumkit_creator;
-};
-
-TEST_CASE_FIXTURE(DrumkitcreatorTestFixture, "DrumkitcreatorTest")
-{
-	SUBCASE("testTest")
-	{
-		drumkit_creator.createStdKit("stdkit");
-	}
-}

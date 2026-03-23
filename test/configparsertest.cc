@@ -24,21 +24,13 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <configparser.h>
 
-class ConfigParserTest
-	: public uUnit
+TEST_CASE("ConfigParserTest")
 {
-public:
-	ConfigParserTest()
-	{
-		uUNIT_TEST(ConfigParserTest::test);
-		uUNIT_TEST(ConfigParserTest::invalid);
-	}
-
-	void test()
+	SUBCASE("test")
 	{
 		std::string xml =
 			"<?xml version='1.0' encoding='UTF-8'?>\n" \
@@ -50,17 +42,17 @@ public:
 
 
 		ConfigParser parser;
-		uUNIT_ASSERT(parser.parseString(xml));
+		CHECK(parser.parseString(xml));
 
-		uUNIT_ASSERT_EQUAL(std::string("42"), parser.value("foo", "-"));
-		uUNIT_ASSERT_EQUAL(std::string("true"), parser.value("bar", "-"));
-		uUNIT_ASSERT_EQUAL(std::string("\"<"), parser.value("bas", "-"));
+		CHECK_EQ(std::string("42"), parser.value("foo", "-"));
+		CHECK_EQ(std::string("true"), parser.value("bar", "-"));
+		CHECK_EQ(std::string("\"<"), parser.value("bas", "-"));
 
 		// Non-existing value
-		uUNIT_ASSERT_EQUAL(std::string("-"), parser.value("bas2", "-"));
+		CHECK_EQ(std::string("-"), parser.value("bas2", "-"));
 	}
 
-	void invalid()
+	SUBCASE("invalid")
 	{
 		std::string xml =
 			"<?xml version='1.0' encoding='UTF-8'?>\n" \
@@ -73,9 +65,6 @@ public:
 
 		ConfigParser parser;
 		// Epxect parser error (missing '>' in line 2)
-		uUNIT_ASSERT(!parser.parseString(xml));
+		CHECK(!parser.parseString(xml));
 	}
-};
-
-// Registers the fixture into the 'registry'
-static ConfigParserTest test;
+}

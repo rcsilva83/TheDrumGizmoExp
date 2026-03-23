@@ -24,51 +24,34 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <syncedsettings.h>
 
-class SyncedSettingsTest
-	: public uUnit
+struct SyncedSettingsTestFixture
 {
-public:
-	SyncedSettingsTest()
-	{
-		uUNIT_TEST(SyncedSettingsTest::groupCanBeDefaultInitialized);
-		uUNIT_TEST(SyncedSettingsTest::groupDataCanBeCopied);
-
-		uUNIT_TEST(SyncedSettingsTest::accessorCanGetFields);
-		uUNIT_TEST(SyncedSettingsTest::accessorCanSetFields);
-
-		uUNIT_TEST(SyncedSettingsTest::groupHasCopyCtor);
-		uUNIT_TEST(SyncedSettingsTest::groupHasMoveCtor);
-		uUNIT_TEST(SyncedSettingsTest::groupHasCopyAssignOp);
-		uUNIT_TEST(SyncedSettingsTest::groupHasMoveAssignOp);
-
-		uUNIT_TEST(SyncedSettingsTest::mimicRealUse);
-	}
-
-private:
 	struct TestData
 	{
 		float foo;
 		bool bar;
 		std::string msg;
 	};
+};
 
-public:
-	void groupCanBeDefaultInitialized()
+TEST_CASE_FIXTURE(SyncedSettingsTestFixture, "SyncedSettingsTest")
+{
+	SUBCASE("groupCanBeDefaultInitialized")
 	{
 		Group<TestData> data;
 	}
 
-	void groupDataCanBeCopied()
+	SUBCASE("groupDataCanBeCopied")
 	{
 		Group<TestData> data;
 		(TestData)data; // copies
 	}
 
-	void accessorCanSetFields()
+	SUBCASE("accessorCanSetFields")
 	{
 		Group<TestData> data;
 		{
@@ -78,12 +61,12 @@ public:
 			a.data.msg = "hello";
 		}
 		TestData copy = data;
-		uUNIT_ASSERT_EQUAL(copy.foo, 3.f);
-		uUNIT_ASSERT_EQUAL(copy.bar, false);
-		uUNIT_ASSERT_EQUAL(copy.msg, std::string{"hello"});
+		CHECK_EQ(copy.foo, 3.f);
+		CHECK_EQ(copy.bar, false);
+		CHECK_EQ(copy.msg, std::string{"hello"});
 	}
 
-	void accessorCanGetFields()
+	SUBCASE("accessorCanGetFields")
 	{
 		Group<TestData> data;
 		{
@@ -95,13 +78,13 @@ public:
 		// now read
 		{
 			Accessor<TestData> a{data};
-			uUNIT_ASSERT_EQUAL(a.data.foo, 3.f);
-			uUNIT_ASSERT_EQUAL(a.data.bar, false);
-			uUNIT_ASSERT_EQUAL(a.data.msg, std::string{"hello"});
+			CHECK_EQ(a.data.foo, 3.f);
+			CHECK_EQ(a.data.bar, false);
+			CHECK_EQ(a.data.msg, std::string{"hello"});
 		}
 	}
 
-	void groupHasCopyCtor()
+	SUBCASE("groupHasCopyCtor")
 	{
 		Group<TestData> tmp;
 		{
@@ -112,12 +95,12 @@ public:
 		}
 		Group<TestData> data{tmp};
 		TestData copy = data;
-		uUNIT_ASSERT_EQUAL(copy.foo, 3.f);
-		uUNIT_ASSERT_EQUAL(copy.bar, false);
-		uUNIT_ASSERT_EQUAL(copy.msg, std::string{"hello"});
+		CHECK_EQ(copy.foo, 3.f);
+		CHECK_EQ(copy.bar, false);
+		CHECK_EQ(copy.msg, std::string{"hello"});
 	}
 
-	void groupHasMoveCtor()
+	SUBCASE("groupHasMoveCtor")
 	{
 		Group<TestData> tmp;
 		{
@@ -128,12 +111,12 @@ public:
 		}
 		Group<TestData> data{std::move(tmp)};
 		TestData copy = data;
-		uUNIT_ASSERT_EQUAL(copy.foo, 3.f);
-		uUNIT_ASSERT_EQUAL(copy.bar, false);
-		uUNIT_ASSERT_EQUAL(copy.msg, std::string{"hello"});
+		CHECK_EQ(copy.foo, 3.f);
+		CHECK_EQ(copy.bar, false);
+		CHECK_EQ(copy.msg, std::string{"hello"});
 	}
 
-	void groupHasCopyAssignOp()
+	SUBCASE("groupHasCopyAssignOp")
 	{
 		Group<TestData> tmp;
 		{
@@ -144,12 +127,12 @@ public:
 		}
 		Group<TestData> data = tmp;
 		TestData copy = data;
-		uUNIT_ASSERT_EQUAL(copy.foo, 3.f);
-		uUNIT_ASSERT_EQUAL(copy.bar, false);
-		uUNIT_ASSERT_EQUAL(copy.msg, std::string{"hello"});
+		CHECK_EQ(copy.foo, 3.f);
+		CHECK_EQ(copy.bar, false);
+		CHECK_EQ(copy.msg, std::string{"hello"});
 	}
 
-	void groupHasMoveAssignOp()
+	SUBCASE("groupHasMoveAssignOp")
 	{
 		Group<TestData> tmp;
 		{
@@ -160,12 +143,12 @@ public:
 		}
 		Group<TestData> data = std::move(tmp);
 		TestData copy = data;
-		uUNIT_ASSERT_EQUAL(copy.foo, 3.f);
-		uUNIT_ASSERT_EQUAL(copy.bar, false);
-		uUNIT_ASSERT_EQUAL(copy.msg, std::string{"hello"});
+		CHECK_EQ(copy.foo, 3.f);
+		CHECK_EQ(copy.bar, false);
+		CHECK_EQ(copy.msg, std::string{"hello"});
 	}
 
-	void mimicRealUse()
+	SUBCASE("mimicRealUse")
 	{
 		struct Settings
 		{
@@ -195,18 +178,15 @@ public:
 		// read foo settings
 		{
 			Accessor<Settings::Foo> tmp{s.foo};
-			if (tmp.data.enabled) {
+			if(tmp.data.enabled) {
 				// do some while locked
 			}
 		}
 		// or:
 		Settings::Foo copy = s.foo;
-		if (copy.enabled) {
+		if(copy.enabled) {
 			// do some stuff without locking
 		}
-		uUNIT_ASSERT(copy.enabled);
+		CHECK(copy.enabled);
 	}
-};
-
-// Registers the fixture into the 'registry'
-static SyncedSettingsTest test;
+}

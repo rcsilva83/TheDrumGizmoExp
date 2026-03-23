@@ -24,22 +24,13 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include "../src/events_ds.h"
 
-class EventsDSTest
-	: public uUnit
+TEST_CASE("EventsDSTest")
 {
-public:
-	EventsDSTest()
-	{
-		uTEST(EventsDSTest::test_all);
-		uTEST(EventsDSTest::test_clear);
-	}
-
-public:
-	void test_all()
+	SUBCASE("test_all")
 	{
 		EventsDS events_ds;
 
@@ -49,62 +40,62 @@ public:
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "b", 42);
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "c", 42);
 
-		uASSERT(events_ds.getSampleEventGroupIDsOf(13).empty());
-		uASSERT(events_ds.getSampleEventGroupIDsOf(42).size() == 1);
+		CHECK(events_ds.getSampleEventGroupIDsOf(13).empty());
+		CHECK(events_ds.getSampleEventGroupIDsOf(42).size() == 1);
 		auto group_id = events_ds.getSampleEventGroupIDsOf(42).back();
 
 		const auto& event_ids = events_ds.getEventIDsOf(group_id);
-		uASSERT(event_ids.size() == 3);
+		CHECK(event_ids.size() == 3);
 
 		// group 2
 		events_ds.startAddingNewGroup(42);
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "d", 42);
 
-		uASSERT(events_ds.getSampleEventGroupIDsOf(42).size() == 2);
+		CHECK(events_ds.getSampleEventGroupIDsOf(42).size() == 2);
 
 		// group 3
 		events_ds.startAddingNewGroup(23);
 		events_ds.emplace<SampleEvent>(7, 7, 1.0, nullptr, "foo", 23);
 		events_ds.emplace<SampleEvent>(7, 7, 1.0, nullptr, "bar", 23);
 
-		uASSERT(events_ds.getSampleEventGroupIDsOf(42).size() == 2);
-		uASSERT(events_ds.numberOfEvents(13) == 4);
-		uASSERT(events_ds.numberOfEvents(7) == 2);
+		CHECK(events_ds.getSampleEventGroupIDsOf(42).size() == 2);
+		CHECK(events_ds.numberOfEvents(13) == 4);
+		CHECK(events_ds.numberOfEvents(7) == 2);
 
 		// iterate over
 		std::string group_concat = "";
-		for (const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
+		for(const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
 		{
 			group_concat.append(sample_event.group);
 		}
-		uASSERT(group_concat == "abcd");
+		CHECK(group_concat == "abcd");
 
 		// get and getType
-		for (const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
+		for(const auto& sample_event: events_ds.iterateOver<SampleEvent>(13))
 		{
-			uASSERT(events_ds.get<SampleEvent>(sample_event.id).channel == 13);
-			uASSERT(events_ds.getType(sample_event.id) == Event::Type::SampleEvent);
+			CHECK(events_ds.get<SampleEvent>(sample_event.id).channel == 13);
+			CHECK(events_ds.getType(sample_event.id) == Event::Type::SampleEvent);
 		}
 
 		// remove
 		auto event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(42).back()).back();
 		events_ds.remove(event_id);
-		uASSERT(events_ds.getSampleEventGroupIDsOf(42).size() == 1);
+		CHECK(events_ds.getSampleEventGroupIDsOf(42).size() == 1);
 
 		event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back()).back();
 		events_ds.remove(event_id);
-		uASSERT(!events_ds.getSampleEventGroupIDsOf(23).empty());
+		CHECK(!events_ds.getSampleEventGroupIDsOf(23).empty());
 		event_id = events_ds.getEventIDsOf(events_ds.getSampleEventGroupIDsOf(23).back()).back();
 		events_ds.remove(event_id);
-		uASSERT(events_ds.getSampleEventGroupIDsOf(23).empty());
+		CHECK(events_ds.getSampleEventGroupIDsOf(23).empty());
 	}
 
-	void test_clear()
+	SUBCASE("test_clear")
 	{
 		EventsDS events_ds;
 
-		uASSERT_EQUAL(0u, events_ds.getSampleEventGroupIDsOf(42).size());
-		uASSERT_EQUAL(0u, events_ds.getSampleEventGroupIDsOf(43).size());
+		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(42).size());
+		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(43).size());
 
 		// group 1
 		events_ds.startAddingNewGroup(42);
@@ -118,15 +109,12 @@ public:
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "b", 43);
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "c", 43);
 
-		uASSERT_EQUAL(1u, events_ds.getSampleEventGroupIDsOf(42).size() == 1);
-		uASSERT_EQUAL(1u, events_ds.getSampleEventGroupIDsOf(43).size() == 1);
+		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(42).size() == 1);
+		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(43).size() == 1);
 
 		events_ds.clear();
 
-		uASSERT_EQUAL(0u, events_ds.getSampleEventGroupIDsOf(42).size());
-		uASSERT_EQUAL(0u, events_ds.getSampleEventGroupIDsOf(43).size());
+		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(42).size());
+		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(43).size());
+	}
 }
-};
-
-// Registers the fixture into the 'registry'
-static EventsDSTest test;

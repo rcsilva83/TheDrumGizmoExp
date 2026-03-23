@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <vector>
 
@@ -47,17 +47,9 @@ public:
 	std::vector<Probe*>& triggers;
 };
 
-class NotifierTest
-	: public uUnit
+TEST_CASE("NotifierTest")
 {
-public:
-	NotifierTest()
-	{
-		uUNIT_TEST(NotifierTest::testTest);
-	}
-
-	//! This just creates some drumkit.
-	void testTest()
+	SUBCASE("testTest")
 	{
 		Notifier<> notifier;
 		std::vector<Probe*> triggers;
@@ -71,9 +63,9 @@ public:
 			std::vector<Probe*> ref;
 			ref.push_back(&foo1);
 			ref.push_back(&foo2);
-			uUNIT_ASSERT_EQUAL(ref.size(), triggers.size());
-			uUNIT_ASSERT_EQUAL(ref[0], triggers[0]);
-			uUNIT_ASSERT_EQUAL(ref[1], triggers[1]);
+			CHECK_EQ(ref.size(), triggers.size());
+			CHECK_EQ(ref[0], triggers[0]);
+			CHECK_EQ(ref[1], triggers[1]);
 			notifier.disconnect(&foo1);
 			notifier.disconnect(&foo2);
 			triggers.clear();
@@ -86,16 +78,12 @@ public:
 			std::vector<Probe*> ref;
 			ref.push_back(&foo2);
 			ref.push_back(&foo1);
-			uUNIT_ASSERT_EQUAL(ref.size(), triggers.size());
-			uUNIT_ASSERT_EQUAL(ref[0], triggers[0]);
-			uUNIT_ASSERT_EQUAL(ref[1], triggers[1]);
+			CHECK_EQ(ref.size(), triggers.size());
+			CHECK_EQ(ref[0], triggers[0]);
+			CHECK_EQ(ref[1], triggers[1]);
 			notifier.disconnect(&foo1);
 			notifier.disconnect(&foo2);
 			triggers.clear();
 		}
-
 	}
-};
-
-// Registers the fixture into the 'registry'
-static NotifierTest test;
+}

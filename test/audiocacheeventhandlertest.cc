@@ -24,31 +24,17 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <audiocacheeventhandler.h>
 
-class AudioCacheEventHandlerTest
-	: public uUnit
+TEST_CASE("AudioCacheEventHandlerTest")
 {
-public:
-	AudioCacheEventHandlerTest()
-	{
-		uUNIT_TEST(AudioCacheEventHandlerTest::threadedTest);
-	}
-
-public:
-	void setup() override {}
-	void teardown() override {}
-
-	void threadedTest()
+	SUBCASE("threadedTest")
 	{
 		AudioCacheIDManager id_manager;
 		id_manager.init(10);
 
 		AudioCacheEventHandler event_handler(id_manager);
 	}
-};
-
-// Registers the fixture into the 'registry'
-static AudioCacheEventHandlerTest test;
+}

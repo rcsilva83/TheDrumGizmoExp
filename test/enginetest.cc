@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <thread>
 #include <chrono>
@@ -69,17 +69,14 @@ public:
 	bool isFreewheeling() const override { return true; }
 };
 
-class test_engine : public uUnit
+struct test_engineFixture
 {
-public:
-	test_engine()
-	{
-		uUNIT_TEST(test_engine::loading);
-	}
-
 	DrumkitCreator drumkit_creator;
+};
 
-	void loading()
+TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
+{
+	SUBCASE("loading")
 	{
 		Settings settings;
 		AudioOutputEngineDummy oe;
@@ -116,7 +113,4 @@ public:
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static test_engine test;
+}

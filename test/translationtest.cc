@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <locale>
 
@@ -32,53 +32,42 @@
 #include <dggui/uitranslation.h>
 #include <stdlib.h>
 
-class TranslationTest
-	: public uUnit
+TEST_CASE("TranslationTest")
 {
-public:
-	TranslationTest()
-	{
-		uUNIT_TEST(TranslationTest::testFromFile);
-		uUNIT_TEST(TranslationTest::testFromLocale);
-	}
+SUBCASE("testFromFile")
+{
+Translation t;
+char buf[100000];
+FILE* fp = fopen(MO_SRC, "r");
+CHECK(fp != nullptr);
+auto sz = fread(buf, 1, sizeof(buf), fp);
+fclose(fp);
+CHECK(t.load(buf, sz));
 
-	void testFromFile()
-	{
-		Translation t;
-		char buf[100000];
-		FILE* fp = fopen(MO_SRC, "r");
-		uUNIT_ASSERT(fp != nullptr);
-		auto sz = fread(buf, 1, sizeof(buf), fp);
-		fclose(fp);
-		uUNIT_ASSERT(t.load(buf, sz));
+// Look up translation from .mo file
+CHECK_EQ(std::string("Trommes\xc3\xb8t"),
+          std::string(_("Drumkit")));
 
-		// Look up translation from .mo file
-		uUNIT_ASSERT_EQUAL(std::string("Trommesæt"),
-		                    std::string(_("Drumkit")));
+// No translation, return key
+CHECK_EQ(std::string("No translation"),
+          std::string(_("No translation")));
+}
 
-		// No translation, return key
-		uUNIT_ASSERT_EQUAL(std::string("No translation"),
-		                    std::string(_("No translation")));
-	}
-
-	void testFromLocale()
-	{
+SUBCASE("testFromLocale")
+{
 #ifdef _WIN32
-		_putenv_s("LANG", "da_DK.UTF-8");
+_putenv_s("LANG", "da_DK.UTF-8");
 #else
-		setenv("LANG", "da_DK.UTF-8", 1);
+setenv("LANG", "da_DK.UTF-8", 1);
 #endif
-		dggui::UITranslation t;
+dggui::UITranslation t;
 
-		// Look up translation from .mo file
-		uUNIT_ASSERT_EQUAL(std::string("Trommesæt"),
-		                    std::string(_("Drumkit")));
+// Look up translation from .mo file
+CHECK_EQ(std::string("Trommes\xc3\xb8t"),
+          std::string(_("Drumkit")));
 
-		// No translation, return key
-		uUNIT_ASSERT_EQUAL(std::string("No translation"),
-		                    std::string(_("No translation")));
-	}
-};
-
-// Registers the fixture into the 'registry'
-static TranslationTest test;
+// No translation, return key
+CHECK_EQ(std::string("No translation"),
+          std::string(_("No translation")));
+}
+}
