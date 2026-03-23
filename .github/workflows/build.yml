@@ -203,9 +203,42 @@ jobs:
       - name: Install static analysis tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cppcheck clang-format
+          sudo apt-get install -y \
+            cppcheck \
+            clang-format \
+            clang-tidy \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libx11-dev \
+            libxext-dev \
+            libsndfile1-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            libsmf-dev
 
-      - name: Run cppcheck and clang-format
+      - name: Cache CPM sources
+        uses: actions/cache@v4
+        with:
+          path: ~/.cpm-cache
+          key: cpm-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: |
+            cpm-
+
+      - name: Configure (generate compile_commands.json for clang-tidy)
+        env:
+          CPM_SOURCE_CACHE: ~/.cpm-cache
+        run: |
+          cmake -S . -B build-tidy \
+            -G Ninja \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DDG_ENABLE_TESTS=ON \
+            -DDG_WITH_NLS=OFF \
+            -DDG_ENABLE_LV2=OFF \
+            -DDG_ENABLE_VST=OFF \
+            -DDG_GUI_BACKEND=x11
+
+      - name: Run cppcheck, clang-format, and clang-tidy
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -264,6 +297,18 @@ jobs:
           fi
 
           clang-format --dry-run --Werror "${files[@]}"
+
+          source_files=()
+          for file in "${files[@]}"; do
+            case "$file" in
+              *.h|*.hh|*.hpp) ;;
+              *) source_files+=("$file") ;;
+            esac
+          done
+
+          if [ "${#source_files[@]}" -gt 0 ]; then
+            clang-tidy -p build-tidy "${source_files[@]}"
+          fi
   sonar:
     name: Sonar
     runs-on: ubuntu-latest
