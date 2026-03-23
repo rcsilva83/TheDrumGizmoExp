@@ -13,11 +13,10 @@ plugingui/      Plugin GUI application (namespace GUI)
 plugin/         LV2/VST plugin wrappers
 drumgizmo/      CLI application
 test/           Unit tests (uUnit framework)
-hugin/          Logging library (submodule)
-pugixml/        XML parser (submodule)
-zita-resampler/ Audio resampler (submodule)
-test/uunit/     Unit test framework (submodule)
 ```
+
+External libraries are fetched by CPM at configure time and are not stored as
+git submodules in this repository.
 
 ## Build Commands
 
@@ -45,17 +44,12 @@ cmake -S . -B build \
 ```
 
 Notes:
-- LV2/VST builds require the `plugin/plugingizmo` submodule.
-- GUI/plugin builds require `getoptpp` and `dggui/lodepng`; pugl backends also require the `pugl` submodule.
+- LV2/VST builds require the `plugin/plugingizmo` dependency fetched by CPM.
+- GUI/plugin builds require `getoptpp` and `lodepng`; pugl backends also require `pugl` (all fetched by CPM).
 
 ### CMake install
 ```sh
 cmake --install build --prefix "$PWD/install"
-```
-
-### Initial Setup (from git)
-```sh
-git submodule update --init --recursive
 ```
 
 ### Build
@@ -173,7 +167,7 @@ There is no dedicated lint command. Debug builds use `-Wall -Werror -Wextra`.
 
 ## Unit Tests (uUnit Framework)
 
-Tests use the custom `uUnit` micro-framework (in `test/uunit/`).
+Tests use the custom `uUnit` micro-framework (fetched by CPM).
 
 ### Writing a Test
 

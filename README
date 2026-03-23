@@ -29,8 +29,9 @@ Common CMake options:
 
 Plugin/GUI notes:
 -----------------
-* LV2 and VST builds require the `plugin/plugingizmo` submodule.
-* GUI-enabled plugin builds require `getoptpp`, `dggui/lodepng`, and (for pugl backends) the `pugl` submodule.
+* External dependencies are resolved automatically through CPM.cmake during configuration.
+* LV2 and VST builds use the CPM-pinned `plugingizmo` source.
+* GUI-enabled plugin builds use CPM-pinned `getoptpp`, `lodepng`, and (for pugl backends) `pugl`.
 * With `-DDG_WITH_NLS=ON`, `msgfmt` is required to generate locale resources.
 
 NOTE1: Certain audio-centric Linux distros such as KxStudio has DrumGizmo
@@ -72,7 +73,6 @@ Compiling from git sources
 --------------------------
 $ git clone http://git.drumgizmo.org/drumgizmo.git
 $ cd drumgizmo
-$ git submodule update --init --recursive
 $ cmake -S . -B build -DDG_ENABLE_LV2=ON -DDG_ENABLE_CLI=OFF
 
 Now compile and install
