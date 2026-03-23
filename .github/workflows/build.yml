@@ -50,7 +50,7 @@ jobs:
             -DCMAKE_SHARED_LINKER_FLAGS='--coverage'
 
       - name: Build
-        run: build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build-coverage -j"$(nproc)"
+        run: cmake --build build-coverage -j"$(nproc)"
 
       - name: Run tests
         run: ctest --test-dir build-coverage --output-on-failure
@@ -62,6 +62,18 @@ jobs:
           path: |
             build-coverage/**/*.gcno
             build-coverage/**/*.gcda
+
+      - name: Configure for Sonar analysis
+        run: |
+          cmake -S . -B build-sonar \
+            -DDG_ENABLE_TESTS=ON \
+            -DDG_WITH_NLS=OFF \
+            -DDG_ENABLE_LV2=OFF \
+            -DDG_ENABLE_VST=OFF \
+            -DDG_GUI_BACKEND=x11
+
+      - name: Build for Sonar analysis
+        run: build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build-sonar/ -j"$(nproc)"
 
       - name: Upload build-wrapper output
         uses: actions/upload-artifact@v7
