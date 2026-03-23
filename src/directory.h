@@ -46,6 +46,7 @@ public:
 	typedef std::list<std::string> EntryList;
 	typedef std::list<drive> DriveList;
 
+	// cppcheck-suppress noExplicitConstructor
 	Directory(std::string path);
 	~Directory();
 
