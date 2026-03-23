@@ -232,7 +232,7 @@ jobs:
             libsmf-dev
 
       - name: Cache CPM sources
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cpm-cache
           key: cpm-${{ hashFiles('cmake/dependencies.cmake') }}
@@ -336,11 +336,11 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download coverage reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-reports
       - name: Download build-wrapper output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-wrapper-output
           path: ${{ env.BUILD_WRAPPER_OUT_DIR }}/
@@ -454,7 +454,7 @@ jobs:
           PY
 
       - name: Upload SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: sonarcloud.sarif
           category: sonarcloud
