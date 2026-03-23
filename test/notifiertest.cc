@@ -46,6 +46,30 @@ public:
 	std::vector<Probe*>& triggers;
 };
 
+class IntProbe : public Listener
+{
+public:
+	void slot(int value)
+	{
+		received.push_back(value);
+	}
+
+	std::vector<int> received;
+};
+
+class TwoArgProbe : public Listener
+{
+public:
+	void slot(int a, float b)
+	{
+		ints.push_back(a);
+		floats.push_back(b);
+	}
+
+	std::vector<int> ints;
+	std::vector<float> floats;
+};
+
 TEST_CASE("NotifierTest")
 {
 	SUBCASE("testTest")
@@ -88,5 +112,81 @@ TEST_CASE("NotifierTest")
 			notifier.disconnect(&foo2);
 			triggers.clear();
 		}
+	}
+
+	SUBCASE("notifier_with_int_argument")
+	{
+		// Notifier<int> forwards the integer argument to the connected slot.
+		Notifier<int> notifier;
+		IntProbe probe;
+		notifier.connect(&probe, &IntProbe::slot);
+
+		notifier(42);
+		notifier(7);
+
+		CHECK_EQ(2u, probe.received.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(42, probe.received[0]);
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(7, probe.received[1]);
+	}
+
+	SUBCASE("notifier_with_two_arguments")
+	{
+		// Notifier<int, float> forwards both arguments to the connected slot.
+		Notifier<int, float> notifier;
+		TwoArgProbe probe;
+		notifier.connect(&probe, &TwoArgProbe::slot);
+
+		notifier(1, 2.5f);
+		notifier(3, 4.0f);
+
+		CHECK_EQ(2u, probe.ints.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(1, probe.ints[0]);
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(3, probe.ints[1]);
+		CHECK_EQ(2u, probe.floats.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(2.5f, probe.floats[0]);
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(4.0f, probe.floats[1]);
+	}
+
+	SUBCASE("auto_disconnect_on_listener_destruction")
+	{
+		// When a Listener is destroyed its slots must be automatically removed
+		// from all connected Notifiers, so firing the notifier afterwards does
+		// not invoke the deleted object.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+
+		{
+			Probe shortLived(triggers);
+			notifier.connect(&shortLived, &Probe::slot);
+			notifier(); // shortLived is alive, so it must be called once
+			CHECK_EQ(1u, triggers.size());
+			triggers.clear();
+		} // shortLived is destroyed here; its dtor disconnects it
+
+		notifier(); // no listeners remain, triggers must stay empty
+		CHECK_EQ(0u, triggers.size());
+	}
+
+	SUBCASE("disconnect_stops_notifications")
+	{
+		// After an explicit disconnect(), the slot must no longer be called.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe foo(triggers);
+
+		notifier.connect(&foo, &Probe::slot);
+		notifier();
+		CHECK_EQ(1u, triggers.size());
+		triggers.clear();
+
+		notifier.disconnect(&foo);
+		notifier();
+		CHECK_EQ(0u, triggers.size());
 	}
 }
