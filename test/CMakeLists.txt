@@ -289,6 +289,8 @@ dg_add_uunit_test(eventsdstest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/events_ds.cc"
 		"${CMAKE_SOURCE_DIR}/test/eventsdstest.cc"
+	LINK_LIBRARIES
+		SndFile::sndfile
 )
 
 dg_add_uunit_test(powermaptest
