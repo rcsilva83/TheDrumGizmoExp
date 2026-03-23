@@ -26,6 +26,8 @@
  */
 #include <doctest/doctest.h>
 
+#include <string>
+
 #include <atomic.h>
 
 struct AtomicTestFixture

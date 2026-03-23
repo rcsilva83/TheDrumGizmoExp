@@ -33,6 +33,7 @@
 class Probe : public Listener
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Probe(std::vector<Probe*>& triggers) : triggers(triggers)
 	{
 	}

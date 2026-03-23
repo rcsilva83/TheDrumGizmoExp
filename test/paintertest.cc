@@ -40,6 +40,7 @@ public:
 	    : colour(r, g, b, a)
 	{
 	}
+	// cppcheck-suppress noExplicitConstructor
 	TestColour(const dggui::Colour& colour) : colour(colour)
 	{
 	}
@@ -204,6 +205,7 @@ TEST_CASE("PainterTest")
 		{ // Text is offset to the left and up so nothing is to be drawn.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
+			// cppcheck-suppress signConversion
 			painter.drawText(
 			    -1 * (width + 1), -1 * (height + 1), font, someText);
 		}

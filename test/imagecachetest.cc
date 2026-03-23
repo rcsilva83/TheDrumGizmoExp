@@ -40,6 +40,7 @@ public:
 		}
 
 		auto it = imageCache.find(filename);
+		// cppcheck-suppress constVariableReference
 		auto& val = it->second;
 		return val.first;
 	}

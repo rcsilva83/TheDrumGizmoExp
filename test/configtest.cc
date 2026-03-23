@@ -40,7 +40,7 @@ public:
 
 protected:
 	// Overload the built-in open method to use local file instead of homedir.
-	virtual bool open(std::ios_base::openmode mode)
+	bool open(std::ios_base::openmode mode) override
 	{
 		current_file.open("test.conf", mode);
 		return current_file.is_open();

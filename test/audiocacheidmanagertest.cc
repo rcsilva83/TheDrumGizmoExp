@@ -45,6 +45,7 @@ TEST_CASE("AudioCacheIDManagerTest")
 		manager.init(2);
 
 		cache_t c1;
+		// cppcheck-suppress cstyleCast
 		c1.afile = (AudioCacheFile*)1;
 		auto id1 = manager.registerID(c1);
 		CHECK(id1 != CACHE_DUMMYID);
@@ -52,6 +53,7 @@ TEST_CASE("AudioCacheIDManagerTest")
 		CHECK_EQ(1, manager.getAvailableIDs());
 
 		cache_t c2;
+		// cppcheck-suppress cstyleCast
 		c2.afile = (AudioCacheFile*)2;
 		auto id2 = manager.registerID(c2);
 		CHECK(id2 != CACHE_DUMMYID);
@@ -59,6 +61,7 @@ TEST_CASE("AudioCacheIDManagerTest")
 		CHECK_EQ(0, manager.getAvailableIDs());
 
 		cache_t c3;
+		// cppcheck-suppress cstyleCast
 		c3.afile = (AudioCacheFile*)3;
 		auto id3 = manager.registerID(c3);
 		CHECK(id3 == CACHE_DUMMYID);
@@ -74,6 +77,7 @@ TEST_CASE("AudioCacheIDManagerTest")
 		CHECK_EQ(1, manager.getAvailableIDs());
 
 		cache_t c4;
+		// cppcheck-suppress cstyleCast
 		c4.afile = (AudioCacheFile*)4;
 		auto id4 = manager.registerID(c4);
 		CHECK(id4 != CACHE_DUMMYID);

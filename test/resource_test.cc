@@ -33,6 +33,7 @@
 class ResourceTester : public dggui::Resource
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	ResourceTester(const std::string& name) : dggui::Resource(name)
 	{
 	}
