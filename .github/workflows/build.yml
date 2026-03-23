@@ -325,6 +325,8 @@ jobs:
     name: Sonar
     runs-on: ubuntu-latest
     needs: coverage
+    permissions:
+      security-events: write
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
@@ -369,6 +371,112 @@ jobs:
           args: >
             --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
             --define sonar.coverageReportPaths=coverage-sonar.xml
+
+      - name: Generate SARIF from SonarCloud issues
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, sys, urllib.request, urllib.parse
+
+          TOKEN       = os.environ["SONAR_TOKEN"]
+          PROJECT_KEY = "rcsilva83_TheDrumGizmoExp"
+          BASE_URL    = "https://sonarcloud.io"
+          creds       = base64.b64encode(f"{TOKEN}:".encode()).decode()
+
+          def fetch(path):
+            req = urllib.request.Request(f"{BASE_URL}{path}")
+            req.add_header("Authorization", f"Basic {creds}")
+            with urllib.request.urlopen(req) as r:
+              return json.loads(r.read())
+
+          issues = []
+          page = 1
+          while True:
+            params = urllib.parse.urlencode({
+              "componentKeys": PROJECT_KEY,
+              "resolved": "false",
+              "ps": 500,
+              "p": page,
+            })
+            data = fetch(f"/api/issues/search?{params}")
+            issues.extend(data["issues"])
+            total = data["paging"]["total"]
+            if page * 500 >= total:
+              break
+            page += 1
+
+          print(f"Fetched {len(issues)} issues from SonarCloud", file=sys.stderr)
+
+          def sarif_level(issue):
+            for impact in issue.get("impacts", []):
+              s = impact.get("severity", "")
+              if s in ("BLOCKER", "HIGH"):
+                return "error"
+              if s == "MEDIUM":
+                return "warning"
+            sev = issue.get("severity", "MAJOR")
+            if sev in ("BLOCKER", "CRITICAL"):
+              return "error"
+            if sev == "MAJOR":
+              return "warning"
+            return "note"
+
+          rules_map = {}
+          results   = []
+          prefix    = PROJECT_KEY + ":"
+
+          for issue in issues:
+            rule_key  = issue.get("rule", "unknown")
+            component = issue.get("component", "")
+            file_path = component[len(prefix):] if component.startswith(prefix) else component
+            line      = issue.get("line") or 1
+            message   = issue.get("message", "")
+
+            if rule_key not in rules_map:
+              rules_map[rule_key] = {
+                "id": rule_key,
+                "shortDescription": {"text": rule_key},
+                "helpUri": f"{BASE_URL}/coding_rules?open={urllib.parse.quote(rule_key)}",
+              }
+
+            results.append({
+              "ruleId":    rule_key,
+              "message":   {"text": message},
+              "locations": [{
+                "physicalLocation": {
+                  "artifactLocation": {"uri": file_path, "uriBaseId": "%SRCROOT%"},
+                  "region":           {"startLine": line},
+                },
+              }],
+              "level": sarif_level(issue),
+            })
+
+          sarif = {
+            "version": "2.1.0",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "runs": [{
+              "tool": {
+                "driver": {
+                  "name":            "SonarCloud",
+                  "informationUri":  BASE_URL,
+                  "rules":           list(rules_map.values()),
+                },
+              },
+              "results": results,
+            }],
+          }
+
+          with open("sonarcloud.sarif", "w") as f:
+            json.dump(sarif, f, indent=2)
+          print("SARIF written to sonarcloud.sarif", file=sys.stderr)
+          PY
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sonarcloud.sarif
+          category: sonarcloud
 
   linux-binary:
     name: Linux binary
