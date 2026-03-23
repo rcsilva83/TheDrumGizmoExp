@@ -24,7 +24,7 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <cstring>
 
@@ -33,12 +33,11 @@
 
 #include "drumkit_creator.h"
 
-class TestableAudioCacheFiles
-	: public AudioCacheFiles
+class TestableAudioCacheFiles : public AudioCacheFiles
 {
 public:
-	//CacheAudioFile& getAudioFile(const std::string& filename);
-	//void release(const std::string& filename);
+	// CacheAudioFile& getAudioFile(const std::string& filename);
+	// void release(const std::string& filename);
 	int getRef(const std::string& filename)
 	{
 		auto it = audiofiles.find(filename);
@@ -52,47 +51,17 @@ public:
 	}
 };
 
-class AudioCacheFileTest
-	: public uUnit
+struct AudioCacheFileTestFixture
 {
-public:
-	AudioCacheFileTest()
-	{
-		uUNIT_TEST(AudioCacheFileTest::refTest);
-		uUNIT_TEST(AudioCacheFileTest::readTest);
-		uUNIT_TEST(AudioCacheFileTest::noFileTest);
-	}
-
 	DrumkitCreator drumkit_creator;
-
-	void refTest()
-	{
-		// Create the audio file
-		auto filename = drumkit_creator.createSingleChannelWav("single_channel.wav");
-
-		// Conduct tests
-		TestableAudioCacheFiles audiofiles;
-		uUNIT_ASSERT_EQUAL(-1, audiofiles.getRef(filename));
-
-		audiofiles.getFile(filename);
-		uUNIT_ASSERT_EQUAL(1, audiofiles.getRef(filename));
-
-		audiofiles.getFile(filename);
-		uUNIT_ASSERT_EQUAL(2, audiofiles.getRef(filename));
-
-		audiofiles.releaseFile(filename);
-		uUNIT_ASSERT_EQUAL(1, audiofiles.getRef(filename));
-
-		audiofiles.releaseFile(filename);
-		uUNIT_ASSERT_EQUAL(-1, audiofiles.getRef(filename));
-	}
 
 	void readTestHelper(size_t buffer_size)
 	{
 		printf("Test buffer size: %d samples\n", (int)buffer_size);
 
 		// Create the audio file
-		auto filename = drumkit_creator.createMultiChannelWav("multi_channel.wav");
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
 
 		// Conduct tests
 		AudioFile* ref_file[13];
@@ -105,8 +74,8 @@ public:
 		std::vector<sample_t> read_buffer;
 
 		AudioCacheFile file(filename, read_buffer);
-		uUNIT_ASSERT_EQUAL(filename, file.getFilename());
-		uUNIT_ASSERT_EQUAL(13, (int)file.getChannelCount()); // Sanity check
+		CHECK_EQ(filename, file.getFilename());
+		CHECK_EQ(13, (int)file.getChannelCount()); // Sanity check
 
 		CacheChannels channels;
 
@@ -119,14 +88,12 @@ public:
 				samples[c][i] = 42;
 			}
 
-			channels.push_back(
-				{
-					c, // channel
-					samples[c], // samples
-					buffer_size, // max_num_samples
-					&ready[c] // ready
-				}
-			);
+			channels.push_back({
+			    c,           // channel
+			    samples[c],  // samples
+			    buffer_size, // max_num_samples
+			    &ready[c]    // ready
+			});
 		}
 
 		for(size_t offset = 0; offset < file.getSize(); offset += buffer_size)
@@ -150,7 +117,7 @@ public:
 
 			for(size_t c = 0; c < 13; ++c)
 			{
-				uUNIT_ASSERT_EQUAL(true, ready[c]?true:false);
+				CHECK_EQ(true, ready[c] ? true : false);
 			}
 
 			sample_t diff[13] = {0.0};
@@ -158,13 +125,14 @@ public:
 			{
 				for(size_t i = 0; i < read_size; ++i)
 				{
-					diff[c] += abs((long)(ref_file[c]->data[i + offset] - samples[c][i]));
+					diff[c] += abs(
+					    (long)(ref_file[c]->data[i + offset] - samples[c][i]));
 				}
 			}
 
 			for(int c = 0; c < 13; ++c)
 			{
-				uUNIT_ASSERT_EQUAL((sample_t)0.0, diff[c]);
+				CHECK_EQ((sample_t)0.0, diff[c]);
 			}
 		}
 
@@ -173,8 +141,34 @@ public:
 			delete ref_file[c];
 		}
 	}
+};
 
-	void readTest()
+TEST_CASE_FIXTURE(AudioCacheFileTestFixture, "AudioCacheFileTest")
+{
+	SUBCASE("refTest")
+	{
+		// Create the audio file
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
+
+		// Conduct tests
+		TestableAudioCacheFiles audiofiles;
+		CHECK_EQ(-1, audiofiles.getRef(filename));
+
+		audiofiles.getFile(filename);
+		CHECK_EQ(1, audiofiles.getRef(filename));
+
+		audiofiles.getFile(filename);
+		CHECK_EQ(2, audiofiles.getRef(filename));
+
+		audiofiles.releaseFile(filename);
+		CHECK_EQ(1, audiofiles.getRef(filename));
+
+		audiofiles.releaseFile(filename);
+		CHECK_EQ(-1, audiofiles.getRef(filename));
+	}
+
+	SUBCASE("readTest")
 	{
 		// Exhaustive test for 1...64
 		for(size_t buffer_size = 1; buffer_size < 64; ++buffer_size)
@@ -195,7 +189,7 @@ public:
 		}
 	}
 
-	void noFileTest()
+	SUBCASE("noFileTest")
 	{
 		size_t buffer_size = 64;
 		std::string filename = "kits/no-such-file.wav";
@@ -203,9 +197,9 @@ public:
 		std::vector<sample_t> read_buffer;
 
 		AudioCacheFile file(filename, read_buffer);
-		uUNIT_ASSERT_EQUAL(filename, file.getFilename());
-		uUNIT_ASSERT_EQUAL(0u, (unsigned int)file.getSize());
-		uUNIT_ASSERT_EQUAL(0u, (unsigned int)file.getChannelCount());
+		CHECK_EQ(filename, file.getFilename());
+		CHECK_EQ(0u, (unsigned int)file.getSize());
+		CHECK_EQ(0u, (unsigned int)file.getChannelCount());
 
 		CacheChannels channels;
 
@@ -218,14 +212,12 @@ public:
 				samples[c][i] = 42.0f;
 			}
 
-			channels.push_back(
-				{
-					c, // channel
-					samples[c], // samples
-					buffer_size, // max_num_samples
-					&ready[c] // ready
-				}
-			);
+			channels.push_back({
+			    c,           // channel
+			    samples[c],  // samples
+			    buffer_size, // max_num_samples
+			    &ready[c]    // ready
+			});
 		}
 
 		for(size_t c = 0; c < 13; ++c)
@@ -237,18 +229,15 @@ public:
 
 		for(size_t c = 0; c < 13; ++c)
 		{
-			uUNIT_ASSERT_EQUAL(false, ready[c]?true:false);
+			CHECK_EQ(false, ready[c] ? true : false);
 		}
 
 		for(size_t c = 0; c < 13; ++c)
 		{
 			for(size_t i = 0; i < buffer_size; ++i)
 			{
-				uUNIT_ASSERT_EQUAL(42.0f, samples[c][i]);
+				CHECK_EQ(42.0f, samples[c][i]);
 			}
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static AudioCacheFileTest test;
+}

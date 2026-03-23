@@ -24,12 +24,11 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include <audiocacheidmanager.h>
 
-class TestableAudioCacheIDManager
-	: public AudioCacheIDManager
+class TestableAudioCacheIDManager : public AudioCacheIDManager
 {
 public:
 	int getAvailableIDs()
@@ -38,62 +37,60 @@ public:
 	}
 };
 
-class AudioCacheIDManagerTest
-	: public uUnit
+TEST_CASE("AudioCacheIDManagerTest")
 {
-public:
-	AudioCacheIDManagerTest()
-	{
-		uUNIT_TEST(AudioCacheIDManagerTest::registerReleaseTest);
-	}
-
-	void registerReleaseTest()
+	SUBCASE("registerReleaseTest")
 	{
 		TestableAudioCacheIDManager manager;
 		manager.init(2);
 
-		cache_t c1; c1.afile = (AudioCacheFile*)1;
+		cache_t c1;
+		// cppcheck-suppress cstyleCast
+		c1.afile = (AudioCacheFile*)1;
 		auto id1 = manager.registerID(c1);
-		uUNIT_ASSERT(id1 != CACHE_DUMMYID);
-		uUNIT_ASSERT(id1 != CACHE_NOID);
-		uUNIT_ASSERT_EQUAL(1, manager.getAvailableIDs());
+		CHECK(id1 != CACHE_DUMMYID);
+		CHECK(id1 != CACHE_NOID);
+		CHECK_EQ(1, manager.getAvailableIDs());
 
-		cache_t c2; c2.afile = (AudioCacheFile*)2;
+		cache_t c2;
+		// cppcheck-suppress cstyleCast
+		c2.afile = (AudioCacheFile*)2;
 		auto id2 = manager.registerID(c2);
-		uUNIT_ASSERT(id2 != CACHE_DUMMYID);
-		uUNIT_ASSERT(id2 != CACHE_NOID);
-		uUNIT_ASSERT_EQUAL(0, manager.getAvailableIDs());
+		CHECK(id2 != CACHE_DUMMYID);
+		CHECK(id2 != CACHE_NOID);
+		CHECK_EQ(0, manager.getAvailableIDs());
 
-		cache_t c3; c3.afile = (AudioCacheFile*)3;
+		cache_t c3;
+		// cppcheck-suppress cstyleCast
+		c3.afile = (AudioCacheFile*)3;
 		auto id3 = manager.registerID(c3);
-		uUNIT_ASSERT(id3 == CACHE_DUMMYID);
-		uUNIT_ASSERT_EQUAL(0, manager.getAvailableIDs());
+		CHECK(id3 == CACHE_DUMMYID);
+		CHECK_EQ(0, manager.getAvailableIDs());
 
 		cache_t& tc1 = manager.getCache(id1);
-		uUNIT_ASSERT_EQUAL(c1.afile, tc1.afile);
+		CHECK_EQ(c1.afile, tc1.afile);
 
 		cache_t& tc2 = manager.getCache(id2);
-		uUNIT_ASSERT_EQUAL(c2.afile, tc2.afile);
+		CHECK_EQ(c2.afile, tc2.afile);
 
 		manager.releaseID(id1);
-		uUNIT_ASSERT_EQUAL(1, manager.getAvailableIDs());
+		CHECK_EQ(1, manager.getAvailableIDs());
 
-		cache_t c4; c4.afile = (AudioCacheFile*)4;
+		cache_t c4;
+		// cppcheck-suppress cstyleCast
+		c4.afile = (AudioCacheFile*)4;
 		auto id4 = manager.registerID(c4);
-		uUNIT_ASSERT(id4 != CACHE_DUMMYID);
-		uUNIT_ASSERT(id4 != CACHE_NOID);
-		uUNIT_ASSERT_EQUAL(0, manager.getAvailableIDs());
+		CHECK(id4 != CACHE_DUMMYID);
+		CHECK(id4 != CACHE_NOID);
+		CHECK_EQ(0, manager.getAvailableIDs());
 
 		cache_t& tc4 = manager.getCache(id4);
-		uUNIT_ASSERT_EQUAL(c4.afile, tc4.afile);
+		CHECK_EQ(c4.afile, tc4.afile);
 
 		manager.releaseID(id2);
-		uUNIT_ASSERT_EQUAL(1, manager.getAvailableIDs());
+		CHECK_EQ(1, manager.getAvailableIDs());
 
 		manager.releaseID(id4);
-		uUNIT_ASSERT_EQUAL(2, manager.getAvailableIDs());
+		CHECK_EQ(2, manager.getAvailableIDs());
 	}
-};
-
-// Registers the fixture into the 'registry'
-static AudioCacheIDManagerTest test;
+}

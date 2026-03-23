@@ -27,13 +27,13 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include <stdio.h>
 #include <string>
-#include <mutex>
 
-#include "audiofile.h"
 #include "audio.h"
 #include "audiocache.h"
+#include "audiofile.h"
 #include "id.h"
 
 using timepos_t = unsigned int;
@@ -55,7 +55,9 @@ public:
 	};
 
 	Event(Type type, channel_t channel, timepos_t offset = 0)
-		: type(type), channel(channel), offset(offset) {}
+	    : type(type), channel(channel), offset(offset)
+	{
+	}
 
 	virtual ~Event() = default;
 
@@ -66,21 +68,21 @@ public:
 	timepos_t offset; //< Global position (ie. not relative to buffer)
 };
 
-class SampleEvent
-	: public Event
+class SampleEvent : public Event
 {
 public:
+	// cppcheck-suppress uninitMemberVar
 	SampleEvent(channel_t ch, float g, AudioFile* af, const std::string& grp,
-	            std::size_t instrument_id)
-		: Event(Event::Type::SampleEvent, ch)
-		, cache_id(CACHE_NOID)
-		, gain(g)
-		, t(0)
-		, file(af)
-		, group(grp)
-		, rampdown_count(-1)
-		, ramp_length(0)
-		, instrument_id(instrument_id)
+	    std::size_t instrument_id)
+	    : Event(Event::Type::SampleEvent, ch)
+	    , cache_id(CACHE_NOID)
+	    , gain(g)
+	    , t(0)
+	    , file(af)
+	    , group(grp)
+	    , rampdown_count(-1)
+	    , ramp_length(0)
+	    , instrument_id(instrument_id)
 	{
 	}
 
@@ -93,7 +95,8 @@ public:
 	sample_t* buffer;
 	std::size_t buffer_size;
 	std::size_t buffer_ptr{0}; //< Internal pointer into the current buffer
-	std::size_t sample_size{0}; //< Total number of audio samples in this sample.
+	std::size_t sample_size{
+	    0}; //< Total number of audio samples in this sample.
 
 	float gain;
 	unsigned int t; //< Internal sample position.

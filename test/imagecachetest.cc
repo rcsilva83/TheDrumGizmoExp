@@ -24,13 +24,12 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
-#include <dggui/imagecache.h>
 #include <dggui/image.h>
+#include <dggui/imagecache.h>
 
-class TestableImageCache
-	: public dggui::ImageCache
+class TestableImageCache : public dggui::ImageCache
 {
 public:
 	std::size_t count(const std::string& filename)
@@ -41,54 +40,45 @@ public:
 		}
 
 		auto it = imageCache.find(filename);
+		// cppcheck-suppress constVariableReference
 		auto& val = it->second;
 		return val.first;
 	}
 };
 
-class ImageCacheTest
-	: public uUnit
+TEST_CASE("ImageCacheTest")
 {
-public:
-	ImageCacheTest()
-	{
-		uUNIT_TEST(ImageCacheTest::refCountTest);
-	}
-
-	void refCountTest()
+	SUBCASE("refCountTest")
 	{
 		TestableImageCache imageCache;
-		uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(0u));
-		uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(0u));
+		CHECK_EQ(imageCache.count("foo"), std::size_t(0u));
+		CHECK_EQ(imageCache.count("bar"), std::size_t(0u));
 
 		{
 			auto image1{imageCache.getImage("foo")};
 			(void)image1;
-			uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(1u));
-			uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(0u));
+			CHECK_EQ(imageCache.count("foo"), std::size_t(1u));
+			CHECK_EQ(imageCache.count("bar"), std::size_t(0u));
 
 			auto image2 = imageCache.getImage("bar");
-			uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(1u));
-			uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(1u));
+			CHECK_EQ(imageCache.count("foo"), std::size_t(1u));
+			CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
 
 			auto image3 = imageCache.getImage("foo");
-			uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(2u));
-			uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(1u));
+			CHECK_EQ(imageCache.count("foo"), std::size_t(2u));
+			CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
 
 			{
 				auto image4 = imageCache.getImage("foo");
-				uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(3u));
-				uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(1u));
+				CHECK_EQ(imageCache.count("foo"), std::size_t(3u));
+				CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
 			}
 
-			uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(2u));
-			uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(1u));
+			CHECK_EQ(imageCache.count("foo"), std::size_t(2u));
+			CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
 		}
 
-		uUNIT_ASSERT_EQUAL(imageCache.count("foo"), std::size_t(0u));
-		uUNIT_ASSERT_EQUAL(imageCache.count("bar"), std::size_t(0u));
+		CHECK_EQ(imageCache.count("foo"), std::size_t(0u));
+		CHECK_EQ(imageCache.count("bar"), std::size_t(0u));
 	}
-};
-
-// Registers the fixture into the 'registry'
-static ImageCacheTest test;
+}

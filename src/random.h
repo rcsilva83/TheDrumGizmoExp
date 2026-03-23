@@ -33,6 +33,7 @@ class Random
 {
 public:
 	Random();
+	// cppcheck-suppress noExplicitConstructor
 	Random(unsigned int seed);
 
 	void setSeed(unsigned int seed);
@@ -48,8 +49,7 @@ public:
 	float normalDistribution(float mean, float stddev);
 
 	//! \return uniformly at random chosen element from <vec>.
-	template <typename T>
-	T& choose(std::vector<T>& vec);
+	template <typename T> T& choose(std::vector<T>& vec);
 
 private:
 	// The std::default_random_engine of the gcc libstdc++ library is
@@ -60,8 +60,7 @@ private:
 	float generateFloat();
 };
 
-template <typename T>
-T& Random::choose(std::vector<T>& vec)
+template <typename T> T& Random::choose(std::vector<T>& vec)
 {
 	return vec[intInRange(0, vec.size() - 1)];
 }

@@ -24,101 +24,87 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include "bytesizeparser.h"
 
-
-class ByteSizeParserTest
-	: public uUnit
+TEST_CASE("ByteSizeParserTest")
 {
-public:
-	ByteSizeParserTest()
-	{
-		uUNIT_TEST(ByteSizeParserTest::suffixTest);
-		uUNIT_TEST(ByteSizeParserTest::falseSuffixTest);
-		uUNIT_TEST(ByteSizeParserTest::falseNumberTest);
-		uUNIT_TEST(ByteSizeParserTest::tooBigNumberTest);
-	}
-
-	void suffixTest()
+	SUBCASE("suffixTest")
 	{
 		std::size_t computed_size, expected_size;
 		std::size_t kilo = 1024, mega = kilo * 1024, giga = mega * 1024;
 		computed_size = byteSizeParser("3");
 		expected_size = 3;
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3k");
 		expected_size = 3 * kilo;
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3M");
 		expected_size = 3 * mega;
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3G");
 		expected_size = 3 * giga;
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 	}
 
-	void falseSuffixTest()
+	SUBCASE("falseSuffixTest")
 	{
 		std::size_t computed_size, expected_size = 0;
 		computed_size = byteSizeParser("3K");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3m");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3g");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3ddDD");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 	}
 
-	void falseNumberTest()
+	SUBCASE("falseNumberTest")
 	{
 		std::size_t computed_size, expected_size = 0;
 		computed_size = byteSizeParser("K3k");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("-3");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("-3k");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("-3M");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("-3G");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3-");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3-k");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("k-3");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("3-1");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 
 		computed_size = byteSizeParser("   -3");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 	}
 
-	void tooBigNumberTest()
+	SUBCASE("tooBigNumberTest")
 	{
 		std::size_t computed_size, expected_size = 0;
 		computed_size = byteSizeParser("999999999999999999999999999999999999G");
-		uUNIT_ASSERT_EQUAL(expected_size, computed_size);
+		CHECK_EQ(expected_size, computed_size);
 	}
-};
-
-// Registers the fixture into the 'registry'
-static ByteSizeParserTest test;
+}

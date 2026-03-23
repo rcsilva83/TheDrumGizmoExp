@@ -27,8 +27,8 @@
 #pragma once
 
 #include <atomic>
-#include <string>
 #include <limits>
+#include <string>
 
 #include <cassert>
 
@@ -83,15 +83,18 @@ struct Settings
 	Atomic<float> velocity_modifier_weight{velocity_modifier_weight_default};
 	Atomic<float> velocity_stddev{velocity_stddev_default};
 	Atomic<float> sample_selection_f_close{sample_selection_f_close_default};
-	Atomic<float> sample_selection_f_diverse{sample_selection_f_diverse_default};
+	Atomic<float> sample_selection_f_diverse{
+	    sample_selection_f_diverse_default};
 	Atomic<float> sample_selection_f_random{sample_selection_f_random_default};
 
 	//! Control number of times to retry sample selection as long as the sample
 	//! is the same one as the last one.
 	//! 0: will do no retries, ie. just use the first sample found.
-	// FIXME: remove when new sample algorithm is introduced and also remove other occurences
+	// FIXME: remove when new sample algorithm is introduced and also remove
+	// other occurences
 	static std::size_t constexpr sample_selection_retry_count_default = 3;
-	Atomic<std::size_t> sample_selection_retry_count{sample_selection_retry_count_default};
+	Atomic<std::size_t> sample_selection_retry_count{
+	    sample_selection_retry_count_default};
 
 	// Current velocity offset - for UI
 	Atomic<float> velocity_modifier_current{1.0f};
@@ -167,7 +170,8 @@ struct Settings
 	// Notify UI about load errors
 	Atomic<std::string> load_status_text;
 
-	// Enables the ramping down of old samples once X groups of the same instrument are playing.
+	// Enables the ramping down of old samples once X groups of the same
+	// instrument are playing.
 	Atomic<bool> enable_voice_limit{false};
 	// Max number of voices before old samples are ramped down.
 	static std::size_t constexpr voice_limit_max_default = 15;
@@ -257,66 +261,67 @@ struct SettingsGetter
 	SettingRef<std::size_t> voice_limit_max;
 	SettingRef<float> voice_limit_rampdown;
 
+	// cppcheck-suppress noExplicitConstructor
 	SettingsGetter(Settings& settings)
-		: drumkit_file(settings.drumkit_file)
-		, drumkit_load_status(settings.drumkit_load_status)
-		, drumkit_name(settings.drumkit_name)
-		, drumkit_description(settings.drumkit_description)
-		, drumkit_version(settings.drumkit_version)
-		, drumkit_samplerate(settings.drumkit_samplerate)
-		, disk_cache_upper_limit(settings.disk_cache_upper_limit)
-		, disk_cache_chunk_size(settings.disk_cache_chunk_size)
-		, disk_cache_enable(settings.disk_cache_enable)
-		, number_of_underruns(settings.number_of_underruns)
-		, reload_counter(settings.reload_counter)
-		, midimap_file(settings.midimap_file)
-		, midimap_load_status(settings.midimap_load_status)
-		, enable_velocity_modifier{settings.enable_velocity_modifier}
-		, velocity_modifier_falloff{settings.velocity_modifier_falloff}
-		, velocity_modifier_weight{settings.velocity_modifier_weight}
-		, velocity_stddev{settings.velocity_stddev}
-		, sample_selection_f_close{settings.sample_selection_f_close}
-		, sample_selection_f_diverse{settings.sample_selection_f_diverse}
-		, sample_selection_f_random{settings.sample_selection_f_random}
-		, sample_selection_retry_count(settings.sample_selection_retry_count)
-		, velocity_modifier_current{settings.velocity_modifier_current}
-		, enable_velocity_randomiser{settings.enable_velocity_randomiser}
-		, velocity_randomiser_weight{settings.velocity_randomiser_weight}
-		, samplerate{settings.samplerate}
-		, buffer_size(settings.buffer_size)
-		, enable_resampling{settings.enable_resampling}
-		, resampling_recommended{settings.resampling_recommended}
-		, resampling_quality{settings.resampling_quality}
-		, number_of_files{settings.number_of_files}
-		, number_of_files_loaded{settings.number_of_files_loaded}
-		, current_file{settings.current_file}
-		, enable_bleed_control{settings.enable_bleed_control}
-		, master_bleed{settings.master_bleed}
-		, has_bleed_control{settings.has_bleed_control}
-		, normalized_samples{settings.normalized_samples}
-		, enable_latency_modifier{settings.enable_latency_modifier}
-		, latency_max_ms{settings.latency_max_ms}
-		, latency_laid_back_ms{settings.latency_laid_back_ms}
-		, latency_stddev{settings.latency_stddev}
-		, latency_regain{settings.latency_regain}
-		, latency_current{settings.latency_current}
-		, enable_powermap{settings.enable_powermap}
-		, powermap_fixed0_x{settings.powermap_fixed0_x}
-		, powermap_fixed0_y{settings.powermap_fixed0_y}
-		, powermap_fixed1_x{settings.powermap_fixed1_x}
-		, powermap_fixed1_y{settings.powermap_fixed1_y}
-		, powermap_fixed2_x{settings.powermap_fixed2_x}
-		, powermap_fixed2_y{settings.powermap_fixed2_y}
-		, powermap_shelf{settings.powermap_shelf}
-		, powermap_input{settings.powermap_input}
-		, powermap_output{settings.powermap_output}
-		, audition_counter{settings.audition_counter}
-		, audition_instrument{settings.audition_instrument}
-		, audition_velocity{settings.audition_velocity}
-		, load_status_text{settings.load_status_text}
-		, enable_voice_limit{settings.enable_voice_limit}
-		, voice_limit_max{settings.voice_limit_max}
-		, voice_limit_rampdown{settings.voice_limit_rampdown}
+	    : drumkit_file(settings.drumkit_file)
+	    , drumkit_load_status(settings.drumkit_load_status)
+	    , drumkit_name(settings.drumkit_name)
+	    , drumkit_description(settings.drumkit_description)
+	    , drumkit_version(settings.drumkit_version)
+	    , drumkit_samplerate(settings.drumkit_samplerate)
+	    , disk_cache_upper_limit(settings.disk_cache_upper_limit)
+	    , disk_cache_chunk_size(settings.disk_cache_chunk_size)
+	    , disk_cache_enable(settings.disk_cache_enable)
+	    , number_of_underruns(settings.number_of_underruns)
+	    , reload_counter(settings.reload_counter)
+	    , midimap_file(settings.midimap_file)
+	    , midimap_load_status(settings.midimap_load_status)
+	    , enable_velocity_modifier{settings.enable_velocity_modifier}
+	    , velocity_modifier_falloff{settings.velocity_modifier_falloff}
+	    , velocity_modifier_weight{settings.velocity_modifier_weight}
+	    , velocity_stddev{settings.velocity_stddev}
+	    , sample_selection_f_close{settings.sample_selection_f_close}
+	    , sample_selection_f_diverse{settings.sample_selection_f_diverse}
+	    , sample_selection_f_random{settings.sample_selection_f_random}
+	    , sample_selection_retry_count(settings.sample_selection_retry_count)
+	    , velocity_modifier_current{settings.velocity_modifier_current}
+	    , enable_velocity_randomiser{settings.enable_velocity_randomiser}
+	    , velocity_randomiser_weight{settings.velocity_randomiser_weight}
+	    , samplerate{settings.samplerate}
+	    , buffer_size(settings.buffer_size)
+	    , enable_resampling{settings.enable_resampling}
+	    , resampling_recommended{settings.resampling_recommended}
+	    , resampling_quality{settings.resampling_quality}
+	    , number_of_files{settings.number_of_files}
+	    , number_of_files_loaded{settings.number_of_files_loaded}
+	    , current_file{settings.current_file}
+	    , enable_bleed_control{settings.enable_bleed_control}
+	    , master_bleed{settings.master_bleed}
+	    , has_bleed_control{settings.has_bleed_control}
+	    , normalized_samples{settings.normalized_samples}
+	    , enable_latency_modifier{settings.enable_latency_modifier}
+	    , latency_max_ms{settings.latency_max_ms}
+	    , latency_laid_back_ms{settings.latency_laid_back_ms}
+	    , latency_stddev{settings.latency_stddev}
+	    , latency_regain{settings.latency_regain}
+	    , latency_current{settings.latency_current}
+	    , enable_powermap{settings.enable_powermap}
+	    , powermap_fixed0_x{settings.powermap_fixed0_x}
+	    , powermap_fixed0_y{settings.powermap_fixed0_y}
+	    , powermap_fixed1_x{settings.powermap_fixed1_x}
+	    , powermap_fixed1_y{settings.powermap_fixed1_y}
+	    , powermap_fixed2_x{settings.powermap_fixed2_x}
+	    , powermap_fixed2_y{settings.powermap_fixed2_y}
+	    , powermap_shelf{settings.powermap_shelf}
+	    , powermap_input{settings.powermap_input}
+	    , powermap_output{settings.powermap_output}
+	    , audition_counter{settings.audition_counter}
+	    , audition_instrument{settings.audition_instrument}
+	    , audition_velocity{settings.audition_velocity}
+	    , load_status_text{settings.load_status_text}
+	    , enable_voice_limit{settings.enable_voice_limit}
+	    , voice_limit_max{settings.voice_limit_max}
+	    , voice_limit_rampdown{settings.voice_limit_rampdown}
 	{
 	}
 };
@@ -402,7 +407,11 @@ public:
 
 	void evaluate()
 	{
-#define EVAL(x) if(settings.x.hasChanged()) { x(settings.x.getValue()); }
+#define EVAL(x)                                                                \
+	if(settings.x.hasChanged())                                                \
+	{                                                                          \
+		x(settings.x.getValue());                                              \
+	}
 
 		EVAL(drumkit_file);
 		EVAL(drumkit_load_status);
@@ -480,8 +489,8 @@ public:
 		EVAL(voice_limit_rampdown);
 	}
 
-	SettingsNotifier(Settings& settings)
-		: settings(settings)
+	// cppcheck-suppress noExplicitConstructor
+	SettingsNotifier(Settings& settings) : settings(settings)
 	{
 	}
 
@@ -492,35 +501,35 @@ private:
 // lovely reminder: NO, GLOCKE. NOOOO!!
 /*
 enum class IntParams {
-	Foo = 0
+    Foo = 0
 };
 
 struct Settings
 {
-	std::array<std::atomic<int>, 5> ints;
+    std::array<std::atomic<int>, 5> ints;
 
-	Settings()
-		: ints{}
-	{
-		//get(IntParams::Foo).store(3);
-	}
+    Settings()
+        : ints{}
+    {
+        //get(IntParams::Foo).store(3);
+    }
 
-	std::atomic<int>& get(IntParams param)
-	{
-		return ints[(size_t)param];
-	}
+    std::atomic<int>& get(IntParams param)
+    {
+        return ints[(size_t)param];
+    }
 };
 
 struct SettingsGetter
 {
-	std::vector<SettingRef<int>> ints;
+    std::vector<SettingRef<int>> ints;
 
-	SettingsGetter(Settings& parent)
-	{
-		for(auto& atomic: parent.ints)
-		{
-			ints.emplace_back(atomic);
-		}
-	}
+    SettingsGetter(Settings& parent)
+    {
+        for(auto& atomic: parent.ints)
+        {
+            ints.emplace_back(atomic);
+        }
+    }
 };
 */

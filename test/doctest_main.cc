@@ -1,10 +1,8 @@
 /* -*- Mode: c++ -*- */
 /***************************************************************************
- *            scopedfile.h
+ *            doctest_main.cc
  *
- *  Wed Jun  6 15:15:31 CEST 2018
- *  Copyright 2018 Bent Bisballe Nyeng
- *  deva@aasimon.org
+ *  Provides the doctest main() entry point for test executables.
  ****************************************************************************/
 
 /*
@@ -24,20 +22,5 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#pragma once
-
-#include <memory>
-#include <string>
-
-class ScopedFile
-{
-public:
-	// cppcheck-suppress noExplicitConstructor
-	ScopedFile(const std::string& data);
-	~ScopedFile();
-
-	std::string filename() const;
-
-private:
-	std::unique_ptr<struct Pimpl> pimpl;
-};
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>

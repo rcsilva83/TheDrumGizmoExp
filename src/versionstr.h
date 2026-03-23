@@ -55,6 +55,7 @@ public:
 	 * @param v A std::string containing a version string on the form a.b or
 	 * a.b.c
 	 */
+	// cppcheck-suppress noExplicitConstructor
 	VersionStr(const std::string& v);
 
 	/**
@@ -63,6 +64,7 @@ public:
 	 * @param minor A size_t containing the minor version number.
 	 * @param patch A size_t containing the patch level.
 	 */
+	// cppcheck-suppress noExplicitConstructor
 	VersionStr(size_t major = 0, size_t minor = 0, size_t patch = 0);
 
 	/**

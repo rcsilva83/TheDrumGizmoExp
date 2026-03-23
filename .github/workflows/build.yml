@@ -222,6 +222,7 @@ jobs:
             cmake \
             ninja-build \
             pkg-config \
+            gettext \
             libx11-dev \
             libxext-dev \
             libsndfile1-dev \
@@ -245,7 +246,7 @@ jobs:
             -G Ninja \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DDG_ENABLE_TESTS=ON \
-            -DDG_WITH_NLS=OFF \
+            -DDG_WITH_NLS=ON \
             -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
             -DDG_GUI_BACKEND=x11

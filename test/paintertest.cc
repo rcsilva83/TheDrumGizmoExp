@@ -24,29 +24,38 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
+
+#include <ostream>
 
 #include <dggui/canvas.h>
-#include <dggui/painter.h>
-#include <dggui/image.h>
 #include <dggui/font.h>
+#include <dggui/image.h>
+#include <dggui/painter.h>
 
 class TestColour
 {
 public:
 	TestColour(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
-		: colour(r, g, b, a) {}
-	TestColour(const dggui::Colour& colour)
-		: colour(colour) {}
+	    : colour(r, g, b, a)
+	{
+	}
+	// cppcheck-suppress noExplicitConstructor
+	TestColour(const dggui::Colour& colour) : colour(colour)
+	{
+	}
+
+	bool operator==(const TestColour& other) const
+	{
+		return !(*this != other);
+	}
 
 	bool operator!=(const TestColour& other) const
 	{
-		return
-			colour.red() != other.colour.red() ||
-			colour.green() != other.colour.green() ||
-			colour.blue() != other.colour.blue() ||
-			colour.alpha() != other.colour.alpha()
-			;
+		return colour.red() != other.colour.red() ||
+		       colour.green() != other.colour.green() ||
+		       colour.blue() != other.colour.blue() ||
+		       colour.alpha() != other.colour.alpha();
 	}
 
 	const dggui::Colour colour;
@@ -54,21 +63,20 @@ public:
 
 std::ostream& operator<<(std::ostream& stream, const TestColour& col)
 {
-	stream << "(" <<
-		static_cast<int>(col.colour.red()) << ", " <<
-		static_cast<int>(col.colour.green()) << ", " <<
-		static_cast<int>(col.colour.blue()) << ", " <<
-		static_cast<int>(col.colour.alpha()) << ")";
+	stream << "(" << static_cast<int>(col.colour.red()) << ", "
+	       << static_cast<int>(col.colour.green()) << ", "
+	       << static_cast<int>(col.colour.blue()) << ", "
+	       << static_cast<int>(col.colour.alpha()) << ")";
 	return stream;
 }
 
-class TestableCanvas
-	: public dggui::Canvas
+class TestableCanvas : public dggui::Canvas
 {
 public:
 	TestableCanvas(std::size_t width, std::size_t height)
-		: pixbuf(width, height)
-	{}
+	    : pixbuf(width, height)
+	{
+	}
 
 	dggui::PixelBufferAlpha& getPixelBuffer() override
 	{
@@ -79,12 +87,11 @@ private:
 	dggui::PixelBufferAlpha pixbuf;
 };
 
-class TestImage
-	: public dggui::Image
+class TestImage : public dggui::Image
 {
 public:
 	TestImage(std::uint8_t width, std::uint8_t height, bool alpha)
-		: dggui::Image(":resources/logo.png") // just load some default image
+	    : dggui::Image(":resources/logo.png") // just load some default image
 	{
 		_width = width;
 		_height = height;
@@ -98,7 +105,8 @@ public:
 		{
 			for(std::uint8_t y = 0; y < _height; ++y)
 			{
-				image_data[x + _width * y] = dggui::Colour(x, y, 0, alpha ? 128 : 255);
+				image_data[x + _width * y] =
+				    dggui::Colour(x, y, 0, alpha ? 128 : 255);
 				image_data_raw[4 * (x + _width * y) + 0] = x;
 				image_data_raw[4 * (x + _width * y) + 1] = y;
 				image_data_raw[4 * (x + _width * y) + 2] = 0;
@@ -110,18 +118,9 @@ public:
 	}
 };
 
-class PainterTest
-	: public uUnit
+TEST_CASE("PainterTest")
 {
-public:
-	PainterTest()
-	{
-		uUNIT_TEST(PainterTest::testDrawImage);
-		uUNIT_TEST(PainterTest::testDrawText);
-		uUNIT_TEST(PainterTest::testClipping);
-	}
-
-	void testDrawImage()
+	SUBCASE("testDrawImage")
 	{
 		// Success criterion is simply to not assert in the drawing routines...
 		dggui::Image image(":resources/logo.png");
@@ -153,21 +152,18 @@ public:
 		{ // Image is offset to the right and down so nothing is to be drawn.
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
-			painter.drawImage(image.width() + 1,
-			                  image.height() + 1,
-			                  image);
+			painter.drawImage(image.width() + 1, image.height() + 1, image);
 		}
 
 		{ // Image is offset to the left and up so nothing is to be drawn.
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
-			painter.drawImage(-1 * (image.width() + 1),
-			                  -1 * (image.height() + 1),
-			                  image);
+			painter.drawImage(
+			    -1 * (image.width() + 1), -1 * (image.height() + 1), image);
 		}
 	}
 
-	void testDrawText()
+	SUBCASE("testDrawText")
 	{
 		// Success criterion is simply to not assert in the drawing routines...
 		dggui::Font font;
@@ -203,22 +199,20 @@ public:
 		{ // Text is offset to the right and down so nothing is to be drawn.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(width + 1,
-			                 height + 1,
-			                 font, someText);
+			painter.drawText(width + 1, height + 1, font, someText);
 		}
 
 		{ // Text is offset to the left and up so nothing is to be drawn.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(-1 * (width + 1),
-			                 -1 * (height + 1),
-			                 font, someText);
+			painter.drawText(
+			    // cppcheck-suppress signConversion
+			    -1 * (width + 1), -1 * (height + 1), font, someText);
 		}
 	}
 
 	// Test rendering images outside the container is being clipped correctly.
-	void testClipping()
+	SUBCASE("testClipping")
 	{
 		TestableCanvas canvas(100, 100);
 		dggui::Painter painter(canvas);
@@ -230,8 +224,8 @@ public:
 			auto& pixbuf = canvas.getPixelBuffer();
 
 			// Top left corner pixel should have the RGBA value (10, 10, 0, 255)
-			uUNIT_ASSERT_EQUAL(TestColour(10, 10, 0, 255),
-			                   TestColour(pixbuf.pixel(0, 0)));
+			CHECK_EQ(
+			    TestColour(10, 10, 0, 255), TestColour(pixbuf.pixel(0, 0)));
 		}
 
 		{ // With alpha (different pipeline)
@@ -241,11 +235,8 @@ public:
 			auto& pixbuf = canvas.getPixelBuffer();
 
 			// Top left corner pixel should have the RGBA value (10, 10, 0, 128)
-			uUNIT_ASSERT_EQUAL(TestColour(10, 10, 0, 128),
-			                   TestColour(pixbuf.pixel(0, 0)));
+			CHECK_EQ(
+			    TestColour(10, 10, 0, 128), TestColour(pixbuf.pixel(0, 0)));
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static PainterTest test;
+}

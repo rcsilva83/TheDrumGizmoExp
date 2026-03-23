@@ -24,19 +24,19 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
 #include "../dggui/resource.h"
 
 #include "drumkit_creator.h"
 
-class ResourceTester
-	: public dggui::Resource
+class ResourceTester : public dggui::Resource
 {
 public:
-	ResourceTester(const std::string& name)
-		: dggui::Resource(name)
-	{}
+	// cppcheck-suppress noExplicitConstructor
+	ResourceTester(const std::string& name) : dggui::Resource(name)
+	{
+	}
 
 	bool probeIsInternal()
 	{
@@ -44,55 +44,46 @@ public:
 	}
 };
 
-class ResourceTest
-	: public uUnit
+struct ResourceTestFixture
 {
-public:
-	ResourceTest()
-	{
-		uUNIT_TEST(ResourceTest::externalReadTest);
-		uUNIT_TEST(ResourceTest::internalReadTest);
-		uUNIT_TEST(ResourceTest::failTest);
-	}
-
 	DrumkitCreator drumkit_creator;
+};
 
-	void externalReadTest()
+TEST_CASE_FIXTURE(ResourceTestFixture, "ResourceTest")
+{
+	SUBCASE("externalReadTest")
 	{
 		auto filename = drumkit_creator.create0000Wav("0000.wav");
 
 		ResourceTester rc(filename);
-		uUNIT_ASSERT(!rc.probeIsInternal());
-		uUNIT_ASSERT(rc.valid());
-		uUNIT_ASSERT_EQUAL((size_t)46, rc.size());
+		CHECK(!rc.probeIsInternal());
+		CHECK(rc.valid());
+		CHECK_EQ((size_t)46, rc.size());
 	}
 
-	void internalReadTest()
+	SUBCASE("internalReadTest")
 	{
 		ResourceTester rc(":resources/bg.png");
-		uUNIT_ASSERT(rc.probeIsInternal());
-		uUNIT_ASSERT(rc.valid());
-		uUNIT_ASSERT_EQUAL((size_t)1123, rc.size());
+		CHECK(rc.probeIsInternal());
+		CHECK(rc.valid());
+		CHECK_EQ((size_t)1123, rc.size());
 	}
 
-	void failTest()
+	SUBCASE("failTest")
 	{
 		{
 			ResourceTester rc("/tmp/");
-			uUNIT_ASSERT(!rc.valid());
+			CHECK(!rc.valid());
 		}
 
 		{
 			ResourceTester rc("no_such_file");
-			uUNIT_ASSERT(!rc.valid());
+			CHECK(!rc.valid());
 		}
 
 		{
 			ResourceTester rc(":no_such_file");
-			uUNIT_ASSERT(!rc.valid());
+			CHECK(!rc.valid());
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static ResourceTest test;
+}

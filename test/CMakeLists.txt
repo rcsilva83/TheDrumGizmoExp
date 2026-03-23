@@ -1,19 +1,19 @@
 include(CMakeParseArguments)
 
 set(DG_TEST_COMMON_INCLUDE_DIRS
-	"${DG_UUNIT_SOURCE_DIR}"
+	"${DG_DOCTEST_SOURCE_DIR}"
 	"${CMAKE_SOURCE_DIR}/src"
 	"${CMAKE_BINARY_DIR}"
 )
 
-function(dg_add_uunit_test target)
+function(dg_add_doctest_test target)
 	set(options)
 	set(one_value_args)
 	set(multi_value_args SOURCES INCLUDE_DIRS LINK_LIBRARIES COMPILE_DEFINITIONS COMPILE_OPTIONS DEPENDENCIES)
 	cmake_parse_arguments(DG_TEST "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
 	add_executable(${target}
-		"${DG_UUNIT_SOURCE_DIR}/uunit.cc"
+		"${CMAKE_SOURCE_DIR}/test/doctest_main.cc"
 		${DG_TEST_SOURCES}
 	)
 
@@ -45,7 +45,7 @@ if(DG_PLUGINGUI_RESOURCE_DATA)
 	set_source_files_properties("${DG_PLUGINGUI_RESOURCE_DATA}" PROPERTIES GENERATED TRUE)
 endif()
 
-dg_add_uunit_test(resource
+dg_add_doctest_test(resource
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/dggui/resource.cc"
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
@@ -62,7 +62,7 @@ dg_add_uunit_test(resource
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(audiocache
+dg_add_doctest_test(audiocache
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/audiocache.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocacheeventhandler.cc"
@@ -83,7 +83,7 @@ dg_add_uunit_test(audiocache
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(audiocachefile
+dg_add_doctest_test(audiocachefile
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/audiocachefile.cc"
 		"${CMAKE_SOURCE_DIR}/src/thread.cc"
@@ -101,7 +101,7 @@ dg_add_uunit_test(audiocachefile
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(audiocacheidmanager
+dg_add_doctest_test(audiocacheidmanager
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/audiocacheidmanager.cc"
 		"${CMAKE_SOURCE_DIR}/test/audiocacheidmanagertest.cc"
@@ -113,7 +113,7 @@ dg_add_uunit_test(audiocacheidmanager
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(audiocacheeventhandler
+dg_add_doctest_test(audiocacheeventhandler
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/audiocacheeventhandler.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocacheidmanager.cc"
@@ -130,7 +130,7 @@ dg_add_uunit_test(audiocacheeventhandler
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(enginetest
+dg_add_doctest_test(enginetest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
@@ -143,7 +143,7 @@ dg_add_uunit_test(enginetest
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(paintertest
+dg_add_doctest_test(paintertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/paintertest.cc"
@@ -158,7 +158,7 @@ dg_add_uunit_test(paintertest
 		Threads::Threads
 )
 
-dg_add_uunit_test(configfile
+dg_add_doctest_test(configfile
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/configfile.cc"
 		"${CMAKE_SOURCE_DIR}/src/directory.cc"
@@ -168,7 +168,7 @@ dg_add_uunit_test(configfile
 		"${DG_HUGIN_SOURCE_DIR}"
 )
 
-dg_add_uunit_test(randomtest
+dg_add_doctest_test(randomtest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/random.cc"
 		"${CMAKE_SOURCE_DIR}/test/randomtest.cc"
@@ -178,21 +178,21 @@ dg_add_uunit_test(randomtest
 		DISABLE_HUGIN
 )
 
-dg_add_uunit_test(atomictest
+dg_add_doctest_test(atomictest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/test/atomictest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
 )
 
-dg_add_uunit_test(syncedsettingstest
+dg_add_doctest_test(syncedsettingstest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/test/syncedsettings.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
 )
 
-dg_add_uunit_test(imagecachetest
+dg_add_doctest_test(imagecachetest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/imagecachetest.cc"
@@ -204,7 +204,7 @@ dg_add_uunit_test(imagecachetest
 		dg_plugingui
 )
 
-dg_add_uunit_test(semaphoretest
+dg_add_doctest_test(semaphoretest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/sem.cc"
@@ -215,7 +215,7 @@ dg_add_uunit_test(semaphoretest
 		Threads::Threads
 )
 
-dg_add_uunit_test(drumkitcreatortest
+dg_add_doctest_test(drumkitcreatortest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/random.cc"
 		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
@@ -228,18 +228,18 @@ dg_add_uunit_test(drumkitcreatortest
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(bytesizeparsertest
+dg_add_doctest_test(bytesizeparsertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/bytesizeparser.cc"
 		"${CMAKE_SOURCE_DIR}/test/bytesizeparsertest.cc"
 )
 
-dg_add_uunit_test(notifiertest
+dg_add_doctest_test(notifiertest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/test/notifiertest.cc"
 )
 
-dg_add_uunit_test(dgxmlparsertest
+dg_add_doctest_test(dgxmlparsertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/dgxmlparser.cc"
@@ -251,7 +251,7 @@ dg_add_uunit_test(dgxmlparsertest
 		dg_pugi
 )
 
-dg_add_uunit_test(domloadertest
+dg_add_doctest_test(domloadertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/domloadertest.cc"
@@ -262,7 +262,7 @@ dg_add_uunit_test(domloadertest
 		dg_core
 )
 
-dg_add_uunit_test(configparsertest
+dg_add_doctest_test(configparsertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/configparser.cc"
@@ -273,7 +273,7 @@ dg_add_uunit_test(configparsertest
 		dg_pugi
 )
 
-dg_add_uunit_test(midimapparsertest
+dg_add_doctest_test(midimapparsertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
@@ -285,7 +285,7 @@ dg_add_uunit_test(midimapparsertest
 		dg_pugi
 )
 
-dg_add_uunit_test(eventsdstest
+dg_add_doctest_test(eventsdstest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/events_ds.cc"
 		"${CMAKE_SOURCE_DIR}/test/eventsdstest.cc"
@@ -293,13 +293,13 @@ dg_add_uunit_test(eventsdstest
 		SndFile::sndfile
 )
 
-dg_add_uunit_test(powermaptest
+dg_add_doctest_test(powermaptest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/powermap.cc"
 		"${CMAKE_SOURCE_DIR}/test/powermaptest.cc"
 )
 
-dg_add_uunit_test(midimappertest
+dg_add_doctest_test(midimappertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/src/midimapper.cc"
@@ -326,7 +326,7 @@ if(DG_WITH_NLS)
 		VERBATIM
 	)
 
-	dg_add_uunit_test(translationtest
+	dg_add_doctest_test(translationtest
 		SOURCES
 			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 			"${CMAKE_SOURCE_DIR}/dggui/resource.cc"

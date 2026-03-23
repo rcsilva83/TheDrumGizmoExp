@@ -24,62 +24,100 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <uunit.h>
+#include <doctest/doctest.h>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include <drumgizmo.h>
 
 #include "drumkit_creator.h"
 
-class AudioOutputEngineDummy
-	: public AudioOutputEngine
+class AudioOutputEngineDummy : public AudioOutputEngine
 {
 public:
-	bool init(const Channels& channels) override { return true; }
-
-	void setParm(const std::string& parm, const std::string& value) override {}
-
-	bool start() override { return true; }
-	void stop() override {}
-
-	void pre(size_t nsamples) override {}
-	void run(int ch, sample_t *samples, size_t nsamples) override {}
-	void post(size_t nsamples) override {}
-	std::size_t getSamplerate() const override { return 44100; }
-	bool isFreewheeling() const override { return true; }
-};
-
-class AudioInputEngineDummy
-	: public AudioInputEngine
-{
-public:
-	bool init(const Instruments& instruments) override { return true; }
-
-	void setParm(const std::string& parm, const std::string& value) override {}
-
-	bool start() override { return true; }
-	void stop() override {}
-
-	void pre() override {}
-	void run(size_t pos, size_t len, std::vector<event_t>& events) override {}
-	void post() override {}
-	void setSampleRate(double sample_rate) override {}
-	bool isFreewheeling() const override { return true; }
-};
-
-class test_engine : public uUnit
-{
-public:
-	test_engine()
+	bool init(const Channels& channels) override
 	{
-		uUNIT_TEST(test_engine::loading);
+		return true;
 	}
 
-	DrumkitCreator drumkit_creator;
+	void setParm(const std::string& parm, const std::string& value) override
+	{
+	}
 
-	void loading()
+	bool start() override
+	{
+		return true;
+	}
+	void stop() override
+	{
+	}
+
+	void pre(size_t nsamples) override
+	{
+	}
+	void run(int ch, sample_t* samples, size_t nsamples) override
+	{
+	}
+	void post(size_t nsamples) override
+	{
+	}
+	std::size_t getSamplerate() const override
+	{
+		return 44100;
+	}
+	bool isFreewheeling() const override
+	{
+		return true;
+	}
+};
+
+class AudioInputEngineDummy : public AudioInputEngine
+{
+public:
+	bool init(const Instruments& instruments) override
+	{
+		return true;
+	}
+
+	void setParm(const std::string& parm, const std::string& value) override
+	{
+	}
+
+	bool start() override
+	{
+		return true;
+	}
+	void stop() override
+	{
+	}
+
+	void pre() override
+	{
+	}
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+	}
+	void post() override
+	{
+	}
+	void setSampleRate(double sample_rate) override
+	{
+	}
+	bool isFreewheeling() const override
+	{
+		return true;
+	}
+};
+
+struct test_engineFixture
+{
+	DrumkitCreator drumkit_creator;
+};
+
+TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
+{
+	SUBCASE("loading")
 	{
 		Settings settings;
 		AudioOutputEngineDummy oe;
@@ -116,7 +154,4 @@ public:
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
-};
-
-// Registers the fixture into the 'registry'
-static test_engine test;
+}
