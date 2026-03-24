@@ -67,11 +67,14 @@ TEST_CASE_FIXTURE(AtomicTestFixture, "AtomicTest")
 		CHECK(!isUsingStandardImpl<std::string>());
 	}
 
-	SUBCASE("podAtomicCanBeDefaultInitialized")
+	SUBCASE("podAtomicDefaultInitializationSupportsStateTransitions")
 	{
 		Atomic<int> i;
-		// note: i is initialized with garbage
-		(void)i; // prevent compiler 'unused' warning
+		i.store(5);
+		CHECK_EQ(i.load(), 5);
+
+		CHECK_EQ(i.exchange(9), 5);
+		CHECK_EQ(i.load(), 9);
 	}
 
 	SUBCASE("nonPodAtomicCanBeDefaultInitialized")
