@@ -306,8 +306,23 @@ jobs:
             case "$file" in
               *.h|*.hh|*.hpp) ;;
               *)
-                if grep -Fq "\"file\":\"$file\"" build-tidy/compile_commands.json || \
-                   grep -Fq "\"file\": \"$file\"" build-tidy/compile_commands.json; then
+                if python3 - "$file" <<'PY'
+                  import json
+                  import os
+                  import sys
+
+                  target = sys.argv[1]
+                  with open("build-tidy/compile_commands.json", "r", encoding="utf-8") as f:
+                      commands = json.load(f)
+
+                  for entry in commands:
+                      file_path = entry.get("file", "")
+                      if file_path == target or os.path.normpath(file_path).endswith("/" + target):
+                          raise SystemExit(0)
+
+                  raise SystemExit(1)
+                PY
+                then
                   source_files+=("$file")
                 else
                   echo "Skipping clang-tidy for $file (not present in compile_commands.json)"
