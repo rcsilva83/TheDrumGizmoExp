@@ -299,6 +299,21 @@ dg_add_doctest_test(powermaptest
 		"${CMAKE_SOURCE_DIR}/test/powermaptest.cc"
 )
 
+dg_add_doctest_test(inputfilterstest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/latencyfilter.cc"
+		"${CMAKE_SOURCE_DIR}/src/powermap.cc"
+		"${CMAKE_SOURCE_DIR}/src/powermapfilter.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
+		"${CMAKE_SOURCE_DIR}/src/staminafilter.cc"
+		"${CMAKE_SOURCE_DIR}/src/velocityfilter.cc"
+		"${CMAKE_SOURCE_DIR}/test/inputfilterstest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
 dg_add_doctest_test(versionstrtest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
