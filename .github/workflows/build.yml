@@ -389,7 +389,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          python3 - <<'PY'
+          python3 - <<PY
           import base64, json, os, sys, urllib.request, urllib.parse
 
           TOKEN       = os.environ["SONAR_TOKEN"]
