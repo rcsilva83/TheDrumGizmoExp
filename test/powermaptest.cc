@@ -109,4 +109,23 @@ TEST_CASE("test_powermaptest")
 		CHECK_EQ(powermap.getFixed1().out, doctest::Approx(0.5f));
 		CHECK_EQ(powermap.map(0.5f), doctest::Approx(0.5f));
 	}
+
+	SUBCASE("regression_issue33_reset_is_not_order_dependent")
+	{
+		// Regression for PR #33: reset() previously used setFixed* in order,
+		// which clamped fixed1 against stale fixed2 values.
+		Powermap powermap;
+		const float eps = 1e-4f;
+
+		powermap.setFixed1({0.2f, 0.2f});
+		powermap.setFixed2({0.35f, 0.35f});
+
+		powermap.reset();
+
+		CHECK_EQ(powermap.getFixed0().in, doctest::Approx(eps));
+		CHECK_EQ(powermap.getFixed1().in, doctest::Approx(0.5f));
+		CHECK_EQ(powermap.getFixed1().out, doctest::Approx(0.5f));
+		CHECK_EQ(powermap.getFixed2().in, doctest::Approx(1.0f - eps));
+		CHECK_EQ(powermap.getFixed2().out, doctest::Approx(1.0f - eps));
+	}
 }
