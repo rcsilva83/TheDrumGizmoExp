@@ -3,6 +3,9 @@
 This document records the test coverage baseline for DrumGizmo and defines
 target thresholds to guide future coverage improvements.
 
+For risk-driven gap prioritization and follow-up test implementation planning,
+see `docs/high-risk-test-backlog.md`.
+
 Coverage is measured with [gcovr](https://gcovr.com/) using GCC's `--coverage`
 instrumentation. The CI workflow (`build.yml`) produces detailed HTML, Cobertura
 XML and SonarQube XML reports on every push.
