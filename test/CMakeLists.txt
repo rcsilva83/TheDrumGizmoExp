@@ -333,6 +333,31 @@ dg_add_doctest_test(midimappertest
 		dg_pugi
 )
 
+if(DG_ENABLE_LV2)
+	dg_add_doctest_test(lv2test
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+			"${CMAKE_SOURCE_DIR}/test/lv2_test_host.cc"
+			"${CMAKE_SOURCE_DIR}/test/lv2.cc"
+		INCLUDE_DIRS
+			"${DG_HUGIN_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			LV2_PATH=\"${CMAKE_BINARY_DIR}/plugin\"
+		LINK_LIBRARIES
+			PkgConfig::LV2
+			PkgConfig::LILV
+			PkgConfig::SERD
+			OpenSSL::Crypto
+			SndFile::sndfile
+			${DG_DL_LIBRARIES}
+		DEPENDENCIES
+			drumgizmo_lv2
+			drumgizmo_lv2_manifest
+	)
+endif()
+
 if(DG_WITH_NLS)
 	set(DG_TRANSLATIONTEST_RESOURCE_DATA "${CMAKE_BINARY_DIR}/test/translationtest_resource_data.cc")
 	add_custom_command(

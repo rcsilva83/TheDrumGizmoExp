@@ -29,41 +29,43 @@
 #include <lilv/lilv.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 
-class LV2TestHost {
+class LV2TestHost
+{
 public:
-	class Sequence {
+	class Sequence
+	{
 	public:
-		Sequence(void *buffer, size_t buffer_size);
+		Sequence(void* buffer, size_t buffer_size);
 		void clear();
 		void addMidiNote(uint64_t pos, uint8_t key, int8_t velocity);
-		void *data();
+		void* data();
 
 	private:
-		void *buffer;
+		void* buffer;
 		size_t buffer_size;
-		LV2_Atom_Sequence *seq;
+		LV2_Atom_Sequence* seq;
 	};
 
-	LV2TestHost(const char *lv2_path);
+	explicit LV2TestHost(const char* lv2_path);
 	~LV2TestHost();
 
-	int open(const char *plugin_uri);
+	int open(const char* plugin_uri);
 	int close();
 
 	int verify();
 
-	//void getMetadata();
-	//int getPorts();
+	// void getMetadata();
+	// int getPorts();
 
 	int createInstance(size_t samplerate);
 	int destroyInstance();
 
-	int connectPort(int port, void *portdata);
+	int connectPort(int port, void* portdata);
 
 	int activate();
 	int deactivate();
 
-	int loadConfig(const char *config, size_t size);
+	int loadConfig(const char* config, size_t size);
 	int run(int num_samples);
 
 private:
