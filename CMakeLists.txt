@@ -177,6 +177,9 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/ttlgen.cc"
 		)
 		pkg_check_modules(LV2 REQUIRED IMPORTED_TARGET lv2>=1.0)
+		pkg_check_modules(LILV REQUIRED IMPORTED_TARGET lilv-0)
+		pkg_check_modules(SERD REQUIRED IMPORTED_TARGET serd-0)
+		find_package(OpenSSL REQUIRED)
 		check_include_file(dlfcn.h DG_HAVE_DLFCN_H)
 		if(NOT DG_HAVE_DLFCN_H)
 			message(FATAL_ERROR "LV2 support requested but dlfcn.h was not found")
@@ -729,6 +732,7 @@ if(DG_NEED_PLUGIN_GUI)
 		set_target_properties(drumgizmo_lv2 PROPERTIES
 			PREFIX ""
 			OUTPUT_NAME drumgizmo
+			LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugin/drumgizmo.lv2"
 		)
 		target_compile_definitions(drumgizmo_lv2 PRIVATE
 			${DG_COMMON_COMPILE_DEFINITIONS}
@@ -748,10 +752,10 @@ if(DG_NEED_PLUGIN_GUI)
 		)
 		target_link_libraries(drumgizmo_lv2 PRIVATE PkgConfig::LV2 dg_plugingui dg_core dg_nls)
 
-		set(DG_LV2_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/plugin/manifest.ttl")
+		set(DG_LV2_MANIFEST "${CMAKE_BINARY_DIR}/plugin/drumgizmo.lv2/manifest.ttl")
 		add_custom_command(
 			OUTPUT "${DG_LV2_MANIFEST}"
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/plugin"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/plugin/drumgizmo.lv2"
 			COMMAND $<TARGET_FILE:ttlgen> "$<TARGET_FILE:drumgizmo_lv2>" "${DG_LV2_MANIFEST}" "${DG_LV2_UI_TYPE}"
 			DEPENDS ttlgen drumgizmo_lv2
 			VERBATIM

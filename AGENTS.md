@@ -12,7 +12,7 @@ dggui/          GUI framework (namespace dggui)
 plugingui/      Plugin GUI application (namespace GUI)
 plugin/         LV2/VST plugin wrappers
 drumgizmo/      CLI application
-test/           Unit tests (uUnit framework)
+test/           Unit tests (doctest framework)
 ```
 
 External libraries are fetched by CPM at configure time and are not stored as
@@ -165,46 +165,44 @@ There is no dedicated lint command. Debug builds use `-Wall -Werror -Wextra`.
 - Use `//! \brief`, `//! \param`, `//! \return` for detailed docs
 - Use `//` for inline implementation comments; `// TODO:` / `// FIXME:` for tracked issues
 
-## Unit Tests (uUnit Framework)
+## Unit Tests (doctest Framework)
 
-Tests use the custom `uUnit` micro-framework (fetched by CPM).
+Tests use the [doctest](https://github.com/doctest/doctest) framework (fetched by CPM).
 
 ### Writing a Test
 
 ```cpp
-#include <uunit.h>
+#include <doctest/doctest.h>
 #include "module_under_test.h"
 
-class MyModuleTest : public uUnit
+TEST_CASE("basic operation")
 {
-public:
-    MyModuleTest()
-    {
-        uUNIT_TEST(MyModuleTest::basicOperation);
-        uUNIT_TEST(MyModuleTest::edgeCase);
-    }
+    MyModule m;
+    CHECK_UNARY(m.isValid());
+    CHECK_EQ(42, m.getValue());
+}
 
-    void setup() override { /* runs before each test */ }
-    void teardown() override { /* runs after each test */ }
-
-    void basicOperation()
-    {
-        MyModule m;
-        uUNIT_ASSERT(m.isValid());
-        uUNIT_ASSERT_EQUAL(42, m.getValue());
-    }
+// Use a fixture struct for shared state across test cases
+struct MyModuleFixture
+{
+    MyModule m;
 };
 
-static MyModuleTest test; // Auto-registers the suite
+TEST_CASE_FIXTURE(MyModuleFixture, "edge case")
+{
+    CHECK_EQ(0, m.edgeCase());
+}
 ```
 
 ### Available Assertions
 
-| Macro                            | Purpose                           |
-|----------------------------------|-----------------------------------|
-| `uUNIT_ASSERT(expr)`            | Assert truthiness                 |
-| `uUNIT_ASSERT_EQUAL(exp, act)`  | Assert equality (with epsilon for doubles) |
-| `uUNIT_ASSERT_THROWS(Exc, expr)`| Assert expression throws          |
+| Macro                       | Purpose                                        |
+|-----------------------------|------------------------------------------------|
+| `CHECK(expr)`               | Assert truthiness (non-fatal)                  |
+| `CHECK_EQ(exp, act)`        | Assert equality (non-fatal)                    |
+| `CHECK_UNARY(expr)`         | Assert compound boolean expressions (non-fatal)|
+| `REQUIRE(expr)`             | Assert truthiness (fatal — stops the test)     |
+| `REQUIRE_EQ(exp, act)`      | Assert equality (fatal)                        |
 
 ## C++ Standard and Compiler Flags
 
