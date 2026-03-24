@@ -10,6 +10,10 @@ Coverage is measured with [gcovr](https://gcovr.com/) using GCC's `--coverage`
 instrumentation. The CI workflow (`build.yml`) produces detailed HTML, Cobertura
 XML and SonarQube XML reports on every push.
 
+The workflow also emits a JSON summary (`coverage-summary.json`) and generates
+`docs/coverage-top20-file-gaps.md`, a prioritized top-20 file list by uncovered
+branches with explicit per-file branch/line targets.
+
 ---
 
 ## Baseline (2026-03-24)
@@ -71,12 +75,19 @@ prevent regression. After generating the coverage reports the workflow runs:
 
 ```sh
 python3 scripts/check-coverage.py
+python3 scripts/generate-coverage-gap-report.py --summary coverage-summary.json --output docs/coverage-top20-file-gaps.md
 ```
 
 The thresholds are stored in **`.coverage-thresholds.json`** at the repository
 root. The script reads `coverage.xml` (Cobertura format), computes overall and
 per-module line coverage, and exits with a non-zero status if any threshold is
 not met — causing the CI job to fail.
+
+Branch-level coverage visibility is provided in three places:
+
+- GitHub Actions step summary (overall branch coverage and top uncovered files)
+- `docs/coverage-top20-file-gaps.md` in the repository
+- `coverage-reports` artifact (`coverage.xml`, `coverage-summary.json`, HTML)
 
 ### Configured thresholds
 
@@ -131,6 +142,20 @@ gcovr \
   --gcov-ignore-errors=source_not_found \
   --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
   --html-details --output coverage/index.html
+
+# 4. Generate JSON summary + top-20 branch gap list
+gcovr \
+  --root . \
+  --object-directory build-coverage \
+  --gcov-ignore-parse-errors=all \
+  --gcov-ignore-errors=source_not_found \
+  --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
+  --json-summary-pretty \
+  --json-summary coverage-summary.json
+
+python3 scripts/generate-coverage-gap-report.py \
+  --summary coverage-summary.json \
+  --output docs/coverage-top20-file-gaps.md
 
 # Open coverage/index.html in a browser
 ```
