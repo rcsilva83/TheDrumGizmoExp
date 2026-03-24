@@ -307,21 +307,21 @@ jobs:
               *.h|*.hh|*.hpp) ;;
               *)
                 if python3 - "$file" <<'PY'
-                  import json
-                  import os
-                  import sys
+          import json
+          import os
+          import sys
 
-                  target = sys.argv[1]
-                  with open("build-tidy/compile_commands.json", "r", encoding="utf-8") as f:
-                      commands = json.load(f)
+          target = sys.argv[1]
+          with open("build-tidy/compile_commands.json", "r", encoding="utf-8") as f:
+              commands = json.load(f)
 
-                  for entry in commands:
-                      file_path = entry.get("file", "")
-                      if file_path == target or os.path.normpath(file_path).endswith("/" + target):
-                          raise SystemExit(0)
+          for entry in commands:
+              file_path = entry.get("file", "")
+              if file_path == target or os.path.normpath(file_path).endswith("/" + target):
+                  raise SystemExit(0)
 
-                  raise SystemExit(1)
-                PY
+          raise SystemExit(1)
+          PY
                 then
                   source_files+=("$file")
                 else
@@ -534,11 +534,8 @@ jobs:
           cp build-release/drumgizmo dist/bin/drumgizmo
           cp build-release/dgvalidator dist/bin/dgvalidator
 
-          mkdir -p dist/lv2
-          cp -r build-release/plugin/drumgizmo.lv2 dist/lv2/
-
           tar -czf drumgizmo-linux-binaries.tar.gz -C dist/bin drumgizmo dgvalidator
-          tar -czf drumgizmo-lv2-plugin.tar.gz -C dist/lv2 drumgizmo.lv2
+          tar -czf drumgizmo-lv2-plugin.tar.gz -C build-release/plugin drumgizmo.lv2
 
       - name: Upload Linux binaries
         uses: actions/upload-artifact@v7
@@ -553,6 +550,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: lv2-plugin
-          path: |
-            dist/lv2/drumgizmo.lv2
-            drumgizmo-lv2-plugin.tar.gz
+          path: drumgizmo-lv2-plugin.tar.gz
