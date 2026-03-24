@@ -513,6 +513,7 @@ jobs:
             libglib2.0-dev \
             libjack-jackd2-dev \
             libasound2-dev \
+            liblilv-dev \
             lv2-dev
 
       - name: Configure and build
@@ -523,6 +524,7 @@ jobs:
             -DDG_WITH_NLS=OFF \
             -DDG_ENABLE_LV2=ON \
             -DDG_ENABLE_VST=OFF \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DDG_GUI_BACKEND=x11
           cmake --build build-release -j"$(nproc)"
 
