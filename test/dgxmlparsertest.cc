@@ -438,7 +438,7 @@ TEST_CASE("DGXmlParserTest")
 			std::string expected_description;
 			std::size_t expected_channels;
 			std::size_t expected_instruments;
-			bool expect_first_channel_main;
+			bool expect_first_instrument_channel_map;
 			main_state_t expected_main;
 			bool expect_first_choke;
 			double expected_choketime;
@@ -518,7 +518,7 @@ TEST_CASE("DGXmlParserTest")
 			CHECK_EQ(test_case.expected_channels, dom.channels.size());
 			CHECK_EQ(test_case.expected_instruments, dom.instruments.size());
 
-			if(test_case.expect_first_channel_main)
+			if(test_case.expect_first_instrument_channel_map)
 			{
 				CHECK_EQ(std::size_t(1), dom.instruments[0].channel_map.size());
 				CHECK(test_case.expected_main ==
