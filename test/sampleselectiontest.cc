@@ -58,4 +58,27 @@ TEST_CASE("test_sampleselectiontest")
 		auto chosen = selection.get(0.85f, 64);
 		CHECK_EQ(chosen, static_cast<const Sample*>(&high_power_sample));
 	}
+
+	SUBCASE("two_samples_low_velocity_prefers_lower_power_sample")
+	{
+		Settings settings;
+		settings.sample_selection_f_close.store(1.0f);
+		settings.sample_selection_f_diverse.store(0.0f);
+		settings.sample_selection_f_random.store(0.0f);
+
+		Random random(1337);
+		PowerList powerlist;
+		Sample low_power_sample("low", 0.10);
+		Sample high_power_sample("high", 0.90);
+
+		powerlist.add(&high_power_sample);
+		powerlist.add(&low_power_sample);
+		powerlist.finalise();
+
+		SampleSelection selection(settings, random, powerlist);
+		selection.finalise();
+
+		auto chosen = selection.get(0.15f, 64);
+		CHECK_EQ(chosen, static_cast<const Sample*>(&low_power_sample));
+	}
 }
