@@ -26,6 +26,9 @@
  */
 #include <doctest/doctest.h>
 
+#include <string>
+#include <vector>
+
 #include <midimapparser.h>
 
 #include "scopedfile.h"
@@ -158,5 +161,59 @@ TEST_CASE("MidimapParserTest")
 		CHECK(!parser.parseFile(invalid_file.filename()));
 		CHECK_EQ(1u, parser.midimap.size());
 		CHECK_EQ(10, parser.midimap[0].note_id);
+	}
+
+	SUBCASE("fileNotFound")
+	{
+		MidiMapParser parser;
+		CHECK(!parser.parseFile("/nonexistent/path/to/midimap.xml"));
+	}
+
+	SUBCASE("perEntryMatrix")
+	{
+		struct TestCase
+		{
+			std::string map_xml;
+			bool expected_included;
+			int expected_note;
+			std::string expected_instr;
+		};
+
+		const std::vector<TestCase> cases = {
+		    // valid entry at minimum boundary note
+		    {"<map note=\"0\" instr=\"Kick\"/>", true, 0, "Kick"},
+		    // valid entry at maximum standard MIDI note
+		    {"<map note=\"127\" instr=\"High\"/>", true, 127, "High"},
+		    // missing note attribute → entry is skipped
+		    {"<map instr=\"NoNote\"/>", false, 0, ""},
+		    // missing instr attribute → entry is skipped
+		    {"<map note=\"60\"/>", false, 0, ""},
+		    // empty instr attribute → entry is skipped
+		    {"<map note=\"60\" instr=\"\"/>", false, 0, ""},
+		    // negative note value → included (no range check in parser)
+		    {"<map note=\"-1\" instr=\"Neg\"/>", true, -1, "Neg"},
+		    // note value above 127 → included (no range check in parser)
+		    {"<map note=\"200\" instr=\"HighOut\"/>", true, 200, "HighOut"}};
+
+		for(const auto& tc : cases)
+		{
+			std::string xml =
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<midimap>\n\t" +
+			    tc.map_xml + "\n</midimap>";
+			ScopedFile f(xml);
+			MidiMapParser parser;
+			CHECK(parser.parseFile(f.filename()));
+			if(tc.expected_included)
+			{
+				CHECK_EQ(1u, parser.midimap.size());
+				CHECK_EQ(tc.expected_note, parser.midimap[0].note_id);
+				CHECK_EQ(tc.expected_instr, parser.midimap[0].instrument_name);
+			}
+			else
+			{
+				CHECK_EQ(0u, parser.midimap.size());
+			}
+		}
 	}
 }

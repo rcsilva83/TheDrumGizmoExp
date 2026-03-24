@@ -26,6 +26,8 @@
  */
 #include <doctest/doctest.h>
 
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "scopedfile.h"
@@ -423,6 +425,230 @@ TEST_CASE("DGXmlParserTest")
 		CHECK_EQ(std::size_t(1), instrument.chokes.size());
 		CHECK_EQ(std::string("OpenHat"), instrument.chokes[0].instrument);
 		CHECK_EQ(68.0, instrument.chokes[0].choketime);
+	}
+
+	SUBCASE("drumkitXmlParseFailure")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit samplerate=\"48000\" version=\"2.0\"\n"
+		    "  <channels/>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+	}
+
+	SUBCASE("multipleChokesPerInstrument")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit>\n"
+		    "  <instruments>\n"
+		    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		    "      <chokes>\n"
+		    "        <choke instrument=\"OpenHat\"/>\n"
+		    "      </chokes>\n"
+		    "      <chokes>\n"
+		    "        <choke instrument=\"HalfHat\"/>\n"
+		    "      </chokes>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+	}
+
+	SUBCASE("loggerCallback")
+	{
+		std::vector<std::pair<LogLevel, std::string>> messages;
+		auto logger = [&messages](LogLevel level, const std::string& msg)
+		{
+			messages.emplace_back(level, msg);
+		};
+
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit>\n"
+		    "  <instruments>\n"
+		    "    <instrument file=\"hat.xml\"/>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile(scoped_file.filename(), dom, logger));
+
+		bool has_info = false;
+		bool has_error = false;
+		for(const auto& msg : messages)
+		{
+			if(msg.first == LogLevel::Info)
+			{
+				has_info = true;
+			}
+			if(msg.first == LogLevel::Error)
+			{
+				has_error = true;
+			}
+		}
+		CHECK_UNARY(has_info);
+		CHECK_UNARY(has_error);
+	}
+
+	SUBCASE("drumkitEdgeCaseMatrix")
+	{
+		struct TestCase
+		{
+			std::string xml;
+			bool expected_status;
+			std::string expected_version;
+			double expected_samplerate;
+			std::size_t expected_channels;
+			std::size_t expected_instruments;
+		};
+
+		const std::vector<TestCase> cases = {
+		    // minimal valid drumkit with no channels or instruments
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit/>\n",
+		        true, "1.0", 44100.0, 0u, 0u},
+		    // explicit version and samplerate
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit version=\"2.0\" samplerate=\"96000\">\n"
+		     "</drumkit>\n",
+		        true, "2.0", 96000.0, 0u, 0u},
+		    // wrong root element: parse succeeds but DOM has defaults and empty lists
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<kit samplerate=\"48000\">\n"
+		     "  <channels><channel name=\"Oh\"/></channels>\n"
+		     "</kit>\n",
+		        true, "1.0", 44100.0, 0u, 0u},
+		    // instrument missing required name attribute
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit>\n"
+		     "  <instruments>\n"
+		     "    <instrument file=\"snare.xml\"/>\n"
+		     "  </instruments>\n"
+		     "</drumkit>\n",
+		        false, "1.0", 44100.0, 0u, 1u},
+		    // instrument missing required file attribute
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit>\n"
+		     "  <instruments>\n"
+		     "    <instrument name=\"Snare\"/>\n"
+		     "  </instruments>\n"
+		     "</drumkit>\n",
+		        false, "1.0", 44100.0, 0u, 1u},
+		    // channel missing required name attribute
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit>\n"
+		     "  <channels>\n"
+		     "    <channel/>\n"
+		     "  </channels>\n"
+		     "</drumkit>\n",
+		        false, "1.0", 44100.0, 1u, 0u},
+		    // choke with explicit choketime overrides the default 68ms
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<drumkit>\n"
+		     "  <channels>\n"
+		     "    <channel name=\"OH\"/>\n"
+		     "  </channels>\n"
+		     "  <instruments>\n"
+		     "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		     "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+		     "      <chokes>\n"
+		     "        <choke instrument=\"OpenHat\" choketime=\"100\"/>\n"
+		     "      </chokes>\n"
+		     "    </instrument>\n"
+		     "  </instruments>\n"
+		     "</drumkit>\n",
+		        true, "1.0", 44100.0, 1u, 1u}};
+
+		for(const auto& tc : cases)
+		{
+			ScopedFile f(tc.xml);
+			DrumkitDOM dom;
+			CHECK_EQ(tc.expected_status, parseDrumkitFile(f.filename(), dom));
+			CHECK_EQ(tc.expected_version, dom.version);
+			CHECK_EQ(tc.expected_samplerate, dom.samplerate);
+			CHECK_EQ(tc.expected_channels, dom.channels.size());
+			CHECK_EQ(tc.expected_instruments, dom.instruments.size());
+		}
+	}
+
+	SUBCASE("instrumentParseEdgeCaseMatrix")
+	{
+		struct TestCase
+		{
+			std::string xml;
+			bool expected_status;
+			std::string expected_name;
+			std::string expected_version;
+			std::size_t expected_samples;
+			std::size_t expected_velocities;
+		};
+
+		const std::vector<TestCase> cases = {
+		    // minimal valid instrument (no samples)
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument name=\"Hat\"/>\n",
+		        true, "Hat", "1.0", 0u, 0u},
+		    // missing required name attribute
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument/>\n",
+		        false, "", "1.0", 0u, 0u},
+		    // wrong root element: name attribute missing → false
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<kit name=\"Hat\"/>\n",
+		        false, "", "1.0", 0u, 0u},
+		    // v2.0 instrument with required power attribute present
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument version=\"2.0\" name=\"Snare\">\n"
+		     "  <samples>\n"
+		     "    <sample name=\"S1\" power=\"0.5\">\n"
+		     "    </sample>\n"
+		     "  </samples>\n"
+		     "</instrument>\n",
+		        true, "Snare", "2.0", 1u, 0u},
+		    // v2.0 instrument: sample missing required power attribute
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument version=\"2.0\" name=\"Snare\">\n"
+		     "  <samples>\n"
+		     "    <sample name=\"S1\">\n"
+		     "    </sample>\n"
+		     "  </samples>\n"
+		     "</instrument>\n",
+		        false, "Snare", "2.0", 1u, 0u},
+		    // v1.0 instrument with velocity groups
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument name=\"Kick\">\n"
+		     "  <velocities>\n"
+		     "    <velocity lower=\"0.0\" upper=\"1.0\">\n"
+		     "    </velocity>\n"
+		     "  </velocities>\n"
+		     "</instrument>\n",
+		        true, "Kick", "1.0", 0u, 1u},
+		    // v2.0 instrument with normalized attribute on sample
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<instrument version=\"2.0\" name=\"Snare\">\n"
+		     "  <samples>\n"
+		     "    <sample name=\"S1\" power=\"0.5\" normalized=\"true\">\n"
+		     "    </sample>\n"
+		     "  </samples>\n"
+		     "</instrument>\n",
+		        true, "Snare", "2.0", 1u, 0u}};
+
+		for(const auto& tc : cases)
+		{
+			ScopedFile f(tc.xml);
+			InstrumentDOM dom;
+			CHECK_EQ(tc.expected_status, parseInstrumentFile(f.filename(), dom));
+			CHECK_EQ(tc.expected_name, dom.name);
+			CHECK_EQ(tc.expected_version, dom.version);
+			CHECK_EQ(tc.expected_samples, dom.samples.size());
+			CHECK_EQ(tc.expected_velocities, dom.velocities.size());
+		}
 	}
 
 	SUBCASE("instrumentAttributeMatrix")

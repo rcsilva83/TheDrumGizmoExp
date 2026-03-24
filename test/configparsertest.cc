@@ -99,7 +99,29 @@ TEST_CASE("ConfigParserTest")
 		     "<cfg>\n"
 		     "  <value name=\"foo\">42</value>\n"
 		     "</cfg>",
-		        true, "foo", "-", "-"}};
+		        true, "foo", "-", "-"},
+		    // empty config with no value children
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<config/>\n",
+		        true, "foo", "-", "-"},
+		    // value node with empty text → stored as empty string
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<config>\n"
+		     "  <value name=\"foo\"/>\n"
+		     "</config>\n",
+		        true, "foo", "", "-"},
+		    // version explicitly set to 1.0 (valid)
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<config version=\"1.0\">\n"
+		     "  <value name=\"foo\">hello</value>\n"
+		     "</config>\n",
+		        true, "foo", "hello", "-"},
+		    // version "1" (not "1.0") → version check fails
+		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
+		     "<config version=\"1\">\n"
+		     "  <value name=\"foo\">42</value>\n"
+		     "</config>\n",
+		        false, "foo", "-", "-"}};
 
 		for(const auto& test_case : cases)
 		{
