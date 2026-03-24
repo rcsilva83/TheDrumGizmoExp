@@ -146,7 +146,7 @@ jobs:
 
       - name: Publish coverage summary
         run: |
-          python3 - <<PY
+          python3 - <<'PY'
           import os
           import xml.etree.ElementTree as ET
 
@@ -306,7 +306,7 @@ jobs:
             case "$file" in
               *.h|*.hh|*.hpp) ;;
               *)
-                if python3 - "$file" <<PY
+                if python3 - "$file" <<'PY'
                   import json
                   import os
                   import sys
@@ -389,7 +389,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          python3 - <<PY
+          python3 - <<'PY'
           import base64, json, os, sys, urllib.request, urllib.parse
 
           TOKEN       = os.environ["SONAR_TOKEN"]
