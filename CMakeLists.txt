@@ -727,6 +727,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginlv2.cc"
+			plugin/configstringio.cc
 			plugin/drumgizmo_plugin.cc
 		)
 		set_target_properties(drumgizmo_lv2 PROPERTIES
@@ -790,6 +791,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginvst.cc"
+			plugin/configstringio.cc
 			plugin/drumgizmo_plugin.cc
 		)
 		set_target_properties(drumgizmo_vst PROPERTIES

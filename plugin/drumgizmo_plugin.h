@@ -48,6 +48,8 @@
 #include <dggui/imagecache.h>
 #include <dggui/image.h>
 
+#include "configstringio.h"
+
 class DrumGizmoPlugin
 #ifdef LV2
 	: public PluginLV2
@@ -165,17 +167,6 @@ private:
 
 	protected:
 		DrumGizmoPlugin& plugin;
-	};
-
-	class ConfigStringIO
-	{
-	public:
-		ConfigStringIO(Settings& settings);
-
-		std::string get();
-		bool set(std::string config_string);
-	private:
-		Settings& settings;
 	};
 
 	Input input{*this};

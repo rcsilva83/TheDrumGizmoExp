@@ -364,6 +364,21 @@ dg_add_doctest_test(midimappertest
 		dg_pugi
 )
 
+dg_add_doctest_test(pluginwrappertest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/src/configparser.cc"
+		"${CMAKE_SOURCE_DIR}/plugin/configstringio.cc"
+		"${CMAKE_SOURCE_DIR}/test/pluginwrappertest.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}/plugin"
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		dg_pugi
+)
+
 if(DG_ENABLE_LV2)
 	dg_add_doctest_test(lv2test
 		SOURCES
