@@ -302,12 +302,32 @@ jobs:
 
           clang-format --dry-run --Werror "${files[@]}"
 
+          compile_commands_check_script="$(cat <<'PY'
+          import json
+          import os
+          import sys
+
+          target = sys.argv[1]
+          with open("build-tidy/compile_commands.json", "r", encoding="utf-8") as fh:
+            commands = json.load(fh)
+
+          for entry in commands:
+            file_entry = entry.get("file", "")
+            if file_entry == target:
+              sys.exit(0)
+            if os.path.normpath(file_entry).endswith("/" + target):
+              sys.exit(0)
+
+          sys.exit(1)
+          PY
+          )"
+
           source_files=()
           for file in "${files[@]}"; do
             case "$file" in
               *.h|*.hh|*.hpp) ;;
               *)
-                if python3 -c 'import json, os, sys; target = sys.argv[1]; commands = json.load(open("build-tidy/compile_commands.json", "r", encoding="utf-8")); sys.exit(0 if any((entry.get("file", "") == target) or os.path.normpath(entry.get("file", "")).endswith("/" + target) for entry in commands) else 1)' "$file"
+                if python3 - "$file" <<<"$compile_commands_check_script"
                 then
                   source_files+=("$file")
                 else
