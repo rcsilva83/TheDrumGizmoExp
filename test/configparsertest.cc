@@ -70,44 +70,73 @@ TEST_CASE("ConfigParserTest")
 	{
 		struct TestCase
 		{
+			std::string name;
 			std::string xml;
+			bool preseed;
 			bool expected_status;
-			std::string key;
-			std::string expected_value;
-			std::string fallback_value;
+			std::string expected_foo;
+			std::string expected_missing;
 		};
 
 		const std::vector<TestCase> cases = {
-		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
-		     "<config>\n"
-		     "  <value name=\"foo\">41</value>\n"
-		     "</config>",
-		        true, "foo", "41", "-"},
-		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
-		     "<config version=\"2.0\">\n"
-		     "  <value name=\"foo\">42</value>\n"
-		     "</config>",
-		        false, "foo", "-", "-"},
-		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
-		     "<config>\n"
-		     "  <value>42</value>\n"
-		     "  <value name=\"foo\">43</value>\n"
-		     "  <value name=\"foo\">44</value>\n"
-		     "</config>",
-		        true, "foo", "44", "-"},
-		    {"<?xml version='1.0' encoding='UTF-8'?>\n"
-		     "<cfg>\n"
-		     "  <value name=\"foo\">42</value>\n"
-		     "</cfg>",
-		        true, "foo", "-", "-"}};
+		    {"near-valid minimal config",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<config>\n"
+		        "  <value name=\"foo\">41</value>\n"
+		        "</config>",
+		        false, true, "41", "fallback"},
+		    {"conflicting duplicates and partial entries",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<config>\n"
+		        "  <value>42</value>\n"
+		        "  <value name=\"foo\">43</value>\n"
+		        "  <value name=\"foo\">44</value>\n"
+		        "</config>",
+		        false, true, "44", "fallback"},
+		    {"malformed xml keeps prior values",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<config\n"
+		        "  <value name=\"foo\">broken</value>\n"
+		        "</config>",
+		        true, false, "seed", "fallback"},
+		    {"unsupported version keeps prior values",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<config version=\"2.0\">\n"
+		        "  <value name=\"foo\">42</value>\n"
+		        "</config>",
+		        true, false, "seed", "fallback"},
+		    {"wrong root is ignored",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<cfg>\n"
+		        "  <value name=\"foo\">42</value>\n"
+		        "</cfg>",
+		        false, true, "-", "fallback"},
+		    {"partial config without target key",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<config>\n"
+		        "  <value name=\"bar\">17</value>\n"
+		        "</config>",
+		        false, true, "-", "fallback"}};
 
 		for(const auto& test_case : cases)
 		{
 			ConfigParser parser;
+			INFO(test_case.name);
+
+			if(test_case.preseed)
+			{
+				CHECK(parser.parseString(
+				    "<?xml version='1.0' encoding='UTF-8'?>\n"
+				    "<config>\n"
+				    "  <value name=\"foo\">seed</value>\n"
+				    "</config>"));
+			}
+
 			CHECK_EQ(
 			    test_case.expected_status, parser.parseString(test_case.xml));
-			CHECK_EQ(test_case.expected_value,
-			    parser.value(test_case.key, test_case.fallback_value));
+			CHECK_EQ(test_case.expected_foo, parser.value("foo", "-"));
+			CHECK_EQ(test_case.expected_missing,
+			    parser.value("missing", "fallback"));
 		}
 	}
 

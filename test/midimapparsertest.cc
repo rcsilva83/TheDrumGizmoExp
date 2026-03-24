@@ -28,6 +28,8 @@
 
 #include <midimapparser.h>
 
+#include <vector>
+
 #include "scopedfile.h"
 
 TEST_CASE("MidimapParserTest")
@@ -91,39 +93,84 @@ TEST_CASE("MidimapParserTest")
 
 	SUBCASE("edgeCaseMatrix")
 	{
-		ScopedFile scoped_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"0\" instr=\"Kick\"/>\n"
-		    "\t<map note=\"127\" instr=\"Rim\"/>\n"
-		    "\t<map instr=\"MissingNote\"/>\n"
-		    "\t<map note=\"bad\" instr=\"BadNote\"/>\n"
-		    "\t<map note=\"11\"/>\n"
-		    "\t<map note=\"12\" instr=\"\"/>\n"
-		    "\t<map note=\"-1\" instr=\"NegativeBoundary\"/>\n"
-		    "\t<map note=\"128\" instr=\"HighBoundary\"/>\n"
-		    "</midimap>");
+		struct ExpectedEntry
+		{
+			int note_id;
+			std::string instrument;
+		};
 
-		MidiMapParser parser;
-		CHECK(parser.parseFile(scoped_file.filename()));
+		struct TestCase
+		{
+			std::string name;
+			std::string xml;
+			bool preseed;
+			bool expected_status;
+			std::vector<ExpectedEntry> expected_entries;
+		};
 
-		const auto& midimap = parser.midimap;
-		CHECK_EQ(5u, midimap.size());
+		const std::vector<TestCase> cases = {
+		    {"near-valid boundaries and skipped invalid maps",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<midimap>\n"
+		        "\t<map note=\"0\" instr=\"Kick\"/>\n"
+		        "\t<map note=\"127\" instr=\"Rim\"/>\n"
+		        "\t<map instr=\"MissingNote\"/>\n"
+		        "\t<map note=\"bad\" instr=\"BadNote\"/>\n"
+		        "\t<map note=\"11\"/>\n"
+		        "\t<map note=\"12\" instr=\"\"/>\n"
+		        "\t<map note=\"-1\" instr=\"NegativeBoundary\"/>\n"
+		        "\t<map note=\"128\" instr=\"HighBoundary\"/>\n"
+		        "</midimap>",
+		        false, true,
+		        {{0, "Kick"}, {127, "Rim"}, {0, "BadNote"},
+		            {-1, "NegativeBoundary"}, {128, "HighBoundary"}}},
+		    {"conflicting duplicate notes are preserved",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<midimap>\n"
+		        "\t<map note=\"62\" instr=\"Crash\"/>\n"
+		        "\t<map note=\"62\" instr=\"Hihat\"/>\n"
+		        "</midimap>",
+		        false, true, {{62, "Crash"}, {62, "Hihat"}}},
+		    {"partial wrong-root file leaves existing mappings untouched",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<mapping>\n"
+		        "\t<map note=\"54\" instr=\"Crash_left_tip\"/>\n"
+		        "</mapping>",
+		        true, true, {{10, "Seed"}}},
+		    {"malformed xml keeps existing mappings untouched",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<midimap\n"
+		        "\t<map note=\"11\" instr=\"Two\"/>\n"
+		        "</midimap>",
+		        true, false, {{10, "Seed"}}}};
 
-		CHECK_EQ(0, midimap[0].note_id);
-		CHECK_EQ(std::string("Kick"), midimap[0].instrument_name);
+		for(const auto& test_case : cases)
+		{
+			INFO(test_case.name);
 
-		CHECK_EQ(127, midimap[1].note_id);
-		CHECK_EQ(std::string("Rim"), midimap[1].instrument_name);
+			MidiMapParser parser;
+			if(test_case.preseed)
+			{
+				ScopedFile seed_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+				                     "<midimap>\n"
+				                     "\t<map note=\"10\" instr=\"Seed\"/>\n"
+				                     "</midimap>");
+				CHECK(parser.parseFile(seed_file.filename()));
+			}
 
-		CHECK_EQ(0, midimap[2].note_id);
-		CHECK_EQ(std::string("BadNote"), midimap[2].instrument_name);
+			ScopedFile scoped_file(test_case.xml);
+			CHECK_EQ(test_case.expected_status,
+			    parser.parseFile(scoped_file.filename()));
 
-		CHECK_EQ(-1, midimap[3].note_id);
-		CHECK_EQ(std::string("NegativeBoundary"), midimap[3].instrument_name);
-
-		CHECK_EQ(128, midimap[4].note_id);
-		CHECK_EQ(std::string("HighBoundary"), midimap[4].instrument_name);
+			CHECK_EQ(test_case.expected_entries.size(), parser.midimap.size());
+			for(std::size_t i = 0; i < test_case.expected_entries.size(); ++i)
+			{
+				CHECK_EQ(test_case.expected_entries[i].note_id,
+				    parser.midimap[i].note_id);
+				CHECK_EQ(test_case.expected_entries[i].instrument,
+				    parser.midimap[i].instrument_name);
+			}
+		}
 	}
 
 	SUBCASE("wrongRootProducesNoMappings")

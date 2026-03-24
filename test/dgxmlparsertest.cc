@@ -425,6 +425,227 @@ TEST_CASE("DGXmlParserTest")
 		CHECK_EQ(68.0, instrument.chokes[0].choketime);
 	}
 
+	SUBCASE("drumkitEdgeCaseMatrix")
+	{
+		struct TestCase
+		{
+			std::string name;
+			std::string xml;
+			bool expected_status;
+			std::string expected_version;
+			double expected_samplerate;
+			std::string expected_title;
+			std::string expected_description;
+			std::size_t expected_channels;
+			std::size_t expected_instruments;
+			bool expect_first_channel_main;
+			main_state_t expected_main;
+			bool expect_first_choke;
+			double expected_choketime;
+		};
+
+		const std::vector<TestCase> cases = {
+		    {"near-valid legacy defaults",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit name=\"Legacy kit\" description=\"Fallback\">\n"
+		        "  <channels>\n"
+		        "    <channel name=\"OH\"/>\n"
+		        "  </channels>\n"
+		        "  <instruments>\n"
+		        "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		        "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+		        "      <chokes>\n"
+		        "        <choke instrument=\"OpenHat\"/>\n"
+		        "      </chokes>\n"
+		        "    </instrument>\n"
+		        "  </instruments>\n"
+		        "</drumkit>",
+		        true, "1.0", 44100.0, "Legacy kit", "Fallback", 1u, 1u, true,
+		        main_state_t::unset, true, 68.0},
+		    {"conflicting duplicate chokes nodes",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels>\n"
+		        "    <channel name=\"OH\"/>\n"
+		        "  </channels>\n"
+		        "  <instruments>\n"
+		        "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		        "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+		        "      <chokes><choke instrument=\"One\"/></chokes>\n"
+		        "      <chokes><choke instrument=\"Two\"/></chokes>\n"
+		        "    </instrument>\n"
+		        "  </instruments>\n"
+		        "</drumkit>",
+		        false, "1.0", 44100.0, "", "", 1u, 1u, true,
+		        main_state_t::unset, false, 0.0},
+		    {"partial invalid main attribute fails with recovery default",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels>\n"
+		        "    <channel name=\"OH\"/>\n"
+		        "  </channels>\n"
+		        "  <instruments>\n"
+		        "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		        "      <channelmap in=\"HatIn\" out=\"OH\" main=\"maybe\"/>\n"
+		        "    </instrument>\n"
+		        "  </instruments>\n"
+		        "</drumkit>",
+		        false, "1.0", 44100.0, "", "", 1u, 1u, true,
+		        main_state_t::unset, false, 0.0},
+		    {"wrong root parses as empty drumkit",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<kit>\n"
+		        "  <channels>\n"
+		        "    <channel name=\"OH\"/>\n"
+		        "  </channels>\n"
+		        "</kit>",
+		        true, "1.0", 44100.0, "", "", 0u, 0u, false,
+		        main_state_t::unset, false, 0.0}};
+
+		for(const auto& test_case : cases)
+		{
+			INFO(test_case.name);
+
+			ScopedFile scoped_file(test_case.xml);
+			DrumkitDOM dom;
+			CHECK_EQ(test_case.expected_status,
+			    parseDrumkitFile(scoped_file.filename(), dom));
+
+			CHECK_EQ(test_case.expected_version, dom.version);
+			CHECK_EQ(test_case.expected_samplerate, dom.samplerate);
+			CHECK_EQ(test_case.expected_title, dom.metadata.title);
+			CHECK_EQ(test_case.expected_description, dom.metadata.description);
+			CHECK_EQ(test_case.expected_channels, dom.channels.size());
+			CHECK_EQ(test_case.expected_instruments, dom.instruments.size());
+
+			if(test_case.expect_first_channel_main)
+			{
+				CHECK_EQ(std::size_t(1), dom.instruments[0].channel_map.size());
+				CHECK(test_case.expected_main ==
+				      dom.instruments[0].channel_map[0].main);
+			}
+
+			if(test_case.expect_first_choke)
+			{
+				CHECK_EQ(std::size_t(1), dom.instruments[0].chokes.size());
+				CHECK_EQ(test_case.expected_choketime,
+				    dom.instruments[0].chokes[0].choketime);
+			}
+			else if(dom.instruments.size() == 1)
+			{
+				CHECK_EQ(std::size_t(0), dom.instruments[0].chokes.size());
+			}
+		}
+	}
+
+	SUBCASE("instrumentVersionAndFailureMatrix")
+	{
+		struct TestCase
+		{
+			std::string name;
+			std::string xml;
+			bool expected_status;
+			std::string expected_version;
+			std::size_t expected_samples;
+			std::size_t expected_velocities;
+			std::size_t expected_filechannel;
+			double expected_power;
+			bool expect_sample_checks;
+		};
+
+		const std::vector<TestCase> cases = {
+		    {"legacy version defaults parse velocity groups",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<instrument name=\"Snare\">\n"
+		        "  <samples>\n"
+		        "    <sample name=\"S1\">\n"
+		        "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+		        "    </sample>\n"
+		        "  </samples>\n"
+		        "  <velocities>\n"
+		        "    <velocity lower=\"0\" upper=\"1\">\n"
+		        "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+		        "    </velocity>\n"
+		        "  </velocities>\n"
+		        "</instrument>",
+		        true, "1.0", 1u, 1u, 1u, 0.0, true},
+		    {"near-valid v1.0.0 still parses velocity groups",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<instrument version=\"1.0.0\" name=\"Snare\">\n"
+		        "  <samples>\n"
+		        "    <sample name=\"S1\">\n"
+		        "      <audiofile channel=\"Top\" file=\"s.wav\" "
+		        "filechannel=\"3\"/>\n"
+		        "    </sample>\n"
+		        "  </samples>\n"
+		        "  <velocities>\n"
+		        "    <velocity lower=\"0\" upper=\"1\">\n"
+		        "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+		        "    </velocity>\n"
+		        "  </velocities>\n"
+		        "</instrument>",
+		        true, "1.0.0", 1u, 1u, 3u, 0.0, true},
+		    {"v2 ignores velocity groups and requires power",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<instrument version=\"2.0\" name=\"Snare\">\n"
+		        "  <samples>\n"
+		        "    <sample name=\"S1\" power=\"0.5\">\n"
+		        "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+		        "    </sample>\n"
+		        "  </samples>\n"
+		        "  <velocities>\n"
+		        "    <velocity lower=\"0\" upper=\"1\">\n"
+		        "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+		        "    </velocity>\n"
+		        "  </velocities>\n"
+		        "</instrument>",
+		        true, "2.0", 1u, 0u, 1u, 0.5, true},
+		    {"partial v2 sample without power fails",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<instrument version=\"2.0\" name=\"Snare\">\n"
+		        "  <samples>\n"
+		        "    <sample name=\"S1\">\n"
+		        "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+		        "    </sample>\n"
+		        "  </samples>\n"
+		        "</instrument>",
+		        false, "2.0", 1u, 0u, 1u, 0.0, false},
+		    {"malformed xml fails and keeps parser defaults",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<instrument\n"
+		        "  <samples><sample name=\"S1\"/></samples>\n"
+		        "</instrument>",
+		        false, "1.0", 0u, 0u, 0u, 0.0, false},
+		    {"wrong root fails with empty instrument",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <samples><sample name=\"S1\"/></samples>\n"
+		        "</drumkit>",
+		        false, "1.0", 0u, 0u, 0u, 0.0, false}};
+
+		for(const auto& test_case : cases)
+		{
+			INFO(test_case.name);
+
+			ScopedFile scoped_file(test_case.xml);
+			InstrumentDOM dom;
+			CHECK_EQ(test_case.expected_status,
+			    parseInstrumentFile(scoped_file.filename(), dom));
+
+			CHECK_EQ(test_case.expected_version, dom.version);
+			CHECK_EQ(test_case.expected_samples, dom.samples.size());
+			CHECK_EQ(test_case.expected_velocities, dom.velocities.size());
+
+			if(test_case.expect_sample_checks)
+			{
+				CHECK_EQ(std::size_t(1), dom.samples[0].audiofiles.size());
+				CHECK_EQ(test_case.expected_filechannel,
+				    dom.samples[0].audiofiles[0].filechannel);
+				CHECK_EQ(test_case.expected_power, dom.samples[0].power);
+			}
+		}
+	}
+
 	SUBCASE("instrumentAttributeMatrix")
 	{
 		struct TestCase
