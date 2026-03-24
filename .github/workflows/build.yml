@@ -141,11 +141,31 @@ jobs:
             --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
+            --json-summary-pretty \
+            --json-summary coverage-summary.json
+
+          .venv/bin/python -m gcovr \
+            --root . \
+            --object-directory build-coverage \
+            --verbose \
+            -j 1 \
+            --gcov-ignore-parse-errors=all \
+            --gcov-ignore-errors=source_not_found \
+            --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
+            --exclude '.*/a-conftest\..*' \
+            --exclude '.*/conftest\..*' \
             --html-details \
             --output coverage/index.html
 
       - name: Check coverage thresholds
         run: python3 scripts/check-coverage.py
+
+      - name: Generate top uncovered-files report
+        run: |
+          python3 scripts/generate-coverage-gap-report.py \
+            --summary coverage-summary.json \
+            --output docs/coverage-top20-file-gaps.md \
+            --max-files 20
 
       - name: Publish coverage summary
         run: |
@@ -194,7 +214,9 @@ jobs:
           path: |
             coverage.xml
             coverage-sonar.xml
+            coverage-summary.json
             coverage/
+            docs/coverage-top20-file-gaps.md
 
   static-analysis:
     name: Static analysis
