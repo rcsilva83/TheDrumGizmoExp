@@ -299,6 +299,28 @@ dg_add_doctest_test(powermaptest
 		"${CMAKE_SOURCE_DIR}/test/powermaptest.cc"
 )
 
+dg_add_doctest_test(versionstrtest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/src/versionstr.cc"
+		"${CMAKE_SOURCE_DIR}/test/versionstrtest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
+dg_add_doctest_test(directorytest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/src/directory.cc"
+		"${CMAKE_SOURCE_DIR}/test/directorytest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
 dg_add_doctest_test(midimappertest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
