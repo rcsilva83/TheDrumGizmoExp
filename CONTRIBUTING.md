@@ -49,6 +49,11 @@ in `test/`. New tests are added with the `dg_add_doctest_test()` helper in
 `test/CMakeLists.txt`. See an existing test such as `test/randomtest.cc` as a
 starting point.
 
+When reviewing tests, apply the
+[assertion-quality checklist](docs/assertion-quality-checklist.md) to ensure
+assertions validate behavior, state transitions, and invariants instead of only
+checking that code runs.
+
 ## Coverage Goals
 
 DrumGizmo targets **90% line coverage** across all modules. The full baseline

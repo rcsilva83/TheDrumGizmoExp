@@ -119,12 +119,25 @@ TEST_CASE("EventsDSTest")
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "b", 43);
 		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "c", 43);
 
-		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(42).size() == 1);
-		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(43).size() == 1);
+		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(42).size());
+		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(43).size());
+		CHECK_EQ(6u, events_ds.numberOfEvents(13));
+
+		auto group_42 = events_ds.getSampleEventGroupIDsOf(42).back();
+		auto group_43 = events_ds.getSampleEventGroupIDsOf(43).back();
+		CHECK_EQ(3u, events_ds.getEventIDsOf(group_42).size());
+		CHECK_EQ(3u, events_ds.getEventIDsOf(group_43).size());
 
 		events_ds.clear();
 
 		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(42).size());
 		CHECK_EQ(0u, events_ds.getSampleEventGroupIDsOf(43).size());
+		CHECK_EQ(0u, events_ds.numberOfEvents(13));
+
+		events_ds.startAddingNewGroup(42);
+		events_ds.emplace<SampleEvent>(13, 13, 1.0, nullptr, "after_clear", 42);
+
+		CHECK_EQ(1u, events_ds.getSampleEventGroupIDsOf(42).size());
+		CHECK_EQ(1u, events_ds.numberOfEvents(13));
 	}
 }

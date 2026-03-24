@@ -3,7 +3,7 @@
  *            atomic.cc
  *
  *  Wed Mar 23 09:17:12 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -67,11 +67,14 @@ TEST_CASE_FIXTURE(AtomicTestFixture, "AtomicTest")
 		CHECK(!isUsingStandardImpl<std::string>());
 	}
 
-	SUBCASE("podAtomicCanBeDefaultInitialized")
+	SUBCASE("podAtomicDefaultInitializationSupportsStateTransitions")
 	{
 		Atomic<int> i;
-		// note: i is initialized with garbage
-		(void)i; // prevent compiler 'unused' warning
+		i.store(5);
+		CHECK_EQ(i.load(), 5);
+
+		CHECK_EQ(i.exchange(9), 5);
+		CHECK_EQ(i.load(), 9);
 	}
 
 	SUBCASE("nonPodAtomicCanBeDefaultInitialized")
