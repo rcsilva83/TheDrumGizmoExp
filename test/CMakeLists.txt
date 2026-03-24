@@ -364,6 +364,24 @@ dg_add_doctest_test(midimappertest
 		dg_pugi
 )
 
+if(DG_ENABLE_CLI)
+	dg_add_doctest_test(drumgizmoclitest
+		SOURCES
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumgizmoclitest.cc"
+		INCLUDE_DIRS
+			"${DG_HUGIN_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			DRUMGIZMO_CLI_BIN="$<TARGET_FILE:drumgizmo>"
+		LINK_LIBRARIES
+			SndFile::sndfile
+		DEPENDENCIES
+			drumgizmo
+	)
+endif()
+
 if(DG_ENABLE_LV2)
 	dg_add_doctest_test(lv2test
 		SOURCES
