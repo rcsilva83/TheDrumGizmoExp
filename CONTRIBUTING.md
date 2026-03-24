@@ -49,6 +49,11 @@ in `test/`. New tests are added with the `dg_add_doctest_test()` helper in
 `test/CMakeLists.txt`. See an existing test such as `test/randomtest.cc` as a
 starting point.
 
+When writing or updating tests, follow the
+[test authoring guidelines](docs/test-authoring-guidelines.md) for repository
+specific patterns (AAA structure, deterministic setup, one behavior per test,
+and strong assertion practices).
+
 When reviewing tests, apply the
 [assertion-quality checklist](docs/assertion-quality-checklist.md) to ensure
 assertions validate behavior, state transitions, and invariants instead of only
