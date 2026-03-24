@@ -569,7 +569,7 @@ TEST_CASE("DGXmlParserTest")
 		        "  </velocities>\n"
 		        "</instrument>",
 		        true, "1.0", 1u, 1u, 1u, 0.0, true},
-		    {"near-valid v1.0.0 still parses velocity groups",
+		    {"v1.0.0 still parses velocity groups but fails without power",
 		        "<?xml version='1.0' encoding='UTF-8'?>\n"
 		        "<instrument version=\"1.0.0\" name=\"Snare\">\n"
 		        "  <samples>\n"
@@ -584,7 +584,7 @@ TEST_CASE("DGXmlParserTest")
 		        "    </velocity>\n"
 		        "  </velocities>\n"
 		        "</instrument>",
-		        true, "1.0.0", 1u, 1u, 3u, 0.0, true},
+		        false, "1.0.0", 1u, 1u, 3u, 0.0, true},
 		    {"v2 ignores velocity groups and requires power",
 		        "<?xml version='1.0' encoding='UTF-8'?>\n"
 		        "<instrument version=\"2.0\" name=\"Snare\">\n"
