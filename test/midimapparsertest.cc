@@ -108,7 +108,7 @@ TEST_CASE("MidimapParserTest")
 		CHECK(parser.parseFile(scoped_file.filename()));
 
 		const auto& midimap = parser.midimap;
-		CHECK_EQ(4u, midimap.size());
+		CHECK_EQ(5u, midimap.size());
 
 		CHECK_EQ(0, midimap[0].note_id);
 		CHECK_EQ(std::string("Kick"), midimap[0].instrument_name);
@@ -116,11 +116,14 @@ TEST_CASE("MidimapParserTest")
 		CHECK_EQ(127, midimap[1].note_id);
 		CHECK_EQ(std::string("Rim"), midimap[1].instrument_name);
 
-		CHECK_EQ(-1, midimap[2].note_id);
-		CHECK_EQ(std::string("NegativeBoundary"), midimap[2].instrument_name);
+		CHECK_EQ(0, midimap[2].note_id);
+		CHECK_EQ(std::string("BadNote"), midimap[2].instrument_name);
 
-		CHECK_EQ(128, midimap[3].note_id);
-		CHECK_EQ(std::string("HighBoundary"), midimap[3].instrument_name);
+		CHECK_EQ(-1, midimap[3].note_id);
+		CHECK_EQ(std::string("NegativeBoundary"), midimap[3].instrument_name);
+
+		CHECK_EQ(128, midimap[4].note_id);
+		CHECK_EQ(std::string("HighBoundary"), midimap[4].instrument_name);
 	}
 
 	SUBCASE("wrongRootProducesNoMappings")
