@@ -215,6 +215,7 @@ jobs:
             gettext \
             libx11-dev \
             libxext-dev \
+            libglib2.0-dev \
             libsndfile1-dev \
             libjack-jackd2-dev \
             libasound2-dev \
