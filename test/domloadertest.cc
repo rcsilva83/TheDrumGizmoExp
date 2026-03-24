@@ -341,6 +341,88 @@ struct DOMLoaderTest
 			CHECK_EQ(std::string("Snare-1"), value->second->name);
 		}
 	}
+
+	//! loadDom returns false when the kit DOM references an instrument name
+	//! that has no corresponding InstrumentDOM entry.
+	void missingInstrumentDOM()
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		    "  <channels>\n"
+		    "    <channel name=\"OH\"/>\n"
+		    "  </channels>\n"
+		    "  <instruments>\n"
+		    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		    "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumkitDOM drumkitdom;
+		CHECK(parseDrumkitFile(scoped_file.filename(), drumkitdom));
+
+		// Provide an empty instrumentdoms list – no instrument named "Hat".
+		std::vector<InstrumentDOM> instrumentdoms;
+
+		DrumKit drumkit;
+		DOMLoader domloader(settings, random);
+		CHECK(!domloader.loadDom(
+		    "/tmp", drumkitdom, instrumentdoms, drumkit));
+	}
+
+	//! loadDom returns false when a version-1.0 instrument velocity sampleref
+	//! points to a sample name that does not exist in the samplelist.
+	void missingV1SampleRef()
+	{
+		ScopedFile scoped_instrument_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument name=\"Snare\">\n"
+		    " <samples>\n"
+		    "  <sample name=\"Snare-1\">\n"
+		    "   <audiofile channel=\"OH\" file=\"snare.wav\"/>\n"
+		    "  </sample>\n"
+		    " </samples>\n"
+		    " <velocities>\n"
+		    "  <velocity lower=\"0\" upper=\"1.0\">\n"
+		    "   <sampleref probability=\"1.0\" name=\"NoSuchSample\"/>\n"
+		    "  </velocity>\n"
+		    " </velocities>\n"
+		    "</instrument>");
+
+		ScopedFile scoped_file(
+		    std::string("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		                "  <channels>\n"
+		                "    <channel name=\"OH\"/>\n"
+		                "  </channels>\n"
+		                "  <instruments>\n"
+		                "    <instrument name=\"Snare\" file=\"") +
+		    getFile(scoped_instrument_file.filename()) +
+		    std::string("\">\n"
+		                "      <channelmap in=\"OH\" out=\"OH\"/>\n"
+		                "    </instrument>\n"
+		                "  </instruments>\n"
+		                "</drumkit>"));
+
+		DrumkitDOM drumkitdom;
+		CHECK(parseDrumkitFile(scoped_file.filename(), drumkitdom));
+
+		auto basepath = getPath(scoped_file.filename());
+		std::vector<InstrumentDOM> instrumentdoms;
+		for(const auto& ref : drumkitdom.instruments)
+		{
+			instrumentdoms.emplace_back();
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
+		}
+
+		DrumKit drumkit;
+		DOMLoader domloader(settings, random);
+		// sampleref "NoSuchSample" does not exist → loadDom must return false.
+		CHECK(!domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit));
+	}
 };
 
 TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
@@ -348,5 +430,15 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 	SUBCASE("testTest")
 	{
 		testTest();
+	}
+
+	SUBCASE("missingInstrumentDOM")
+	{
+		missingInstrumentDOM();
+	}
+
+	SUBCASE("missingV1SampleRef")
+	{
+		missingV1SampleRef();
 	}
 }

@@ -485,4 +485,55 @@ TEST_CASE("DGXmlParserTest")
 			    dom.samples[0].audiofiles[0].filechannel);
 		}
 	}
+
+	SUBCASE("probeDrumkitFile_nonexistent_returns_false")
+	{
+		// A non-existent file must cause probeDrumkitFile to return false.
+		CHECK(!probeDrumkitFile("/tmp/does_not_exist_drumkit.xml"));
+	}
+
+	SUBCASE("probeInstrumentFile_nonexistent_returns_false")
+	{
+		// A non-existent file must cause probeInstrumentFile to return false.
+		CHECK(!probeInstrumentFile("/tmp/does_not_exist_instrument.xml"));
+	}
+
+	SUBCASE("parseDrumkitFile_nonexistent_returns_false")
+	{
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile("/tmp/does_not_exist_drumkit.xml", dom));
+	}
+
+	SUBCASE("parseInstrumentFile_nonexistent_returns_false")
+	{
+		InstrumentDOM dom;
+		CHECK(!parseInstrumentFile("/tmp/does_not_exist_instrument.xml", dom));
+	}
+
+	SUBCASE("parseDrumkitFile_malformed_xml_returns_false")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit samplerate=\"48000\" version=\"2.0\"\n"
+		    "  <channels>\n"
+		    "   <channel name=\"AmbLeft\"/>\n"
+		    "  </channels>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+	}
+
+	SUBCASE("parseInstrumentFile_malformed_xml_returns_false")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument version=\"2.0\" name=\"Snare\"\n"
+		    " <samples>\n"
+		    " </samples>\n"
+		    "</instrument>");
+
+		InstrumentDOM dom;
+		CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+	}
 }

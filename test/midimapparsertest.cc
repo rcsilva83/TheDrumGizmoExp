@@ -159,4 +159,13 @@ TEST_CASE("MidimapParserTest")
 		CHECK_EQ(1u, parser.midimap.size());
 		CHECK_EQ(10, parser.midimap[0].note_id);
 	}
+
+	SUBCASE("nonExistentFile_returns_false")
+	{
+		// Parsing a file that does not exist must return false and leave the
+		// midimap unchanged (empty).
+		MidiMapParser parser;
+		CHECK(!parser.parseFile("/tmp/does_not_exist_midimap.xml"));
+		CHECK_EQ(0u, parser.midimap.size());
+	}
 }

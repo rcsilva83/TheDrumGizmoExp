@@ -330,6 +330,17 @@ dg_add_doctest_test(inputfilterstest
 		DISABLE_HUGIN
 )
 
+dg_add_doctest_test(inputprocessortest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/test/inputprocessortest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	LINK_LIBRARIES
+		dg_core
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(versionstrtest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
