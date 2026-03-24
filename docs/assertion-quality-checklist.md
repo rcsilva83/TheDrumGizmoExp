@@ -3,6 +3,9 @@
 Use this checklist when adding or reviewing tests to keep assertions focused on
 observable behavior instead of survivability.
 
+For complete test-writing conventions and doctest examples, see
+[`test-authoring-guidelines.md`](test-authoring-guidelines.md).
+
 ## Checklist
 
 - Verify behavior, not just execution: avoid tests that only prove code does not
