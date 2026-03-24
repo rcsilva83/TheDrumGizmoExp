@@ -88,4 +88,75 @@ TEST_CASE("MidimapParserTest")
 		MidiMapParser parser;
 		CHECK(!parser.parseFile(scoped_file.filename()));
 	}
+
+	SUBCASE("edgeCaseMatrix")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap>\n"
+		    "\t<map note=\"0\" instr=\"Kick\"/>\n"
+		    "\t<map note=\"127\" instr=\"Rim\"/>\n"
+		    "\t<map instr=\"MissingNote\"/>\n"
+		    "\t<map note=\"bad\" instr=\"BadNote\"/>\n"
+		    "\t<map note=\"11\"/>\n"
+		    "\t<map note=\"12\" instr=\"\"/>\n"
+		    "\t<map note=\"-1\" instr=\"NegativeBoundary\"/>\n"
+		    "\t<map note=\"128\" instr=\"HighBoundary\"/>\n"
+		    "</midimap>");
+
+		MidiMapParser parser;
+		CHECK(parser.parseFile(scoped_file.filename()));
+
+		const auto& midimap = parser.midimap;
+		CHECK_EQ(5u, midimap.size());
+
+		CHECK_EQ(0, midimap[0].note_id);
+		CHECK_EQ(std::string("Kick"), midimap[0].instrument_name);
+
+		CHECK_EQ(127, midimap[1].note_id);
+		CHECK_EQ(std::string("Rim"), midimap[1].instrument_name);
+
+		CHECK_EQ(0, midimap[2].note_id);
+		CHECK_EQ(std::string("BadNote"), midimap[2].instrument_name);
+
+		CHECK_EQ(-1, midimap[3].note_id);
+		CHECK_EQ(std::string("NegativeBoundary"), midimap[3].instrument_name);
+
+		CHECK_EQ(128, midimap[4].note_id);
+		CHECK_EQ(std::string("HighBoundary"), midimap[4].instrument_name);
+	}
+
+	SUBCASE("wrongRootProducesNoMappings")
+	{
+		ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                       "<mapping>\n"
+		                       "\t<map note=\"54\" instr=\"Crash_left_tip\"/>\n"
+		                       "</mapping>");
+
+		MidiMapParser parser;
+		CHECK(parser.parseFile(scoped_file.filename()));
+		CHECK_EQ(0u, parser.midimap.size());
+	}
+
+	SUBCASE("recoveryAfterParseFailure")
+	{
+		ScopedFile valid_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                      "<midimap>\n"
+		                      "\t<map note=\"10\" instr=\"One\"/>\n"
+		                      "</midimap>");
+
+		ScopedFile invalid_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap\n"
+		                        "\t<map note=\"11\" instr=\"Two\"/>\n"
+		                        "</midimap>");
+
+		MidiMapParser parser;
+		CHECK(parser.parseFile(valid_file.filename()));
+		CHECK_EQ(1u, parser.midimap.size());
+		CHECK_EQ(10, parser.midimap[0].note_id);
+
+		CHECK(!parser.parseFile(invalid_file.filename()));
+		CHECK_EQ(1u, parser.midimap.size());
+		CHECK_EQ(10, parser.midimap[0].note_id);
+	}
 }

@@ -56,22 +56,25 @@ TEST_CASE("ImageCacheTest")
 
 		{
 			auto image1{imageCache.getImage("foo")};
-			(void)image1;
+			auto* foo_image = &(*image1);
 			CHECK_EQ(imageCache.count("foo"), std::size_t(1u));
 			CHECK_EQ(imageCache.count("bar"), std::size_t(0u));
 
 			auto image2 = imageCache.getImage("bar");
 			CHECK_EQ(imageCache.count("foo"), std::size_t(1u));
 			CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
+			CHECK_UNARY(foo_image != &(*image2));
 
 			auto image3 = imageCache.getImage("foo");
 			CHECK_EQ(imageCache.count("foo"), std::size_t(2u));
 			CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
+			CHECK_EQ(foo_image, &(*image3));
 
 			{
 				auto image4 = imageCache.getImage("foo");
 				CHECK_EQ(imageCache.count("foo"), std::size_t(3u));
 				CHECK_EQ(imageCache.count("bar"), std::size_t(1u));
+				CHECK_EQ(foo_image, &(*image4));
 			}
 
 			CHECK_EQ(imageCache.count("foo"), std::size_t(2u));

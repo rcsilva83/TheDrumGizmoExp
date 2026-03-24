@@ -178,6 +178,22 @@ dg_add_doctest_test(randomtest
 		DISABLE_HUGIN
 )
 
+dg_add_doctest_test(sampleselectiontest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/powerlist.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
+		"${CMAKE_SOURCE_DIR}/src/sample.cc"
+		"${CMAKE_SOURCE_DIR}/src/sample_selection.cc"
+		"${CMAKE_SOURCE_DIR}/test/sampleselectiontest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(atomictest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/test/atomictest.cc"
