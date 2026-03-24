@@ -1,0 +1,13 @@
+{
+  "_comment": "Minimum line-coverage thresholds to prevent regression. Update these values after merging significant batches of new tests. See docs/coverage.md for baseline measurements and instructions.",
+  "overall": {
+    "line_min": 34,
+    "note": "Baseline 34.6 % on commit a7f2c07 (2026-03-24)"
+  },
+  "modules": {
+    "src": {
+      "line_min": 54,
+      "note": "Baseline 54.3 % on commit a7f2c07 (2026-03-24)"
+    }
+  }
+}

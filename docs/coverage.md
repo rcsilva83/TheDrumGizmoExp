@@ -64,6 +64,43 @@ The project targets **90% line coverage** across all modules.
 
 ---
 
+## CI Enforcement
+
+The CI coverage job (`build.yml`) enforces minimum line-coverage thresholds to
+prevent regression. After generating the coverage reports the workflow runs:
+
+```sh
+python3 scripts/check-coverage.py
+```
+
+The thresholds are stored in **`.coverage-thresholds.json`** at the repository
+root. The script reads `coverage.xml` (Cobertura format), computes overall and
+per-module line coverage, and exits with a non-zero status if any threshold is
+not met — causing the CI job to fail.
+
+### Configured thresholds
+
+The values below match the current baseline (see table above) with a small
+buffer to tolerate natural measurement variation:
+
+| Scope    | Min line % | Note                                    |
+| -------- | ---------: | --------------------------------------- |
+| Overall  |        34% | Baseline 34.6 % (commit a7f2c07)        |
+| `src/`   |        54% | Baseline 54.3 % (commit a7f2c07)        |
+
+### Updating thresholds
+
+When a batch of new tests is merged and the coverage numbers improve
+meaningfully, raise the floor in `.coverage-thresholds.json` to lock in the
+improvement:
+
+1. Run the coverage build locally (see *Generating Coverage Locally* below).
+2. Note the new percentages.
+3. Update the `line_min` values in `.coverage-thresholds.json`.
+4. Update the baseline table in this file with the new numbers and commit SHA.
+
+---
+
 ## Generating Coverage Locally
 
 ```sh

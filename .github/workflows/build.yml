@@ -144,6 +144,9 @@ jobs:
             --html-details \
             --output coverage/index.html
 
+      - name: Check coverage thresholds
+        run: python3 scripts/check-coverage.py
+
       - name: Publish coverage summary
         run: |
           python3 - <<'PY'
