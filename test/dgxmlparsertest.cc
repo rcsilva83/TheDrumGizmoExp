@@ -26,6 +26,8 @@
  */
 #include <doctest/doctest.h>
 
+#include <vector>
+
 #include "scopedfile.h"
 #include <dgxmlparser.h>
 
@@ -384,5 +386,103 @@ TEST_CASE("DGXmlParserTest")
 		CHECK_EQ(std::string("AmbRight"), dom.channels[1].name);
 		CHECK_EQ(std::string("SnareTop"), dom.channels[2].name);
 		CHECK_EQ(std::string("SnareBottom"), dom.channels[3].name);
+	}
+
+	SUBCASE("drumkitDefaultsAndFailureRecovery")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit name=\"Legacy kit\" description=\"Legacy description\">\n"
+		    "  <channels>\n"
+		    "    <channel name=\"OH\"/>\n"
+		    "  </channels>\n"
+		    "  <instruments>\n"
+		    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+		    "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+		    "      <chokes>\n"
+		    "        <choke instrument=\"OpenHat\"/>\n"
+		    "      </chokes>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(parseDrumkitFile(scoped_file.filename(), dom));
+
+		CHECK_EQ(std::string("1.0"), dom.version);
+		CHECK_EQ(44100.0, dom.samplerate);
+		CHECK_EQ(std::string("Legacy kit"), dom.metadata.title);
+		CHECK_EQ(std::string("Legacy description"), dom.metadata.description);
+		CHECK_EQ(std::size_t(1), dom.channels.size());
+		CHECK_EQ(std::size_t(1), dom.instruments.size());
+
+		const auto& instrument = dom.instruments[0];
+		CHECK_EQ(std::string(""), instrument.group);
+		CHECK_EQ(std::size_t(1), instrument.channel_map.size());
+		CHECK(main_state_t::unset == instrument.channel_map[0].main);
+		CHECK_EQ(std::size_t(1), instrument.chokes.size());
+		CHECK_EQ(std::string("OpenHat"), instrument.chokes[0].instrument);
+		CHECK_EQ(68.0, instrument.chokes[0].choketime);
+	}
+
+	SUBCASE("instrumentAttributeMatrix")
+	{
+		struct TestCase
+		{
+			std::string main_attr;
+			std::string filechannel_attr;
+			bool expected_status;
+			main_state_t expected_main;
+			std::size_t expected_filechannel;
+		};
+
+		const std::vector<TestCase> cases = {
+		    {"", "", true, main_state_t::unset, 1u},
+		    {"true", "2", true, main_state_t::is_main, 2u},
+		    {"false", "3", true, main_state_t::is_not_main, 3u},
+		    {"maybe", "4", false, main_state_t::unset, 4u},
+		    {"true", "-1", false, main_state_t::is_main, 1u},
+		    {"true", "1.5", false, main_state_t::is_main, 1u}};
+
+		for(const auto& test_case : cases)
+		{
+			std::string main_attr =
+			    test_case.main_attr == ""
+			        ? ""
+			        : " main=\"" + test_case.main_attr + "\"";
+			std::string filechannel_attr =
+			    test_case.filechannel_attr == ""
+			        ? ""
+			        : " filechannel=\"" + test_case.filechannel_attr + "\"";
+
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <channels>\n"
+			    "    <channel name=\"Top\"" +
+			    main_attr +
+			    "/>\n"
+			    "  </channels>\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"" +
+			    filechannel_attr +
+			    "/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK_EQ(test_case.expected_status,
+			    parseInstrumentFile(scoped_file.filename(), dom));
+
+			CHECK_EQ(std::size_t(1), dom.instrument_channels.size());
+			CHECK(test_case.expected_main == dom.instrument_channels[0].main);
+
+			CHECK_EQ(std::size_t(1), dom.samples.size());
+			CHECK_EQ(std::size_t(1), dom.samples[0].audiofiles.size());
+			CHECK_EQ(test_case.expected_filechannel,
+			    dom.samples[0].audiofiles[0].filechannel);
+		}
 	}
 }
