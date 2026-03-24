@@ -305,7 +305,14 @@ jobs:
           for file in "${files[@]}"; do
             case "$file" in
               *.h|*.hh|*.hpp) ;;
-              *) source_files+=("$file") ;;
+              *)
+                if grep -Fq "\"file\":\"$file\"" build-tidy/compile_commands.json || \
+                   grep -Fq "\"file\": \"$file\"" build-tidy/compile_commands.json; then
+                  source_files+=("$file")
+                else
+                  echo "Skipping clang-tidy for $file (not present in compile_commands.json)"
+                fi
+                ;;
             esac
           done
 
