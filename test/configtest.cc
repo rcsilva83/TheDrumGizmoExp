@@ -207,4 +207,42 @@ TEST_CASE_FIXTURE(test_configtestFixture, "test_configtest")
 		CHECK_EQ(true, cf.load());
 		CHECK_EQ(std::string(""), cf.getValue("a"));
 	}
+
+	SUBCASE("loading_error_bad_symbol_after_key")
+	{
+		writeFile("alpha beta:42");
+
+		TestConfigFile cf;
+		CHECK_EQ(false, cf.load());
+		CHECK_EQ(std::string(""), cf.getValue("alpha"));
+	}
+
+	SUBCASE("loading_error_bad_symbol_after_value")
+	{
+		writeFile("alpha:42 trailing");
+
+		TestConfigFile cf;
+		CHECK_EQ(false, cf.load());
+		CHECK_EQ(std::string(""), cf.getValue("alpha"));
+	}
+
+	SUBCASE("loading_error_stops_at_first_bad_line")
+	{
+		writeFile("good:one\nbroken line\nignored:two", false);
+
+		TestConfigFile cf;
+		CHECK_EQ(false, cf.load());
+		CHECK_EQ(std::string("one"), cf.getValue("good"));
+		CHECK_EQ(std::string(""), cf.getValue("ignored"));
+	}
+
+	SUBCASE("loading_error_clears_stale_values")
+	{
+		writeFile("broken line", false);
+
+		TestConfigFile cf;
+		cf.setValue("stale", "value");
+		CHECK_EQ(false, cf.load());
+		CHECK_EQ(std::string(""), cf.getValue("stale"));
+	}
 }
