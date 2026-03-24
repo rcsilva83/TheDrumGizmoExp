@@ -28,18 +28,24 @@
 
 #include <config.h>
 
-#include <thread>
+#include <arpa/inet.h>
 #include <chrono>
 #include <memory.h>
 #include <stdio.h>
-#include <arpa/inet.h>
+#include <thread>
 
 #include "drumkit_creator.h"
 #include "lv2_test_host.h"
 
 #define DG_URI "http://drumgizmo.org/lv2"
 
-enum class Ports {
+static const char* b2s(bool b)
+{
+	return b ? "true" : "false";
+}
+
+enum class Ports
+{
 	FreeWheel = 0,
 	Latency,
 	MidiPort,
@@ -94,27 +100,27 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_ports_connected")
 	CHECK_EQ(0, res);
 
 	const char config_fmt[] =
-		"<config>\n"
-		"  <value name=\"drumkitfile\">%s</value>\n"
-		"  <value name=\"midimapfile\">%s</value>\n"
-		"  <value name=\"enable_velocity_modifier\">%s</value>\n"
-		"  <value name=\"velocity_modifier_falloff\">%f</value>\n"
-		"  <value name=\"velocity_modifier_weight\">%f</value>\n"
-		"  <value name=\"enable_velocity_randomiser\">%s</value>\n"
-		"  <value name=\"velocity_randomiser_weight\">%f</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"disk_cache_upper_limit\">%d</value>\n"
-		"  <value name=\"disk_cache_chunk_size\">%d</value>\n"
-		"  <value name=\"disk_cache_enable\">%s</value>\n"
-		"  <value name=\"enable_bleed_control\">%s</value>\n"
-		"  <value name=\"master_bleed\">%f</value>\n"
-		"  <value name=\"enable_latency_modifier\">%s</value>\n"
-		"  <value name=\"latency_max\">%d</value>\n"
-		"  <value name=\"latency_laid_back\">%d</value>\n"
-		"  <value name=\"latency_stddev\">%f</value>\n"
-		"  <value name=\"latency_regain\">%f</value>\n"
-		"</config>";
+	    "<config>\n"
+	    "  <value name=\"drumkitfile\">%s</value>\n"
+	    "  <value name=\"midimapfile\">%s</value>\n"
+	    "  <value name=\"enable_velocity_modifier\">%s</value>\n"
+	    "  <value name=\"velocity_modifier_falloff\">%f</value>\n"
+	    "  <value name=\"velocity_modifier_weight\">%f</value>\n"
+	    "  <value name=\"enable_velocity_randomiser\">%s</value>\n"
+	    "  <value name=\"velocity_randomiser_weight\">%f</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"disk_cache_upper_limit\">%d</value>\n"
+	    "  <value name=\"disk_cache_chunk_size\">%d</value>\n"
+	    "  <value name=\"disk_cache_enable\">%s</value>\n"
+	    "  <value name=\"enable_bleed_control\">%s</value>\n"
+	    "  <value name=\"master_bleed\">%f</value>\n"
+	    "  <value name=\"enable_latency_modifier\">%s</value>\n"
+	    "  <value name=\"latency_max\">%d</value>\n"
+	    "  <value name=\"latency_laid_back\">%d</value>\n"
+	    "  <value name=\"latency_stddev\">%f</value>\n"
+	    "  <value name=\"latency_regain\">%f</value>\n"
+	    "</config>";
 
 	// Create drumkit
 	auto kit1_file = drumkit_creator.createStdKit("kit1");
@@ -138,26 +144,14 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_ports_connected")
 	float latency_regain = 0.9f;
 
 	char config[sizeof(config_fmt) * 2];
-	sprintf(config, config_fmt,
-	        kit1_file.c_str(),
-	        midimapfile.c_str(),
-	        enable_velocity_modifier?"true":"false",
-	        velocity_modifier_falloff,
-	        velocity_modifier_weight,
-	        enable_velocity_randomiser?"true":"false",
-	        velocity_randomiser_weight,
-	        enable_resampling?"true":"false",
-	        enable_resampling?"true":"false",
-	        disk_cache_upper_limit,
-	        disk_cache_chunk_size,
-	        disk_cache_enable?"true":"false",
-	        enable_bleed_control?"true":"false",
-	        master_bleed,
-	        enable_latency_modifier?"true":"false",
-	        latency_max,
-	        latency_laid_back,
-	        latency_stddev,
-	        latency_regain);
+	sprintf(config, config_fmt, kit1_file.c_str(), midimapfile.c_str(),
+	    b2s(enable_velocity_modifier), velocity_modifier_falloff,
+	    velocity_modifier_weight, b2s(enable_velocity_randomiser),
+	    velocity_randomiser_weight, b2s(enable_resampling),
+	    b2s(enable_resampling), disk_cache_upper_limit, disk_cache_chunk_size,
+	    b2s(disk_cache_enable), b2s(enable_bleed_control), master_bleed,
+	    b2s(enable_latency_modifier), latency_max, latency_laid_back,
+	    latency_stddev, latency_regain);
 
 	res = h.loadConfig(config, strlen(config));
 	CHECK_EQ(0, res);
@@ -165,7 +159,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_ports_connected")
 	// run for 1 samples to trigger kit loading
 	res = h.run(1);
 	CHECK_EQ(0, res);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1)); // wait for kit to get loaded (async),
+	std::this_thread::sleep_for(
+	    std::chrono::milliseconds(1)); // wait for kit to get loaded (async),
 
 	res = h.run(100);
 	CHECK_EQ(0, res);
@@ -193,27 +188,27 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_output_ports_connected")
 	CHECK_EQ(0, res);
 
 	const char config_fmt[] =
-		"<config>\n"
-		"  <value name=\"drumkitfile\">%s</value>\n"
-		"  <value name=\"midimapfile\">%s</value>\n"
-		"  <value name=\"enable_velocity_modifier\">%s</value>\n"
-		"  <value name=\"velocity_modifier_falloff\">%f</value>\n"
-		"  <value name=\"velocity_modifier_weight\">%f</value>\n"
-		"  <value name=\"enable_velocity_randomiser\">%s</value>\n"
-		"  <value name=\"velocity_randomiser_weight\">%f</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"disk_cache_upper_limit\">%d</value>\n"
-		"  <value name=\"disk_cache_chunk_size\">%d</value>\n"
-		"  <value name=\"disk_cache_enable\">%s</value>\n"
-		"  <value name=\"enable_bleed_control\">%s</value>\n"
-		"  <value name=\"master_bleed\">%f</value>\n"
-		"  <value name=\"enable_latency_modifier\">%s</value>\n"
-		"  <value name=\"latency_max\">%d</value>\n"
-		"  <value name=\"latency_laid_back\">%d</value>\n"
-		"  <value name=\"latency_stddev\">%f</value>\n"
-		"  <value name=\"latency_regain\">%f</value>\n"
-		"</config>";
+	    "<config>\n"
+	    "  <value name=\"drumkitfile\">%s</value>\n"
+	    "  <value name=\"midimapfile\">%s</value>\n"
+	    "  <value name=\"enable_velocity_modifier\">%s</value>\n"
+	    "  <value name=\"velocity_modifier_falloff\">%f</value>\n"
+	    "  <value name=\"velocity_modifier_weight\">%f</value>\n"
+	    "  <value name=\"enable_velocity_randomiser\">%s</value>\n"
+	    "  <value name=\"velocity_randomiser_weight\">%f</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"disk_cache_upper_limit\">%d</value>\n"
+	    "  <value name=\"disk_cache_chunk_size\">%d</value>\n"
+	    "  <value name=\"disk_cache_enable\">%s</value>\n"
+	    "  <value name=\"enable_bleed_control\">%s</value>\n"
+	    "  <value name=\"master_bleed\">%f</value>\n"
+	    "  <value name=\"enable_latency_modifier\">%s</value>\n"
+	    "  <value name=\"latency_max\">%d</value>\n"
+	    "  <value name=\"latency_laid_back\">%d</value>\n"
+	    "  <value name=\"latency_stddev\">%f</value>\n"
+	    "  <value name=\"latency_regain\">%f</value>\n"
+	    "</config>";
 
 	// Create drumkit
 	auto kit1_file = drumkit_creator.createStdKit("kit1");
@@ -237,26 +232,14 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_output_ports_connected")
 	float latency_regain = 0.9f;
 
 	char config[sizeof(config_fmt) * 2];
-	sprintf(config, config_fmt,
-	        kit1_file.c_str(),
-	        midimapfile.c_str(),
-	        enable_velocity_modifier?"true":"false",
-	        velocity_modifier_falloff,
-	        velocity_modifier_weight,
-	        enable_velocity_randomiser?"true":"false",
-	        velocity_randomiser_weight,
-	        enable_resampling?"true":"false",
-	        enable_resampling?"true":"false",
-	        disk_cache_upper_limit,
-	        disk_cache_chunk_size,
-	        disk_cache_enable?"true":"false",
-	        enable_bleed_control?"true":"false",
-	        master_bleed,
-	        enable_latency_modifier?"true":"false",
-	        latency_max,
-	        latency_laid_back,
-	        latency_stddev,
-	        latency_regain);
+	sprintf(config, config_fmt, kit1_file.c_str(), midimapfile.c_str(),
+	    b2s(enable_velocity_modifier), velocity_modifier_falloff,
+	    velocity_modifier_weight, b2s(enable_velocity_randomiser),
+	    velocity_randomiser_weight, b2s(enable_resampling),
+	    b2s(enable_resampling), disk_cache_upper_limit, disk_cache_chunk_size,
+	    b2s(disk_cache_enable), b2s(enable_bleed_control), master_bleed,
+	    b2s(enable_latency_modifier), latency_max, latency_laid_back,
+	    latency_stddev, latency_regain);
 
 	res = h.loadConfig(config, strlen(config));
 	CHECK_EQ(0, res);
@@ -266,7 +249,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_output_ports_connected")
 	bool freeWheel = false;
 
 	// Free wheel port
-	res = h.connectPort((int)Ports::FreeWheel, (void*)&freeWheel);
+	res = h.connectPort((int)Ports::FreeWheel, static_cast<void*>(&freeWheel));
+	CHECK_EQ(0, res);
 
 	LV2TestHost::Sequence seq(sequence_buffer, sizeof(sequence_buffer));
 	res = h.connectPort((int)Ports::MidiPort, seq.data());
@@ -275,7 +259,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_output_ports_connected")
 	// run for 1 samples to trigger kit loading
 	res = h.run(1);
 	CHECK_EQ(0, res);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1)); // wait for kit to get loaded (async),
+	std::this_thread::sleep_for(
+	    std::chrono::milliseconds(1)); // wait for kit to get loaded (async),
 
 	seq.addMidiNote(5, 1, 127);
 	res = h.run(100);
@@ -304,27 +289,27 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	CHECK_EQ(0, res);
 
 	const char config_fmt[] =
-		"<config>\n"
-		"  <value name=\"drumkitfile\">%s</value>\n"
-		"  <value name=\"midimapfile\">%s</value>\n"
-		"  <value name=\"enable_velocity_modifier\">%s</value>\n"
-		"  <value name=\"velocity_modifier_falloff\">%f</value>\n"
-		"  <value name=\"velocity_modifier_weight\">%f</value>\n"
-		"  <value name=\"enable_velocity_randomiser\">%s</value>\n"
-		"  <value name=\"velocity_randomiser_weight\">%f</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"enable_resampling\">%s</value>\n"
-		"  <value name=\"disk_cache_upper_limit\">%d</value>\n"
-		"  <value name=\"disk_cache_chunk_size\">%d</value>\n"
-		"  <value name=\"disk_cache_enable\">%s</value>\n"
-		"  <value name=\"enable_bleed_control\">%s</value>\n"
-		"  <value name=\"master_bleed\">%f</value>\n"
-		"  <value name=\"enable_latency_modifier\">%s</value>\n"
-		"  <value name=\"latency_max\">%d</value>\n"
-		"  <value name=\"latency_laid_back\">%d</value>\n"
-		"  <value name=\"latency_stddev\">%f</value>\n"
-		"  <value name=\"latency_regain\">%f</value>\n"
-		"</config>";
+	    "<config>\n"
+	    "  <value name=\"drumkitfile\">%s</value>\n"
+	    "  <value name=\"midimapfile\">%s</value>\n"
+	    "  <value name=\"enable_velocity_modifier\">%s</value>\n"
+	    "  <value name=\"velocity_modifier_falloff\">%f</value>\n"
+	    "  <value name=\"velocity_modifier_weight\">%f</value>\n"
+	    "  <value name=\"enable_velocity_randomiser\">%s</value>\n"
+	    "  <value name=\"velocity_randomiser_weight\">%f</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"enable_resampling\">%s</value>\n"
+	    "  <value name=\"disk_cache_upper_limit\">%d</value>\n"
+	    "  <value name=\"disk_cache_chunk_size\">%d</value>\n"
+	    "  <value name=\"disk_cache_enable\">%s</value>\n"
+	    "  <value name=\"enable_bleed_control\">%s</value>\n"
+	    "  <value name=\"master_bleed\">%f</value>\n"
+	    "  <value name=\"enable_latency_modifier\">%s</value>\n"
+	    "  <value name=\"latency_max\">%d</value>\n"
+	    "  <value name=\"latency_laid_back\">%d</value>\n"
+	    "  <value name=\"latency_stddev\">%f</value>\n"
+	    "  <value name=\"latency_regain\">%f</value>\n"
+	    "</config>";
 
 	// Create drumkit
 	auto kit1_file = drumkit_creator.createStdKit("kit1");
@@ -348,26 +333,14 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	float latency_regain = 0.9f;
 
 	char config[sizeof(config_fmt) * 2];
-	sprintf(config, config_fmt,
-	        kit1_file.c_str(),
-	        midimapfile.c_str(),
-	        enable_velocity_modifier?"true":"false",
-	        velocity_modifier_falloff,
-	        velocity_modifier_weight,
-	        enable_velocity_randomiser?"true":"false",
-	        velocity_randomiser_weight,
-	        enable_resampling?"true":"false",
-	        enable_resampling?"true":"false",
-	        disk_cache_upper_limit,
-	        disk_cache_chunk_size,
-	        disk_cache_enable?"true":"false",
-	        enable_bleed_control?"true":"false",
-	        master_bleed,
-	        enable_latency_modifier?"true":"false",
-	        latency_max,
-	        latency_laid_back,
-	        latency_stddev,
-	        latency_regain);
+	sprintf(config, config_fmt, kit1_file.c_str(), midimapfile.c_str(),
+	    b2s(enable_velocity_modifier), velocity_modifier_falloff,
+	    velocity_modifier_weight, b2s(enable_velocity_randomiser),
+	    velocity_randomiser_weight, b2s(enable_resampling),
+	    b2s(enable_resampling), disk_cache_upper_limit, disk_cache_chunk_size,
+	    b2s(disk_cache_enable), b2s(enable_bleed_control), master_bleed,
+	    b2s(enable_latency_modifier), latency_max, latency_laid_back,
+	    latency_stddev, latency_regain);
 
 	res = h.loadConfig(config, strlen(config));
 	CHECK_EQ(0, res);
@@ -378,7 +351,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	bool freeWheel = true;
 
 	// Free wheel port
-	res = h.connectPort((int)Ports::FreeWheel, (void*)&freeWheel);
+	res = h.connectPort((int)Ports::FreeWheel, static_cast<void*>(&freeWheel));
+	CHECK_EQ(0, res);
 
 	LV2TestHost::Sequence seq(sequence_buffer, sizeof(sequence_buffer));
 	res = h.connectPort((int)Ports::MidiPort, seq.data());
@@ -397,7 +371,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	// run for 1 samples to trigger kit loading
 	res = h.run(1);
 	CHECK_EQ(0, res);
-	std::this_thread::sleep_for(std::chrono::seconds(1));  // wait for kit to get loaded (async),
+	std::this_thread::sleep_for(
+	    std::chrono::seconds(1)); // wait for kit to get loaded (async),
 
 	seq.addMidiNote(5, 1, 127);
 	for(int i = 0; i < 10; i++)
@@ -406,17 +381,16 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		CHECK_EQ(0, res);
 
-		//printf("Iteration:\n");
-		//for(int k = 0; k < 16; k++) {
+		// printf("Iteration:\n");
+		// for(int k = 0; k < 16; k++) {
 		//	printf("#%d ", k);
 		//	for(int j = 0; j < 10; j++) printf("[%f]", pcm_buffer[k][j]);
 		//	printf("\n");
-		//}
-		//printf("\n");
+		// }
+		// printf("\n");
 
 		seq.clear();
 	}
-
 
 	seq.addMidiNote(5, 1, 127);
 	res = h.run(10);
@@ -426,14 +400,15 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	/*
 	printf("Iteration:\n");
 	for(int k = 0; k < 4; k++) {
-		printf("#%d ", k);
-		for(int j = 0; j < 10; j++) printf("[%f]", pcm_buffer[k][j]);
-		printf("\n");
+	    printf("#%d ", k);
+	    for(int j = 0; j < 10; j++) printf("[%f]", pcm_buffer[k][j]);
+	    printf("\n");
 	}
 	printf("\n");
 	*/
 
-	union {
+	union
+	{
 		float f;
 		unsigned int u;
 	} comp_val;
@@ -444,7 +419,7 @@ TEST_CASE_FIXTURE(LV2Fixture, "test1")
 	{
 		for(int j = 0; j < 10; j++)
 		{
-			CHECK_EQ(((j==5)?comp_val.f:0), pcm_buffer[k][j]);
+			CHECK_EQ(((j == 5) ? comp_val.f : 0), pcm_buffer[k][j]);
 		}
 	}
 	seq.clear();
