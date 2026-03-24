@@ -51,19 +51,17 @@ starting point.
 
 ## Coverage Goals
 
-DrumGizmo tracks test coverage via `gcovr` on every CI run. The full baseline
+DrumGizmo targets **90% line coverage** across all modules. The full baseline
 measurements and target thresholds are documented in
 [docs/coverage.md](docs/coverage.md).
 
-**Short-term targets** (line coverage):
-
 | Module       | Target |
 | ------------ | -----: |
-| Overall      |   40%  |
-| `src/`       |   60%  |
-| `dggui/`     |   15%  |
-| `plugingui/` |   10%  |
-| `drumgizmo/` |   15%  |
+| Overall      |   90%  |
+| `src/`       |   90%  |
+| `dggui/`     |   90%  |
+| `plugingui/` |   90%  |
+| `drumgizmo/` |   90%  |
 
 When adding new features to `src/` please include unit tests that keep the
 `src/` line coverage at or above the current baseline (54%). When fixing bugs,

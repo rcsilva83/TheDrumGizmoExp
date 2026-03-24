@@ -49,28 +49,15 @@ on Ubuntu with GCC.
 
 ## Coverage Targets
 
-The targets below are the goals for the project. They are deliberately realistic
-given the GUI-heavy and I/O-bound nature of large parts of the code.
-
-### Short-term targets (next major milestone)
+The project targets **90% line coverage** across all modules.
 
 | Module       | Line target | Notes                                       |
 | ------------ | ----------: | ------------------------------------------- |
-| Overall      |        40%  | Stepwise improvement from 34.6% baseline   |
-| `src/`       |        60%  | Core engine; highest priority               |
-| `dggui/`     |        15%  | GUI framework; limited headless testability |
-| `plugingui/` |        10%  | Plugin GUI; basic smoke-tests               |
-| `drumgizmo/` |        15%  | CLI paths; integration-test candidates      |
-
-### Long-term targets (v1.0 and beyond)
-
-| Module       | Line target | Notes                                        |
-| ------------ | ----------: | -------------------------------------------- |
-| Overall      |        55%  |                                              |
-| `src/`       |        75%  | All public API paths covered                 |
-| `dggui/`     |        30%  | Widget rendering paths tested headlessly     |
-| `plugingui/` |        25%  |                                              |
-| `drumgizmo/` |        30%  |                                              |
+| Overall      |        90%  |                                             |
+| `src/`       |        90%  | Core engine; highest priority               |
+| `dggui/`     |        90%  | GUI framework                               |
+| `plugingui/` |        90%  | Plugin GUI                                  |
+| `drumgizmo/` |        90%  | CLI application                             |
 
 ---
 
