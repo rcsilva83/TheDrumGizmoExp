@@ -48,68 +48,62 @@ class Base64
 public:
 	Base64()
 	{
-		mbio = (void*)BIO_new(BIO_s_mem());
+		mbio = BIO_new(BIO_s_mem());
 		BIO* b64bio = BIO_new(BIO_f_base64());
-		bio = (void*)BIO_push(b64bio, (BIO*)mbio);
+		bio = BIO_push(b64bio, mbio);
 	}
 
 	~Base64()
 	{
-		BIO_free_all((BIO*)bio);
+		BIO_free_all(bio);
 	}
 
-	std::string write(std::string in)
+	std::string write(const std::string& in)
 	{
 		return this->write(in.data(), in.length());
 	}
 
 	std::string write(const char* in, size_t size)
 	{
+		BIO_write(bio, in, size);
+
+		size_t osize = BIO_ctrl_pending(mbio);
 		std::string out;
+		out.resize(osize);
 
-		BIO_write((BIO*)bio, in, size);
-
-		size_t osize = BIO_ctrl_pending((BIO*)mbio);
-		char* outbuf = (char*)malloc(osize);
-
-		int len = BIO_read((BIO*)mbio, outbuf, osize);
+		int len = BIO_read(mbio, &out[0], osize);
 		if(len < 1)
 		{
 			return "";
 		}
 
-		out.append(outbuf, len);
-
-		free(outbuf);
+		out.resize(len);
 
 		return out;
 	}
 
 	std::string flush()
 	{
+		(void)BIO_flush(bio);
+
+		size_t size = BIO_ctrl_pending(mbio);
 		std::string out;
+		out.resize(size);
 
-		(void)BIO_flush((BIO*)bio);
-
-		size_t size = BIO_ctrl_pending((BIO*)mbio);
-		char* outbuf = (char*)malloc(size);
-
-		int len = BIO_read((BIO*)mbio, outbuf, size);
+		int len = BIO_read(mbio, &out[0], size);
 		if(len < 1)
 		{
 			return "";
 		}
 
-		out.append(outbuf, len);
-
-		free(outbuf);
+		out.resize(len);
 
 		return out;
 	}
 
 private:
-	void* bio;
-	void* mbio;
+	BIO* bio;
+	BIO* mbio;
 };
 //
 // Base64 encoder
@@ -121,6 +115,8 @@ static size_t n_uris = 0;
 
 static LV2_URID map_uri(LV2_URID_Map_Handle handle, const char* uri)
 {
+	(void)handle;
+
 	for(size_t i = 0; i < n_uris; ++i)
 	{
 		if(!strcmp(uris[i], uri))
@@ -129,7 +125,16 @@ static LV2_URID map_uri(LV2_URID_Map_Handle handle, const char* uri)
 		}
 	}
 
-	uris = (char**)realloc(uris, ++n_uris * sizeof(char*));
+	size_t new_n_uris = n_uris + 1;
+	auto resized_uris =
+	    static_cast<char**>(realloc(uris, new_n_uris * sizeof(char*)));
+	if(resized_uris == nullptr)
+	{
+		return 0;
+	}
+
+	uris = resized_uris;
+	n_uris = new_n_uris;
 	uris[n_uris - 1] = strdup(uri);
 
 	return n_uris;
@@ -137,6 +142,8 @@ static LV2_URID map_uri(LV2_URID_Map_Handle handle, const char* uri)
 
 static const char* unmap_uri(LV2_URID_Map_Handle handle, LV2_URID urid)
 {
+	(void)handle;
+
 	if((urid > 0) && (urid <= n_uris))
 	{
 		return uris[urid - 1];
@@ -155,7 +162,7 @@ LV2TestHost::Sequence::Sequence(void* buffer, size_t buffer_size)
 	this->buffer = buffer;
 	this->buffer_size = buffer_size;
 
-	seq = (LV2_Atom_Sequence*)buffer;
+	seq = static_cast<LV2_Atom_Sequence*>(buffer);
 
 	seq->atom.size = sizeof(LV2_Atom_Sequence_Body);
 	seq->atom.type = map.map(map.handle, LV2_ATOM__Sequence);
