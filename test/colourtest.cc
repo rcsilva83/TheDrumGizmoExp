@@ -76,8 +76,8 @@ TEST_CASE("ColourTest")
 
 	SUBCASE("uint8_constructor")
 	{
-		dggui::Colour c(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(40));
+		dggui::Colour c(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(40));
 		CHECK_EQ(std::uint8_t(10), c.red());
 		CHECK_EQ(std::uint8_t(20), c.green());
 		CHECK_EQ(std::uint8_t(30), c.blue());
@@ -86,8 +86,8 @@ TEST_CASE("ColourTest")
 
 	SUBCASE("copy_constructor")
 	{
-		dggui::Colour orig(std::uint8_t(10), std::uint8_t(20),
-		                   std::uint8_t(30), std::uint8_t(40));
+		dggui::Colour orig(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(40));
 		dggui::Colour copy(orig);
 		CHECK_EQ(orig.red(), copy.red());
 		CHECK_EQ(orig.green(), copy.green());
@@ -97,8 +97,8 @@ TEST_CASE("ColourTest")
 
 	SUBCASE("assignment_operator")
 	{
-		dggui::Colour a(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(40));
+		dggui::Colour a(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(40));
 		dggui::Colour b;
 		b = a;
 		CHECK_EQ(a.red(), b.red());
@@ -110,37 +110,37 @@ TEST_CASE("ColourTest")
 	SUBCASE("equality_operator_compares_rgb_only")
 	{
 		// operator== compares only R, G, B – not alpha
-		dggui::Colour a(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(100));
-		dggui::Colour b(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(200));
+		dggui::Colour a(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(100));
+		dggui::Colour b(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(200));
 		CHECK(a == b);
 	}
 
 	SUBCASE("equality_operator_false_for_different_rgb")
 	{
-		dggui::Colour a(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(255));
-		dggui::Colour b(std::uint8_t(11), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(255));
+		dggui::Colour a(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(255));
+		dggui::Colour b(std::uint8_t(11), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(255));
 		CHECK_UNARY(!(a == b));
 	}
 
 	SUBCASE("inequality_operator")
 	{
-		dggui::Colour a(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(255));
-		dggui::Colour b(std::uint8_t(10), std::uint8_t(21),
-		                std::uint8_t(30), std::uint8_t(255));
+		dggui::Colour a(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(255));
+		dggui::Colour b(std::uint8_t(10), std::uint8_t(21), std::uint8_t(30),
+		    std::uint8_t(255));
 		CHECK(a != b);
 	}
 
 	SUBCASE("inequality_operator_false_when_rgb_equal")
 	{
-		dggui::Colour a(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(0));
-		dggui::Colour b(std::uint8_t(10), std::uint8_t(20),
-		                std::uint8_t(30), std::uint8_t(128));
+		dggui::Colour a(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(0));
+		dggui::Colour b(std::uint8_t(10), std::uint8_t(20), std::uint8_t(30),
+		    std::uint8_t(128));
 		CHECK_UNARY(!(a != b));
 	}
 

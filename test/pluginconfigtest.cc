@@ -37,8 +37,7 @@ public:
 	// After the base constructor runs (and its auto-load silently fails because
 	// the temp file does not exist yet), we are fully constructed with a valid
 	// vtable so subsequent explicit load()/save() calls will use our override.
-	explicit TestableConfig(const std::string& path)
-	    : test_path(path)
+	explicit TestableConfig(const std::string& path) : test_path(path)
 	{
 	}
 
@@ -97,7 +96,8 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 		// Reload into a fresh instance pointing at the same temp file.
 		TestableConfig cfg2(tmp);
 		cfg2.loadFromFile();
-		CHECK_EQ(std::string("/usr/share/drumkits/example.xml"), cfg2.defaultKitPath);
+		CHECK_EQ(std::string("/usr/share/drumkits/example.xml"),
+		    cfg2.defaultKitPath);
 	}
 
 	SUBCASE("save_overwrites_previous_value")

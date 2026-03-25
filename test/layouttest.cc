@@ -48,10 +48,22 @@ struct MockItem : public dggui::LayoutItem
 		_y = y;
 	}
 
-	int x() const override { return _x; }
-	int y() const override { return _y; }
-	std::size_t width() const override { return _width; }
-	std::size_t height() const override { return _height; }
+	int x() const override
+	{
+		return _x;
+	}
+	int y() const override
+	{
+		return _y;
+	}
+	std::size_t width() const override
+	{
+		return _width;
+	}
+	std::size_t height() const override
+	{
+		return _height;
+	}
 };
 
 // A parent MockItem whose size is controlled by the test and which accepts a
