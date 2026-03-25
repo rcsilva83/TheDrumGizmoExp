@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/pluginizmo-populate"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/pluginizmo-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/pluginizmo-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"pluginizmo-populate"
+		],
+		"name" : "pluginizmo-populate"
+	}
+}

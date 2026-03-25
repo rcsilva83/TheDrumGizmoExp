@@ -1,0 +1,3 @@
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/pluginizmo-populate.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/rebuild_cache.dir

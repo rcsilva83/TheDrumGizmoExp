@@ -1,0 +1,3 @@
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/sndfile-subbuild/CMakeFiles/sndfile-populate.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/sndfile-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/sndfile-subbuild/CMakeFiles/rebuild_cache.dir

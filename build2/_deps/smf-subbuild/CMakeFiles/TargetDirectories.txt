@@ -1,0 +1,3 @@
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/smf-populate.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/rebuild_cache.dir

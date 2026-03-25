@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/CMakeFiles/getoptpp-populate"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/CMakeFiles/getoptpp-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/CMakeFiles/getoptpp-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/src/getoptpp-populate-stamp/getoptpp-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"getoptpp-populate"
+		],
+		"name" : "getoptpp-populate"
+	}
+}
