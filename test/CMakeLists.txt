@@ -364,6 +364,51 @@ dg_add_doctest_test(midimappertest
 		dg_pugi
 )
 
+dg_add_doctest_test(colourtest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/dggui/colour.cc"
+		"${CMAKE_SOURCE_DIR}/test/colourtest.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
+dg_add_doctest_test(utf8test
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/dggui/utf8.cc"
+		"${CMAKE_SOURCE_DIR}/test/utf8test.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
+dg_add_doctest_test(layouttest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/test/layouttest.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}"
+		"${DG_HUGIN_SOURCE_DIR}"
+	LINK_LIBRARIES
+		dg_dggui
+		Threads::Threads
+)
+
+dg_add_doctest_test(pluginconfigtest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/test/pluginconfigtest.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}"
+		"${DG_HUGIN_SOURCE_DIR}"
+	LINK_LIBRARIES
+		dg_plugingui
+		dg_core
+		Threads::Threads
+)
+
 if(DG_ENABLE_CLI)
 	dg_add_doctest_test(drumgizmoclitest
 		SOURCES
