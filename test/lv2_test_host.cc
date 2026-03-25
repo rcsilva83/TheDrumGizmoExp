@@ -68,6 +68,11 @@ public:
 		BIO_write(bio, in, size);
 
 		size_t osize = BIO_ctrl_pending(mbio);
+		if(osize == 0)
+		{
+			return "";
+		}
+
 		std::string out;
 		out.resize(osize);
 
@@ -87,6 +92,11 @@ public:
 		(void)BIO_flush(bio);
 
 		size_t size = BIO_ctrl_pending(mbio);
+		if(size == 0)
+		{
+			return "";
+		}
+
 		std::string out;
 		out.resize(size);
 
