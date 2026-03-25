@@ -84,6 +84,104 @@ TEST_CASE("open_and_verify")
 	CHECK_EQ(0, res);
 }
 
+TEST_CASE("lifecycle_invalid_transitions")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.verify();
+	CHECK_EQ(0, res);
+
+	res = h.destroyInstance();
+	CHECK_UNARY(res != 0);
+
+	res = h.activate();
+	CHECK_UNARY(res != 0);
+
+	res = h.deactivate();
+	CHECK_UNARY(res != 0);
+
+	res = h.connectPort((int)Ports::FreeWheel, nullptr);
+	CHECK_UNARY(res != 0);
+
+	res = h.run(1);
+	CHECK_UNARY(res != 0);
+
+	res = h.loadConfig(nullptr, 1);
+	CHECK_UNARY(res != 0);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_UNARY(res != 0);
+
+	res = h.connectPort(-1, nullptr);
+	CHECK_UNARY(res != 0);
+
+	res = h.connectPort(9999, nullptr);
+	CHECK_UNARY(res != 0);
+
+	res = h.run(-1);
+	CHECK_UNARY(res != 0);
+
+	res = h.deactivate();
+	CHECK_UNARY(res != 0);
+
+	res = h.activate();
+	CHECK_EQ(0, res);
+
+	res = h.activate();
+	CHECK_UNARY(res != 0);
+
+	res = h.deactivate();
+	CHECK_EQ(0, res);
+
+	res = h.deactivate();
+	CHECK_UNARY(res != 0);
+
+	res = h.close();
+	CHECK_UNARY(res != 0);
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.destroyInstance();
+	CHECK_UNARY(res != 0);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
+TEST_CASE("lifecycle_teardown_requires_destroy")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.verify();
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_UNARY(res != 0);
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
 TEST_CASE_FIXTURE(LV2Fixture, "run_no_ports_connected")
 {
 	int res;

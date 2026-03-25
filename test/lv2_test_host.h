@@ -26,6 +26,9 @@
  */
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+
 #include <lilv/lilv.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 
@@ -69,10 +72,19 @@ public:
 	int run(int num_samples);
 
 private:
+	enum class InstanceState
+	{
+		NotCreated,
+		Created,
+		Activated,
+	};
+
 	LilvWorld* world;
 	const LilvPlugins* plugins;
 	LilvNode* uri;
 	const LilvPlugin* plugin;
 
 	LilvInstance* instance;
+	uint32_t num_ports;
+	InstanceState instance_state;
 };
