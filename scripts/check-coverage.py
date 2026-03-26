@@ -90,17 +90,35 @@ def main(argv=None):
         if not ok:
             failed = True
 
+    # Ratchet next-target info
+    ratchet = config.get("ratchet", {})
+    ratchet_target = int(ratchet.get("target", 90))
+    ratchet_increment = int(ratchet.get("increment", 2))
+
+    def next_ratchet(current_min):
+        next_threshold = min(current_min + ratchet_increment, ratchet_target)
+        return next_threshold if next_threshold > current_min else None
+
     # Write GitHub step summary when running in GitHub Actions
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as fh:
             fh.write("## Coverage threshold checks\n\n")
-            fh.write("| Scope | Lines covered | Line % | Min threshold | Status |\n")
-            fh.write("| --- | ---: | ---: | ---: | :---: |\n")
+            fh.write(
+                f"Ratchet policy: target **{ratchet_target}%**, "
+                f"increment **+{ratchet_increment}%** per cycle "
+                f"(run `scripts/advance-ratchet.py` to advance).\n\n"
+            )
+            fh.write(
+                "| Scope | Lines covered | Line % | Min threshold | Next ratchet | Status |\n"
+            )
+            fh.write("| --- | ---: | ---: | ---: | ---: | :---: |\n")
             for name, pct, min_pct, ok, cov, tot in results:
                 status = "✅ pass" if ok else "❌ fail"
+                next_threshold = next_ratchet(min_pct)
+                next_str = f"{next_threshold:.0f}%" if next_threshold is not None else "—"
                 fh.write(
-                    f"| {name} | {cov} / {tot} | {pct:.2f}% | {min_pct:.0f}% | {status} |\n"
+                    f"| {name} | {cov} / {tot} | {pct:.2f}% | {min_pct:.0f}% | {next_str} | {status} |\n"
                 )
             if failed:
                 fh.write(
@@ -113,17 +131,20 @@ def main(argv=None):
 
     # Console output
     col_w = max(len(r[0]) for r in results) + 2
-    header = f"{'Scope':<{col_w}} {'Coverage':>10}  {'Min':>6}  Status"
+    header = f"{'Scope':<{col_w}} {'Coverage':>10}  {'Min':>6}  {'Next':>6}  Status"
     print(header)
     print("-" * len(header))
     for name, pct, min_pct, ok, cov, tot in results:
         status = "PASS" if ok else "FAIL"
-        print(f"{name:<{col_w}} {pct:>9.2f}%  {min_pct:>5.0f}%  {status}")
+        next_threshold = next_ratchet(min_pct)
+        next_str = f"{next_threshold:.0f}%" if next_threshold is not None else "—"
+        print(f"{name:<{col_w}} {pct:>9.2f}%  {min_pct:>5.0f}%  {next_str:>5}  {status}")
 
     if failed:
         print(
             "\n\u274c Coverage gate FAILED. "
-            "Update tests or lower the threshold in .coverage-thresholds.json.",
+            "Update tests or lower the threshold in .coverage-thresholds.json. "
+            "See docs/coverage.md for the ratchet policy.",
             file=sys.stderr,
         )
         sys.exit(1)

@@ -1,5 +1,12 @@
 {
   "_comment": "Minimum line-coverage thresholds to prevent regression. Update these values after merging significant batches of new tests. See docs/coverage.md for baseline measurements and instructions.",
+  "ratchet": {
+    "target": 90,
+    "increment": 2,
+    "_comment": "Thresholds rise by increment% per ratchet cycle until target is reached. Run scripts/advance-ratchet.py to advance."
+  },
+  "changed_file_min": 30,
+  "_comment_changed_file": "Minimum line coverage required for any changed source file on pull requests (checked by scripts/check-pr-coverage.py).",
   "overall": {
     "line_min": 34,
     "note": "Baseline 34.6 % on commit a7f2c07 (2026-03-24)"
