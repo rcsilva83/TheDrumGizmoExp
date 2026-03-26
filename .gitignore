@@ -63,3 +63,4 @@ manifest.ttl
 dgvalidator
 build/
 build-*/
+*.deb

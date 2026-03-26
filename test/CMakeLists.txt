@@ -364,6 +364,31 @@ dg_add_doctest_test(midimappertest
 		dg_pugi
 )
 
+dg_add_doctest_test(audioinputenginemiditest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/configfile.cc"
+		"${CMAKE_SOURCE_DIR}/src/directory.cc"
+		"${CMAKE_SOURCE_DIR}/src/instrument.cc"
+		"${CMAKE_SOURCE_DIR}/src/midimapper.cc"
+		"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+		"${CMAKE_SOURCE_DIR}/src/powerlist.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
+		"${CMAKE_SOURCE_DIR}/src/sample.cc"
+		"${CMAKE_SOURCE_DIR}/src/sample_selection.cc"
+		"${CMAKE_SOURCE_DIR}/src/versionstr.cc"
+		"${CMAKE_SOURCE_DIR}/test/audioinputenginemiditest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		dg_pugi
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(colourtest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/dggui/colour.cc"
