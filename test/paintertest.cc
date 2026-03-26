@@ -196,30 +196,34 @@ TEST_CASE("PainterTest")
 		std::size_t height = font.textHeight(someText);
 
 		{ // Text fits in pixelbuffer - glyphs must be rendered into the buffer
+			// drawText y is the baseline; passing y=height places it at the
+			// bottom of the canvas so the full text is rendered inside it.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(0, 0, font, someText);
+			painter.drawText(0, height, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Text fits in pixelbuffer, negative offset - part is still in bounds
+		{ // Text fits, negative x offset - part is still in bounds
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(-10, -10, font, someText);
+			painter.drawText(-10, height, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Text too big for pixelbuffer - clipped, but still draws into it
+			// Canvas is half-size; pass y=height/2 as baseline so the bottom
+			// half of the text is visible in the smaller canvas.
 			TestableCanvas canvas(width / 2, height / 2);
 			dggui::Painter painter(canvas);
-			painter.drawText(0, 0, font, someText);
+			painter.drawText(0, height / 2, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Text fits in pixelbuffer but offset so it is drawn over the edge.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(10, 10, font, someText);
+			painter.drawText(10, height, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
