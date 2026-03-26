@@ -129,7 +129,7 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 		// Now remove the file and reload – defaultKitPath should be cleared
 		std::remove(tmp);
 		reader.defaultKitPath = "stale";
-		CHECK_UNARY(!reader.loadFromFile()); // file missing: should return false and clear
+		CHECK_UNARY(!reader.loadFromFile()); // missing file: must return false
 		CHECK_EQ(std::string(""), reader.defaultKitPath);
 	}
 }

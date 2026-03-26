@@ -141,23 +141,23 @@ TEST_CASE("PainterTest")
 	SUBCASE("testDrawImage")
 	{
 		dggui::Image image(":resources/logo.png");
-		REQUIRE(image.valid());
+		REQUIRE(image.isValid());
 
-		{ // Image fits in pixelbuffer – something must be drawn
+		{ // Image fits in pixelbuffer - something must be drawn
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(0, 0, image);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Image fits in pixelbuffer, negative offset – part is still in bounds
+		{ // Image fits, negative offset - part is still in bounds
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(-10, -10, image);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Image too big for pixelbuffer – clipped, but still draws into it
+		{ // Image too big for pixelbuffer - clipped, but still draws into it
 			TestableCanvas canvas(image.width() / 2, image.height() / 2);
 			dggui::Painter painter(canvas);
 			painter.drawImage(0, 0, image);
@@ -195,21 +195,21 @@ TEST_CASE("PainterTest")
 		std::size_t width = font.textWidth(someText);
 		std::size_t height = font.textHeight(someText);
 
-		{ // Text fits in pixelbuffer – glyphs must be rendered into the buffer
+		{ // Text fits in pixelbuffer - glyphs must be rendered into the buffer
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
 			painter.drawText(0, 0, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Text fits in pixelbuffer, negative offset – part is still in bounds
+		{ // Text fits in pixelbuffer, negative offset - part is still in bounds
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
 			painter.drawText(-10, -10, font, someText);
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Text too big for pixelbuffer – clipped, but still draws into it
+		{ // Text too big for pixelbuffer - clipped, but still draws into it
 			TestableCanvas canvas(width / 2, height / 2);
 			dggui::Painter painter(canvas);
 			painter.drawText(0, 0, font, someText);
