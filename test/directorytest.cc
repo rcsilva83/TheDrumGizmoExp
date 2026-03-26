@@ -128,6 +128,8 @@ TEST_CASE("DirectoryTest")
 
 	SUBCASE("cwd_is_nonempty")
 	{
-		CHECK_UNARY(!Directory::cwd().empty());
+		std::string cwd = Directory::cwd();
+		CHECK_UNARY(!cwd.empty());
+		CHECK_EQ('/', cwd[0]); // must be an absolute path
 	}
 }
