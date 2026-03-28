@@ -83,7 +83,7 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 		TestableConfig cfg(tmp);
 		// Constructor silently tries real home dir (won't find anything) so
 		// defaultKitPath is empty; now reload from our temp path (also empty).
-		cfg.loadFromFile();
+		CHECK_UNARY(!cfg.loadFromFile());
 		CHECK_EQ(std::string(""), cfg.defaultKitPath);
 	}
 
@@ -95,7 +95,7 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 
 		// Reload into a fresh instance pointing at the same temp file.
 		TestableConfig cfg2(tmp);
-		cfg2.loadFromFile();
+		CHECK_UNARY(cfg2.loadFromFile());
 		CHECK_EQ(std::string("/usr/share/drumkits/example.xml"),
 		    cfg2.defaultKitPath);
 	}
@@ -110,7 +110,7 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 		cfg.saveToFile();
 
 		TestableConfig cfg2(tmp);
-		cfg2.loadFromFile();
+		CHECK_UNARY(cfg2.loadFromFile());
 		CHECK_EQ(std::string("/second/path.xml"), cfg2.defaultKitPath);
 	}
 
@@ -123,13 +123,13 @@ TEST_CASE_FIXTURE(PluginConfigFixture, "PluginConfigTest")
 
 		// Load it into a reader
 		TestableConfig reader(tmp);
-		reader.loadFromFile();
+		CHECK_UNARY(reader.loadFromFile());
 		CHECK_EQ(std::string("/some/kit.xml"), reader.defaultKitPath);
 
 		// Now remove the file and reload – defaultKitPath should be cleared
 		std::remove(tmp);
 		reader.defaultKitPath = "stale";
-		reader.loadFromFile(); // will fail, should clear
+		CHECK_UNARY(!reader.loadFromFile()); // missing file: must return false
 		CHECK_EQ(std::string(""), reader.defaultKitPath);
 	}
 }

@@ -30,11 +30,41 @@
 
 TEST_CASE("AudioCacheEventHandlerTest")
 {
-	SUBCASE("threadedTest")
+	SUBCASE("default_state")
 	{
 		AudioCacheIDManager id_manager;
 		id_manager.init(10);
 
 		AudioCacheEventHandler event_handler(id_manager);
+
+		// Not threaded by default
+		CHECK_UNARY(!event_handler.isThreaded());
+		// Default chunk size is 1024
+		CHECK_EQ(1024u, event_handler.getChunkSize());
+	}
+
+	SUBCASE("setChunkSize_changes_getChunkSize")
+	{
+		AudioCacheIDManager id_manager;
+		id_manager.init(10);
+
+		AudioCacheEventHandler event_handler(id_manager);
+		event_handler.setChunkSize(2048);
+		CHECK_EQ(2048u, event_handler.getChunkSize());
+	}
+
+	SUBCASE("setThreaded_changes_isThreaded")
+	{
+		AudioCacheIDManager id_manager;
+		id_manager.init(10);
+
+		AudioCacheEventHandler event_handler(id_manager);
+		CHECK_UNARY(!event_handler.isThreaded());
+
+		event_handler.setThreaded(true);
+		CHECK_UNARY(event_handler.isThreaded());
+
+		event_handler.setThreaded(false);
+		CHECK_UNARY(!event_handler.isThreaded());
 	}
 }

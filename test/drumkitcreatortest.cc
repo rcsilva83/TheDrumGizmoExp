@@ -26,6 +26,8 @@
  */
 #include <doctest/doctest.h>
 
+#include <fstream>
+
 #include "drumkit_creator.h"
 
 struct DrumkitcreatorTestFixture
@@ -35,8 +37,15 @@ struct DrumkitcreatorTestFixture
 
 TEST_CASE_FIXTURE(DrumkitcreatorTestFixture, "DrumkitcreatorTest")
 {
-	SUBCASE("testTest")
+	SUBCASE("createStdKit_returns_valid_xml_path")
 	{
-		drumkit_creator.createStdKit("stdkit");
+		std::string kit_path = drumkit_creator.createStdKit("stdkit");
+
+		// Result must be a non-empty path pointing to an XML file
+		CHECK_UNARY(kit_path.find(".xml") != std::string::npos);
+
+		// The drumkit file must actually exist on disk
+		std::ifstream f(kit_path);
+		CHECK_UNARY(f.good());
 	}
 }
