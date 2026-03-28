@@ -73,6 +73,39 @@ public:
 	}
 };
 
+class AudioOutputEngineBufferDummy : public AudioOutputEngineDummy
+{
+public:
+	void setInternalBufferSize(std::size_t nsamples)
+	{
+		internal_buffer.resize(nsamples, 0.0f);
+	}
+
+	void setFreewheeling(bool value)
+	{
+		freewheeling = value;
+	}
+
+	sample_t* getBuffer(int ch) const override
+	{
+		if(ch % 2 == 0)
+		{
+			return const_cast<sample_t*>(internal_buffer.data());
+		}
+
+		return nullptr;
+	}
+
+	bool isFreewheeling() const override
+	{
+		return freewheeling;
+	}
+
+private:
+	bool freewheeling{true};
+	mutable std::vector<sample_t> internal_buffer;
+};
+
 class AudioInputEngineDummy : public AudioInputEngine
 {
 public:
@@ -109,6 +142,23 @@ public:
 	{
 		return true;
 	}
+};
+
+class AudioInputEngineConfigurableDummy : public AudioInputEngineDummy
+{
+public:
+	void setFreewheeling(bool value)
+	{
+		freewheeling = value;
+	}
+
+	bool isFreewheeling() const override
+	{
+		return freewheeling;
+	}
+
+private:
+	bool freewheeling{true};
 };
 
 class AudioInputEngineStopDummy : public AudioInputEngineDummy
@@ -361,5 +411,88 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		auto latency_q1 = dg.getLatency();
 
 		CHECK(latency_q1 > latency_q0);
+	}
+
+	SUBCASE("runTracksAuditionAndFreewheelBranches")
+	{
+		Settings settings;
+		AudioOutputEngineBufferDummy oe;
+		AudioInputEngineConfigurableDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		oe.setInternalBufferSize(nsamples);
+
+		auto kit_file = drumkit_creator.createStdKit("audition_kit");
+		settings.drumkit_file.store(kit_file);
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(i * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(0.8f);
+		settings.audition_counter.store(1);
+
+		ie.setFreewheeling(false);
+		oe.setFreewheeling(true);
+		CHECK(dg.run(0, buf.data(), nsamples));
+
+		settings.audition_instrument.store("missing-instrument");
+		settings.audition_counter.store(2);
+
+		ie.setFreewheeling(true);
+		oe.setFreewheeling(false);
+		CHECK(dg.run(nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("runWithWideKitCoversChannelLimitAndOutputPaths")
+	{
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("wide.wav", 64, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles;
+		for(std::size_t i = 0; i < 17; ++i)
+		{
+			audiofiles.push_back({&wav_infos.front(), i + 1});
+		}
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke1", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"wide_instr", "wide_instr.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "wide_kit", 17, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineBufferDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		oe.setInternalBufferSize(nsamples);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(i * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		CHECK(dg.run(0, buf.data(), nsamples));
+
+		dg.setSamplerate(48000.0f);
+		CHECK(dg.run(nsamples, buf.data(), nsamples));
+		CHECK(dg.run(2 * nsamples, buf.data(), nsamples));
 	}
 }
