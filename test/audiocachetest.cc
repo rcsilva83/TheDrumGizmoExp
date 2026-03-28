@@ -231,6 +231,7 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 
 		AudioFile audio_file(filename.c_str(), 0);
 		audio_file.load(nullptr, preload_buffer_size);
+		REQUIRE_LT(audio_file.preloadedsize, audio_file.size);
 
 		Settings settings;
 		AudioCache audio_cache(settings);
@@ -239,18 +240,27 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		audio_cache.setFrameSize(FRAMESIZE);
 		audio_cache.updateChunkSize(1);
 
+		// Keep async mode enabled but stop the worker thread so events remain
+		// queued until the test explicitly changes state.
+		audio_cache.deinit();
+
 		cacheid_t id;
 		// Open queues a LoadNext event when file.size > preloadedsize
 		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+		REQUIRE_UNARY(!audio_cache.isReady(id));
 
-		// Change chunk size while the LoadNext event may still be queued.
+		// Change chunk size while the LoadNext event is queued.
 		// setChunkSize clears queued load events and disables active IDs.
 		audio_cache.updateChunkSize(13);
+		CHECK_UNARY(!audio_cache.isReady(id));
+
+		std::size_t size = FRAMESIZE;
+		audio_cache.next(id, size);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
 
 		// Close the entry; the destructor will process the Close event.
 		audio_cache.close(id);
-
-		// No crash reaching this point means the scenario is handled correctly.
 	}
 
 	SUBCASE("closeWhileLoadQueued")
@@ -262,23 +272,30 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 
 		AudioFile audio_file(filename.c_str(), 0);
 		audio_file.load(nullptr, preload_buffer_size);
+		REQUIRE_LT(audio_file.preloadedsize, audio_file.size);
 
 		Settings settings;
 		AudioCache audio_cache(settings);
-		audio_cache.init(100);
+		audio_cache.init(1);
 		audio_cache.setAsyncMode(true);
 		audio_cache.setFrameSize(FRAMESIZE);
 		audio_cache.updateChunkSize(1);
 
+		// Keep async mode enabled but stop the worker thread so events remain
+		// queued deterministically.
+		audio_cache.deinit();
+
 		cacheid_t id;
 		// Open queues a LoadNext event
 		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+		REQUIRE_UNARY(!audio_cache.isReady(id));
 
-		// Close immediately before the thread has a chance to process the
-		// LoadNext event. Both events are in the queue; the destructor will
-		// drain them in the correct order (LoadNext then Close).
+		// Queue Close while LoadNext is still pending.
 		audio_cache.close(id);
 
-		// No crash reaching this point means the close ordering is correct.
+		cacheid_t second_id;
+		audio_cache.open(audio_file, 0, 0, second_id);
+		CHECK_EQ(CACHE_DUMMYID, second_id);
 	}
 }

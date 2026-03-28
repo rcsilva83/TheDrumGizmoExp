@@ -28,6 +28,7 @@
 
 #include <chrono>
 #include <limits>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -150,6 +151,18 @@ struct AudioCacheEventHandlerFileFixture
 	static constexpr int load_timeout_ms{1000};
 };
 
+class TestableAudioCacheEventHandler : public AudioCacheEventHandler
+{
+public:
+	using AudioCacheEventHandler::AudioCacheEventHandler;
+
+	size_t pendingEventCount()
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		return eventqueue.size();
+	}
+};
+
 TEST_CASE_FIXTURE(
     AudioCacheEventHandlerFileFixture, "AudioCacheEventHandlerFileTest")
 {
@@ -187,10 +200,9 @@ TEST_CASE_FIXTURE(
 		AudioCacheIDManager id_manager;
 		id_manager.init(10);
 
-		AudioCacheEventHandler event_handler(id_manager);
+		TestableAudioCacheEventHandler event_handler(id_manager);
 		event_handler.setChunkSize(test_chunk_size);
 		event_handler.setThreaded(true);
-		event_handler.start();
 
 		AudioCacheFile& afile = event_handler.openFile(filename);
 
@@ -200,10 +212,14 @@ TEST_CASE_FIXTURE(
 		volatile bool ready1{false};
 
 		// Push two load events for the same file and position but different
-		// channels. In threaded mode the second event is deduplicated into the
-		// first so that a single readChunk call services both channels.
+		// channels.
 		event_handler.pushLoadNextEvent(&afile, 0, 0, buf0.data(), &ready0);
 		event_handler.pushLoadNextEvent(&afile, 1, 0, buf1.data(), &ready1);
+
+		// Verify deduplication happened in the queue before processing starts.
+		CHECK_EQ(1u, event_handler.pendingEventCount());
+
+		event_handler.start();
 
 		// Wait for both channels to be loaded
 		int timeout = load_timeout_ms;
