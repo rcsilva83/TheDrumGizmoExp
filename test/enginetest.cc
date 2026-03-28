@@ -204,6 +204,7 @@ public:
 	explicit AudioInputEngineOnsetWithOffsetDummy(size_t offset)
 	    : onset_offset(offset)
 	{
+		static_cast<void>(0); // onset_offset initialized above
 	}
 
 	void run(size_t pos, size_t len, std::vector<event_t>& events) override
