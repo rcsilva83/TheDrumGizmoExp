@@ -37,6 +37,8 @@
 
 #define FRAMESIZE 64
 
+static constexpr std::size_t preload_buffer_size{4096};
+
 struct AudioCacheTestFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -202,5 +204,81 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		++channel;
 		testHelper(
 		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+	}
+
+	SUBCASE("nonthreadedThreadedParity")
+	{
+		printf("\nnonthreaded_threaded_parity()\n");
+
+		auto filename = drumkit_creator.createSingleChannelWav("parity.wav");
+
+		int channel = 0;
+		int num_channels = 1;
+
+		// Both modes must produce identical correct output against the
+		// reference
+		testHelper(filename.c_str(), channel, false, FRAMESIZE, num_channels);
+		testHelper(filename.c_str(), channel, true, FRAMESIZE, num_channels);
+	}
+
+	SUBCASE("updateChunkSizeWhileEventsQueued")
+	{
+		printf("\nupdate_chunk_size_while_events_queued()\n");
+
+		// Create a file larger than the preload buffer to force disk streaming
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr, preload_buffer_size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(100);
+		audio_cache.setAsyncMode(true);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		cacheid_t id;
+		// Open queues a LoadNext event when file.size > preloadedsize
+		audio_cache.open(audio_file, 0, 0, id);
+
+		// Change chunk size while the LoadNext event may still be queued.
+		// setChunkSize clears queued load events and disables active IDs.
+		audio_cache.updateChunkSize(13);
+
+		// Close the entry; the destructor will process the Close event.
+		audio_cache.close(id);
+
+		// No crash reaching this point means the scenario is handled correctly.
+	}
+
+	SUBCASE("closeWhileLoadQueued")
+	{
+		printf("\nclose_while_load_queued()\n");
+
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr, preload_buffer_size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(100);
+		audio_cache.setAsyncMode(true);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		cacheid_t id;
+		// Open queues a LoadNext event
+		audio_cache.open(audio_file, 0, 0, id);
+
+		// Close immediately before the thread has a chance to process the
+		// LoadNext event. Both events are in the queue; the destructor will
+		// drain them in the correct order (LoadNext then Close).
+		audio_cache.close(id);
+
+		// No crash reaching this point means the close ordering is correct.
 	}
 }

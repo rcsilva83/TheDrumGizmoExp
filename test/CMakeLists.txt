@@ -118,8 +118,11 @@ dg_add_doctest_test(audiocacheeventhandler
 		"${CMAKE_SOURCE_DIR}/src/audiocacheeventhandler.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocacheidmanager.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocachefile.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
 		"${CMAKE_SOURCE_DIR}/src/thread.cc"
 		"${CMAKE_SOURCE_DIR}/src/sem.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
 		"${CMAKE_SOURCE_DIR}/test/audiocacheeventhandlertest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
