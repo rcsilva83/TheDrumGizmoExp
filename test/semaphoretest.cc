@@ -68,10 +68,12 @@ TEST_CASE("SemaphoreTest")
 			CHECK(!res); // false means timeout
 			auto stop = std::chrono::steady_clock::now();
 
-			// Allow ±200ms tolerance to accommodate scheduler jitter on CI;
-			// combined with the CHECK(!res) above this confirms the semaphore
-			// both timed out correctly and did not sleep indefinitely.
-			CHECK(dist((stop - start), std::chrono::milliseconds(100)) <
+			auto elapsed = stop - start;
+
+			// Require the wait to be at least close to the requested timeout,
+			// but allow generous jitter on the upper side for slow CI runners.
+			CHECK(elapsed >= std::chrono::milliseconds(80));
+			CHECK(dist(elapsed, std::chrono::milliseconds(100)) <
 			      std::chrono::milliseconds(200));
 		}
 	}
