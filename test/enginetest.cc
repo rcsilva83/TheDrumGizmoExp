@@ -111,6 +111,24 @@ public:
 	}
 };
 
+class AudioInputEngineStopDummy : public AudioInputEngineDummy
+{
+public:
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		if(sent_stop)
+		{
+			return;
+		}
+
+		events.push_back({EventType::Stop, 0, 0, 0.0f});
+		sent_stop = true;
+	}
+
+private:
+	bool sent_stop{false};
+};
+
 struct test_engineFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -279,5 +297,69 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		auto result = dg.run(0, buf.data(), nsamples);
 
 		CHECK(result);
+	}
+
+	SUBCASE("runReturnsFalseAfterStopWhenNoActiveEvents")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineStopDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto result = dg.run(0, buf.data(), nsamples);
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("runtimeEnableResamplingToggleAffectsLatency")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		dg.setSamplerate(48000.0f);
+
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		CHECK(dg.run(0, buf.data(), nsamples));
+		auto latency_enabled = dg.getLatency();
+		CHECK(latency_enabled > 0u);
+
+		settings.enable_resampling.store(false);
+		CHECK(dg.run(nsamples, buf.data(), nsamples));
+		CHECK_EQ(dg.getLatency(), 0u);
+
+		settings.enable_resampling.store(true);
+		CHECK(dg.run(2 * nsamples, buf.data(), nsamples));
+		CHECK(dg.getLatency() > 0u);
+	}
+
+	SUBCASE("runtimeResamplingQualityChangeAffectsLatency")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		settings.resampling_quality.store(0.0f);
+		CHECK(dg.run(0, buf.data(), nsamples));
+		auto latency_q0 = dg.getLatency();
+
+		settings.resampling_quality.store(1.0f);
+		CHECK(dg.run(nsamples, buf.data(), nsamples));
+		auto latency_q1 = dg.getLatency();
+
+		CHECK(latency_q1 > latency_q0);
 	}
 }
