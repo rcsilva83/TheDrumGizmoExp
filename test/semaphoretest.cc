@@ -29,52 +29,43 @@
 #include <cassert>
 
 #include <chrono>
-#include <iostream>
 
 #include "../src/sem.h"
 
-std::chrono::nanoseconds dist(const std::chrono::duration<float>& a,
-    const std::chrono::duration<float>& b)
-{
-	if(a > b)
-	{
-		return std::chrono::duration_cast<std::chrono::nanoseconds>(a - b);
-	}
-
-	return std::chrono::duration_cast<std::chrono::nanoseconds>(b - a);
-}
-
 TEST_CASE("SemaphoreTest")
 {
-	SUBCASE("timeoutTest")
-	{
-		Semaphore sem(0);
+SUBCASE("timeoutTest")
+{
+Semaphore sem(0);
 
-		{ // 1000ms timeout
-			auto start = std::chrono::steady_clock::now();
-			bool res = sem.wait(std::chrono::milliseconds(1000));
-			CHECK(!res); // false means timeout
-			auto stop = std::chrono::steady_clock::now();
+{ // 1000ms timeout
+auto start = std::chrono::steady_clock::now();
+bool res = sem.wait(std::chrono::milliseconds(1000));
+CHECK(!res); // false means timeout
+auto stop = std::chrono::steady_clock::now();
 
-			// Allow ±300ms tolerance to accommodate loaded CI runners;
-			// i.e., completion between 700 ms and 1300 ms is accepted.
-			CHECK(dist((stop - start), std::chrono::milliseconds(1000)) <
-			      std::chrono::milliseconds(300));
-		}
+auto elapsed =
+    std::chrono::duration_cast<std::chrono::milliseconds>(
+        stop - start);
+// Must have waited at least the requested duration, and not
+// more than 1300 ms to accommodate loaded CI runners.
+CHECK(elapsed >= std::chrono::milliseconds(1000));
+CHECK(elapsed < std::chrono::milliseconds(1300));
+}
 
-		{ // 100ms timeout
-			auto start = std::chrono::steady_clock::now();
-			bool res = sem.wait(std::chrono::milliseconds(100));
-			CHECK(!res); // false means timeout
-			auto stop = std::chrono::steady_clock::now();
+{ // 100ms timeout
+auto start = std::chrono::steady_clock::now();
+bool res = sem.wait(std::chrono::milliseconds(100));
+CHECK(!res); // false means timeout
+auto stop = std::chrono::steady_clock::now();
 
-			auto elapsed = stop - start;
-
-			// Require the wait to be at least close to the requested timeout,
-			// but allow generous jitter on the upper side for slow CI runners.
-			CHECK(elapsed >= std::chrono::milliseconds(80));
-			CHECK(dist(elapsed, std::chrono::milliseconds(100)) <
-			      std::chrono::milliseconds(200));
-		}
-	}
+auto elapsed =
+    std::chrono::duration_cast<std::chrono::milliseconds>(
+        stop - start);
+// Must have waited at least the requested duration, and not
+// more than 300 ms to accommodate loaded CI runners.
+CHECK(elapsed >= std::chrono::milliseconds(100));
+CHECK(elapsed < std::chrono::milliseconds(300));
+}
+}
 }
