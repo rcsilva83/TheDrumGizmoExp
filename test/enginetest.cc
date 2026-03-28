@@ -44,6 +44,8 @@ public:
 
 	void setParm(const std::string& parm, const std::string& value) override
 	{
+		(void)parm;
+		(void)value;
 	}
 
 	bool start() override
@@ -52,6 +54,7 @@ public:
 	}
 	void stop() override
 	{
+		// no-op for test dummy
 	}
 
 	void pre(size_t nsamples) override
@@ -116,6 +119,8 @@ public:
 
 	void setParm(const std::string& parm, const std::string& value) override
 	{
+		(void)parm;
+		(void)value;
 	}
 
 	bool start() override
@@ -124,19 +129,26 @@ public:
 	}
 	void stop() override
 	{
+		// no-op for test dummy
 	}
 
 	void pre() override
 	{
+		// no-op for test dummy
 	}
 	void run(size_t pos, size_t len, std::vector<event_t>& events) override
 	{
+		(void)pos;
+		(void)len;
+		(void)events;
 	}
 	void post() override
 	{
+		// no-op for test dummy
 	}
 	void setSampleRate(double sample_rate) override
 	{
+		(void)sample_rate;
 	}
 	bool isFreewheeling() const override
 	{
