@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/basic_string.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// Components for manipulating sequences of characters -*- C++ -*-
         -:    2:
@@ -3711,23 +3711,23 @@
         -: 3707:  template<typename _CharT, typename _Traits, typename _Alloc>
         -: 3708:    _GLIBCXX_NODISCARD _GLIBCXX20_CONSTEXPR
         -: 3709:    inline bool
-function _ZSteqIcSt11char_traitsIcESaIcEEbRKNSt7__cxx1112basic_stringIT_T0_T1_EESA_ called 0 returned 0% blocks executed 0%
-    #####: 3710:    operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+function _ZSteqIcSt11char_traitsIcESaIcEEbRKNSt7__cxx1112basic_stringIT_T0_T1_EESA_ called 1 returned 100% blocks executed 92%
+        1: 3710:    operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
         -: 3711:	       const basic_string<_CharT, _Traits, _Alloc>& __rhs)
         -: 3712:    _GLIBCXX_NOEXCEPT
         -: 3713:    {
-    #####: 3714:      return __lhs.size() == __rhs.size()
-call    0 never executed
-call    1 never executed
-    #####: 3715:	       && !_Traits::compare(__lhs.data(), __rhs.data(), __lhs.size());
-branch  0 never executed (fallthrough)
-branch  1 never executed
-call    2 never executed
-call    3 never executed
-call    4 never executed
-call    5 never executed
-branch  6 never executed (fallthrough)
-branch  7 never executed
+        1: 3714:      return __lhs.size() == __rhs.size()
+call    0 returned 1
+call    1 returned 1
+       1*: 3715:	       && !_Traits::compare(__lhs.data(), __rhs.data(), __lhs.size());
+branch  0 taken 1 (fallthrough)
+branch  1 taken 0
+call    2 returned 1
+call    3 returned 1
+call    4 returned 1
+call    5 returned 1
+branch  6 taken 1 (fallthrough)
+branch  7 taken 0
         -: 3716:    }
         -: 3717:
         -: 3718:  /**

@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/allocated_ptr.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// Guarded Allocation -*- C++ -*-
         -:    2:
@@ -54,23 +54,23 @@
         -:   50:      using value_type = typename allocator_traits<_Alloc>::value_type;
         -:   51:
         -:   52:      /// Take ownership of __ptr
-    19118:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
-    19118:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
-    19118:   55:      { }
+        8:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
+        8:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
+        8:   55:      { }
 ------------------
 _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEEC2ERS3_PS2_:
-function _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEEC2ERS3_PS2_ called 4034 returned 100% blocks executed 100%
-     4034:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
-     4034:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
-call    0 returned 4034
-     4034:   55:      { }
+function _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEEC2ERS3_PS2_ called 1 returned 100% blocks executed 100%
+        1:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
+        1:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
+call    0 returned 1
+        1:   55:      { }
 ------------------
 _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEEC2ERS3_PS2_:
-function _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEEC2ERS3_PS2_ called 15084 returned 100% blocks executed 100%
-    15084:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
-    15084:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
-call    0 returned 15084
-    15084:   55:      { }
+function _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEEC2ERS3_PS2_ called 7 returned 100% blocks executed 100%
+        7:   53:      __allocated_ptr(_Alloc& __a, pointer __ptr) noexcept
+        7:   54:      : _M_alloc(std::__addressof(__a)), _M_ptr(__ptr)
+call    0 returned 7
+        7:   55:      { }
 ------------------
         -:   56:
         -:   57:      /// Convert __ptr to allocator's pointer type and take ownership of it
@@ -87,41 +87,41 @@ call    0 returned 15084
         -:   68:      { __gd._M_ptr = nullptr; }
         -:   69:
         -:   70:      /// Deallocate the owned pointer
-    19118:   71:      ~__allocated_ptr()
+        8:   71:      ~__allocated_ptr()
         -:   72:      {
-    19118:   73:	if (_M_ptr != nullptr)
+        8:   73:	if (_M_ptr != nullptr)
     #####:   74:	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
-    19118:   75:      }
+        8:   75:      }
 ------------------
 _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEED2Ev:
-function _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEED2Ev called 4034 returned 100% blocks executed 50%
-     4034:   71:      ~__allocated_ptr()
+function _ZNSt15__allocated_ptrISaISt10_List_nodeI10CacheEventEEED2Ev called 1 returned 100% blocks executed 50%
+        1:   71:      ~__allocated_ptr()
         -:   72:      {
-     4034:   73:	if (_M_ptr != nullptr)
+        1:   73:	if (_M_ptr != nullptr)
 branch  0 taken 0 (fallthrough)
-branch  1 taken 4034
+branch  1 taken 1
     #####:   74:	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
 call    0 never executed
-     4034:   75:      }
+        1:   75:      }
 ------------------
 _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEED2Ev:
-function _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEED2Ev called 15084 returned 100% blocks executed 50%
-    15084:   71:      ~__allocated_ptr()
+function _ZNSt15__allocated_ptrISaISt10_List_nodeI12CacheChannelEEED2Ev called 7 returned 100% blocks executed 50%
+        7:   71:      ~__allocated_ptr()
         -:   72:      {
-    15084:   73:	if (_M_ptr != nullptr)
+        7:   73:	if (_M_ptr != nullptr)
 branch  0 taken 0 (fallthrough)
-branch  1 taken 15084
+branch  1 taken 7
     #####:   74:	  std::allocator_traits<_Alloc>::deallocate(*_M_alloc, _M_ptr, 1);
 call    0 never executed
-    15084:   75:      }
+        7:   75:      }
 ------------------
         -:   76:
         -:   77:      /// Release ownership of the owned pointer
         -:   78:      __allocated_ptr&
-    19118:   79:      operator=(std::nullptr_t) noexcept
+        8:   79:      operator=(std::nullptr_t) noexcept
         -:   80:      {
-    19118:   81:	_M_ptr = nullptr;
-    19118:   82:	return *this;
+        8:   81:	_M_ptr = nullptr;
+        8:   82:	return *this;
         -:   83:      }
         -:   84:
         -:   85:      /// Get the address that the owned pointer refers to.

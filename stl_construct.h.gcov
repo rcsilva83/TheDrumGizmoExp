@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/stl_construct.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// nonstandard construct and destroy functions -*- C++ -*-
         -:    2:
@@ -173,15 +173,15 @@
         -:  169:    {
         -:  170:      template<typename _ForwardIterator>
         -:  171:        static void
-       30:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
+       27:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
 ------------------
 _ZNSt12_Destroy_auxILb1EE9__destroyIPiEEvT_S3_:
-function _ZNSt12_Destroy_auxILb1EE9__destroyIPiEEvT_S3_ called 20 returned 100% blocks executed 100%
-       20:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
+function _ZNSt12_Destroy_auxILb1EE9__destroyIPiEEvT_S3_ called 16 returned 100% blocks executed 100%
+       16:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
 ------------------
 _ZNSt12_Destroy_auxILb1EE9__destroyIPfEEvT_S3_:
-function _ZNSt12_Destroy_auxILb1EE9__destroyIPfEEvT_S3_ called 10 returned 100% blocks executed 100%
-       10:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
+function _ZNSt12_Destroy_auxILb1EE9__destroyIPfEEvT_S3_ called 11 returned 100% blocks executed 100%
+       11:  172:        __destroy(_ForwardIterator, _ForwardIterator) { }
 ------------------
         -:  173:    };
         -:  174:
@@ -192,7 +192,7 @@ function _ZNSt12_Destroy_auxILb1EE9__destroyIPfEEvT_S3_ called 10 returned 100% 
         -:  179:   */
         -:  180:  template<typename _ForwardIterator>
         -:  181:    _GLIBCXX20_CONSTEXPR inline void
-       30:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
+       27:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
         -:  183:    {
         -:  184:      typedef typename iterator_traits<_ForwardIterator>::value_type
         -:  185:                       _Value_type;
@@ -206,12 +206,12 @@ function _ZNSt12_Destroy_auxILb1EE9__destroyIPfEEvT_S3_ called 10 returned 100% 
         -:  193:	return std::_Destroy_aux<false>::__destroy(__first, __last);
         -:  194:#endif
         -:  195:      std::_Destroy_aux<__has_trivial_destructor(_Value_type)>::
-       30:  196:	__destroy(__first, __last);
-       30:  197:    }
+       27:  196:	__destroy(__first, __last);
+       27:  197:    }
 ------------------
 _ZSt8_DestroyIPiEvT_S1_:
-function _ZSt8_DestroyIPiEvT_S1_ called 20 returned 100% blocks executed 100%
-       20:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
+function _ZSt8_DestroyIPiEvT_S1_ called 16 returned 100% blocks executed 100%
+       16:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
         -:  183:    {
         -:  184:      typedef typename iterator_traits<_ForwardIterator>::value_type
         -:  185:                       _Value_type;
@@ -225,13 +225,13 @@ function _ZSt8_DestroyIPiEvT_S1_ called 20 returned 100% blocks executed 100%
         -:  193:	return std::_Destroy_aux<false>::__destroy(__first, __last);
         -:  194:#endif
         -:  195:      std::_Destroy_aux<__has_trivial_destructor(_Value_type)>::
-       20:  196:	__destroy(__first, __last);
-call    0 returned 20
-       20:  197:    }
+       16:  196:	__destroy(__first, __last);
+call    0 returned 16
+       16:  197:    }
 ------------------
 _ZSt8_DestroyIPfEvT_S1_:
-function _ZSt8_DestroyIPfEvT_S1_ called 10 returned 100% blocks executed 100%
-       10:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
+function _ZSt8_DestroyIPfEvT_S1_ called 11 returned 100% blocks executed 100%
+       11:  182:    _Destroy(_ForwardIterator __first, _ForwardIterator __last)
         -:  183:    {
         -:  184:      typedef typename iterator_traits<_ForwardIterator>::value_type
         -:  185:                       _Value_type;
@@ -245,9 +245,9 @@ function _ZSt8_DestroyIPfEvT_S1_ called 10 returned 100% blocks executed 100%
         -:  193:	return std::_Destroy_aux<false>::__destroy(__first, __last);
         -:  194:#endif
         -:  195:      std::_Destroy_aux<__has_trivial_destructor(_Value_type)>::
-       10:  196:	__destroy(__first, __last);
-call    0 returned 10
-       10:  197:    }
+       11:  196:	__destroy(__first, __last);
+call    0 returned 11
+       11:  197:    }
 ------------------
         -:  198:
         -:  199:  template<bool>

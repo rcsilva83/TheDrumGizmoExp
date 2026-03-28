@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/stl_tree.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// RB tree implementation -*- C++ -*-
         -:    2:
@@ -147,12 +147,12 @@
         -:  143:    {
         -:  144:      _Key_compare		_M_key_compare;
         -:  145:
-function _ZNSt20_Rb_tree_key_compareISt4lessINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEEC2Ev called 10 returned 100% blocks executed 100%
-       10:  146:      _Rb_tree_key_compare()
+function _ZNSt20_Rb_tree_key_compareISt4lessINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEEC2Ev called 8 returned 100% blocks executed 100%
+        8:  146:      _Rb_tree_key_compare()
         -:  147:      _GLIBCXX_NOEXCEPT_IF(
         -:  148:	is_nothrow_default_constructible<_Key_compare>::value)
         -:  149:      : _M_key_compare()
-       10:  150:      { }
+        8:  150:      { }
         -:  151:
         -:  152:      _Rb_tree_key_compare(const _Key_compare& __comp)
         -:  153:      : _M_key_compare(__comp)
@@ -239,10 +239,10 @@ function _ZNSt15_Rb_tree_header8_M_resetEv called 0 returned 0% blocks executed 
         -:  231:      __gnu_cxx::__aligned_membuf<_Val> _M_storage;
         -:  232:
         -:  233:      _Val*
-function _ZNSt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileEE9_M_valptrEv called 1576 returned 100% blocks executed 100%
-     1576:  234:      _M_valptr()
-     1576:  235:      { return _M_storage._M_ptr(); }
-call    0 returned 1576
+function _ZNSt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileEE9_M_valptrEv called 6 returned 100% blocks executed 100%
+        6:  234:      _M_valptr()
+        6:  235:      { return _M_storage._M_ptr(); }
+call    0 returned 6
         -:  236:
         -:  237:      const _Val*
         -:  238:      _M_valptr() const
@@ -556,9 +556,9 @@ call    0 returned 1576
         -:  546:      typedef _Alloc 				allocator_type;
         -:  547:
         -:  548:      _Node_allocator&
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE21_M_get_Node_allocatorEv called 1064 returned 100% blocks executed 100%
-     1064:  549:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
-     1064:  550:      { return this->_M_impl; }
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE21_M_get_Node_allocatorEv called 8 returned 100% blocks executed 100%
+        8:  549:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
+        8:  550:      { return this->_M_impl; }
         -:  551:
         -:  552:      const _Node_allocator&
         -:  553:      _M_get_Node_allocator() const _GLIBCXX_NOEXCEPT
@@ -574,10 +574,10 @@ function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4p
         -:  563:      { return _Alloc_traits::allocate(_M_get_Node_allocator(), 1); }
         -:  564:
         -:  565:      void
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE11_M_put_nodeEPSt13_Rb_tree_nodeIS9_E called 266 returned 100% blocks executed 100%
-      266:  566:      _M_put_node(_Link_type __p) _GLIBCXX_NOEXCEPT
-      266:  567:      { _Alloc_traits::deallocate(_M_get_Node_allocator(), __p, 1); }
-call    0 returned 266
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE11_M_put_nodeEPSt13_Rb_tree_nodeIS9_E called 2 returned 100% blocks executed 100%
+        2:  566:      _M_put_node(_Link_type __p) _GLIBCXX_NOEXCEPT
+        2:  567:      { _Alloc_traits::deallocate(_M_get_Node_allocator(), __p, 1); }
+call    0 returned 2
         -:  568:
         -:  569:#if __cplusplus < 201103L
         -:  570:      void
@@ -630,28 +630,28 @@ call    0 returned 266
         -:  617:#endif
         -:  618:
         -:  619:      void
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE15_M_destroy_nodeEPSt13_Rb_tree_nodeIS9_E called 266 returned 100% blocks executed 100%
-      266:  620:      _M_destroy_node(_Link_type __p) _GLIBCXX_NOEXCEPT
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE15_M_destroy_nodeEPSt13_Rb_tree_nodeIS9_E called 2 returned 100% blocks executed 100%
+        2:  620:      _M_destroy_node(_Link_type __p) _GLIBCXX_NOEXCEPT
         -:  621:      {
         -:  622:#if __cplusplus < 201103L
         -:  623:	get_allocator().destroy(__p->_M_valptr());
         -:  624:#else
-      266:  625:	_Alloc_traits::destroy(_M_get_Node_allocator(), __p->_M_valptr());
-call    0 returned 266
-call    1 returned 266
-      266:  626:	__p->~_Rb_tree_node<_Val>();
+        2:  625:	_Alloc_traits::destroy(_M_get_Node_allocator(), __p->_M_valptr());
+call    0 returned 2
+call    1 returned 2
+        2:  626:	__p->~_Rb_tree_node<_Val>();
         -:  627:#endif
-      266:  628:      }
+        2:  628:      }
         -:  629:
         -:  630:      void
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE12_M_drop_nodeEPSt13_Rb_tree_nodeIS9_E called 266 returned 100% blocks executed 100%
-      266:  631:      _M_drop_node(_Link_type __p) _GLIBCXX_NOEXCEPT
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE12_M_drop_nodeEPSt13_Rb_tree_nodeIS9_E called 2 returned 100% blocks executed 100%
+        2:  631:      _M_drop_node(_Link_type __p) _GLIBCXX_NOEXCEPT
         -:  632:      {
-      266:  633:	_M_destroy_node(__p);
-call    0 returned 266
-      266:  634:	_M_put_node(__p);
-call    0 returned 266
-      266:  635:      }
+        2:  633:	_M_destroy_node(__p);
+call    0 returned 2
+        2:  634:	_M_put_node(__p);
+call    0 returned 2
+        2:  635:      }
         -:  636:
         -:  637:      template<bool _MoveValue, typename _NodeGen>
         -:  638:	_Link_type
@@ -685,15 +685,15 @@ call    0 returned 266
         -:  666:	{
         -:  667:	  typedef _Rb_tree_key_compare<_Key_compare> _Base_key_compare;
         -:  668:
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE13_Rb_tree_implISD_Lb1EEC2Ev called 10 returned 100% blocks executed 100%
-       10:  669:	  _Rb_tree_impl()
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE13_Rb_tree_implISD_Lb1EEC2Ev called 8 returned 100% blocks executed 100%
+        8:  669:	  _Rb_tree_impl()
         -:  670:	    _GLIBCXX_NOEXCEPT_IF(
         -:  671:		is_nothrow_default_constructible<_Node_allocator>::value
         -:  672:		&& is_nothrow_default_constructible<_Base_key_compare>::value )
-       10:  673:	  : _Node_allocator()
-call    0 returned 10
-call    1 returned 10
-       10:  674:	  { }
+        8:  673:	  : _Node_allocator()
+call    0 returned 8
+call    1 returned 8
+        8:  674:	  { }
         -:  675:
         -:  676:	  _Rb_tree_impl(const _Rb_tree_impl& __x)
         -:  677:	  : _Node_allocator(_Alloc_traits::_S_select_on_copy(__x))
@@ -755,15 +755,15 @@ call    1 returned 10
         -:  733:      { return this->_M_impl._M_header._M_right; }
         -:  734:
         -:  735:      _Link_type
-function _ZNKSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE9_M_mbeginEv called 1320 returned 100% blocks executed 100%
-     1320:  736:      _M_mbegin() const _GLIBCXX_NOEXCEPT
-     1320:  737:      { return static_cast<_Link_type>(this->_M_impl._M_header._M_parent); }
+function _ZNKSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE9_M_mbeginEv called 12 returned 100% blocks executed 100%
+       12:  736:      _M_mbegin() const _GLIBCXX_NOEXCEPT
+       12:  737:      { return static_cast<_Link_type>(this->_M_impl._M_header._M_parent); }
         -:  738:
         -:  739:      _Link_type
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_M_beginEv called 1320 returned 100% blocks executed 100%
-     1320:  740:      _M_begin() _GLIBCXX_NOEXCEPT
-     1320:  741:      { return _M_mbegin(); }
-call    0 returned 1320
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_M_beginEv called 12 returned 100% blocks executed 100%
+       12:  740:      _M_begin() _GLIBCXX_NOEXCEPT
+       12:  741:      { return _M_mbegin(); }
+call    0 returned 12
         -:  742:
         -:  743:      _Const_Link_type
         -:  744:      _M_begin() const _GLIBCXX_NOEXCEPT
@@ -803,18 +803,18 @@ call    0 returned 1320
         -:  778:      }
         -:  779:
         -:  780:      static _Link_type
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE7_S_leftEPSt18_Rb_tree_node_base called 778 returned 100% blocks executed 100%
-      778:  781:      _S_left(_Base_ptr __x) _GLIBCXX_NOEXCEPT
-      778:  782:      { return static_cast<_Link_type>(__x->_M_left); }
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE7_S_leftEPSt18_Rb_tree_node_base called 2 returned 100% blocks executed 100%
+        2:  781:      _S_left(_Base_ptr __x) _GLIBCXX_NOEXCEPT
+        2:  782:      { return static_cast<_Link_type>(__x->_M_left); }
         -:  783:
         -:  784:      static _Const_Link_type
         -:  785:      _S_left(_Const_Base_ptr __x) _GLIBCXX_NOEXCEPT
         -:  786:      { return static_cast<_Const_Link_type>(__x->_M_left); }
         -:  787:
         -:  788:      static _Link_type
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_S_rightEPSt18_Rb_tree_node_base called 0 returned 0% blocks executed 0%
-    #####:  789:      _S_right(_Base_ptr __x) _GLIBCXX_NOEXCEPT
-    #####:  790:      { return static_cast<_Link_type>(__x->_M_right); }
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_S_rightEPSt18_Rb_tree_node_base called 2 returned 100% blocks executed 100%
+        2:  789:      _S_right(_Base_ptr __x) _GLIBCXX_NOEXCEPT
+        2:  790:      { return static_cast<_Link_type>(__x->_M_right); }
         -:  791:
         -:  792:      static _Const_Link_type
         -:  793:      _S_right(_Const_Base_ptr __x) _GLIBCXX_NOEXCEPT
@@ -954,9 +954,9 @@ function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4p
         -:  927:#if __cplusplus < 201103L
         -:  928:      _Rb_tree() { }
         -:  929:#else
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EEC2Ev called 10 returned 100% blocks executed 100%
-       10:  930:      _Rb_tree() = default;
-call    0 returned 10
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EEC2Ev called 8 returned 100% blocks executed 100%
+        8:  930:      _Rb_tree() = default;
+call    0 returned 8
         -:  931:#endif
         -:  932:
         -:  933:      _Rb_tree(const _Compare& __comp,
@@ -1011,12 +1011,12 @@ call    0 returned 10
         -:  982:      { }
         -:  983:#endif
         -:  984:
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EED2Ev called 10 returned 100% blocks executed 100%
-       10:  985:      ~_Rb_tree() _GLIBCXX_NOEXCEPT
-       10:  986:      { _M_erase(_M_begin()); }
-call    0 returned 10
-call    1 returned 10
-call    2 returned 10
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EED2Ev called 8 returned 100% blocks executed 100%
+        8:  985:      ~_Rb_tree() _GLIBCXX_NOEXCEPT
+        8:  986:      { _M_erase(_M_begin()); }
+call    0 returned 8
+call    1 returned 8
+call    2 returned 8
         -:  987:
         -:  988:      _Rb_tree&
         -:  989:      operator=(const _Rb_tree& __x);
@@ -1960,23 +1960,23 @@ call    2 returned 10
         -: 1927:  template<typename _Key, typename _Val, typename _KeyOfValue,
         -: 1928:	   typename _Compare, typename _Alloc>
         -: 1929:    void
-function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_M_eraseEPSt13_Rb_tree_nodeIS9_E called 10 returned 100% blocks executed 38%
+function _ZNSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_14AudioCacheFileESt10_Select1stIS9_ESt4lessIS5_ESaIS9_EE8_M_eraseEPSt13_Rb_tree_nodeIS9_E called 10 returned 100% blocks executed 100%
        10: 1930:    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
         -: 1931:    _M_erase(_Link_type __x)
         -: 1932:    {
         -: 1933:      // Erase without rebalancing.
-       10: 1934:      while (__x != 0)
-branch  0 taken 0
+       12: 1934:      while (__x != 0)
+branch  0 taken 2
 branch  1 taken 10 (fallthrough)
         -: 1935:	{
-    #####: 1936:	  _M_erase(_S_right(__x));
-call    0 never executed
-call    1 never executed
-    #####: 1937:	  _Link_type __y = _S_left(__x);
-call    0 never executed
-    #####: 1938:	  _M_drop_node(__x);
-call    0 never executed
-    #####: 1939:	  __x = __y;
+        2: 1936:	  _M_erase(_S_right(__x));
+call    0 returned 2
+call    1 returned 2
+        2: 1937:	  _Link_type __y = _S_left(__x);
+call    0 returned 2
+        2: 1938:	  _M_drop_node(__x);
+call    0 returned 2
+        2: 1939:	  __x = __y;
         -: 1940:	}
        10: 1941:    }
         -: 1942:

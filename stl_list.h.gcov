@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/stl_list.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// List implementation -*- C++ -*-
         -:    2:
@@ -111,10 +111,10 @@
         -:  107:      std::size_t _M_size;
         -:  108:#endif
         -:  109:
-function _ZNSt8__detail17_List_node_headerC2Ev called 0 returned 0% blocks executed 0%
-    #####:  110:      _List_node_header() _GLIBCXX_NOEXCEPT
-    #####:  111:      { _M_init(); }
-call    0 never executed
+function _ZNSt8__detail17_List_node_headerC2Ev called 15 returned 100% blocks executed 100%
+       15:  110:      _List_node_header() _GLIBCXX_NOEXCEPT
+       15:  111:      { _M_init(); }
+call    0 returned 15
         -:  112:
         -:  113:#if __cplusplus >= 201103L
         -:  114:      _List_node_header(_List_node_header&& __x) noexcept
@@ -153,14 +153,14 @@ call    0 never executed
         -:  147:#endif
         -:  148:
         -:  149:      void
-function _ZNSt8__detail17_List_node_header7_M_initEv called 0 returned 0% blocks executed 0%
-    #####:  150:      _M_init() _GLIBCXX_NOEXCEPT
+function _ZNSt8__detail17_List_node_header7_M_initEv called 27 returned 100% blocks executed 100%
+       27:  150:      _M_init() _GLIBCXX_NOEXCEPT
         -:  151:      {
-    #####:  152:	this->_M_next = this->_M_prev = this;
+       27:  152:	this->_M_next = this->_M_prev = this;
         -:  153:#if _GLIBCXX_USE_CXX11_ABI
-    #####:  154:	this->_M_size = 0;
+       27:  154:	this->_M_size = 0;
         -:  155:#endif
-    #####:  156:      }
+       27:  156:      }
         -:  157:
         -:  158:    private:
         -:  159:      _List_node_base* _M_base() { return this; }
@@ -242,21 +242,21 @@ function _ZNSt8__detail17_List_node_header7_M_initEv called 0 returned 0% blocks
         -:  235:    {
         -:  236:#if __cplusplus >= 201103L
         -:  237:      __gnu_cxx::__aligned_membuf<_Tp> _M_storage;
-    42525:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
+       19:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
 ------------------
 _ZNSt10_List_nodeI12CacheChannelE9_M_valptrEv:
-function _ZNSt10_List_nodeI12CacheChannelE9_M_valptrEv called 30168 returned 100% blocks executed 100%
-    30168:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
-call    0 returned 30168
+function _ZNSt10_List_nodeI12CacheChannelE9_M_valptrEv called 15 returned 100% blocks executed 100%
+       15:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
+call    0 returned 15
 ------------------
 _ZNSt10_List_nodeI10CacheEventE9_M_valptrEv:
-function _ZNSt10_List_nodeI10CacheEventE9_M_valptrEv called 12357 returned 100% blocks executed 100%
-    12357:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
-call    0 returned 12357
+function _ZNSt10_List_nodeI10CacheEventE9_M_valptrEv called 4 returned 100% blocks executed 100%
+        4:  238:      _Tp*       _M_valptr()       { return _M_storage._M_ptr(); }
+call    0 returned 4
 ------------------
-function _ZNKSt10_List_nodeI12CacheChannelE9_M_valptrEv called 30162 returned 100% blocks executed 100%
-    30162:  239:      _Tp const* _M_valptr() const { return _M_storage._M_ptr(); }
-call    0 returned 30162
+function _ZNKSt10_List_nodeI12CacheChannelE9_M_valptrEv called 12 returned 100% blocks executed 100%
+       12:  239:      _Tp const* _M_valptr() const { return _M_storage._M_ptr(); }
+call    0 returned 12
         -:  240:#else
         -:  241:      _Tp _M_data;
         -:  242:      _Tp*       _M_valptr()       { return std::__addressof(_M_data); }
@@ -285,18 +285,18 @@ call    0 returned 30162
         -:  265:      : _M_node() { }
         -:  266:
         -:  267:      explicit
-    49848:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
-    49848:  269:      : _M_node(__x) { }
+       51:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
+       51:  269:      : _M_node(__x) { }
 ------------------
 _ZNSt14_List_iteratorI10CacheEventEC2EPNSt8__detail15_List_node_baseE:
-function _ZNSt14_List_iteratorI10CacheEventEC2EPNSt8__detail15_List_node_baseE called 19680 returned 100% blocks executed 100%
-    19680:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
-    19680:  269:      : _M_node(__x) { }
+function _ZNSt14_List_iteratorI10CacheEventEC2EPNSt8__detail15_List_node_baseE called 31 returned 100% blocks executed 100%
+       31:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
+       31:  269:      : _M_node(__x) { }
 ------------------
 _ZNSt14_List_iteratorI12CacheChannelEC2EPNSt8__detail15_List_node_baseE:
-function _ZNSt14_List_iteratorI12CacheChannelEC2EPNSt8__detail15_List_node_baseE called 30168 returned 100% blocks executed 100%
-    30168:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
-    30168:  269:      : _M_node(__x) { }
+function _ZNSt14_List_iteratorI12CacheChannelEC2EPNSt8__detail15_List_node_baseE called 20 returned 100% blocks executed 100%
+       20:  268:      _List_iterator(__detail::_List_node_base* __x) _GLIBCXX_NOEXCEPT
+       20:  269:      : _M_node(__x) { }
 ------------------
         -:  270:
         -:  271:      _Self
@@ -306,20 +306,20 @@ function _ZNSt14_List_iteratorI12CacheChannelEC2EPNSt8__detail15_List_node_baseE
         -:  275:      // Must downcast from _List_node_base to _List_node to get to value.
         -:  276:      _GLIBCXX_NODISCARD
         -:  277:      reference
-    4289*:  278:      operator*() const _GLIBCXX_NOEXCEPT
-    4289*:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
+        3:  278:      operator*() const _GLIBCXX_NOEXCEPT
+        3:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
 ------------------
 _ZNKSt14_List_iteratorI12CacheChannelEdeEv:
-function _ZNKSt14_List_iteratorI12CacheChannelEdeEv called 0 returned 0% blocks executed 0%
-    #####:  278:      operator*() const _GLIBCXX_NOEXCEPT
-    #####:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
-call    0 never executed
+function _ZNKSt14_List_iteratorI12CacheChannelEdeEv called 1 returned 100% blocks executed 100%
+        1:  278:      operator*() const _GLIBCXX_NOEXCEPT
+        1:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
+call    0 returned 1
 ------------------
 _ZNKSt14_List_iteratorI10CacheEventEdeEv:
-function _ZNKSt14_List_iteratorI10CacheEventEdeEv called 4289 returned 100% blocks executed 100%
-     4289:  278:      operator*() const _GLIBCXX_NOEXCEPT
-     4289:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
-call    0 returned 4289
+function _ZNKSt14_List_iteratorI10CacheEventEdeEv called 2 returned 100% blocks executed 100%
+        2:  278:      operator*() const _GLIBCXX_NOEXCEPT
+        2:  279:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
+call    0 returned 2
 ------------------
         -:  280:
         -:  281:      _GLIBCXX_NODISCARD
@@ -328,26 +328,26 @@ call    0 returned 4289
         -:  284:      { return static_cast<_Node*>(_M_node)->_M_valptr(); }
         -:  285:
         -:  286:      _Self&
-     259*:  287:      operator++() _GLIBCXX_NOEXCEPT
+       1*:  287:      operator++() _GLIBCXX_NOEXCEPT
         -:  288:      {
-     259*:  289:	_M_node = _M_node->_M_next;
-     259*:  290:	return *this;
+       1*:  289:	_M_node = _M_node->_M_next;
+       1*:  290:	return *this;
         -:  291:      }
 ------------------
 _ZNSt14_List_iteratorI12CacheChannelEppEv:
-function _ZNSt14_List_iteratorI12CacheChannelEppEv called 0 returned 0% blocks executed 0%
+function _ZNSt14_List_iteratorI12CacheChannelEppEv called 1 returned 100% blocks executed 100%
+        1:  287:      operator++() _GLIBCXX_NOEXCEPT
+        -:  288:      {
+        1:  289:	_M_node = _M_node->_M_next;
+        1:  290:	return *this;
+        -:  291:      }
+------------------
+_ZNSt14_List_iteratorI10CacheEventEppEv:
+function _ZNSt14_List_iteratorI10CacheEventEppEv called 0 returned 0% blocks executed 0%
     #####:  287:      operator++() _GLIBCXX_NOEXCEPT
         -:  288:      {
     #####:  289:	_M_node = _M_node->_M_next;
     #####:  290:	return *this;
-        -:  291:      }
-------------------
-_ZNSt14_List_iteratorI10CacheEventEppEv:
-function _ZNSt14_List_iteratorI10CacheEventEppEv called 259 returned 100% blocks executed 100%
-      259:  287:      operator++() _GLIBCXX_NOEXCEPT
-        -:  288:      {
-      259:  289:	_M_node = _M_node->_M_next;
-      259:  290:	return *this;
         -:  291:      }
 ------------------
         -:  292:
@@ -382,18 +382,18 @@ function _ZNSt14_List_iteratorI10CacheEventEppEv called 259 returned 100% blocks
         -:  321:#if __cpp_impl_three_way_comparison < 201907L
         -:  322:      _GLIBCXX_NODISCARD
         -:  323:      friend bool
-    4052*:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
-    4052*:  325:      { return __x._M_node != __y._M_node; }
+       16:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
+       16:  325:      { return __x._M_node != __y._M_node; }
 ------------------
 _ZStneRKSt14_List_iteratorI12CacheChannelES3_:
-function _ZStneRKSt14_List_iteratorI12CacheChannelES3_ called 0 returned 0% blocks executed 0%
-    #####:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
-    #####:  325:      { return __x._M_node != __y._M_node; }
+function _ZStneRKSt14_List_iteratorI12CacheChannelES3_ called 2 returned 100% blocks executed 100%
+        2:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
+        2:  325:      { return __x._M_node != __y._M_node; }
 ------------------
 _ZStneRKSt14_List_iteratorI10CacheEventES3_:
-function _ZStneRKSt14_List_iteratorI10CacheEventES3_ called 4052 returned 100% blocks executed 100%
-     4052:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
-     4052:  325:      { return __x._M_node != __y._M_node; }
+function _ZStneRKSt14_List_iteratorI10CacheEventES3_ called 14 returned 100% blocks executed 100%
+       14:  324:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
+       14:  325:      { return __x._M_node != __y._M_node; }
 ------------------
         -:  326:#endif
         -:  327:
@@ -423,28 +423,28 @@ function _ZStneRKSt14_List_iteratorI10CacheEventES3_ called 4052 returned 100% b
         -:  351:      : _M_node() { }
         -:  352:
         -:  353:      explicit
-function _ZNSt20_List_const_iteratorI12CacheChannelEC2EPKNSt8__detail15_List_node_baseE called 61368 returned 100% blocks executed 100%
-    61368:  354:      _List_const_iterator(const __detail::_List_node_base* __x)
+function _ZNSt20_List_const_iteratorI12CacheChannelEC2EPKNSt8__detail15_List_node_baseE called 18 returned 100% blocks executed 100%
+       18:  354:      _List_const_iterator(const __detail::_List_node_base* __x)
         -:  355:      _GLIBCXX_NOEXCEPT
-    61368:  356:      : _M_node(__x) { }
+       18:  356:      : _M_node(__x) { }
         -:  357:
-function _ZNSt20_List_const_iteratorI12CacheChannelEC2ERKSt14_List_iteratorIS0_E called 7542 returned 100% blocks executed 100%
-     7542:  358:      _List_const_iterator(const iterator& __x) _GLIBCXX_NOEXCEPT
-     7542:  359:      : _M_node(__x._M_node) { }
+function _ZNSt20_List_const_iteratorI12CacheChannelEC2ERKSt14_List_iteratorIS0_E called 4 returned 100% blocks executed 100%
+        4:  358:      _List_const_iterator(const iterator& __x) _GLIBCXX_NOEXCEPT
+        4:  359:      : _M_node(__x._M_node) { }
         -:  360:
         -:  361:      iterator
-function _ZNKSt20_List_const_iteratorI12CacheChannelE13_M_const_castEv called 7542 returned 100% blocks executed 100%
-     7542:  362:      _M_const_cast() const _GLIBCXX_NOEXCEPT
-     7542:  363:      { return iterator(const_cast<__detail::_List_node_base*>(_M_node)); }
-call    0 returned 7542
+function _ZNKSt20_List_const_iteratorI12CacheChannelE13_M_const_castEv called 4 returned 100% blocks executed 100%
+        4:  362:      _M_const_cast() const _GLIBCXX_NOEXCEPT
+        4:  363:      { return iterator(const_cast<__detail::_List_node_base*>(_M_node)); }
+call    0 returned 4
         -:  364:
         -:  365:      // Must downcast from List_node_base to _List_node to get to value.
         -:  366:      _GLIBCXX_NODISCARD
         -:  367:      reference
-function _ZNKSt20_List_const_iteratorI12CacheChannelEdeEv called 7542 returned 100% blocks executed 100%
-     7542:  368:      operator*() const _GLIBCXX_NOEXCEPT
-     7542:  369:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
-call    0 returned 7542
+function _ZNKSt20_List_const_iteratorI12CacheChannelEdeEv called 3 returned 100% blocks executed 100%
+        3:  368:      operator*() const _GLIBCXX_NOEXCEPT
+        3:  369:      { return *static_cast<_Node*>(_M_node)->_M_valptr(); }
+call    0 returned 3
         -:  370:
         -:  371:      _GLIBCXX_NODISCARD
         -:  372:      pointer
@@ -452,11 +452,11 @@ call    0 returned 7542
         -:  374:      { return static_cast<_Node*>(_M_node)->_M_valptr(); }
         -:  375:
         -:  376:      _Self&
-function _ZNSt20_List_const_iteratorI12CacheChannelEppEv called 22622 returned 100% blocks executed 100%
-    22622:  377:      operator++() _GLIBCXX_NOEXCEPT
+function _ZNSt20_List_const_iteratorI12CacheChannelEppEv called 9 returned 100% blocks executed 100%
+        9:  377:      operator++() _GLIBCXX_NOEXCEPT
         -:  378:      {
-    22622:  379:	_M_node = _M_node->_M_next;
-    22622:  380:	return *this;
+        9:  379:	_M_node = _M_node->_M_next;
+        9:  380:	return *this;
         -:  381:      }
         -:  382:
         -:  383:      _Self
@@ -490,9 +490,9 @@ function _ZNSt20_List_const_iteratorI12CacheChannelEppEv called 22622 returned 1
         -:  411:#if __cpp_impl_three_way_comparison < 201907L
         -:  412:      _GLIBCXX_NODISCARD
         -:  413:      friend bool
-function _ZStneRKSt20_List_const_iteratorI12CacheChannelES3_ called 45766 returned 100% blocks executed 100%
-    45766:  414:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
-    45766:  415:      { return __x._M_node != __y._M_node; }
+function _ZStneRKSt20_List_const_iteratorI12CacheChannelES3_ called 15 returned 100% blocks executed 100%
+       15:  414:      operator!=(const _Self& __x, const _Self& __y) _GLIBCXX_NOEXCEPT
+       15:  415:      { return __x._M_node != __y._M_node; }
         -:  416:#endif
         -:  417:
         -:  418:      // The only member points to the %list element.
@@ -532,26 +532,26 @@ function _ZStneRKSt20_List_const_iteratorI12CacheChannelES3_ called 45766 return
         -:  452:      {
         -:  453:	__detail::_List_node_header _M_node;
         -:  454:
-     8074:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
+       12:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
         -:  456:	    is_nothrow_default_constructible<_Node_alloc_type>::value)
-     8074:  457:	: _Node_alloc_type()
-     8074:  458:	{ }
+       12:  457:	: _Node_alloc_type()
+       12:  458:	{ }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE10_List_implC2Ev:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE10_List_implC2Ev called 8064 returned 100% blocks executed 100%
-     8064:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE10_List_implC2Ev called 4 returned 100% blocks executed 100%
+        4:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
         -:  456:	    is_nothrow_default_constructible<_Node_alloc_type>::value)
-     8064:  457:	: _Node_alloc_type()
-call    0 returned 8064
-     8064:  458:	{ }
+        4:  457:	: _Node_alloc_type()
+call    0 returned 4
+        4:  458:	{ }
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE10_List_implC2Ev:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE10_List_implC2Ev called 10 returned 100% blocks executed 100%
-       10:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE10_List_implC2Ev called 8 returned 100% blocks executed 100%
+        8:  455:	_List_impl() _GLIBCXX_NOEXCEPT_IF(
         -:  456:	    is_nothrow_default_constructible<_Node_alloc_type>::value)
-       10:  457:	: _Node_alloc_type()
-call    0 returned 10
-       10:  458:	{ }
+        8:  457:	: _Node_alloc_type()
+call    0 returned 8
+        8:  458:	{ }
 ------------------
         -:  459:
         -:  460:	_List_impl(const _Node_alloc_type& __a) _GLIBCXX_NOEXCEPT
@@ -565,37 +565,37 @@ call    0 returned 10
         -:  468:	: _Node_alloc_type(std::move(__a)), _M_node(std::move(__x._M_node))
         -:  469:	{ }
         -:  470:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE10_List_implC2EOSaISt10_List_nodeIS1_EE called 8064 returned 100% blocks executed 100%
-     8064:  471:	_List_impl(_Node_alloc_type&& __a) noexcept
-    16128:  472:	: _Node_alloc_type(std::move(__a))
-call    0 returned 8064
-call    1 returned 8064
-     8064:  473:	{ }
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE10_List_implC2EOSaISt10_List_nodeIS1_EE called 3 returned 100% blocks executed 100%
+        3:  471:	_List_impl(_Node_alloc_type&& __a) noexcept
+        6:  472:	: _Node_alloc_type(std::move(__a))
+call    0 returned 3
+call    1 returned 3
+        3:  473:	{ }
         -:  474:#endif
         -:  475:      };
         -:  476:
         -:  477:      _List_impl _M_impl;
         -:  478:
         -:  479:#if _GLIBCXX_USE_CXX11_ABI
-function _ZNKSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_get_sizeEv called 0 returned 0% blocks executed 0%
-    #####:  480:      size_t _M_get_size() const { return _M_impl._M_node._M_size; }
+function _ZNKSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_get_sizeEv called 1 returned 100% blocks executed 100%
+        1:  480:      size_t _M_get_size() const { return _M_impl._M_node._M_size; }
         -:  481:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_set_sizeEm called 0 returned 0% blocks executed 0%
-    #####:  482:      void _M_set_size(size_t __n) { _M_impl._M_node._M_size = __n; }
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_set_sizeEm called 1 returned 100% blocks executed 100%
+        1:  482:      void _M_set_size(size_t __n) { _M_impl._M_node._M_size = __n; }
         -:  483:
-    19118:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
+        9:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_inc_sizeEm:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_inc_sizeEm called 4034 returned 100% blocks executed 100%
-     4034:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_inc_sizeEm called 1 returned 100% blocks executed 100%
+        1:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_inc_sizeEm:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_inc_sizeEm called 15084 returned 100% blocks executed 100%
-    15084:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_inc_sizeEm called 8 returned 100% blocks executed 100%
+        8:  484:      void _M_inc_size(size_t __n) { _M_impl._M_node._M_size += __n; }
 ------------------
         -:  485:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_dec_sizeEm called 4030 returned 100% blocks executed 100%
-     4030:  486:      void _M_dec_size(size_t __n) { _M_impl._M_node._M_size -= __n; }
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_dec_sizeEm called 1 returned 100% blocks executed 100%
+        1:  486:      void _M_dec_size(size_t __n) { _M_impl._M_node._M_size -= __n; }
         -:  487:
         -:  488:# if !_GLIBCXX_INLINE_VERSION
         -:  489:      size_t
@@ -626,74 +626,74 @@ function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_dec_sizeEm called 40
         -:  514:#endif
         -:  515:
         -:  516:      typename _Node_alloc_traits::pointer
-    19118:  517:      _M_get_node()
-    38236:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
+        8:  517:      _M_get_node()
+       16:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_get_nodeEv:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_get_nodeEv called 4034 returned 100% blocks executed 100%
-     4034:  517:      _M_get_node()
-     8068:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
-call    0 returned 4034
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_get_nodeEv called 1 returned 100% blocks executed 100%
+        1:  517:      _M_get_node()
+        2:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
+call    0 returned 1
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_get_nodeEv:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_get_nodeEv called 15084 returned 100% blocks executed 100%
-    15084:  517:      _M_get_node()
-    30168:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
-call    0 returned 15084
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_get_nodeEv called 7 returned 100% blocks executed 100%
+        7:  517:      _M_get_node()
+       14:  518:      { return _Node_alloc_traits::allocate(_M_impl, 1); }
+call    0 returned 7
 ------------------
         -:  519:
         -:  520:      void
-    19118:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
-    19118:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
+        8:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
+        8:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E called 15084 returned 100% blocks executed 100%
-    15084:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
-    15084:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
-call    0 returned 15084
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E called 7 returned 100% blocks executed 100%
+        7:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
+        7:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
+call    0 returned 7
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E called 4034 returned 100% blocks executed 100%
-     4034:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
-     4034:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
-call    0 returned 4034
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE11_M_put_nodeEPSt10_List_nodeIS1_E called 1 returned 100% blocks executed 100%
+        1:  521:      _M_put_node(typename _Node_alloc_traits::pointer __p) _GLIBCXX_NOEXCEPT
+        1:  522:      { _Node_alloc_traits::deallocate(_M_impl, __p, 1); }
+call    0 returned 1
 ------------------
         -:  523:
         -:  524:  public:
         -:  525:      typedef _Alloc allocator_type;
         -:  526:
         -:  527:      _Node_alloc_type&
-    38236:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
-    38236:  529:      { return _M_impl; }
+       17:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
+       17:  529:      { return _M_impl; }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE21_M_get_Node_allocatorEv:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE21_M_get_Node_allocatorEv called 30168 returned 100% blocks executed 100%
-    30168:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
-    30168:  529:      { return _M_impl; }
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE21_M_get_Node_allocatorEv called 15 returned 100% blocks executed 100%
+       15:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
+       15:  529:      { return _M_impl; }
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE21_M_get_Node_allocatorEv:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE21_M_get_Node_allocatorEv called 8068 returned 100% blocks executed 100%
-     8068:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
-     8068:  529:      { return _M_impl; }
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE21_M_get_Node_allocatorEv called 2 returned 100% blocks executed 100%
+        2:  528:      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
+        2:  529:      { return _M_impl; }
 ------------------
         -:  530:
         -:  531:      const _Node_alloc_type&
-function _ZNKSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE21_M_get_Node_allocatorEv called 8064 returned 100% blocks executed 100%
-     8064:  532:      _M_get_Node_allocator() const _GLIBCXX_NOEXCEPT
-     8064:  533:      { return _M_impl; }
+function _ZNKSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE21_M_get_Node_allocatorEv called 4 returned 100% blocks executed 100%
+        4:  532:      _M_get_Node_allocator() const _GLIBCXX_NOEXCEPT
+        4:  533:      { return _M_impl; }
         -:  534:
         -:  535:#if __cplusplus >= 201103L
-     8074:  536:      _List_base() = default;
+       12:  536:      _List_base() = default;
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EEC2Ev:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EEC2Ev called 8064 returned 100% blocks executed 100%
-     8064:  536:      _List_base() = default;
-call    0 returned 8064
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EEC2Ev called 4 returned 100% blocks executed 100%
+        4:  536:      _List_base() = default;
+call    0 returned 4
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EEC2Ev:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EEC2Ev called 10 returned 100% blocks executed 100%
-       10:  536:      _List_base() = default;
-call    0 returned 10
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EEC2Ev called 8 returned 100% blocks executed 100%
+        8:  536:      _List_base() = default;
+call    0 returned 8
 ------------------
         -:  537:#else
         -:  538:      _List_base() { }
@@ -722,12 +722,12 @@ call    0 returned 10
         -:  561:      { }
         -:  562:
         -:  563:      // Used when allocator !is_always_equal.
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EEC2EOSaISt10_List_nodeIS1_EE called 8064 returned 100% blocks executed 100%
-     8064:  564:      _List_base(_Node_alloc_type&& __a)
-     8064:  565:      : _M_impl(std::move(__a))
-call    0 returned 8064
-call    1 returned 8064
-     8064:  566:      { }
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EEC2EOSaISt10_List_nodeIS1_EE called 3 returned 100% blocks executed 100%
+        3:  564:      _List_base(_Node_alloc_type&& __a)
+        3:  565:      : _M_impl(std::move(__a))
+call    0 returned 3
+call    1 returned 3
+        3:  566:      { }
         -:  567:
         -:  568:      void
         -:  569:      _M_move_nodes(_List_base&& __x)
@@ -735,32 +735,32 @@ call    1 returned 8064
         -:  571:#endif
         -:  572:
         -:  573:      // This is what actually destroys the list.
-    16138:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
-    16138:  575:      { _M_clear(); }
+       15:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
+       15:  575:      { _M_clear(); }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EED2Ev:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EED2Ev called 16128 returned 100% blocks executed 100%
-    16128:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
-    16128:  575:      { _M_clear(); }
-call    0 returned 16128
-call    1 returned 16128
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EED2Ev called 7 returned 100% blocks executed 100%
+        7:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
+        7:  575:      { _M_clear(); }
+call    0 returned 7
+call    1 returned 7
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EED2Ev:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EED2Ev called 10 returned 100% blocks executed 100%
-       10:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
-       10:  575:      { _M_clear(); }
-call    0 returned 10
-call    1 returned 10
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EED2Ev called 8 returned 100% blocks executed 100%
+        8:  574:      ~_List_base() _GLIBCXX_NOEXCEPT
+        8:  575:      { _M_clear(); }
+call    0 returned 8
+call    1 returned 8
 ------------------
         -:  576:
         -:  577:      void
         -:  578:      _M_clear() _GLIBCXX_NOEXCEPT;
         -:  579:
         -:  580:      void
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE7_M_initEv called 21 returned 100% blocks executed 100%
-       21:  581:      _M_init() _GLIBCXX_NOEXCEPT
-       21:  582:      { this->_M_impl._M_node._M_init(); }
-call    0 returned 21
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE7_M_initEv called 12 returned 100% blocks executed 100%
+       12:  581:      _M_init() _GLIBCXX_NOEXCEPT
+       12:  582:      { this->_M_impl._M_node._M_init(); }
+call    0 returned 12
         -:  583:    };
         -:  584:
         -:  585:  /**
@@ -886,83 +886,83 @@ call    0 returned 21
         -:  705:#else
         -:  706:      template<typename... _Args>
         -:  707:	_Node*
-   19118*:  708:	_M_create_node(_Args&&... __args)
+        8:  708:	_M_create_node(_Args&&... __args)
         -:  709:	{
-   19118*:  710:	  auto __p = this->_M_get_node();
-   19118*:  711:	  auto& __alloc = _M_get_Node_allocator();
-   19118*:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
-   19118*:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
+        8:  710:	  auto __p = this->_M_get_node();
+        8:  711:	  auto& __alloc = _M_get_Node_allocator();
+        8:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
+        8:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
         -:  714:					std::forward<_Args>(__args)...);
-   19118*:  715:	  __guard = nullptr;
-   19118*:  716:	  return __p;
-   19118*:  717:	}
+        8:  715:	  __guard = nullptr;
+        8:  716:	  return __p;
+        8:  717:	}
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRS1_EEEPSt10_List_nodeIS1_EDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRS1_EEEPSt10_List_nodeIS1_EDpOT_ called 0 returned 0% blocks executed 0%
-    #####:  708:	_M_create_node(_Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRS1_EEEPSt10_List_nodeIS1_EDpOT_ called 1 returned 100% blocks executed 100%
+        1:  708:	_M_create_node(_Args&&... __args)
         -:  709:	{
-    #####:  710:	  auto __p = this->_M_get_node();
-call    0 never executed
-branch  1 never executed (fallthrough)
-branch  2 never executed (throw)
-    #####:  711:	  auto& __alloc = _M_get_Node_allocator();
-call    0 never executed
-    #####:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
-call    0 never executed
-    #####:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
-call    0 never executed
-call    1 never executed
+        1:  710:	  auto __p = this->_M_get_node();
+call    0 returned 1
+branch  1 taken 1 (fallthrough)
+branch  2 taken 0 (throw)
+        1:  711:	  auto& __alloc = _M_get_Node_allocator();
+call    0 returned 1
+        1:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
+call    0 returned 1
+        1:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
+call    0 returned 1
+call    1 returned 1
         -:  714:					std::forward<_Args>(__args)...);
-    #####:  715:	  __guard = nullptr;
-call    0 never executed
-    #####:  716:	  return __p;
-    #####:  717:	}
-call    0 never executed
+        1:  715:	  __guard = nullptr;
+call    0 returned 1
+        1:  716:	  return __p;
+        1:  717:	}
+call    0 returned 1
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_ called 4034 returned 100% blocks executed 76%
-     4034:  708:	_M_create_node(_Args&&... __args)
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_ called 1 returned 100% blocks executed 76%
+        1:  708:	_M_create_node(_Args&&... __args)
         -:  709:	{
-     4034:  710:	  auto __p = this->_M_get_node();
-call    0 returned 4034
-branch  1 taken 4034 (fallthrough)
+        1:  710:	  auto __p = this->_M_get_node();
+call    0 returned 1
+branch  1 taken 1 (fallthrough)
 branch  2 taken 0 (throw)
-     4034:  711:	  auto& __alloc = _M_get_Node_allocator();
-call    0 returned 4034
-     4034:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
-call    0 returned 4034
-     4034:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
-call    0 returned 4034
-call    1 returned 4034
+        1:  711:	  auto& __alloc = _M_get_Node_allocator();
+call    0 returned 1
+        1:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
+call    0 returned 1
+        1:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
+call    0 returned 1
+call    1 returned 1
         -:  714:					std::forward<_Args>(__args)...);
-     4034:  715:	  __guard = nullptr;
-call    0 returned 4034
-     4034:  716:	  return __p;
-     4034:  717:	}
-call    0 returned 4034
+        1:  715:	  __guard = nullptr;
+call    0 returned 1
+        1:  716:	  return __p;
+        1:  717:	}
+call    0 returned 1
 call    1 never executed
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_ called 15084 returned 100% blocks executed 100%
-    15084:  708:	_M_create_node(_Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE14_M_create_nodeIJRKS1_EEEPSt10_List_nodeIS1_EDpOT_ called 6 returned 100% blocks executed 100%
+        6:  708:	_M_create_node(_Args&&... __args)
         -:  709:	{
-    15084:  710:	  auto __p = this->_M_get_node();
-call    0 returned 15084
-branch  1 taken 15084 (fallthrough)
+        6:  710:	  auto __p = this->_M_get_node();
+call    0 returned 6
+branch  1 taken 6 (fallthrough)
 branch  2 taken 0 (throw)
-    15084:  711:	  auto& __alloc = _M_get_Node_allocator();
-call    0 returned 15084
-    15084:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
-call    0 returned 15084
-    15084:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
-call    0 returned 15084
-call    1 returned 15084
+        6:  711:	  auto& __alloc = _M_get_Node_allocator();
+call    0 returned 6
+        6:  712:	  __allocated_ptr<_Node_alloc_type> __guard{__alloc, __p};
+call    0 returned 6
+        6:  713:	  _Node_alloc_traits::construct(__alloc, __p->_M_valptr(),
+call    0 returned 6
+call    1 returned 6
         -:  714:					std::forward<_Args>(__args)...);
-    15084:  715:	  __guard = nullptr;
-call    0 returned 15084
-    15084:  716:	  return __p;
-    15084:  717:	}
-call    0 returned 15084
+        6:  715:	  __guard = nullptr;
+call    0 returned 6
+        6:  716:	  return __p;
+        6:  717:	}
+call    0 returned 6
 ------------------
         -:  718:#endif
         -:  719:
@@ -995,17 +995,17 @@ call    0 returned 15084
         -:  746:       *  @brief  Creates a %list with no elements.
         -:  747:       */
         -:  748:#if __cplusplus >= 201103L
-     8074:  749:      list() = default;
+       12:  749:      list() = default;
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2Ev:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2Ev called 8064 returned 100% blocks executed 100%
-     8064:  749:      list() = default;
-call    0 returned 8064
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2Ev called 4 returned 100% blocks executed 100%
+        4:  749:      list() = default;
+call    0 returned 4
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EEC2Ev:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EEC2Ev called 10 returned 100% blocks executed 100%
-       10:  749:      list() = default;
-call    0 returned 10
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EEC2Ev called 8 returned 100% blocks executed 100%
+        8:  749:      list() = default;
+call    0 returned 8
 ------------------
         -:  750:#else
         -:  751:      list() { }
@@ -1068,17 +1068,17 @@ call    0 returned 10
         -:  808:       *  The newly-created %list uses a copy of the allocation object used
         -:  809:       *  by @a __x (unless the allocator traits dictate a different object).
         -:  810:       */
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2ERKS3_ called 8064 returned 100% blocks executed 93%
-     8064:  811:      list(const list& __x)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2ERKS3_ called 2 returned 100% blocks executed 93%
+        2:  811:      list(const list& __x)
         -:  812:      : _Base(_Node_alloc_traits::
-    16128:  813:	      _S_select_on_copy(__x._M_get_Node_allocator()))
-call    0 returned 8064
-call    1 returned 8064
-     8064:  814:      { _M_initialize_dispatch(__x.begin(), __x.end(), __false_type()); }
-call    0 returned 8064
-call    1 returned 8064
-call    2 returned 8064
-branch  3 taken 8064 (fallthrough)
+        4:  813:	      _S_select_on_copy(__x._M_get_Node_allocator()))
+call    0 returned 2
+call    1 returned 2
+        2:  814:      { _M_initialize_dispatch(__x.begin(), __x.end(), __false_type()); }
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
 branch  4 taken 0 (throw)
 call    5 never executed
         -:  815:
@@ -1145,15 +1145,15 @@ call    5 never executed
         -:  876:#if __cplusplus >= 201103L
         -:  877:      template<typename _InputIterator,
         -:  878:	       typename = std::_RequireInputIter<_InputIterator>>
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2ISt14_List_iteratorIS1_EvEET_S7_RKS2_ called 0 returned 0% blocks executed 0%
-    #####:  879:	list(_InputIterator __first, _InputIterator __last,
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EEC2ISt14_List_iteratorIS1_EvEET_S7_RKS2_ called 1 returned 100% blocks executed 88%
+        1:  879:	list(_InputIterator __first, _InputIterator __last,
         -:  880:	     const allocator_type& __a = allocator_type())
-    #####:  881:	: _Base(_Node_alloc_type(__a))
-call    0 never executed
-    #####:  882:	{ _M_initialize_dispatch(__first, __last, __false_type()); }
-call    0 never executed
-branch  1 never executed (fallthrough)
-branch  2 never executed (throw)
+        2:  881:	: _Base(_Node_alloc_type(__a))
+call    0 returned 1
+        1:  882:	{ _M_initialize_dispatch(__first, __last, __false_type()); }
+call    0 returned 1
+branch  1 taken 1 (fallthrough)
+branch  2 taken 0 (throw)
 call    3 never executed
         -:  883:#else
         -:  884:      template<typename _InputIterator>
@@ -1175,17 +1175,17 @@ call    3 never executed
         -:  900:       *  memory is not touched in any way.  Managing the pointer is
         -:  901:       *  the user's responsibility.
         -:  902:       */
-    16138:  903:      ~list() = default;
+       15:  903:      ~list() = default;
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EED2Ev:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EED2Ev called 16128 returned 100% blocks executed 100%
-    16128:  903:      ~list() = default;
-call    0 returned 16128
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EED2Ev called 7 returned 100% blocks executed 100%
+        7:  903:      ~list() = default;
+call    0 returned 7
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EED2Ev:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EED2Ev called 10 returned 100% blocks executed 100%
-       10:  903:      ~list() = default;
-call    0 returned 10
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EED2Ev called 8 returned 100% blocks executed 100%
+        8:  903:      ~list() = default;
+call    0 returned 8
 ------------------
         -:  904:#endif
         -:  905:
@@ -1295,10 +1295,10 @@ call    0 returned 10
         -: 1009:
         -: 1010:      /// Get a copy of the memory allocation object.
         -: 1011:      allocator_type
-function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE13get_allocatorEv called 0 returned 0% blocks executed 0%
-    #####: 1012:      get_allocator() const _GLIBCXX_NOEXCEPT
-    #####: 1013:      { return allocator_type(_Base::_M_get_Node_allocator()); }
-call    0 never executed
+function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE13get_allocatorEv called 1 returned 100% blocks executed 100%
+        1: 1012:      get_allocator() const _GLIBCXX_NOEXCEPT
+        2: 1013:      { return allocator_type(_Base::_M_get_Node_allocator()); }
+call    0 returned 1
         -: 1014:
         -: 1015:      // iterators
         -: 1016:      /**
@@ -1307,20 +1307,20 @@ call    0 never executed
         -: 1019:       */
         -: 1020:      _GLIBCXX_NODISCARD
         -: 1021:      iterator
-   11853*: 1022:      begin() _GLIBCXX_NOEXCEPT
-   11853*: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
+       19: 1022:      begin() _GLIBCXX_NOEXCEPT
+       19: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE5beginEv:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE5beginEv called 0 returned 0% blocks executed 0%
-    #####: 1022:      begin() _GLIBCXX_NOEXCEPT
-    #####: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
-call    0 never executed
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE5beginEv called 3 returned 100% blocks executed 100%
+        3: 1022:      begin() _GLIBCXX_NOEXCEPT
+        3: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
+call    0 returned 3
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EE5beginEv:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5beginEv called 11853 returned 100% blocks executed 100%
-    11853: 1022:      begin() _GLIBCXX_NOEXCEPT
-    11853: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
-call    0 returned 11853
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5beginEv called 16 returned 100% blocks executed 100%
+       16: 1022:      begin() _GLIBCXX_NOEXCEPT
+       16: 1023:      { return iterator(this->_M_impl._M_node._M_next); }
+call    0 returned 16
 ------------------
         -: 1024:
         -: 1025:      /**
@@ -1330,10 +1330,10 @@ call    0 returned 11853
         -: 1029:       */
         -: 1030:      _GLIBCXX_NODISCARD
         -: 1031:      const_iterator
-function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE5beginEv called 23144 returned 100% blocks executed 100%
-    23144: 1032:      begin() const _GLIBCXX_NOEXCEPT
-    23144: 1033:      { return const_iterator(this->_M_impl._M_node._M_next); }
-call    0 returned 23144
+function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE5beginEv called 6 returned 100% blocks executed 100%
+        6: 1032:      begin() const _GLIBCXX_NOEXCEPT
+        6: 1033:      { return const_iterator(this->_M_impl._M_node._M_next); }
+call    0 returned 6
         -: 1034:
         -: 1035:      /**
         -: 1036:       *  Returns a read/write iterator that points one past the last
@@ -1342,20 +1342,20 @@ call    0 returned 23144
         -: 1039:       */
         -: 1040:      _GLIBCXX_NODISCARD
         -: 1041:      iterator
-    22911: 1042:      end() _GLIBCXX_NOEXCEPT
-    22911: 1043:      { return iterator(&this->_M_impl._M_node); }
+       25: 1042:      end() _GLIBCXX_NOEXCEPT
+       25: 1043:      { return iterator(&this->_M_impl._M_node); }
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EE3endEv:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE3endEv called 7827 returned 100% blocks executed 100%
-     7827: 1042:      end() _GLIBCXX_NOEXCEPT
-     7827: 1043:      { return iterator(&this->_M_impl._M_node); }
-call    0 returned 7827
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE3endEv called 15 returned 100% blocks executed 100%
+       15: 1042:      end() _GLIBCXX_NOEXCEPT
+       15: 1043:      { return iterator(&this->_M_impl._M_node); }
+call    0 returned 15
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE3endEv:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE3endEv called 15084 returned 100% blocks executed 100%
-    15084: 1042:      end() _GLIBCXX_NOEXCEPT
-    15084: 1043:      { return iterator(&this->_M_impl._M_node); }
-call    0 returned 15084
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE3endEv called 10 returned 100% blocks executed 100%
+       10: 1042:      end() _GLIBCXX_NOEXCEPT
+       10: 1043:      { return iterator(&this->_M_impl._M_node); }
+call    0 returned 10
 ------------------
         -: 1044:
         -: 1045:      /**
@@ -1365,10 +1365,10 @@ call    0 returned 15084
         -: 1049:       */
         -: 1050:      _GLIBCXX_NODISCARD
         -: 1051:      const_iterator
-function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE3endEv called 38224 returned 100% blocks executed 100%
-    38224: 1052:      end() const _GLIBCXX_NOEXCEPT
-    38224: 1053:      { return const_iterator(&this->_M_impl._M_node); }
-call    0 returned 38224
+function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE3endEv called 12 returned 100% blocks executed 100%
+       12: 1052:      end() const _GLIBCXX_NOEXCEPT
+       12: 1053:      { return const_iterator(&this->_M_impl._M_node); }
+call    0 returned 12
         -: 1054:
         -: 1055:      /**
         -: 1056:       *  Returns a read/write reverse iterator that points to the last
@@ -1458,18 +1458,18 @@ call    0 returned 38224
         -: 1140:       *  end().)
         -: 1141:       */
         -: 1142:      _GLIBCXX_NODISCARD bool
-    4036*: 1143:      empty() const _GLIBCXX_NOEXCEPT
-    4036*: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
+        5: 1143:      empty() const _GLIBCXX_NOEXCEPT
+        5: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
 ------------------
 _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE5emptyEv:
-function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE5emptyEv called 0 returned 0% blocks executed 0%
-    #####: 1143:      empty() const _GLIBCXX_NOEXCEPT
-    #####: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
+function _ZNKSt7__cxx114listI12CacheChannelSaIS1_EE5emptyEv called 2 returned 100% blocks executed 100%
+        2: 1143:      empty() const _GLIBCXX_NOEXCEPT
+        2: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
 ------------------
 _ZNKSt7__cxx114listI10CacheEventSaIS1_EE5emptyEv:
-function _ZNKSt7__cxx114listI10CacheEventSaIS1_EE5emptyEv called 4036 returned 100% blocks executed 100%
-     4036: 1143:      empty() const _GLIBCXX_NOEXCEPT
-     4036: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
+function _ZNKSt7__cxx114listI10CacheEventSaIS1_EE5emptyEv called 3 returned 100% blocks executed 100%
+        3: 1143:      empty() const _GLIBCXX_NOEXCEPT
+        3: 1144:      { return this->_M_impl._M_node._M_next == &this->_M_impl._M_node; }
 ------------------
         -: 1145:
         -: 1146:      /**  Returns the number of elements in the %list.  */
@@ -1531,11 +1531,11 @@ function _ZNKSt7__cxx114listI10CacheEventSaIS1_EE5emptyEv called 4036 returned 1
         -: 1202:       */
         -: 1203:      _GLIBCXX_NODISCARD
         -: 1204:      reference
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5frontEv called 4030 returned 100% blocks executed 100%
-     4030: 1205:      front() _GLIBCXX_NOEXCEPT
-     4030: 1206:      { return *begin(); }
-call    0 returned 4030
-call    1 returned 4030
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5frontEv called 1 returned 100% blocks executed 100%
+        1: 1205:      front() _GLIBCXX_NOEXCEPT
+        1: 1206:      { return *begin(); }
+call    0 returned 1
+call    1 returned 1
         -: 1207:
         -: 1208:      /**
         -: 1209:       *  Returns a read-only (constant) reference to the data at the first
@@ -1620,11 +1620,11 @@ call    1 returned 4030
         -: 1288:       *  called.
         -: 1289:       */
         -: 1290:      void
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9pop_frontEv called 4030 returned 100% blocks executed 100%
-     4030: 1291:      pop_front() _GLIBCXX_NOEXCEPT
-     4030: 1292:      { this->_M_erase(begin()); }
-call    0 returned 4030
-call    1 returned 4030
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9pop_frontEv called 1 returned 100% blocks executed 100%
+        1: 1291:      pop_front() _GLIBCXX_NOEXCEPT
+        1: 1292:      { this->_M_erase(begin()); }
+call    0 returned 1
+call    1 returned 1
         -: 1293:
         -: 1294:      /**
         -: 1295:       *  @brief  Add data to the end of the %list.
@@ -1637,11 +1637,11 @@ call    1 returned 4030
         -: 1302:       *  references.
         -: 1303:       */
         -: 1304:      void
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9push_backERKS1_ called 4034 returned 100% blocks executed 100%
-     4034: 1305:      push_back(const value_type& __x)
-     4034: 1306:      { this->_M_insert(end(), __x); }
-call    0 returned 4034
-call    1 returned 4034
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9push_backERKS1_ called 1 returned 100% blocks executed 100%
+        1: 1305:      push_back(const value_type& __x)
+        1: 1306:      { this->_M_insert(end(), __x); }
+call    0 returned 1
+call    1 returned 1
         -: 1307:
         -: 1308:#if __cplusplus >= 201103L
         -: 1309:      void
@@ -1654,39 +1654,39 @@ call    1 returned 4034
         -: 1316:#else
         -: 1317:	void
         -: 1318:#endif
-    7542*: 1319:	emplace_back(_Args&&... __args)
+        4: 1319:	emplace_back(_Args&&... __args)
         -: 1320:	{
-    7542*: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
+        4: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
         -: 1322:#if __cplusplus > 201402L
         -: 1323:	return back();
         -: 1324:#endif
-    7542*: 1325:	}
+        4: 1325:	}
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRS1_EEEvDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRS1_EEEvDpOT_ called 0 returned 0% blocks executed 0%
-    #####: 1319:	emplace_back(_Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRS1_EEEvDpOT_ called 1 returned 100% blocks executed 100%
+        1: 1319:	emplace_back(_Args&&... __args)
         -: 1320:	{
-    #####: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
-call    0 never executed
-call    1 never executed
-call    2 never executed
+        1: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
+call    0 returned 1
+call    1 returned 1
+call    2 returned 1
         -: 1322:#if __cplusplus > 201402L
         -: 1323:	return back();
         -: 1324:#endif
-    #####: 1325:	}
+        1: 1325:	}
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRKS1_EEEvDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRKS1_EEEvDpOT_ called 7542 returned 100% blocks executed 100%
-     7542: 1319:	emplace_back(_Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE12emplace_backIJRKS1_EEEvDpOT_ called 3 returned 100% blocks executed 100%
+        3: 1319:	emplace_back(_Args&&... __args)
         -: 1320:	{
-     7542: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
-call    0 returned 7542
-call    1 returned 7542
-call    2 returned 7542
+        3: 1321:	  this->_M_insert(end(), std::forward<_Args>(__args)...);
+call    0 returned 3
+call    1 returned 3
+call    2 returned 3
         -: 1322:#if __cplusplus > 201402L
         -: 1323:	return back();
         -: 1324:#endif
-     7542: 1325:	}
+        3: 1325:	}
 ------------------
         -: 1326:#endif
         -: 1327:
@@ -1954,14 +1954,14 @@ call    2 returned 7542
         -: 1589:       *  Managing the pointer is the user's responsibility.
         -: 1590:       */
         -: 1591:      void
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5clearEv called 21 returned 100% blocks executed 100%
-       21: 1592:      clear() _GLIBCXX_NOEXCEPT
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE5clearEv called 12 returned 100% blocks executed 100%
+       12: 1592:      clear() _GLIBCXX_NOEXCEPT
         -: 1593:      {
-       21: 1594:	_Base::_M_clear();
-call    0 returned 21
-       21: 1595:	_Base::_M_init();
-call    0 returned 21
-       21: 1596:      }
+       12: 1594:	_Base::_M_clear();
+call    0 returned 12
+       12: 1595:	_Base::_M_init();
+call    0 returned 12
+       12: 1596:      }
         -: 1597:
         -: 1598:      // [23.2.2.4] list operations
         -: 1599:      /**
@@ -1977,42 +1977,42 @@ call    0 returned 21
         -: 1609:       */
         -: 1610:      void
         -: 1611:#if __cplusplus >= 201103L
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6spliceESt20_List_const_iteratorIS1_EOS3_ called 0 returned 0% blocks executed 0%
-    #####: 1612:      splice(const_iterator __position, list&& __x) noexcept
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6spliceESt20_List_const_iteratorIS1_EOS3_ called 1 returned 100% blocks executed 100%
+        1: 1612:      splice(const_iterator __position, list&& __x) noexcept
         -: 1613:#else
         -: 1614:      splice(iterator __position, list& __x)
         -: 1615:#endif
         -: 1616:      {
-    #####: 1617:	if (!__x.empty())
-call    0 never executed
-branch  1 never executed (fallthrough)
-branch  2 never executed
+        1: 1617:	if (!__x.empty())
+call    0 returned 1
+branch  1 taken 1 (fallthrough)
+branch  2 taken 0
         -: 1618:	  {
-    #####: 1619:	    _M_check_equal_allocators(__x);
-call    0 never executed
+        1: 1619:	    _M_check_equal_allocators(__x);
+call    0 returned 1
         -: 1620:
-    #####: 1621:	    this->_M_transfer(__position._M_const_cast(),
-call    0 never executed
-call    1 never executed
-call    2 never executed
-call    3 never executed
+        1: 1621:	    this->_M_transfer(__position._M_const_cast(),
+call    0 returned 1
+call    1 returned 1
+call    2 returned 1
+call    3 returned 1
         -: 1622:			      __x.begin(), __x.end());
         -: 1623:
-    #####: 1624:	    this->_M_inc_size(__x._M_get_size());
-call    0 never executed
-call    1 never executed
-    #####: 1625:	    __x._M_set_size(0);
-call    0 never executed
+        1: 1624:	    this->_M_inc_size(__x._M_get_size());
+call    0 returned 1
+call    1 returned 1
+        1: 1625:	    __x._M_set_size(0);
+call    0 returned 1
         -: 1626:	  }
-    #####: 1627:      }
+        1: 1627:      }
         -: 1628:
         -: 1629:#if __cplusplus >= 201103L
         -: 1630:      void
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6spliceESt20_List_const_iteratorIS1_ERS3_ called 0 returned 0% blocks executed 0%
-    #####: 1631:      splice(const_iterator __position, list& __x) noexcept
-    #####: 1632:      { splice(__position, std::move(__x)); }
-call    0 never executed
-call    1 never executed
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6spliceESt20_List_const_iteratorIS1_ERS3_ called 1 returned 100% blocks executed 100%
+        1: 1631:      splice(const_iterator __position, list& __x) noexcept
+        1: 1632:      { splice(__position, std::move(__x)); }
+call    0 returned 1
+call    1 returned 1
         -: 1633:#endif
         -: 1634:
         -: 1635:#if __cplusplus >= 201103L
@@ -2309,54 +2309,54 @@ call    1 never executed
         -: 1926:      // Called by the range constructor to implement [23.1.1]/9
         -: 1927:      template<typename _InputIterator>
         -: 1928:	void
-    8064*: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
+        3: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
         -: 1930:			       __false_type)
         -: 1931:	{
-   15606*: 1932:	  for (; __first != __last; ++__first)
+        7: 1932:	  for (; __first != __last; ++__first)
         -: 1933:#if __cplusplus >= 201103L
-    7542*: 1934:	    emplace_back(*__first);
+        4: 1934:	    emplace_back(*__first);
         -: 1935:#else
         -: 1936:	    push_back(*__first);
         -: 1937:#endif
-    8064*: 1938:	}
+        3: 1938:	}
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt14_List_iteratorIS1_EEEvT_S7_St12__false_type:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt14_List_iteratorIS1_EEEvT_S7_St12__false_type called 0 returned 0% blocks executed 0%
-    #####: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt14_List_iteratorIS1_EEEvT_S7_St12__false_type called 1 returned 100% blocks executed 100%
+        1: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
         -: 1930:			       __false_type)
         -: 1931:	{
-    #####: 1932:	  for (; __first != __last; ++__first)
-call    0 never executed
-call    1 never executed
-branch  2 never executed
-branch  3 never executed (fallthrough)
+        2: 1932:	  for (; __first != __last; ++__first)
+call    0 returned 1
+call    1 returned 2
+branch  2 taken 1
+branch  3 taken 1 (fallthrough)
         -: 1933:#if __cplusplus >= 201103L
-    #####: 1934:	    emplace_back(*__first);
-call    0 never executed
-call    1 never executed
+        1: 1934:	    emplace_back(*__first);
+call    0 returned 1
+call    1 returned 1
         -: 1935:#else
         -: 1936:	    push_back(*__first);
         -: 1937:#endif
-    #####: 1938:	}
+        1: 1938:	}
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt20_List_const_iteratorIS1_EEEvT_S7_St12__false_type:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt20_List_const_iteratorIS1_EEEvT_S7_St12__false_type called 8064 returned 100% blocks executed 100%
-     8064: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE22_M_initialize_dispatchISt20_List_const_iteratorIS1_EEEvT_S7_St12__false_type called 2 returned 100% blocks executed 100%
+        2: 1929:	_M_initialize_dispatch(_InputIterator __first, _InputIterator __last,
         -: 1930:			       __false_type)
         -: 1931:	{
-    15606: 1932:	  for (; __first != __last; ++__first)
-call    0 returned 7542
-call    1 returned 15606
-branch  2 taken 7542
-branch  3 taken 8064 (fallthrough)
+        5: 1932:	  for (; __first != __last; ++__first)
+call    0 returned 3
+call    1 returned 5
+branch  2 taken 3
+branch  3 taken 2 (fallthrough)
         -: 1933:#if __cplusplus >= 201103L
-     7542: 1934:	    emplace_back(*__first);
-call    0 returned 7542
-call    1 returned 7542
+        3: 1934:	    emplace_back(*__first);
+call    0 returned 3
+call    1 returned 3
         -: 1935:#else
         -: 1936:	    push_back(*__first);
         -: 1937:#endif
-     8064: 1938:	}
+        2: 1938:	}
 ------------------
         -: 1939:
         -: 1940:      // Called by list(n,v,a), and the range constructor when it turns out
@@ -2407,10 +2407,10 @@ call    1 returned 7542
         -: 1985:
         -: 1986:      // Moves the elements from [first,last) before position.
         -: 1987:      void
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE11_M_transferESt14_List_iteratorIS1_ES5_S5_ called 0 returned 0% blocks executed 0%
-    #####: 1988:      _M_transfer(iterator __position, iterator __first, iterator __last)
-    #####: 1989:      { __position._M_node->_M_transfer(__first._M_node, __last._M_node); }
-call    0 never executed
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE11_M_transferESt14_List_iteratorIS1_ES5_S5_ called 1 returned 100% blocks executed 100%
+        1: 1988:      _M_transfer(iterator __position, iterator __first, iterator __last)
+        1: 1989:      { __position._M_node->_M_transfer(__first._M_node, __last._M_node); }
+call    0 returned 1
         -: 1990:
         -: 1991:      // Inserts new element at position given and with value given.
         -: 1992:#if __cplusplus < 201103L
@@ -2424,89 +2424,89 @@ call    0 never executed
         -: 2000:#else
         -: 2001:     template<typename... _Args>
         -: 2002:       void
-   11576*: 2003:       _M_insert(iterator __position, _Args&&... __args)
+        5: 2003:       _M_insert(iterator __position, _Args&&... __args)
         -: 2004:       {
-   11576*: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
-   11576*: 2006:	 __tmp->_M_hook(__position._M_node);
-   11576*: 2007:	 this->_M_inc_size(1);
-   11576*: 2008:       }
+        5: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
+        5: 2006:	 __tmp->_M_hook(__position._M_node);
+        5: 2007:	 this->_M_inc_size(1);
+        5: 2008:       }
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRS1_EEEvSt14_List_iteratorIS1_EDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 0 returned 0% blocks executed 0%
-    #####: 2003:       _M_insert(iterator __position, _Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 1 returned 100% blocks executed 100%
+        1: 2003:       _M_insert(iterator __position, _Args&&... __args)
         -: 2004:       {
-    #####: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
-call    0 never executed
-call    1 never executed
-    #####: 2006:	 __tmp->_M_hook(__position._M_node);
-call    0 never executed
-    #####: 2007:	 this->_M_inc_size(1);
-call    0 never executed
-    #####: 2008:       }
+        1: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
+call    0 returned 1
+call    1 returned 1
+        1: 2006:	 __tmp->_M_hook(__position._M_node);
+call    0 returned 1
+        1: 2007:	 this->_M_inc_size(1);
+call    0 returned 1
+        1: 2008:       }
 ------------------
 _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_:
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 7542 returned 100% blocks executed 100%
-     7542: 2003:       _M_insert(iterator __position, _Args&&... __args)
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 3 returned 100% blocks executed 100%
+        3: 2003:       _M_insert(iterator __position, _Args&&... __args)
         -: 2004:       {
-     7542: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
-call    0 returned 7542
-call    1 returned 7542
-     7542: 2006:	 __tmp->_M_hook(__position._M_node);
-call    0 returned 7542
-     7542: 2007:	 this->_M_inc_size(1);
-call    0 returned 7542
-     7542: 2008:       }
+        3: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
+call    0 returned 3
+call    1 returned 3
+        3: 2006:	 __tmp->_M_hook(__position._M_node);
+call    0 returned 3
+        3: 2007:	 this->_M_inc_size(1);
+call    0 returned 3
+        3: 2008:       }
 ------------------
 _ZNSt7__cxx114listI10CacheEventSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_:
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 4034 returned 100% blocks executed 100%
-     4034: 2003:       _M_insert(iterator __position, _Args&&... __args)
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE9_M_insertIJRKS1_EEEvSt14_List_iteratorIS1_EDpOT_ called 1 returned 100% blocks executed 100%
+        1: 2003:       _M_insert(iterator __position, _Args&&... __args)
         -: 2004:       {
-     4034: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
-call    0 returned 4034
-call    1 returned 4034
-     4034: 2006:	 __tmp->_M_hook(__position._M_node);
-call    0 returned 4034
-     4034: 2007:	 this->_M_inc_size(1);
-call    0 returned 4034
-     4034: 2008:       }
+        1: 2005:	 _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
+call    0 returned 1
+call    1 returned 1
+        1: 2006:	 __tmp->_M_hook(__position._M_node);
+call    0 returned 1
+        1: 2007:	 this->_M_inc_size(1);
+call    0 returned 1
+        1: 2008:       }
 ------------------
         -: 2009:#endif
         -: 2010:
         -: 2011:      // Erases element at position given.
         -: 2012:      void
-function _ZNSt7__cxx114listI10CacheEventSaIS1_EE8_M_eraseESt14_List_iteratorIS1_E called 4030 returned 100% blocks executed 100%
-     4030: 2013:      _M_erase(iterator __position) _GLIBCXX_NOEXCEPT
+function _ZNSt7__cxx114listI10CacheEventSaIS1_EE8_M_eraseESt14_List_iteratorIS1_E called 1 returned 100% blocks executed 100%
+        1: 2013:      _M_erase(iterator __position) _GLIBCXX_NOEXCEPT
         -: 2014:      {
-     4030: 2015:	this->_M_dec_size(1);
-call    0 returned 4030
-     4030: 2016:	__position._M_node->_M_unhook();
-call    0 returned 4030
-     4030: 2017:	_Node* __n = static_cast<_Node*>(__position._M_node);
+        1: 2015:	this->_M_dec_size(1);
+call    0 returned 1
+        1: 2016:	__position._M_node->_M_unhook();
+call    0 returned 1
+        1: 2017:	_Node* __n = static_cast<_Node*>(__position._M_node);
         -: 2018:#if __cplusplus >= 201103L
-     4030: 2019:	_Node_alloc_traits::destroy(_M_get_Node_allocator(), __n->_M_valptr());
-call    0 returned 4030
-call    1 returned 4030
+        1: 2019:	_Node_alloc_traits::destroy(_M_get_Node_allocator(), __n->_M_valptr());
+call    0 returned 1
+call    1 returned 1
         -: 2020:#else
         -: 2021:	_Tp_alloc_type(_M_get_Node_allocator()).destroy(__n->_M_valptr());
         -: 2022:#endif
         -: 2023:
-     4030: 2024:	_M_put_node(__n);
-call    0 returned 4030
-     4030: 2025:      }
+        1: 2024:	_M_put_node(__n);
+call    0 returned 1
+        1: 2025:      }
         -: 2026:
         -: 2027:      // To implement the splice (and merge) bits of N1599.
         -: 2028:      void
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE25_M_check_equal_allocatorsERKS3_ called 0 returned 0% blocks executed 0%
-    #####: 2029:      _M_check_equal_allocators(const list& __x) _GLIBCXX_NOEXCEPT
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE25_M_check_equal_allocatorsERKS3_ called 1 returned 100% blocks executed 86%
+        1: 2029:      _M_check_equal_allocators(const list& __x) _GLIBCXX_NOEXCEPT
         -: 2030:      {
-    #####: 2031:	if (_M_get_Node_allocator() != __x._M_get_Node_allocator())
-call    0 never executed
-call    1 never executed
-branch  2 never executed (fallthrough)
-branch  3 never executed
+        2: 2031:	if (_M_get_Node_allocator() != __x._M_get_Node_allocator())
+call    0 returned 1
+call    1 returned 1
+branch  2 taken 0 (fallthrough)
+branch  3 taken 1
     #####: 2032:	  __builtin_abort();
 call    0 never executed
-    #####: 2033:      }
+        1: 2033:      }
         -: 2034:
         -: 2035:      // Used to implement resize.
         -: 2036:      const_iterator

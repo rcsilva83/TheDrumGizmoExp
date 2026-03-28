@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/list.tcc
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// List implementation (out of line) -*- C++ -*-
         -:    2:
@@ -67,76 +67,76 @@
         -:   63:
         -:   64:  template<typename _Tp, typename _Alloc>
         -:   65:    void
-    16159:   66:    _List_base<_Tp, _Alloc>::
+       27:   66:    _List_base<_Tp, _Alloc>::
         -:   67:    _M_clear() _GLIBCXX_NOEXCEPT
         -:   68:    {
         -:   69:      typedef _List_node<_Tp>  _Node;
-    16159:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
-    31247:   71:      while (__cur != &_M_impl._M_node)
+       27:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
+       34:   71:      while (__cur != &_M_impl._M_node)
         -:   72:	{
-    15088:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
-    15088:   74:	  __cur = __tmp->_M_next;
-    15088:   75:	  _Tp* __val = __tmp->_M_valptr();
+       7*:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
+       7*:   74:	  __cur = __tmp->_M_next;
+       7*:   75:	  _Tp* __val = __tmp->_M_valptr();
         -:   76:#if __cplusplus >= 201103L
-    15088:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
+       7*:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
         -:   78:#else
         -:   79:	  _Tp_alloc_type(_M_get_Node_allocator()).destroy(__val);
         -:   80:#endif
-    15088:   81:	  _M_put_node(__tmp);
+       7*:   81:	  _M_put_node(__tmp);
         -:   82:	}
-    16159:   83:    }
+       27:   83:    }
 ------------------
 _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE8_M_clearEv:
-function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE8_M_clearEv called 16128 returned 100% blocks executed 100%
-    16128:   66:    _List_base<_Tp, _Alloc>::
+function _ZNSt7__cxx1110_List_baseI12CacheChannelSaIS1_EE8_M_clearEv called 7 returned 100% blocks executed 100%
+        7:   66:    _List_base<_Tp, _Alloc>::
         -:   67:    _M_clear() _GLIBCXX_NOEXCEPT
         -:   68:    {
         -:   69:      typedef _List_node<_Tp>  _Node;
-    16128:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
-    31212:   71:      while (__cur != &_M_impl._M_node)
-branch  0 taken 15084
-branch  1 taken 16128 (fallthrough)
+        7:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
+       14:   71:      while (__cur != &_M_impl._M_node)
+branch  0 taken 7
+branch  1 taken 7 (fallthrough)
         -:   72:	{
-    15084:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
-    15084:   74:	  __cur = __tmp->_M_next;
-    15084:   75:	  _Tp* __val = __tmp->_M_valptr();
-call    0 returned 15084
+        7:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
+        7:   74:	  __cur = __tmp->_M_next;
+        7:   75:	  _Tp* __val = __tmp->_M_valptr();
+call    0 returned 7
         -:   76:#if __cplusplus >= 201103L
-    15084:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
-call    0 returned 15084
+        7:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
+call    0 returned 7
         -:   78:#else
         -:   79:	  _Tp_alloc_type(_M_get_Node_allocator()).destroy(__val);
         -:   80:#endif
-    15084:   81:	  _M_put_node(__tmp);
-call    0 returned 15084
+        7:   81:	  _M_put_node(__tmp);
+call    0 returned 7
         -:   82:	}
-    16128:   83:    }
+        7:   83:    }
 ------------------
 _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE8_M_clearEv:
-function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE8_M_clearEv called 31 returned 100% blocks executed 100%
-       31:   66:    _List_base<_Tp, _Alloc>::
+function _ZNSt7__cxx1110_List_baseI10CacheEventSaIS1_EE8_M_clearEv called 20 returned 100% blocks executed 38%
+       20:   66:    _List_base<_Tp, _Alloc>::
         -:   67:    _M_clear() _GLIBCXX_NOEXCEPT
         -:   68:    {
         -:   69:      typedef _List_node<_Tp>  _Node;
-       31:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
-       35:   71:      while (__cur != &_M_impl._M_node)
-branch  0 taken 4
-branch  1 taken 31 (fallthrough)
+       20:   70:      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
+       20:   71:      while (__cur != &_M_impl._M_node)
+branch  0 taken 0
+branch  1 taken 20 (fallthrough)
         -:   72:	{
-        4:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
-        4:   74:	  __cur = __tmp->_M_next;
-        4:   75:	  _Tp* __val = __tmp->_M_valptr();
-call    0 returned 4
+    #####:   73:	  _Node* __tmp = static_cast<_Node*>(__cur);
+    #####:   74:	  __cur = __tmp->_M_next;
+    #####:   75:	  _Tp* __val = __tmp->_M_valptr();
+call    0 never executed
         -:   76:#if __cplusplus >= 201103L
-        4:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
-call    0 returned 4
+    #####:   77:	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
+call    0 never executed
         -:   78:#else
         -:   79:	  _Tp_alloc_type(_M_get_Node_allocator()).destroy(__val);
         -:   80:#endif
-        4:   81:	  _M_put_node(__tmp);
-call    0 returned 4
+    #####:   81:	  _M_put_node(__tmp);
+call    0 never executed
         -:   82:	}
-       31:   83:    }
+       20:   83:    }
 ------------------
         -:   84:
         -:   85:#if __cplusplus >= 201103L
@@ -155,23 +155,23 @@ call    0 returned 4
         -:   98:
         -:   99:  template<typename _Tp, typename _Alloc>
         -:  100:    typename list<_Tp, _Alloc>::iterator
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6insertESt20_List_const_iteratorIS1_ERKS1_ called 7542 returned 100% blocks executed 100%
-     7542:  101:    list<_Tp, _Alloc>::
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6insertESt20_List_const_iteratorIS1_ERKS1_ called 3 returned 100% blocks executed 100%
+        3:  101:    list<_Tp, _Alloc>::
         -:  102:#if __cplusplus >= 201103L
         -:  103:    insert(const_iterator __position, const value_type& __x)
         -:  104:#else
         -:  105:    insert(iterator __position, const value_type& __x)
         -:  106:#endif
         -:  107:    {
-     7542:  108:      _Node* __tmp = _M_create_node(__x);
-call    0 returned 7542
-     7542:  109:      __tmp->_M_hook(__position._M_const_cast()._M_node);
-call    0 returned 7542
-call    1 returned 7542
-     7542:  110:      this->_M_inc_size(1);
-call    0 returned 7542
-     7542:  111:      return iterator(__tmp);
-call    0 returned 7542
+        3:  108:      _Node* __tmp = _M_create_node(__x);
+call    0 returned 3
+        3:  109:      __tmp->_M_hook(__position._M_const_cast()._M_node);
+call    0 returned 3
+call    1 returned 3
+        3:  110:      this->_M_inc_size(1);
+call    0 returned 3
+        3:  111:      return iterator(__tmp);
+call    0 returned 3
         -:  112:    }
         -:  113:
         -:  114:#if __cplusplus >= 201103L
@@ -193,31 +193,31 @@ call    0 returned 7542
         -:  130:  template<typename _Tp, typename _Alloc>
         -:  131:    template<typename _InputIterator, typename>
         -:  132:      typename list<_Tp, _Alloc>::iterator
-function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6insertISt14_List_iteratorIS1_EvEES6_St20_List_const_iteratorIS1_ET_S9_ called 0 returned 0% blocks executed 0%
-    #####:  133:      list<_Tp, _Alloc>::
+function _ZNSt7__cxx114listI12CacheChannelSaIS1_EE6insertISt14_List_iteratorIS1_EvEES6_St20_List_const_iteratorIS1_ET_S9_ called 1 returned 100% blocks executed 75%
+        1:  133:      list<_Tp, _Alloc>::
         -:  134:      insert(const_iterator __position, _InputIterator __first,
         -:  135:	     _InputIterator __last)
         -:  136:      {
-    #####:  137:	list __tmp(__first, __last, get_allocator());
-call    0 never executed
-call    1 never executed
-branch  2 never executed (fallthrough)
-branch  3 never executed (throw)
-    #####:  138:	if (!__tmp.empty())
-call    0 never executed
-branch  1 never executed (fallthrough)
-branch  2 never executed
+        1:  137:	list __tmp(__first, __last, get_allocator());
+call    0 returned 1
+call    1 returned 1
+branch  2 taken 1 (fallthrough)
+branch  3 taken 0 (throw)
+        1:  138:	if (!__tmp.empty())
+call    0 returned 1
+branch  1 taken 1 (fallthrough)
+branch  2 taken 0
         -:  139:	  {
-    #####:  140:	    iterator __it = __tmp.begin();
-call    0 never executed
-    #####:  141:	    splice(__position, __tmp);
-call    0 never executed
-    #####:  142:	    return __it;
+        1:  140:	    iterator __it = __tmp.begin();
+call    0 returned 1
+        1:  141:	    splice(__position, __tmp);
+call    0 returned 1
+        1:  142:	    return __it;
         -:  143:	  }
     #####:  144:	return __position._M_const_cast();
 call    0 never executed
-    #####:  145:      }
-call    0 never executed
+        1:  145:      }
+call    0 returned 1
         -:  146:#endif
         -:  147:
         -:  148:  template<typename _Tp, typename _Alloc>

@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/allocator.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// Allocators -*- C++ -*-
         -:    2:
@@ -164,12 +164,12 @@
         -:  160:      // 3035. std::allocator's constructors should be constexpr
         -:  161:      __attribute__((__always_inline__))
         -:  162:      _GLIBCXX20_CONSTEXPR
-     8094:  163:      allocator() _GLIBCXX_NOTHROW { }
+       28:  163:      allocator() _GLIBCXX_NOTHROW { }
         -:  164:
         -:  165:      __attribute__((__always_inline__))
         -:  166:      _GLIBCXX20_CONSTEXPR
         -:  167:      allocator(const allocator& __a) _GLIBCXX_NOTHROW
-    16128:  168:      : __allocator_base<_Tp>(__a) { }
+        5:  168:      : __allocator_base<_Tp>(__a) { }
         -:  169:
         -:  170:#if __cplusplus >= 201103L
         -:  171:      // Avoid implicit deprecation.
@@ -179,17 +179,17 @@
         -:  175:      template<typename _Tp1>
         -:  176:	__attribute__((__always_inline__))
         -:  177:	_GLIBCXX20_CONSTEXPR
-    #####:  178:	allocator(const allocator<_Tp1>&) _GLIBCXX_NOTHROW { }
+        2:  178:	allocator(const allocator<_Tp1>&) _GLIBCXX_NOTHROW { }
         -:  179:
         -:  180:      __attribute__((__always_inline__))
         -:  181:#if __cpp_constexpr_dynamic_alloc
         -:  182:      constexpr
         -:  183:#endif
-    8064*:  184:      ~allocator() _GLIBCXX_NOTHROW { }
-call    0 never executed
-call    1 never executed
+        4:  184:      ~allocator() _GLIBCXX_NOTHROW { }
+call    0 returned 1
+call    1 returned 1
 call    2 never executed
-call    3 returned 8064
+call    3 returned 2
         -:  185:
         -:  186:#if __cplusplus > 201703L
         -:  187:      [[nodiscard,__gnu__::__always_inline__]]
@@ -228,7 +228,7 @@ call    3 returned 8064
         -:  220:      friend __attribute__((__always_inline__)) _GLIBCXX20_CONSTEXPR
         -:  221:      bool
         -:  222:      operator!=(const allocator&, const allocator&) _GLIBCXX_NOTHROW
-    #####:  223:      { return false; }
+        1:  223:      { return false; }
         -:  224:#endif
         -:  225:
         -:  226:      // Inherit everything else.

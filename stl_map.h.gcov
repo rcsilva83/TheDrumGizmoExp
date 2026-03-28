@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/stl_map.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// Map implementation -*- C++ -*-
         -:    2:
@@ -198,9 +198,9 @@
         -:  194:#if __cplusplus < 201103L
         -:  195:      map() : _M_t() { }
         -:  196:#else
-function _ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileSt4lessIS5_ESaISt4pairIKS5_S6_EEEC2Ev called 10 returned 100% blocks executed 100%
-       10:  197:      map() = default;
-call    0 returned 10
+function _ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileSt4lessIS5_ESaISt4pairIKS5_S6_EEEC2Ev called 8 returned 100% blocks executed 100%
+        8:  197:      map() = default;
+call    0 returned 8
         -:  198:#endif
         -:  199:
         -:  200:      /**
@@ -317,9 +317,9 @@ call    0 returned 10
         -:  311:       *  themselves are pointers, the pointed-to memory is not touched in any
         -:  312:       *  way.  Managing the pointer is the user's responsibility.
         -:  313:       */
-function _ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileSt4lessIS5_ESaISt4pairIKS5_S6_EEED2Ev called 10 returned 100% blocks executed 100%
-       10:  314:      ~map() = default;
-call    0 returned 10
+function _ZNSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE14AudioCacheFileSt4lessIS5_ESaISt4pairIKS5_S6_EEED2Ev called 8 returned 100% blocks executed 100%
+        8:  314:      ~map() = default;
+call    0 returned 8
         -:  315:#endif
         -:  316:
         -:  317:      /**

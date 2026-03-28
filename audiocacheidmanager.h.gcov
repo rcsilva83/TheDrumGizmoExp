@@ -1,6 +1,6 @@
         -:    0:Source:/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/src/audiocacheidmanager.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcda
         -:    0:Runs:1
         -:    1:/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
         -:    2:/***************************************************************************

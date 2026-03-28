@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/atomic
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// -*- C++ -*- header.
         -:    2:
@@ -77,9 +77,9 @@
         -:   73:    atomic& operator=(const atomic&) = delete;
         -:   74:    atomic& operator=(const atomic&) volatile = delete;
         -:   75:
-function _ZNSt6atomicIbEC2Eb called 120 returned 100% blocks executed 100%
-      120:   76:    constexpr atomic(bool __i) noexcept : _M_base(__i) { }
-call    0 returned 120
+function _ZNSt6atomicIbEC2Eb called 8 returned 100% blocks executed 100%
+        8:   76:    constexpr atomic(bool __i) noexcept : _M_base(__i) { }
+call    0 returned 8
         -:   77:
         -:   78:    bool
         -:   79:    operator=(bool __i) noexcept
@@ -106,20 +106,20 @@ call    0 returned 120
         -:  100:#endif
         -:  101:
         -:  102:    void
-function _ZNSt6atomicIbE5storeEbSt12memory_order called 20 returned 100% blocks executed 62%
-       20:  103:    store(bool __i, memory_order __m = memory_order_seq_cst) noexcept
-       20:  104:    { _M_base.store(__i, __m); }
-call    0 returned 20
+function _ZNSt6atomicIbE5storeEbSt12memory_order called 3 returned 100% blocks executed 62%
+        3:  103:    store(bool __i, memory_order __m = memory_order_seq_cst) noexcept
+        3:  104:    { _M_base.store(__i, __m); }
+call    0 returned 3
         -:  105:
         -:  106:    void
         -:  107:    store(bool __i, memory_order __m = memory_order_seq_cst) volatile noexcept
         -:  108:    { _M_base.store(__i, __m); }
         -:  109:
         -:  110:    bool
-function _ZNKSt6atomicIbE4loadESt12memory_order called 8064 returned 100% blocks executed 68%
-     8064:  111:    load(memory_order __m = memory_order_seq_cst) const noexcept
-    16128:  112:    { return _M_base.load(__m); }
-call    0 returned 8064
+function _ZNKSt6atomicIbE4loadESt12memory_order called 9 returned 100% blocks executed 68%
+        9:  111:    load(memory_order __m = memory_order_seq_cst) const noexcept
+       18:  112:    { return _M_base.load(__m); }
+call    0 returned 9
         -:  113:
         -:  114:    bool
         -:  115:    load(memory_order __m = memory_order_seq_cst) const volatile noexcept

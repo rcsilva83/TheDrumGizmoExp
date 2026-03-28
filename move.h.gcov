@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/move.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocacheeventhandler.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocacheeventhandler.dir/__/src/audiocacheeventhandler.cc.gcda
         -:    0:Runs:1
         -:    1:// Move, forward and identity for C++11 + swap -*- C++ -*-
         -:    2:
@@ -52,18 +52,18 @@
         -:   48:   */
         -:   49:  template<typename _Tp>
         -:   50:    inline _GLIBCXX_CONSTEXPR _Tp*
-    19118:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
-    19118:   52:    { return __builtin_addressof(__r); }
+        8:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
+        8:   52:    { return __builtin_addressof(__r); }
 ------------------
 _ZSt11__addressofISaISt10_List_nodeI10CacheEventEEEPT_RS4_:
-function _ZSt11__addressofISaISt10_List_nodeI10CacheEventEEEPT_RS4_ called 4034 returned 100% blocks executed 100%
-     4034:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
-     4034:   52:    { return __builtin_addressof(__r); }
+function _ZSt11__addressofISaISt10_List_nodeI10CacheEventEEEPT_RS4_ called 1 returned 100% blocks executed 100%
+        1:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
+        1:   52:    { return __builtin_addressof(__r); }
 ------------------
 _ZSt11__addressofISaISt10_List_nodeI12CacheChannelEEEPT_RS4_:
-function _ZSt11__addressofISaISt10_List_nodeI12CacheChannelEEEPT_RS4_ called 15084 returned 100% blocks executed 100%
-    15084:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
-    15084:   52:    { return __builtin_addressof(__r); }
+function _ZSt11__addressofISaISt10_List_nodeI12CacheChannelEEEPT_RS4_ called 7 returned 100% blocks executed 100%
+        7:   51:    __addressof(_Tp& __r) _GLIBCXX_NOEXCEPT
+        7:   52:    { return __builtin_addressof(__r); }
 ------------------
         -:   53:
         -:   54:#if __cplusplus >= 201103L
@@ -82,23 +82,23 @@ function _ZSt11__addressofISaISt10_List_nodeI12CacheChannelEEEPT_RS4_ called 150
         -:   67:  template<typename _Tp>
         -:   68:    _GLIBCXX_NODISCARD
         -:   69:    constexpr _Tp&&
-   76472*:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
-   76472*:   71:    { return static_cast<_Tp&&>(__t); }
+       33:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+       33:   71:    { return static_cast<_Tp&&>(__t); }
 ------------------
 _ZSt7forwardIR12CacheChannelEOT_RNSt16remove_referenceIS2_E4typeE:
-function _ZSt7forwardIR12CacheChannelEOT_RNSt16remove_referenceIS2_E4typeE called 0 returned 0% blocks executed 0%
-    #####:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
-    #####:   71:    { return static_cast<_Tp&&>(__t); }
+function _ZSt7forwardIR12CacheChannelEOT_RNSt16remove_referenceIS2_E4typeE called 5 returned 100% blocks executed 100%
+        5:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+        5:   71:    { return static_cast<_Tp&&>(__t); }
 ------------------
 _ZSt7forwardIRK10CacheEventEOT_RNSt16remove_referenceIS3_E4typeE:
-function _ZSt7forwardIRK10CacheEventEOT_RNSt16remove_referenceIS3_E4typeE called 16136 returned 100% blocks executed 100%
-    16136:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
-    16136:   71:    { return static_cast<_Tp&&>(__t); }
+function _ZSt7forwardIRK10CacheEventEOT_RNSt16remove_referenceIS3_E4typeE called 4 returned 100% blocks executed 100%
+        4:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+        4:   71:    { return static_cast<_Tp&&>(__t); }
 ------------------
 _ZSt7forwardIRK12CacheChannelEOT_RNSt16remove_referenceIS3_E4typeE:
-function _ZSt7forwardIRK12CacheChannelEOT_RNSt16remove_referenceIS3_E4typeE called 60336 returned 100% blocks executed 100%
-    60336:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
-    60336:   71:    { return static_cast<_Tp&&>(__t); }
+function _ZSt7forwardIRK12CacheChannelEOT_RNSt16remove_referenceIS3_E4typeE called 24 returned 100% blocks executed 100%
+       24:   70:    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+       24:   71:    { return static_cast<_Tp&&>(__t); }
 ------------------
         -:   72:
         -:   73:  /**
@@ -125,18 +125,18 @@ function _ZSt7forwardIRK12CacheChannelEOT_RNSt16remove_referenceIS3_E4typeE call
         -:   94:  template<typename _Tp>
         -:   95:    _GLIBCXX_NODISCARD
         -:   96:    constexpr typename std::remove_reference<_Tp>::type&&
-   16128*:   97:    move(_Tp&& __t) noexcept
-   16128*:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+        7:   97:    move(_Tp&& __t) noexcept
+        7:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
 ------------------
 _ZSt4moveIRNSt7__cxx114listI12CacheChannelSaIS2_EEEEONSt16remove_referenceIT_E4typeEOS7_:
-function _ZSt4moveIRNSt7__cxx114listI12CacheChannelSaIS2_EEEEONSt16remove_referenceIT_E4typeEOS7_ called 0 returned 0% blocks executed 0%
-    #####:   97:    move(_Tp&& __t) noexcept
-    #####:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+function _ZSt4moveIRNSt7__cxx114listI12CacheChannelSaIS2_EEEEONSt16remove_referenceIT_E4typeEOS7_ called 1 returned 100% blocks executed 100%
+        1:   97:    move(_Tp&& __t) noexcept
+        1:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
 ------------------
 _ZSt4moveIRSaISt10_List_nodeI12CacheChannelEEEONSt16remove_referenceIT_E4typeEOS6_:
-function _ZSt4moveIRSaISt10_List_nodeI12CacheChannelEEEONSt16remove_referenceIT_E4typeEOS6_ called 16128 returned 100% blocks executed 100%
-    16128:   97:    move(_Tp&& __t) noexcept
-    16128:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
+function _ZSt4moveIRSaISt10_List_nodeI12CacheChannelEEEONSt16remove_referenceIT_E4typeEOS6_ called 6 returned 100% blocks executed 100%
+        6:   97:    move(_Tp&& __t) noexcept
+        6:   98:    { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
 ------------------
         -:   99:
         -:  100:

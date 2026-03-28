@@ -1,6 +1,6 @@
         -:    0:Source:/usr/include/c++/13/bits/unique_ptr.h
-        -:    0:Graph:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcno
-        -:    0:Data:build-coverage/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcda
+        -:    0:Graph:build-cov/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcno
+        -:    0:Data:build-cov/test/CMakeFiles/audiocache.dir/__/src/audiocache.cc.gcda
         -:    0:Runs:1
         -:    1:// unique_ptr implementation -*- C++ -*-
         -:    2:
