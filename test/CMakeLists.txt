@@ -41,26 +41,26 @@ function(dg_add_doctest_test target)
 	add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-if(DG_PLUGINGUI_RESOURCE_DATA)
+if(TARGET dg_plugingui_resource_data AND DG_PLUGINGUI_RESOURCE_DATA)
 	set_source_files_properties("${DG_PLUGINGUI_RESOURCE_DATA}" PROPERTIES GENERATED TRUE)
-endif()
 
-dg_add_doctest_test(resource
-	SOURCES
-		"${CMAKE_SOURCE_DIR}/dggui/resource.cc"
-		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
-		"${CMAKE_SOURCE_DIR}/src/random.cc"
-		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
-		"${CMAKE_SOURCE_DIR}/test/resource_test.cc"
-		"${DG_PLUGINGUI_RESOURCE_DATA}"
-	INCLUDE_DIRS
-		"${CMAKE_SOURCE_DIR}"
-		"${DG_HUGIN_SOURCE_DIR}"
-	DEPENDENCIES
-		dg_plugingui_resource_data
-	LINK_LIBRARIES
-		SndFile::sndfile
-)
+	dg_add_doctest_test(resource
+		SOURCES
+			"${CMAKE_SOURCE_DIR}/dggui/resource.cc"
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+			"${CMAKE_SOURCE_DIR}/test/resource_test.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			SndFile::sndfile
+	)
+endif()
 
 dg_add_doctest_test(audiocache
 	SOURCES
@@ -118,8 +118,11 @@ dg_add_doctest_test(audiocacheeventhandler
 		"${CMAKE_SOURCE_DIR}/src/audiocacheeventhandler.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocacheidmanager.cc"
 		"${CMAKE_SOURCE_DIR}/src/audiocachefile.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
 		"${CMAKE_SOURCE_DIR}/src/thread.cc"
 		"${CMAKE_SOURCE_DIR}/src/sem.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
 		"${CMAKE_SOURCE_DIR}/test/audiocacheeventhandlertest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
@@ -162,20 +165,22 @@ dg_add_doctest_test(enginetest
 		SndFile::sndfile
 )
 
-dg_add_doctest_test(paintertest
-	SOURCES
-		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
-		"${CMAKE_SOURCE_DIR}/test/paintertest.cc"
-		"${DG_PLUGINGUI_RESOURCE_DATA}"
-	INCLUDE_DIRS
-		"${CMAKE_SOURCE_DIR}"
-		"${DG_HUGIN_SOURCE_DIR}"
-	DEPENDENCIES
-		dg_plugingui_resource_data
-	LINK_LIBRARIES
-		dg_dggui
-		Threads::Threads
-)
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(paintertest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/paintertest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
 
 dg_add_doctest_test(configfile
 	SOURCES
@@ -227,17 +232,19 @@ dg_add_doctest_test(syncedsettingstest
 		"${DG_HUGIN_SOURCE_DIR}"
 )
 
-dg_add_doctest_test(imagecachetest
-	SOURCES
-		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
-		"${CMAKE_SOURCE_DIR}/test/imagecachetest.cc"
-	INCLUDE_DIRS
-		"${CMAKE_SOURCE_DIR}"
-		"${DG_HUGIN_SOURCE_DIR}"
-	LINK_LIBRARIES
-		dg_dggui
-		dg_plugingui
-)
+if(TARGET dg_dggui AND TARGET dg_plugingui)
+	dg_add_doctest_test(imagecachetest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/imagecachetest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			dg_plugingui
+	)
+endif()
 
 dg_add_doctest_test(semaphoretest
 	SOURCES
@@ -428,30 +435,34 @@ dg_add_doctest_test(utf8test
 		DISABLE_HUGIN
 )
 
-dg_add_doctest_test(layouttest
-	SOURCES
-		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
-		"${CMAKE_SOURCE_DIR}/test/layouttest.cc"
-	INCLUDE_DIRS
-		"${CMAKE_SOURCE_DIR}"
-		"${DG_HUGIN_SOURCE_DIR}"
-	LINK_LIBRARIES
-		dg_dggui
-		Threads::Threads
-)
+if(TARGET dg_dggui)
+	dg_add_doctest_test(layouttest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/layouttest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
 
-dg_add_doctest_test(pluginconfigtest
-	SOURCES
-		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
-		"${CMAKE_SOURCE_DIR}/test/pluginconfigtest.cc"
-	INCLUDE_DIRS
-		"${CMAKE_SOURCE_DIR}"
-		"${DG_HUGIN_SOURCE_DIR}"
-	LINK_LIBRARIES
-		dg_plugingui
-		dg_core
-		Threads::Threads
-)
+if(TARGET dg_plugingui)
+	dg_add_doctest_test(pluginconfigtest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/pluginconfigtest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_plugingui
+			dg_core
+			Threads::Threads
+	)
+endif()
 
 if(DG_ENABLE_CLI)
 	dg_add_doctest_test(drumgizmoclitest
@@ -496,7 +507,7 @@ if(DG_ENABLE_LV2)
 	)
 endif()
 
-if(DG_WITH_NLS)
+if(DG_WITH_NLS AND TARGET rcgen)
 	set(DG_TRANSLATIONTEST_RESOURCE_DATA "${CMAKE_BINARY_DIR}/test/translationtest_resource_data.cc")
 	add_custom_command(
 		OUTPUT "${DG_TRANSLATIONTEST_RESOURCE_DATA}"

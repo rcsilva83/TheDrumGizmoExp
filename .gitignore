@@ -64,3 +64,4 @@ dgvalidator
 build/
 build-*/
 *.deb
+*.gcov
