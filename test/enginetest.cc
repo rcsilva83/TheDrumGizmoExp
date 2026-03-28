@@ -196,6 +196,72 @@ private:
 	bool sent_stop{false};
 };
 
+// Fires OnSet events with a non-zero within-buffer offset on every run() call.
+// Covers renderSampleEvent branch where evt.offset > pos.
+class AudioInputEngineOnsetWithOffsetDummy : public AudioInputEngineDummy
+{
+public:
+	explicit AudioInputEngineOnsetWithOffsetDummy(size_t offset)
+	    : onset_offset(offset)
+	{
+	}
+
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		events.push_back({EventType::OnSet, 0, onset_offset, 1.0f});
+	}
+
+private:
+	size_t onset_offset;
+};
+
+class FailingOutputEngineDummy : public AudioOutputEngineDummy
+{
+public:
+	bool init(const Channels& channels) override
+	{
+		(void)channels;
+		return false;
+	}
+};
+
+class FailingInputEngineDummy : public AudioInputEngineDummy
+{
+public:
+	bool init(const Instruments& instruments) override
+	{
+		(void)instruments;
+		return false;
+	}
+};
+
+// Fires a single Choke event for instrument 0 when setFireChoke(true) is
+// called.
+class AudioInputEngineChokeOnDemandDummy : public AudioInputEngineDummy
+{
+public:
+	void setFireChoke(bool v)
+	{
+		fire_choke = v;
+	}
+
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		if(fire_choke)
+		{
+			events.push_back({EventType::Choke, 0, 0, 0.0f});
+			fire_choke = false;
+		}
+	}
+
+private:
+	bool fire_choke{false};
+};
+
 struct test_engineFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -511,5 +577,221 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		dg.setSamplerate(48000.0f);
 		CHECK(dg.run(nsamples, buf.data(), nsamples));
 		CHECK(dg.run(2 * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("simpleApiMethodCoverage")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// Exercises setRandomSeed(), stop(), and samplerate() which otherwise
+		// have zero coverage.  stop() is currently a no-op stub; setRandomSeed
+		// only affects stochastic sample selection (no directly verifiable
+		// side-effect at this call site).  samplerate() returns the stored
+		// engine samplerate.
+		dg.setRandomSeed(42u);
+		dg.stop();
+		CHECK_EQ(dg.samplerate(), 44100.0f);
+	}
+
+	SUBCASE("initReturnsFalseWhenInputEngineFails")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		FailingInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// DrumGizmo::init() returns false when the input engine init fails.
+		CHECK_UNARY(!dg.init());
+	}
+
+	SUBCASE("initReturnsFalseWhenOutputEngineFails")
+	{
+		Settings settings;
+		FailingOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// DrumGizmo::init() returns false when the output engine init fails.
+		CHECK_UNARY(!dg.init());
+	}
+
+	SUBCASE("renderSampleEventCoversMidBufferOnsetOffset")
+	{
+		// AudioInputEngine fires OnSet events at within-buffer offset 10 on
+		// every call.  Once the kit is loaded, processOnset stores
+		//   event_sample.offset = (10 + pos) * ratio
+		// so getSamples(c, pos, ...) calls renderSampleEvent with
+		//   evt.offset = pos + 10 > pos
+		// which covers the `if(evt.offset > (size_t)pos)` true-branch.
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetWithOffsetDummy ie(10u);
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.createStdKit("offset_kit");
+		settings.drumkit_file.store(kit_file);
+
+		// Allow the kit to load.
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Kit is loaded; the onset at offset=10 now produces a SampleEvent
+		// with offset = pos+10, exercising the mid-buffer offset branch.
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("getSamplesCoversFutureEvent")
+	{
+		// AudioInputEngine fires an OnSet event at offset 600 when the buffer
+		// is only 512 samples wide.  processOnset stores
+		//   event_sample.offset = (600 + pos)
+		// so getSamples(c, pos, buf, 512) sees
+		//   event_sample.offset > (pos + 512)
+		// which is the "don't handle yet — future event" true-branch.
+		constexpr size_t nsamples = 512;
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetWithOffsetDummy ie(nsamples + 88u); // 600 > 512
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.createStdKit("future_kit");
+		settings.drumkit_file.store(kit_file);
+
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// An event at offset=600 within a 512-sample buffer is always "future";
+		// getSamples skips it every call → covers the continue branch.
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("longSampleCoversCacheRefillAndPersistentEvent")
+	{
+		// Kit with a 1024-sample WAV.  After the first run() call opens the
+		// audio-cache entry (cache_id == CACHE_NOID → true), the SampleEvent
+		// persists.  On the second run() call the same event is found again
+		// with cache_id != CACHE_NOID (→ false branch) and the buffer-refill
+		// path at the bottom of getSamples is exercised.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("long.wav", 1024)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "long_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		// Wait for the kit to load.
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Fire audition onset to start playing the 1024-sample instrument.
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(0.8f);
+		settings.audition_counter.store(1);
+
+		// First run: cache opens (cache_id == CACHE_NOID true-branch).
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+
+		// Second run: same SampleEvent still active; cache was already opened
+		// (cache_id != CACHE_NOID → false-branch skips re-opening) and the
+		// buffer-refill code at the bottom of getSamples is exercised.
+		CHECK(dg.run(51u * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("renderSampleEventCoversRampdownAfterChoke")
+	{
+		// Uses a 1024-sample kit.  An audition onset starts the sample on
+		// run 51.  On run 52 the AudioInputEngine fires a Choke event which
+		// invokes processChoke() → applyChoke() → sets rampdown_count and
+		// ramp_length on the active SampleEvent.  When getSamples then calls
+		// renderSampleEvent on the same run, the inner sample loop reaches
+		// the `if(rampdownInProgress() && ...)` true-branch, exercising the
+		// rampdown-scale and rampdown_count-- code paths.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("rampdown.wav", 1024)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "rampdown_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineChokeOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		// Wait for the kit to load.
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Run 51: audition onset fires → SampleEvent created and 256 samples
+		// processed (evt.t = 256 after this call).
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(1.0f);
+		settings.audition_counter.store(1);
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+
+		// Run 52: choke fires (processed before getSamples); sets
+		// rampdown_count = ~19845 on the active SampleEvent.  The subsequent
+		// getSamples / renderSampleEvent call sees rampdown_offset (= 0) <
+		// evt.t + t (= 256 + t) for every t ≥ 0, and rampdown_count > 0 →
+		// the rampdown scale path is taken.
+		ie.setFireChoke(true);
+		CHECK(dg.run(51u * nsamples, buf.data(), nsamples));
 	}
 }
