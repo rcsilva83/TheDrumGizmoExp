@@ -54,17 +54,22 @@ public:
 	}
 	void stop() override
 	{
-		// no-op for test dummy
+		static_cast<void>(0);
 	}
 
 	void pre(size_t nsamples) override
 	{
+		(void)nsamples;
 	}
 	void run(int ch, sample_t* samples, size_t nsamples) override
 	{
+		(void)ch;
+		(void)samples;
+		(void)nsamples;
 	}
 	void post(size_t nsamples) override
 	{
+		(void)nsamples;
 	}
 	std::size_t getSamplerate() const override
 	{
@@ -129,12 +134,12 @@ public:
 	}
 	void stop() override
 	{
-		// no-op for test dummy
+		static_cast<void>(0);
 	}
 
 	void pre() override
 	{
-		// no-op for test dummy
+		static_cast<void>(0);
 	}
 	void run(size_t pos, size_t len, std::vector<event_t>& events) override
 	{
@@ -144,7 +149,7 @@ public:
 	}
 	void post() override
 	{
-		// no-op for test dummy
+		static_cast<void>(0);
 	}
 	void setSampleRate(double sample_rate) override
 	{
