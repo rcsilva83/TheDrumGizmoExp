@@ -28,6 +28,7 @@
 
 #include <chrono>
 #include <thread>
+#include <vector>
 
 #include <drumgizmo.h>
 
@@ -153,5 +154,130 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			settings.drumkit_file.store(kit2_file);
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+	}
+
+	SUBCASE("setSamplerateQualityClamping")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// Quality at lower boundary (0.0)
+		dg.setSamplerate(44100.0f, 0.0f);
+		auto latency_q0 = dg.getLatency();
+
+		// Quality below lower boundary should be clamped to 0.0
+		dg.setSamplerate(44100.0f, -0.5f);
+		auto latency_qneg = dg.getLatency();
+
+		// Quality at upper boundary (1.0)
+		dg.setSamplerate(44100.0f, 1.0f);
+		auto latency_q1 = dg.getLatency();
+
+		// Quality above upper boundary should be clamped to 1.0
+		dg.setSamplerate(44100.0f, 1.5f);
+		auto latency_qhigh = dg.getLatency();
+
+		// Out-of-range quality values produce identical latency to their
+		// clamped boundary
+		CHECK_EQ(latency_q0, latency_qneg);
+		CHECK_EQ(latency_q1, latency_qhigh);
+		// Higher quality uses a larger filter, so it contributes more latency
+		CHECK(latency_q0 < latency_q1);
+	}
+
+	SUBCASE("getLatencyIncludesResamplerWhenEnabled")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// Default: resampling enabled, ratio=1.0 (44100→44100), ratio != 0.0
+		// getLatency() adds zita[0].inpsize() when enable_resampling && ratio
+		// != 0.0
+		CHECK(dg.getLatency() > 0u);
+	}
+
+	SUBCASE("getLatencyExcludesResamplerWhenDisabled")
+	{
+		Settings settings;
+		settings.enable_resampling.store(false);
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// First run() propagates enable_resampling=false to the engine member
+		dg.init();
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		dg.run(0, buf.data(), nsamples);
+
+		// With resampling disabled and default settings (latency modifier off),
+		// getLatency() returns 0
+		CHECK_EQ(dg.getLatency(), 0u);
+	}
+
+	SUBCASE("resamplingRecommendedSetWhenRatioNotOne")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+
+		// Initially drumkit_samplerate (44100) == output samplerate (44100):
+		// ratio=1.0
+		CHECK_UNARY(!settings.resampling_recommended.load());
+
+		// Change output samplerate so ratio = 44100/48000 != 1.0
+		dg.setSamplerate(48000.0f);
+		CHECK_UNARY(settings.resampling_recommended.load());
+
+		// Restore equal samplerates: ratio=1.0
+		dg.setSamplerate(44100.0f);
+		CHECK_UNARY(!settings.resampling_recommended.load());
+	}
+
+	SUBCASE("runWithRatioNotOne")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		// Set output samplerate different from drumkit samplerate (44100)
+		// so ratio = 44100/48000 != 1.0, which selects the resampling branch
+		dg.setSamplerate(48000.0f);
+
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		// run() should execute the resampling code path without crashing
+		auto result = dg.run(0, buf.data(), nsamples);
+
+		// No Stop event was seen, so run() returns true
+		CHECK(result);
+		// Resampler latency is included (enable_resampling=true, ratio != 0.0)
+		CHECK(dg.getLatency() > 0u);
+	}
+
+	SUBCASE("runWithRatioOne")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.init();
+
+		// Default: output samplerate == drumkit samplerate (44100), ratio=1.0
+		// Selects the non-resampling code path
+		constexpr size_t nsamples = 512;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto result = dg.run(0, buf.data(), nsamples);
+
+		CHECK(result);
 	}
 }
