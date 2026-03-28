@@ -24,3 +24,46 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
+#include <doctest/doctest.h>
+
+#include <audiocache.h>
+#include <settings.h>
+
+TEST_CASE("AudioCacheFrameSize")
+{
+	SUBCASE("initial_framesize_is_zero")
+	{
+		Settings settings;
+		AudioCache cache(settings);
+		CHECK_EQ(std::size_t(0), cache.getFrameSize());
+	}
+
+	SUBCASE("set_and_get_framesize_roundtrip")
+	{
+		Settings settings;
+		AudioCache cache(settings);
+		cache.setFrameSize(64);
+		CHECK_EQ(std::size_t(64), cache.getFrameSize());
+	}
+
+	SUBCASE("increase_then_decrease_framesize")
+	{
+		// Growing the framesize reallocates the nodata buffer; shrinking it
+		// keeps the larger allocation but must still report the current size.
+		Settings settings;
+		AudioCache cache(settings);
+		cache.setFrameSize(128);
+		CHECK_EQ(std::size_t(128), cache.getFrameSize());
+		cache.setFrameSize(64);
+		CHECK_EQ(std::size_t(64), cache.getFrameSize());
+	}
+
+	SUBCASE("repeated_set_same_framesize")
+	{
+		Settings settings;
+		AudioCache cache(settings);
+		cache.setFrameSize(256);
+		cache.setFrameSize(256);
+		CHECK_EQ(std::size_t(256), cache.getFrameSize());
+	}
+}

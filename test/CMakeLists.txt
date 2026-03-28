@@ -130,6 +130,25 @@ dg_add_doctest_test(audiocacheeventhandler
 		SndFile::sndfile
 )
 
+dg_add_doctest_test(framesizetest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/audiocache.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiocacheeventhandler.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiocachefile.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiocacheidmanager.cc"
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/thread.cc"
+		"${CMAKE_SOURCE_DIR}/src/sem.cc"
+		"${CMAKE_SOURCE_DIR}/test/framesizetest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		Threads::Threads
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(enginetest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
