@@ -1219,5 +1219,49 @@ TEST_CASE("DGXmlParserTest")
 			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
 			CHECK_UNARY(has_level(LogLevel::Error));
 		}
+
+		// Non-existent file with logger: getLineNumberFromOffset fopen returns
+		// null because the file does not exist on disk
+		{
+			log_messages.clear();
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(
+			    "/nonexistent/drumgizmo/test/file.xml", dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Empty file with logger: getLineNumberFromOffset hits EOF immediately
+		// because the file exists but has zero content
+		{
+			ScopedFile empty_file("");
+			log_messages.clear();
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(empty_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+	}
+
+	SUBCASE("instrumentParserTest_version1_exact")
+	{
+		// Use version="1" (distinct from "1.0" and "1.0.0") to cover the
+		// dom.version == "1" branch of the version check in
+		// parseInstrumentFile. No samples are included to avoid the
+		// power-attribute path that only skips for exactly "1.0".
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument name=\"Snare\" version=\"1\">\n"
+		    "  <samples/>\n"
+		    "  <velocities>\n"
+		    "    <velocity lower=\"0.0\" upper=\"1.0\">\n"
+		    "      <sampleref probability=\"1.0\" name=\"Snare-1\"/>\n"
+		    "    </velocity>\n"
+		    "  </velocities>\n"
+		    "</instrument>");
+
+		InstrumentDOM dom;
+		CHECK(parseInstrumentFile(scoped_file.filename(), dom));
+		CHECK_EQ(std::string("1"), dom.version);
+		REQUIRE_EQ(std::size_t(1), dom.velocities.size());
+		CHECK_EQ(std::size_t(1), dom.velocities[0].samplerefs.size());
 	}
 }
