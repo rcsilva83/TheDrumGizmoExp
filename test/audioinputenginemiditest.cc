@@ -264,9 +264,17 @@ TEST_CASE("AudioInputEngineMidiTest")
 		// and loadMidiMap to return false.
 		TestMidiEngine engine;
 		Instruments instruments;
+		std::string nonexistent_filename;
 
-		CHECK_UNARY_FALSE(engine.loadMidiMap(
-		    "/tmp/audioinputenginemidi_nonexistent_xyz.xml", instruments));
+		{
+			// Create a unique temp path and let ScopedFile remove it before
+			// use.
+			ScopedFile file("tmp");
+			nonexistent_filename = file.filename();
+		}
+
+		CHECK_UNARY_FALSE(
+		    engine.loadMidiMap(nonexistent_filename, instruments));
 		CHECK_UNARY_FALSE(engine.isValid());
 	}
 
