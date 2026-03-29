@@ -78,6 +78,7 @@ dg_add_doctest_test(audiocache
 		"${DG_HUGIN_SOURCE_DIR}"
 	COMPILE_DEFINITIONS
 		DISABLE_HUGIN
+		DG_ENABLE_TESTS
 	LINK_LIBRARIES
 		Threads::Threads
 		SndFile::sndfile

@@ -574,15 +574,11 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		auto filename =
 		    drumkit_creator.createSingleChannelWav("single_channel.wav");
 
-		// Simulate the use-after-free sentinel scenario: construct an AudioFile
-		// in aligned stack storage via placement-new, load it, then explicitly
-		// invoke its destructor (which sets magic = nullptr so isValid()
-		// returns false). This exercises the !isValid() early-return path in
-		// AudioCache::open() without requiring a real race condition.
-		alignas(AudioFile) char storage[sizeof(AudioFile)];
-		AudioFile* file_ptr = new(storage) AudioFile(filename.c_str(), 0);
-		file_ptr->load(nullptr);
-		file_ptr->~AudioFile(); // magic = nullptr; isValid() now returns false
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr);
+		REQUIRE_UNARY(audio_file.isValid());
+		audio_file.invalidateForTesting();
+		CHECK_UNARY_FALSE(audio_file.isValid());
 
 		Settings settings;
 		AudioCache audio_cache(settings);
@@ -592,9 +588,7 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		audio_cache.updateChunkSize(1);
 
 		cacheid_t id;
-		// open() checks isValid() first and returns CACHE_DUMMYID + underrun
-		// when the file sentinel is cleared.
-		audio_cache.open(*file_ptr, 0, 0, id);
+		audio_cache.open(audio_file, 0, 0, id);
 		CHECK_EQ(CACHE_DUMMYID, id);
 		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
 	}
