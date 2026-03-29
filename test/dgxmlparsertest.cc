@@ -804,36 +804,29 @@ TEST_CASE("DGXmlParserTest")
 		};
 
 		const MissingAttributeCase cases[] = {
-		    {
-		        "Channel without name",
-		        "<?xml version='1.0' encoding='UTF-8'?>\n"
-		        "<drumkit>\n"
-		        "  <channels>\n"
-		        "    <channel/>\n"
-		        "  </channels>\n"
-		        "  <instruments/>\n"
-		        "</drumkit>"
-		    },
-		    {
-		        "Instrument without name",
+		    {"Channel without name", "<?xml version='1.0' encoding='UTF-8'?>\n"
+		                             "<drumkit>\n"
+		                             "  <channels>\n"
+		                             "    <channel/>\n"
+		                             "  </channels>\n"
+		                             "  <instruments/>\n"
+		                             "</drumkit>"},
+		    {"Instrument without name",
 		        "<?xml version='1.0' encoding='UTF-8'?>\n"
 		        "<drumkit>\n"
 		        "  <channels/>\n"
 		        "  <instruments>\n"
 		        "    <instrument file=\"hat.xml\"/>\n"
 		        "  </instruments>\n"
-		        "</drumkit>"
-		    },
-		    {
-		        "Instrument without file",
+		        "</drumkit>"},
+		    {"Instrument without file",
 		        "<?xml version='1.0' encoding='UTF-8'?>\n"
 		        "<drumkit>\n"
 		        "  <channels/>\n"
 		        "  <instruments>\n"
 		        "    <instrument name=\"Hat\"/>\n"
 		        "  </instruments>\n"
-		        "</drumkit>"
-		    },
+		        "</drumkit>"},
 		};
 
 		for(const auto& test : cases)
@@ -1038,13 +1031,15 @@ TEST_CASE("DGXmlParserTest")
 	{
 		std::vector<LogLevel> log_messages;
 		auto logger = [&log_messages](LogLevel level, const std::string& msg)
-		{ log_messages.emplace_back(level); (void)msg; };
+		{
+			log_messages.emplace_back(level);
+			(void)msg;
+		};
 
 		auto has_level = [&log_messages](LogLevel level) -> bool
 		{
 			return std::any_of(log_messages.begin(), log_messages.end(),
-			    [level](LogLevel entry)
-			    { return entry == level; });
+			    [level](LogLevel entry) { return entry == level; });
 		};
 
 		// Malformed drumkit XML logs an error and returns false
