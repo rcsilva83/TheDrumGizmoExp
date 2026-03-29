@@ -26,6 +26,7 @@
 #include <doctest/doctest.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -111,10 +112,11 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(60, "Kick", 0);
 
-		std::uint8_t note_on_velocity_zero[] = {NOTE_ON, 60, 0};
+		std::array<std::uint8_t, 3> note_on_velocity_zero{{NOTE_ON, 60, 0}};
 		std::vector<event_t> events;
 
-		engine.processNote(note_on_velocity_zero, 3, 0, events);
+		engine.processNote(note_on_velocity_zero.data(),
+		    note_on_velocity_zero.size(), 0, events);
 
 		CHECK_EQ(0u, events.size());
 	}
@@ -126,10 +128,10 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(60, "Kick", 0);
 
-		std::uint8_t note_on[] = {NOTE_ON, 60, 64};
+		std::array<std::uint8_t, 3> note_on{{NOTE_ON, 60, 64}};
 		std::vector<event_t> events;
 
-		engine.processNote(note_on, 3, 0, events);
+		engine.processNote(note_on.data(), note_on.size(), 0, events);
 
 		CHECK_EQ(1u, events.size());
 		CHECK_EQ(EventType::OnSet, events[0].type);
@@ -146,10 +148,12 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(49, "Crash", 1);
 
-		std::uint8_t aftertouch_positive[] = {NOTE_AFTERTOUCH, 49, 100};
+		std::array<std::uint8_t, 3> aftertouch_positive{
+		    {NOTE_AFTERTOUCH, 49, 100}};
 		std::vector<event_t> events;
 
-		engine.processNote(aftertouch_positive, 3, 0, events);
+		engine.processNote(
+		    aftertouch_positive.data(), aftertouch_positive.size(), 0, events);
 
 		CHECK_EQ(1u, events.size());
 		CHECK_EQ(EventType::Choke, events[0].type);
@@ -165,10 +169,11 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(49, "Crash", 1);
 
-		std::uint8_t aftertouch_zero[] = {NOTE_AFTERTOUCH, 49, 0};
+		std::array<std::uint8_t, 3> aftertouch_zero{{NOTE_AFTERTOUCH, 49, 0}};
 		std::vector<event_t> events;
 
-		engine.processNote(aftertouch_zero, 3, 0, events);
+		engine.processNote(
+		    aftertouch_zero.data(), aftertouch_zero.size(), 0, events);
 
 		CHECK_EQ(0u, events.size());
 	}
@@ -180,10 +185,10 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(60, "Kick", 0);
 
-		std::uint8_t short_buf[] = {NOTE_ON, 60};
+		std::array<std::uint8_t, 2> short_buf{{NOTE_ON, 60}};
 		std::vector<event_t> events;
 
-		engine.processNote(short_buf, 2, 0, events);
+		engine.processNote(short_buf.data(), short_buf.size(), 0, events);
 
 		CHECK_EQ(0u, events.size());
 	}
@@ -194,10 +199,10 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(60, "Kick", 0);
 
-		std::uint8_t note_off[] = {NOTE_OFF, 60, 64};
+		std::array<std::uint8_t, 3> note_off{{NOTE_OFF, 60, 64}};
 		std::vector<event_t> events;
 
-		engine.processNote(note_off, 3, 0, events);
+		engine.processNote(note_off.data(), note_off.size(), 0, events);
 
 		CHECK_EQ(0u, events.size());
 	}
@@ -209,10 +214,10 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMultiMapping(60, {{"Kick", 0}, {"Snare", 1}});
 
-		std::uint8_t note_on[] = {NOTE_ON, 60, 64};
+		std::array<std::uint8_t, 3> note_on{{NOTE_ON, 60, 64}};
 		std::vector<event_t> events;
 
-		engine.processNote(note_on, 3, 0, events);
+		engine.processNote(note_on.data(), note_on.size(), 0, events);
 
 		CHECK_EQ(2u, events.size());
 		CHECK_EQ(EventType::OnSet, events[0].type);
@@ -233,10 +238,11 @@ TEST_CASE("AudioInputEngineMidiTest")
 		TestMidiEngine engine;
 		engine.setupMapping(60, "Kick", 0);
 
-		std::uint8_t control_change[] = {0xB0, 60, 64};
+		std::array<std::uint8_t, 3> control_change{{0xB0, 60, 64}};
 		std::vector<event_t> events;
 
-		engine.processNote(control_change, 3, 0, events);
+		engine.processNote(
+		    control_change.data(), control_change.size(), 0, events);
 
 		CHECK_EQ(0u, events.size());
 	}
