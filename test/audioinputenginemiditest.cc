@@ -25,7 +25,9 @@
  */
 #include <doctest/doctest.h>
 
+#include <algorithm>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include <event.h>
@@ -72,6 +74,20 @@ public:
 	{
 		midimap_t mm{{note, instrument_name}};
 		instrmap_t im{{instrument_name, instrument_id}};
+		mmap.swap(im, mm);
+	}
+
+	// Set up multiple instruments mapped to the same note (fanout scenario).
+	void setupMultiMapping(int note,
+	    const std::vector<std::pair<std::string, std::size_t>>& mappings)
+	{
+		midimap_t mm;
+		instrmap_t im;
+		for(const auto& m : mappings)
+		{
+			mm.push_back({note, m.first});
+			im[m.first] = static_cast<int>(m.second);
+		}
 		mmap.swap(im, mm);
 	}
 };
@@ -181,5 +197,28 @@ TEST_CASE("AudioInputEngineMidiTest")
 		engine.processNote(note_off, 3, 0, events);
 
 		CHECK_EQ(0u, events.size());
+	}
+
+	SUBCASE("one_note_mapped_to_multiple_instruments_generates_multiple_events")
+	{
+		// Fanout: a single MIDI note mapped to two different instruments must
+		// produce one OnSet event per instrument.
+		TestMidiEngine engine;
+		engine.setupMultiMapping(60, {{"Kick", 0}, {"Snare", 1}});
+
+		std::uint8_t note_on[] = {NOTE_ON, 60, 64};
+		std::vector<event_t> events;
+
+		engine.processNote(note_on, 3, 0, events);
+
+		CHECK_EQ(2u, events.size());
+		CHECK_EQ(EventType::OnSet, events[0].type);
+		CHECK_EQ(EventType::OnSet, events[1].type);
+		// Both mapped instruments must appear, regardless of iteration order.
+		std::vector<std::size_t> instruments{
+		    events[0].instrument, events[1].instrument};
+		std::sort(instruments.begin(), instruments.end());
+		CHECK_EQ(0u, instruments[0]);
+		CHECK_EQ(1u, instruments[1]);
 	}
 }
