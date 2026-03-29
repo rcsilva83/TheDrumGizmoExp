@@ -118,41 +118,64 @@ public:
 	}
 };
 
+// Returns true if the pixel buffer contains at least one non-transparent pixel.
+static bool hasAnyDrawnPixels(TestableCanvas& canvas)
+{
+	auto& pixbuf = canvas.getPixelBuffer();
+	for(std::size_t x = 0; x < pixbuf.width; ++x)
+	{
+		for(std::size_t y = 0; y < pixbuf.height; ++y)
+		{
+			const auto& c = pixbuf.pixel(x, y);
+			if(c.red() > 0 || c.green() > 0 || c.blue() > 0 || c.alpha() > 0)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 TEST_CASE("PainterTest")
 {
 	SUBCASE("testDrawImage")
 	{
-		// Success criterion is simply to not assert in the drawing routines...
 		dggui::Image image(":resources/logo.png");
+		REQUIRE(image.isValid());
 
-		{ // Image fits in pixelbuffer
+		{ // Image fits in pixelbuffer - something must be drawn
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(0, 0, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Image fits in pixelbuffer, negative offset
+		{ // Image fits, negative offset - part is still in bounds
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(-10, -10, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Image too big for pixelbuffer
+		{ // Image too big for pixelbuffer - clipped, but still draws into it
 			TestableCanvas canvas(image.width() / 2, image.height() / 2);
 			dggui::Painter painter(canvas);
 			painter.drawImage(0, 0, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Image fits in pixelbuffer but offset so it is drawn over the edge.
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(10, 10, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Image is offset to the right and down so nothing is to be drawn.
 			TestableCanvas canvas(image.width(), image.height());
 			dggui::Painter painter(canvas);
 			painter.drawImage(image.width() + 1, image.height() + 1, image);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Image is offset to the left and up so nothing is to be drawn.
@@ -160,46 +183,55 @@ TEST_CASE("PainterTest")
 			dggui::Painter painter(canvas);
 			painter.drawImage(
 			    -1 * (image.width() + 1), -1 * (image.height() + 1), image);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
 		}
 	}
 
 	SUBCASE("testDrawText")
 	{
-		// Success criterion is simply to not assert in the drawing routines...
 		dggui::Font font;
 		// a string with unicode characters
 		std::string someText = "Hello World - лæ Библиотека";
 		std::size_t width = font.textWidth(someText);
 		std::size_t height = font.textHeight(someText);
 
-		{ // Text fits in pixelbuffer
+		{ // Text fits in pixelbuffer - glyphs must be rendered into the buffer
+			// drawText y is the baseline; passing y=height places it at the
+			// bottom of the canvas so the full text is rendered inside it.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(0, 0, font, someText);
+			painter.drawText(0, height, font, someText);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Text fits in pixelbuffer, negative offset
+		{ // Text fits, negative x offset - part is still in bounds
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(-10, -10, font, someText);
+			painter.drawText(-10, height, font, someText);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
-		{ // Text too big for pixelbuffer
+		{ // Text too big for pixelbuffer - clipped, but still draws into it
+			// Canvas is half-size; pass y=height/2 as baseline so the bottom
+			// half of the text is visible in the smaller canvas.
 			TestableCanvas canvas(width / 2, height / 2);
 			dggui::Painter painter(canvas);
-			painter.drawText(0, 0, font, someText);
+			painter.drawText(0, height / 2, font, someText);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Text fits in pixelbuffer but offset so it is drawn over the edge.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
-			painter.drawText(10, 10, font, someText);
+			painter.drawText(10, height, font, someText);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Text is offset to the right and down so nothing is to be drawn.
 			TestableCanvas canvas(width, height);
 			dggui::Painter painter(canvas);
 			painter.drawText(width + 1, height + 1, font, someText);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Text is offset to the left and up so nothing is to be drawn.
@@ -208,6 +240,7 @@ TEST_CASE("PainterTest")
 			painter.drawText(
 			    // cppcheck-suppress signConversion
 			    -1 * (width + 1), -1 * (height + 1), font, someText);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
 		}
 	}
 

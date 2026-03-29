@@ -75,6 +75,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -159,6 +161,19 @@ jobs:
 
       - name: Check coverage thresholds
         run: python3 scripts/check-coverage.py
+
+      - name: Check changed-file coverage (PRs only)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '^(src|dggui|plugingui|plugin|drumgizmo)/' \
+            | grep -E '\.(c|cc|cpp|cxx)$' || true)
+          if [ -n "$CHANGED" ]; then
+            python3 scripts/check-pr-coverage.py --xml coverage.xml $CHANGED
+          else
+            echo "No changed instrumented source files found. Skipping changed-file check."
+          fi
 
       - name: Generate top uncovered-files report
         run: |

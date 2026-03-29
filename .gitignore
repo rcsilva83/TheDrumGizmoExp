@@ -64,3 +64,5 @@ dgvalidator
 build/
 build-*/
 *.deb
+*.gcov
+coverage-*.json

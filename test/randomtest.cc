@@ -60,9 +60,9 @@ TEST_CASE("RandomTest")
 
 	SUBCASE("normalTest")
 	{
-		// This test might theoretically fail but it is extremely unlikely to
-		// happen.
-		Random rand;
+		// Fixed seed makes the test deterministic; 50000 samples ensures the
+		// statistical estimates converge well within epsilon on every run.
+		Random rand(42);
 
 		float real_mean = 42.0;
 		float real_stddev = 2.0;

@@ -37,6 +37,8 @@
 
 #define FRAMESIZE 64
 
+static constexpr std::size_t preload_buffer_size{4096};
+
 struct AudioCacheTestFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -202,5 +204,232 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		++channel;
 		testHelper(
 		    filename.c_str(), channel, threaded, FRAMESIZE, num_channels);
+	}
+
+	SUBCASE("nonthreadedThreadedParity")
+	{
+		printf("\nnonthreaded_threaded_parity()\n");
+
+		auto filename = drumkit_creator.createSingleChannelWav("parity.wav");
+
+		int channel = 0;
+		int num_channels = 1;
+
+		// Both modes must produce identical correct output against the
+		// reference
+		testHelper(filename.c_str(), channel, false, FRAMESIZE, num_channels);
+		testHelper(filename.c_str(), channel, true, FRAMESIZE, num_channels);
+	}
+
+	SUBCASE("updateChunkSizeWhileEventsQueued")
+	{
+		printf("\nupdate_chunk_size_while_events_queued()\n");
+
+		// Create a file larger than the preload buffer to force disk streaming
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr, preload_buffer_size);
+		REQUIRE_LT(audio_file.preloadedsize, audio_file.size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(100);
+		audio_cache.setAsyncMode(true);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// Keep async mode enabled but stop the worker thread so events remain
+		// queued until the test explicitly changes state.
+		audio_cache.deinit();
+
+		cacheid_t id;
+		// Open queues a LoadNext event when file.size > preloadedsize
+		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+		REQUIRE_UNARY(!audio_cache.isReady(id));
+
+		// Change chunk size while the LoadNext event is queued.
+		// setChunkSize clears queued load events and disables active IDs.
+		audio_cache.updateChunkSize(13);
+		CHECK_UNARY(!audio_cache.isReady(id));
+
+		std::size_t size = FRAMESIZE;
+		audio_cache.next(id, size);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
+
+		// Close the entry; the destructor will process the Close event.
+		audio_cache.close(id);
+	}
+
+	SUBCASE("closeWhileLoadQueued")
+	{
+		printf("\nclose_while_load_queued()\n");
+
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr, preload_buffer_size);
+		REQUIRE_LT(audio_file.preloadedsize, audio_file.size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(1);
+		audio_cache.setAsyncMode(true);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// Keep async mode enabled but stop the worker thread so events remain
+		// queued deterministically.
+		audio_cache.deinit();
+
+		cacheid_t id;
+		// Open queues a LoadNext event
+		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+		REQUIRE_UNARY(!audio_cache.isReady(id));
+
+		// Queue Close while LoadNext is still pending.
+		audio_cache.close(id);
+
+		cacheid_t second_id;
+		audio_cache.open(audio_file, 0, 0, second_id);
+		CHECK_EQ(CACHE_DUMMYID, second_id);
+	}
+
+	SUBCASE("dummyIdOperations")
+	{
+		printf("\ndummy_id_operations()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(10);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// next() with CACHE_DUMMYID increments underruns and returns nodata
+		std::size_t size = FRAMESIZE;
+		sample_t* result = audio_cache.next(CACHE_DUMMYID, size);
+		CHECK_NE(nullptr, result);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
+
+		// isReady() with CACHE_DUMMYID returns true (no pending read)
+		CHECK_UNARY(audio_cache.isReady(CACHE_DUMMYID));
+
+		// close() with CACHE_DUMMYID is a no-op; no crash
+		audio_cache.close(CACHE_DUMMYID);
+	}
+
+	SUBCASE("getterCoverage")
+	{
+		printf("\ngetter_coverage()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+
+		audio_cache.setFrameSize(64);
+		CHECK_EQ(std::size_t(64), audio_cache.getFrameSize());
+
+		audio_cache.setAsyncMode(true);
+		CHECK_UNARY(audio_cache.isAsyncMode());
+
+		audio_cache.setAsyncMode(false);
+		CHECK_UNARY(!audio_cache.isAsyncMode());
+	}
+
+	SUBCASE("setFrameSizeGrowsNodataBuffer")
+	{
+		printf("\nset_frame_size_grows_nodata_buffer()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+
+		// First allocation at 64
+		audio_cache.setFrameSize(64);
+		CHECK_EQ(std::size_t(64), audio_cache.getFrameSize());
+
+		// Growing triggers nodata_dirty path (old buffer saved, new allocated)
+		audio_cache.setFrameSize(256);
+		CHECK_EQ(std::size_t(256), audio_cache.getFrameSize());
+	}
+
+	SUBCASE("fullyPreloadedFileNoDiscStreaming")
+	{
+		printf("\nfully_preloaded_file_no_disc_streaming()\n");
+
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
+
+		// Load entire file - preloadedsize == size
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr);
+		CHECK_EQ(audio_file.preloadedsize, audio_file.size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(10);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		cacheid_t id;
+		sample_t* data = audio_cache.open(audio_file, 0, 0, id);
+		CHECK_NE(CACHE_DUMMYID, id);
+		CHECK_EQ(data, audio_file.data);
+
+		// No LoadNext event queued; no underruns expected
+		CHECK_EQ(std::size_t(0), settings.number_of_underruns.load());
+
+		audio_cache.close(id);
+	}
+
+	SUBCASE("nullFrontBufferUnderrun")
+	{
+		printf("\nnull_front_buffer_underrun()\n");
+
+		// Large enough file so preloadedsize < size
+		auto filename =
+		    drumkit_creator.createMultiChannelWav("multi_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr, preload_buffer_size);
+		REQUIRE_LT(audio_file.preloadedsize, audio_file.size);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(100);
+		audio_cache.setAsyncMode(true);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+		// Stop worker so disk reads never complete and front stays null.
+		audio_cache.deinit();
+
+		cacheid_t id;
+		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+
+		// Exhaust the preloaded buffer.
+		const std::size_t iters = audio_file.preloadedsize / FRAMESIZE;
+		for(std::size_t i = 0; i < iters; ++i)
+		{
+			std::size_t sz = FRAMESIZE;
+			audio_cache.next(id, sz);
+		}
+
+		// First next() past preloaded: c.ready=false → underrun #1
+		std::size_t sz = FRAMESIZE;
+		audio_cache.next(id, sz);
+		const auto underruns_after_first = settings.number_of_underruns.load();
+		CHECK_GT(underruns_after_first, std::size_t(0));
+
+		// Second next(): cache path with null front buffer → underrun #2
+		sz = FRAMESIZE;
+		audio_cache.next(id, sz);
+		CHECK_GT(settings.number_of_underruns.load(), underruns_after_first);
+
+		audio_cache.close(id);
 	}
 }

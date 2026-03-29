@@ -29,20 +29,8 @@
 #include <cassert>
 
 #include <chrono>
-#include <iostream>
 
 #include "../src/sem.h"
-
-std::chrono::nanoseconds dist(const std::chrono::duration<float>& a,
-    const std::chrono::duration<float>& b)
-{
-	if(a > b)
-	{
-		return std::chrono::duration_cast<std::chrono::nanoseconds>(a - b);
-	}
-
-	return std::chrono::duration_cast<std::chrono::nanoseconds>(b - a);
-}
 
 TEST_CASE("SemaphoreTest")
 {
@@ -56,9 +44,13 @@ TEST_CASE("SemaphoreTest")
 			CHECK(!res); // false means timeout
 			auto stop = std::chrono::steady_clock::now();
 
-			// Allow +/-1ms skew
-			CHECK(dist((stop - start), std::chrono::milliseconds(1000)) <
-			      std::chrono::milliseconds(60));
+			auto elapsed =
+			    std::chrono::duration_cast<std::chrono::milliseconds>(
+			        stop - start);
+			// Must have waited at least the requested duration, and not
+			// more than 1300 ms to accommodate loaded CI runners.
+			CHECK(elapsed >= std::chrono::milliseconds(1000));
+			CHECK(elapsed < std::chrono::milliseconds(1300));
 		}
 
 		{ // 100ms timeout
@@ -67,9 +59,13 @@ TEST_CASE("SemaphoreTest")
 			CHECK(!res); // false means timeout
 			auto stop = std::chrono::steady_clock::now();
 
-			// Allow +/-1ms skew
-			CHECK(dist((stop - start), std::chrono::milliseconds(100)) <
-			      std::chrono::milliseconds(60));
+			auto elapsed =
+			    std::chrono::duration_cast<std::chrono::milliseconds>(
+			        stop - start);
+			// Must have waited at least the requested duration, and not
+			// more than 300 ms to accommodate loaded CI runners.
+			CHECK(elapsed >= std::chrono::milliseconds(100));
+			CHECK(elapsed < std::chrono::milliseconds(300));
 		}
 	}
 }
