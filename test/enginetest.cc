@@ -98,7 +98,7 @@ public:
 	{
 		if(ch % 2 == 0)
 		{
-			return const_cast<sample_t*>(internal_buffer.data());
+			return internal_buffer.data();
 		}
 
 		return nullptr;
