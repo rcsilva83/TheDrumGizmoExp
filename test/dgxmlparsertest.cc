@@ -1098,7 +1098,7 @@ TEST_CASE("DGXmlParserTest")
 			CHECK_UNARY(has_level(LogLevel::Error));
 		}
 
-		// Malformed instrument XML logs a warning
+		// Malformed instrument XML logs a warning (and may also emit errors)
 		{
 			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
 			                       "<instrument\n"
