@@ -54,7 +54,7 @@ public:
 	}
 	void stop() override
 	{
-		static_cast<void>(0);
+		// no-op for test dummy
 	}
 
 	void pre(size_t nsamples) override
