@@ -32,7 +32,6 @@
 
 #include "scopedfile.h"
 #include <dgxmlparser.h>
-#include <logger.h>
 
 TEST_CASE("DGXmlParserTest")
 {
@@ -798,48 +797,53 @@ TEST_CASE("DGXmlParserTest")
 
 	SUBCASE("drumkitMissingRequiredAttributes")
 	{
-		// Channel without name
+		struct MissingAttributeCase
 		{
-			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
-			                       "<drumkit>\n"
-			                       "  <channels>\n"
-			                       "    <channel/>\n"
-			                       "  </channels>\n"
-			                       "  <instruments/>\n"
-			                       "</drumkit>");
+			const char* name;
+			const char* xml;
+		};
+
+		const MissingAttributeCase cases[] = {
+		    {
+		        "Channel without name",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels>\n"
+		        "    <channel/>\n"
+		        "  </channels>\n"
+		        "  <instruments/>\n"
+		        "</drumkit>"
+		    },
+		    {
+		        "Instrument without name",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels/>\n"
+		        "  <instruments>\n"
+		        "    <instrument file=\"hat.xml\"/>\n"
+		        "  </instruments>\n"
+		        "</drumkit>"
+		    },
+		    {
+		        "Instrument without file",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels/>\n"
+		        "  <instruments>\n"
+		        "    <instrument name=\"Hat\"/>\n"
+		        "  </instruments>\n"
+		        "</drumkit>"
+		    },
+		};
+
+		for(const auto& test : cases)
+		{
+			CAPTURE(test.name);
+			ScopedFile scoped_file(test.xml);
 
 			DrumkitDOM dom;
 			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
 		}
-
-		// Instrument without name
-		{
-			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
-			                       "<drumkit>\n"
-			                       "  <channels/>\n"
-			                       "  <instruments>\n"
-			                       "    <instrument file=\"hat.xml\"/>\n"
-			                       "  </instruments>\n"
-			                       "</drumkit>");
-
-			DrumkitDOM dom;
-			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
-		}
-
-		// Instrument without file
-		{
-			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
-			                       "<drumkit>\n"
-			                       "  <channels/>\n"
-			                       "  <instruments>\n"
-			                       "    <instrument name=\"Hat\"/>\n"
-			                       "  </instruments>\n"
-			                       "</drumkit>");
-
-			DrumkitDOM dom;
-			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
-		}
-
 		// Channelmap without in
 		{
 			ScopedFile scoped_file(
@@ -1032,15 +1036,15 @@ TEST_CASE("DGXmlParserTest")
 
 	SUBCASE("loggerCallbackTests")
 	{
-		std::vector<std::pair<LogLevel, std::string>> log_messages;
+		std::vector<LogLevel> log_messages;
 		auto logger = [&log_messages](LogLevel level, const std::string& msg)
-		{ log_messages.emplace_back(level, msg); };
+		{ log_messages.emplace_back(level); (void)msg; };
 
 		auto has_level = [&log_messages](LogLevel level) -> bool
 		{
 			return std::any_of(log_messages.begin(), log_messages.end(),
-			    [level](const std::pair<LogLevel, std::string>& entry)
-			    { return entry.first == level; });
+			    [level](LogLevel entry)
+			    { return entry == level; });
 		};
 
 		// Malformed drumkit XML logs an error and returns false
