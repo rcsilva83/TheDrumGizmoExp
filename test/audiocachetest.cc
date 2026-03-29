@@ -510,7 +510,7 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 		std::size_t sz = FRAMESIZE;
 		sample_t* result = audio_cache.next(id, sz);
 		CHECK_NE(nullptr, result);
-		CHECK_GT(settings.number_of_underruns.load(), std::size_t(0));
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
 
 		audio_cache.close(id);
 	}
