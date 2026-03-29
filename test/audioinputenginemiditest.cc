@@ -32,8 +32,11 @@
 
 #include <event.h>
 #include <midimapper.h>
+#include <settings.h>
 
 #include "audioinputenginemidi.h"
+#include "cpp11fix.h"
+#include "scopedfile.h"
 
 // Concrete subclass used only for testing processNote().
 // All pure virtuals are stubbed out since only processNote() is exercised.
@@ -220,5 +223,80 @@ TEST_CASE("AudioInputEngineMidiTest")
 		std::sort(instruments.begin(), instruments.end());
 		CHECK_EQ(0u, instruments[0]);
 		CHECK_EQ(1u, instruments[1]);
+	}
+
+	SUBCASE("unknown_midi_type_generates_no_event")
+	{
+		// A MIDI message whose type nibble does not match NoteOff, NoteOn, or
+		// NoteAftertouch (e.g. 0xB0 = Control Change) must hit the default
+		// switch branch and produce no event.
+		TestMidiEngine engine;
+		engine.setupMapping(60, "Kick", 0);
+
+		std::uint8_t control_change[] = {0xB0, 60, 64};
+		std::vector<event_t> events;
+
+		engine.processNote(control_change, 3, 0, events);
+
+		CHECK_EQ(0u, events.size());
+	}
+
+	SUBCASE("loadMidiMap_empty_filename_returns_false")
+	{
+		// Passing an empty filename must return false immediately without
+		// setting the valid flag.
+		TestMidiEngine engine;
+		Instruments instruments;
+
+		CHECK_UNARY_FALSE(engine.loadMidiMap("", instruments));
+		CHECK_UNARY_FALSE(engine.isValid());
+	}
+
+	SUBCASE("loadMidiMap_nonexistent_file_returns_false")
+	{
+		// Passing a path that does not exist must cause the XML parser to fail
+		// and loadMidiMap to return false.
+		TestMidiEngine engine;
+		Instruments instruments;
+
+		CHECK_UNARY_FALSE(engine.loadMidiMap(
+		    "/tmp/audioinputenginemidi_nonexistent_xyz.xml", instruments));
+		CHECK_UNARY_FALSE(engine.isValid());
+	}
+
+	SUBCASE("loadMidiMap_valid_file_returns_true_and_sets_accessors")
+	{
+		// A well-formed midimap XML file must make loadMidiMap return true,
+		// set isValid() to true, and record the filename in getMidimapFile().
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>"
+		                        "<midimap>"
+		                        "<map note=\"36\" instr=\"Kick\" />"
+		                        "</midimap>");
+
+		TestMidiEngine engine;
+		Instruments instruments;
+
+		CHECK_UNARY(engine.loadMidiMap(midimap_file.filename(), instruments));
+		CHECK_UNARY(engine.isValid());
+		CHECK_EQ(midimap_file.filename(), engine.getMidimapFile());
+	}
+
+	SUBCASE("loadMidiMap_valid_file_with_instruments_builds_instrmap")
+	{
+		// Passing a non-empty Instruments vector exercises the for-loop body
+		// inside loadMidiMap that builds the instrmap_t.
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>"
+		                        "<midimap>"
+		                        "<map note=\"36\" instr=\"Kick\" />"
+		                        "</midimap>");
+
+		Settings settings;
+		Random rand;
+		Instruments instruments;
+		instruments.push_back(std::make_unique<Instrument>(settings, rand));
+
+		TestMidiEngine engine;
+		CHECK_UNARY(engine.loadMidiMap(midimap_file.filename(), instruments));
+		CHECK_UNARY(engine.isValid());
 	}
 }

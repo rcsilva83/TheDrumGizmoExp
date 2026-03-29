@@ -405,6 +405,7 @@ dg_add_doctest_test(audioinputenginemiditest
 		"${CMAKE_SOURCE_DIR}/src/sample.cc"
 		"${CMAKE_SOURCE_DIR}/src/sample_selection.cc"
 		"${CMAKE_SOURCE_DIR}/src/versionstr.cc"
+		"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 		"${CMAKE_SOURCE_DIR}/test/audioinputenginemiditest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
