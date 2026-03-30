@@ -760,6 +760,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginlv2.cc"
 			plugin/drumgizmo_plugin.cc
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
 		)
 		set_target_properties(drumgizmo_lv2 PROPERTIES
 			PREFIX ""
@@ -823,6 +824,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginvst.cc"
 			plugin/drumgizmo_plugin.cc
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
 		)
 		set_target_properties(drumgizmo_vst PROPERTIES
 			PREFIX ""
