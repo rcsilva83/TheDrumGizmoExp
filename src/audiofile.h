@@ -26,11 +26,11 @@
  */
 #pragma once
 
-#include <string>
-#include <map>
-#include <vector>
 #include <limits>
+#include <map>
 #include <mutex>
+#include <string>
+#include <vector>
 
 #include "audio.h"
 #include "channel.h"
@@ -42,21 +42,27 @@ class AudioFile
 {
 public:
 	AudioFile(const std::string& filename, std::size_t filechannel,
-	          InstrumentChannel* instrument_channel = nullptr);
+	    InstrumentChannel* instrument_channel = nullptr);
 	~AudioFile();
 
-	void load(LogFunction logger, std::size_t sample_limit = std::numeric_limits<std::size_t>::max());
+	void load(LogFunction logger,
+	    std::size_t sample_limit = std::numeric_limits<std::size_t>::max());
 	void unload();
 
 	bool isLoaded() const;
 
 	volatile std::size_t size{0}; // Full size of the file
-	volatile std::size_t preloadedsize{0}; // Number of samples preloaded (in data)
+	volatile std::size_t preloadedsize{
+	    0}; // Number of samples preloaded (in data)
 	sample_t* data{nullptr};
 
 	std::string filename;
 
 	bool isValid() const;
+
+#ifdef DG_ENABLE_TESTS
+	void invalidateForTesting();
+#endif
 
 	//! Returns if this audio file is to be played on a main channel (ie. not a
 	//! secondary channel)

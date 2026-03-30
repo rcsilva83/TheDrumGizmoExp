@@ -78,6 +78,7 @@ dg_add_doctest_test(audiocache
 		"${DG_HUGIN_SOURCE_DIR}"
 	COMPILE_DEFINITIONS
 		DISABLE_HUGIN
+		DG_ENABLE_TESTS
 	LINK_LIBRARIES
 		Threads::Threads
 		SndFile::sndfile
@@ -405,6 +406,7 @@ dg_add_doctest_test(audioinputenginemiditest
 		"${CMAKE_SOURCE_DIR}/src/sample.cc"
 		"${CMAKE_SOURCE_DIR}/src/sample_selection.cc"
 		"${CMAKE_SOURCE_DIR}/src/versionstr.cc"
+		"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 		"${CMAKE_SOURCE_DIR}/test/audioinputenginemiditest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"

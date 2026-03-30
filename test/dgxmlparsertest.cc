@@ -26,6 +26,8 @@
  */
 #include <doctest/doctest.h>
 
+#include <algorithm>
+#include <utility>
 #include <vector>
 
 #include "scopedfile.h"
@@ -705,5 +707,561 @@ TEST_CASE("DGXmlParserTest")
 			CHECK_EQ(test_case.expected_filechannel,
 			    dom.samples[0].audiofiles[0].filechannel);
 		}
+	}
+
+	SUBCASE("probeFilesWithMalformedXml")
+	{
+		ScopedFile malformed_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                          "<drumkit\n"
+		                          "<channels/></drumkit>");
+
+		CHECK(!probeDrumkitFile(malformed_file.filename()));
+		CHECK(!probeInstrumentFile(malformed_file.filename()));
+	}
+
+	SUBCASE("normalizedAttributeMatrix")
+	{
+		struct TestCase
+		{
+			std::string normalized_attr;
+			bool expected_status;
+			bool expected_normalized;
+		};
+
+		const std::vector<TestCase> cases = {{"", true, false},
+		    {"true", true, true}, {"false", true, false},
+		    {"invalid", false, false}};
+
+		for(const auto& test_case : cases)
+		{
+			INFO(test_case.normalized_attr);
+
+			std::string norm_attr =
+			    test_case.normalized_attr.empty()
+			        ? ""
+			        : " normalized=\"" + test_case.normalized_attr + "\"";
+
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\"" +
+			    norm_attr +
+			    ">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK_EQ(test_case.expected_status,
+			    parseInstrumentFile(scoped_file.filename(), dom));
+
+			if(test_case.expected_status)
+			{
+				REQUIRE_EQ(std::size_t(1), dom.samples.size());
+				CHECK_EQ(
+				    test_case.expected_normalized, dom.samples[0].normalized);
+			}
+		}
+	}
+
+	SUBCASE("drumkitDefaultMidimap")
+	{
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<drumkit samplerate=\"48000\" version=\"2.0\">\n"
+		    "  <metadata>\n"
+		    "    <title>Test Kit</title>\n"
+		    "    <defaultmidimap src=\"default.midimap\"/>\n"
+		    "  </metadata>\n"
+		    "  <channels/>\n"
+		    "  <instruments/>\n"
+		    "</drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(parseDrumkitFile(scoped_file.filename(), dom));
+		CHECK_EQ(
+		    std::string("default.midimap"), dom.metadata.default_midimap_file);
+	}
+
+	SUBCASE("drumkitMalformedXml")
+	{
+		ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                       "<drumkit\n"
+		                       "<channels/></drumkit>");
+
+		DrumkitDOM dom;
+		CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+	}
+
+	SUBCASE("drumkitMissingRequiredAttributes")
+	{
+		struct MissingAttributeCase
+		{
+			const char* name;
+			const char* xml;
+		};
+
+		const MissingAttributeCase cases[] = {
+		    {"Channel without name", "<?xml version='1.0' encoding='UTF-8'?>\n"
+		                             "<drumkit>\n"
+		                             "  <channels>\n"
+		                             "    <channel/>\n"
+		                             "  </channels>\n"
+		                             "  <instruments/>\n"
+		                             "</drumkit>"},
+		    {"Instrument without name",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels/>\n"
+		        "  <instruments>\n"
+		        "    <instrument file=\"hat.xml\"/>\n"
+		        "  </instruments>\n"
+		        "</drumkit>"},
+		    {"Instrument without file",
+		        "<?xml version='1.0' encoding='UTF-8'?>\n"
+		        "<drumkit>\n"
+		        "  <channels/>\n"
+		        "  <instruments>\n"
+		        "    <instrument name=\"Hat\"/>\n"
+		        "  </instruments>\n"
+		        "</drumkit>"},
+		};
+
+		for(const auto& test : cases)
+		{
+			CAPTURE(test.name);
+			ScopedFile scoped_file(test.xml);
+
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+		}
+		// Channelmap without in
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<drumkit>\n"
+			    "  <channels><channel name=\"OH\"/></channels>\n"
+			    "  <instruments>\n"
+			    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+			    "      <channelmap out=\"OH\"/>\n"
+			    "    </instrument>\n"
+			    "  </instruments>\n"
+			    "</drumkit>");
+
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+		}
+
+		// Channelmap without out
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<drumkit>\n"
+			    "  <channels><channel name=\"OH\"/></channels>\n"
+			    "  <instruments>\n"
+			    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+			    "      <channelmap in=\"HatIn\"/>\n"
+			    "    </instrument>\n"
+			    "  </instruments>\n"
+			    "</drumkit>");
+
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+		}
+
+		// Choke without instrument
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<drumkit>\n"
+			    "  <channels><channel name=\"OH\"/></channels>\n"
+			    "  <instruments>\n"
+			    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+			    "      <channelmap in=\"HatIn\" out=\"OH\"/>\n"
+			    "      <chokes>\n"
+			    "        <choke/>\n"
+			    "      </chokes>\n"
+			    "    </instrument>\n"
+			    "  </instruments>\n"
+			    "</drumkit>");
+
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom));
+		}
+	}
+
+	SUBCASE("instrumentMissingRequiredAttributes")
+	{
+		// Sample without name in v2
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Audiofile without channel
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Audiofile without file
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Velocity without lower
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "  <velocities>\n"
+			    "    <velocity upper=\"1.0\">\n"
+			    "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+			    "    </velocity>\n"
+			    "  </velocities>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Velocity without upper
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "  <velocities>\n"
+			    "    <velocity lower=\"0.0\">\n"
+			    "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+			    "    </velocity>\n"
+			    "  </velocities>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Sampleref without probability
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "  <velocities>\n"
+			    "    <velocity lower=\"0\" upper=\"1\">\n"
+			    "      <sampleref name=\"S1\"/>\n"
+			    "    </velocity>\n"
+			    "  </velocities>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+
+		// Sampleref without name
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "  <velocities>\n"
+			    "    <velocity lower=\"0\" upper=\"1\">\n"
+			    "      <sampleref probability=\"1\"/>\n"
+			    "    </velocity>\n"
+			    "  </velocities>\n"
+			    "</instrument>");
+
+			InstrumentDOM dom;
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom));
+		}
+	}
+
+	SUBCASE("loggerCallbackTests")
+	{
+		std::vector<LogLevel> log_messages;
+		auto logger = [&log_messages](LogLevel level, const std::string& msg)
+		{
+			log_messages.emplace_back(level);
+			(void)msg;
+		};
+
+		auto has_level = [&log_messages](LogLevel level) -> bool
+		{
+			return std::any_of(log_messages.begin(), log_messages.end(),
+			    [level](LogLevel entry) { return entry == level; });
+		};
+
+		// Malformed drumkit XML logs an error and returns false
+		{
+			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+			                       "<drumkit\n"
+			                       "<channels/></drumkit>");
+			DrumkitDOM dom;
+			log_messages.clear();
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Valid drumkit logs an info message
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<drumkit samplerate=\"44100\" version=\"2.0\">\n"
+			    "  <channels/>\n"
+			    "  <instruments/>\n"
+			    "</drumkit>");
+			DrumkitDOM dom;
+			log_messages.clear();
+			CHECK(parseDrumkitFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Info));
+		}
+
+		// Missing required channel name logs an error
+		{
+			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+			                       "<drumkit>\n"
+			                       "  <channels><channel/></channels>\n"
+			                       "  <instruments/>\n"
+			                       "</drumkit>");
+			DrumkitDOM dom;
+			log_messages.clear();
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Invalid main attribute in drumkit logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<drumkit>\n"
+			    "  <channels><channel name=\"OH\"/></channels>\n"
+			    "  <instruments>\n"
+			    "    <instrument name=\"Hat\" file=\"hat.xml\">\n"
+			    "      <channelmap in=\"HatIn\" out=\"OH\" main=\"bad\"/>\n"
+			    "    </instrument>\n"
+			    "  </instruments>\n"
+			    "</drumkit>");
+			DrumkitDOM dom;
+			log_messages.clear();
+			CHECK(!parseDrumkitFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Malformed instrument XML logs a warning (and may also emit errors)
+		{
+			ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+			                       "<instrument\n"
+			                       "<samples/></instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Warning));
+		}
+
+		// Valid instrument logs an info message
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Info));
+		}
+
+		// Missing required audiofile channel in instrument logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Invalid main attribute in instrument logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <channels>\n"
+			    "    <channel name=\"Top\" main=\"bad\"/>\n"
+			    "  </channels>\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Missing required velocity lower attribute logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "  <velocities>\n"
+			    "    <velocity upper=\"1.0\">\n"
+			    "      <sampleref probability=\"1\" name=\"S1\"/>\n"
+			    "    </velocity>\n"
+			    "  </velocities>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Invalid filechannel value logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\""
+			    " filechannel=\"-1\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Invalid normalized value logs an error
+		{
+			ScopedFile scoped_file(
+			    "<?xml version='1.0' encoding='UTF-8'?>\n"
+			    "<instrument version=\"2.0\" name=\"Snare\">\n"
+			    "  <samples>\n"
+			    "    <sample name=\"S1\" power=\"0.5\" normalized=\"bad\">\n"
+			    "      <audiofile channel=\"Top\" file=\"s.wav\"/>\n"
+			    "    </sample>\n"
+			    "  </samples>\n"
+			    "</instrument>");
+			InstrumentDOM dom;
+			log_messages.clear();
+			CHECK(!parseInstrumentFile(scoped_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Non-existent file with logger: getLineNumberFromOffset fopen returns
+		// null because the file does not exist on disk
+		{
+			log_messages.clear();
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(
+			    "/nonexistent/drumgizmo/test/file.xml", dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+
+		// Empty file with logger: getLineNumberFromOffset hits EOF immediately
+		// because the file exists but has zero content
+		{
+			ScopedFile empty_file("");
+			log_messages.clear();
+			DrumkitDOM dom;
+			CHECK(!parseDrumkitFile(empty_file.filename(), dom, logger));
+			CHECK_UNARY(has_level(LogLevel::Error));
+		}
+	}
+
+	SUBCASE("instrumentParserTest_version1_exact")
+	{
+		// Use version="1" (distinct from "1.0" and "1.0.0") to cover the
+		// dom.version == "1" branch of the version check in
+		// parseInstrumentFile. No samples are included to avoid the
+		// power-attribute path that only skips for exactly "1.0".
+		ScopedFile scoped_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument name=\"Snare\" version=\"1\">\n"
+		    "  <samples/>\n"
+		    "  <velocities>\n"
+		    "    <velocity lower=\"0.0\" upper=\"1.0\">\n"
+		    "      <sampleref probability=\"1.0\" name=\"Snare-1\"/>\n"
+		    "    </velocity>\n"
+		    "  </velocities>\n"
+		    "</instrument>");
+
+		InstrumentDOM dom;
+		CHECK(parseInstrumentFile(scoped_file.filename(), dom));
+		CHECK_EQ(std::string("1"), dom.version);
+		REQUIRE_EQ(std::size_t(1), dom.velocities.size());
+		CHECK_EQ(std::size_t(1), dom.velocities[0].samplerefs.size());
 	}
 }

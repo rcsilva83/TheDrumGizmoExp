@@ -38,11 +38,11 @@
 #include "channel.h"
 
 AudioFile::AudioFile(const std::string& filename, std::size_t filechannel,
-                     InstrumentChannel* instrument_channel)
-	: filename(filename)
-	, filechannel(filechannel)
-	, magic{this}
-	, instrument_channel(instrument_channel)
+    InstrumentChannel* instrument_channel)
+    : filename(filename)
+    , filechannel(filechannel)
+    , magic{this}
+    , instrument_channel(instrument_channel)
 {
 }
 
@@ -54,9 +54,16 @@ AudioFile::~AudioFile()
 
 bool AudioFile::isValid() const
 {
-	//assert(this == magic);
+	// assert(this == magic);
 	return this == magic;
 }
+
+#ifdef DG_ENABLE_TESTS
+void AudioFile::invalidateForTesting()
+{
+	magic = nullptr;
+}
+#endif
 
 void AudioFile::unload()
 {
@@ -84,15 +91,15 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 	}
 
 	SF_INFO sf_info{};
-	SNDFILE *fh = sf_open(filename.c_str(), SFM_READ, &sf_info);
+	SNDFILE* fh = sf_open(filename.c_str(), SFM_READ, &sf_info);
 	if(!fh)
 	{
-		ERR(audiofile,"SNDFILE Error (%s): %s\n",
-		    filename.c_str(), sf_strerror(fh));
+		ERR(audiofile, "SNDFILE Error (%s): %s\n", filename.c_str(),
+		    sf_strerror(fh));
 		if(logger)
 		{
-			logger(LogLevel::Warning, "Could not load '" + filename +
-			       "': " + sf_strerror(fh));
+			logger(LogLevel::Warning,
+			    "Could not load '" + filename + "': " + sf_strerror(fh));
 		}
 		return;
 	}
@@ -103,23 +110,23 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 		if(logger)
 		{
 			logger(LogLevel::Warning, "Could not load '" + filename +
-			       "': no audio channels available.");
+			                              "': no audio channels available.");
 		}
 		return;
 	}
 
-	std::size_t size = sf_info.frames;
-	std::size_t preloadedsize = sf_info.frames;
+	const std::size_t file_size = sf_info.frames;
+	std::size_t preloaded_size = file_size;
 
-	if(preloadedsize > sample_limit)
+	if(preloaded_size > sample_limit)
 	{
-		preloadedsize = sample_limit;
+		preloaded_size = sample_limit;
 	}
 
-	sample_t* data = new sample_t[preloadedsize];
+	sample_t* preloaded_data = new sample_t[preloaded_size];
 	if(sf_info.channels == 1)
 	{
-		preloadedsize = sf_read_float(fh, data, preloadedsize);
+		preloaded_size = sf_read_float(fh, preloaded_data, preloaded_size);
 	}
 	else
 	{
@@ -128,8 +135,9 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 		{
 			if(logger)
 			{
-				logger(LogLevel::Warning, "Audio file '" + filename +
-				       "' does no have " + std::to_string(filechannel + 1) + " channels.");
+				logger(LogLevel::Warning,
+				    "Audio file '" + filename + "' does no have " +
+				        std::to_string(filechannel + 1) + " channels.");
 			}
 			filechannel = sf_info.channels - 1;
 		}
@@ -141,27 +149,25 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 
 		do
 		{
-	    frames_read = sf_readf_float(fh, buffer, frame_count);
-	    for(int i = 0;
-	        (i < frames_read) && (total_frames_read < sample_limit);
-	        ++i)
-	    {
-		    data[total_frames_read++] = buffer[i * sf_info.channels + filechannel];
-	    }
-		}
-		while( (frames_read > 0) &&
-		       (total_frames_read < preloadedsize) &&
-		       (total_frames_read < sample_limit) );
+			frames_read = sf_readf_float(fh, buffer, frame_count);
+			for(int i = 0;
+			    (i < frames_read) && (total_frames_read < sample_limit); ++i)
+			{
+				preloaded_data[total_frames_read++] =
+				    buffer[i * sf_info.channels + filechannel];
+			}
+		} while((frames_read > 0) && (total_frames_read < preloaded_size) &&
+		        (total_frames_read < sample_limit));
 
 		// set data size to total bytes read
-		preloadedsize = total_frames_read;
+		preloaded_size = total_frames_read;
 	}
 
 	sf_close(fh);
 
-	this->data = data;
-	this->size = size;
-	this->preloadedsize = preloadedsize;
+	this->data = preloaded_data;
+	this->size = file_size;
+	this->preloadedsize = preloaded_size;
 	is_loaded = true;
 }
 

@@ -114,6 +114,7 @@ jobs:
             -j 1 \
             --gcov-ignore-parse-errors=all \
             --gcov-ignore-errors=source_not_found \
+            --exclude-throw-branches \
             --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
@@ -127,6 +128,7 @@ jobs:
             -j 1 \
             --gcov-ignore-parse-errors=all \
             --gcov-ignore-errors=source_not_found \
+            --exclude-throw-branches \
             --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
@@ -140,6 +142,7 @@ jobs:
             -j 1 \
             --gcov-ignore-parse-errors=all \
             --gcov-ignore-errors=source_not_found \
+            --exclude-throw-branches \
             --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
@@ -153,6 +156,7 @@ jobs:
             -j 1 \
             --gcov-ignore-parse-errors=all \
             --gcov-ignore-errors=source_not_found \
+            --exclude-throw-branches \
             --filter '^(src|dggui|plugingui|plugin|drumgizmo|test)/' \
             --exclude '.*/a-conftest\..*' \
             --exclude '.*/conftest\..*' \
