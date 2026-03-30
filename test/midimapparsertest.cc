@@ -221,13 +221,13 @@ TEST_CASE("MidimapParserTest")
 		                 "</midimap>");
 
 		MidiMapParser parser;
-		CHECK(parser.parseFile(file1.filename()));
-		CHECK_EQ(1u, parser.midimap.size());
+		REQUIRE(parser.parseFile(file1.filename()));
+		REQUIRE_EQ(1u, parser.midimap.size());
 		CHECK_EQ(10, parser.midimap[0].note_id);
 		CHECK_EQ(std::string("One"), parser.midimap[0].instrument_name);
 
-		CHECK(parser.parseFile(file2.filename()));
-		CHECK_EQ(3u, parser.midimap.size());
+		REQUIRE(parser.parseFile(file2.filename()));
+		REQUIRE_EQ(3u, parser.midimap.size());
 		CHECK_EQ(10, parser.midimap[0].note_id);
 		CHECK_EQ(std::string("One"), parser.midimap[0].instrument_name);
 		CHECK_EQ(20, parser.midimap[1].note_id);
@@ -255,8 +255,8 @@ TEST_CASE("MidimapParserTest")
 		                       "</midimap>");
 
 		MidiMapParser parser;
-		CHECK(parser.parseFile(scoped_file.filename()));
-		CHECK_EQ(1u, parser.midimap.size());
+		REQUIRE(parser.parseFile(scoped_file.filename()));
+		REQUIRE_EQ(1u, parser.midimap.size());
 		CHECK_EQ(42, parser.midimap[0].note_id);
 		CHECK_EQ(std::string("Kick"), parser.midimap[0].instrument_name);
 	}
