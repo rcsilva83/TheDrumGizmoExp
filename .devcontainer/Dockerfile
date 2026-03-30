@@ -15,4 +15,6 @@ RUN if [ "${REINSTALL_CMAKE_VERSION_FROM_SOURCE}" != "none" ]; then \
 
 # [Optional] Uncomment this section to install additional packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends nodejs
+    && apt-get -y install --no-install-recommends nodejs \
+    libx11-dev libxext-dev libxrender-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxinerama-dev \
+    pkg-config lv2-dev liblilv-dev
