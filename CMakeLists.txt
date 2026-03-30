@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Required for building shared libraries (LV2/VST plugins) from static libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckLibraryExists)

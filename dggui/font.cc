@@ -71,13 +71,16 @@ Font::Font(const std::string& fontfile)
 		characters[c] = character;
 	}
 
-	--c;
-
-	assert(characters[c].offset >= characters[c - 1].offset);
-	characters[c - 1].width = characters[c].offset - characters[c - 1].offset;
-	if(characters[c].offset != characters[c - 1].offset)
+	if(c > 1)
 	{
-		--characters[c - 1].width;
+		--c;
+
+		assert(characters[c].offset >= characters[c - 1].offset);
+		characters[c - 1].width = characters[c].offset - characters[c - 1].offset;
+		if(characters[c].offset != characters[c - 1].offset)
+		{
+			--characters[c - 1].width;
+		}
 	}
 }
 
