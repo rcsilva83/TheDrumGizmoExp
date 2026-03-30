@@ -77,6 +77,13 @@ Resource::Resource(const std::string& name)
 	{
 		// Use internal resource:
 
+		if(rc_data == nullptr)
+		{
+			ERR(rc, "Internal resource table is not linked in (rc_data is null)."
+			    " Could not load '%s'\n", name.c_str());
+			return;
+		}
+
 		// Find internal resource in rc_data.
 		const rc_data_t* p = rc_data;
 		while(p && *p->name) // last entry in rc_data has the name := ""
