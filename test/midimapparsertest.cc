@@ -206,4 +206,58 @@ TEST_CASE("MidimapParserTest")
 		CHECK_EQ(1u, parser.midimap.size());
 		CHECK_EQ(10, parser.midimap[0].note_id);
 	}
+
+	SUBCASE("repeatValidParseFileAccumulatesEntries")
+	{
+		ScopedFile file1("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                 "<midimap>\n"
+		                 "\t<map note=\"10\" instr=\"One\"/>\n"
+		                 "</midimap>");
+
+		ScopedFile file2("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                 "<midimap>\n"
+		                 "\t<map note=\"20\" instr=\"Two\"/>\n"
+		                 "\t<map note=\"30\" instr=\"Three\"/>\n"
+		                 "</midimap>");
+
+		MidiMapParser parser;
+		REQUIRE(parser.parseFile(file1.filename()));
+		REQUIRE_EQ(1u, parser.midimap.size());
+		CHECK_EQ(10, parser.midimap[0].note_id);
+		CHECK_EQ(std::string("One"), parser.midimap[0].instrument_name);
+
+		REQUIRE(parser.parseFile(file2.filename()));
+		REQUIRE_EQ(3u, parser.midimap.size());
+		CHECK_EQ(10, parser.midimap[0].note_id);
+		CHECK_EQ(std::string("One"), parser.midimap[0].instrument_name);
+		CHECK_EQ(20, parser.midimap[1].note_id);
+		CHECK_EQ(std::string("Two"), parser.midimap[1].instrument_name);
+		CHECK_EQ(30, parser.midimap[2].note_id);
+		CHECK_EQ(std::string("Three"), parser.midimap[2].instrument_name);
+	}
+
+	SUBCASE("emptyMidimapRootProducesNoMappings")
+	{
+		ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                       "<midimap/>");
+
+		MidiMapParser parser;
+		CHECK(parser.parseFile(scoped_file.filename()));
+		CHECK_EQ(0u, parser.midimap.size());
+	}
+
+	SUBCASE("mapEntryWithBothAttributesAbsentIsSkipped")
+	{
+		ScopedFile scoped_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                       "<midimap>\n"
+		                       "\t<map/>\n"
+		                       "\t<map note=\"42\" instr=\"Kick\"/>\n"
+		                       "</midimap>");
+
+		MidiMapParser parser;
+		REQUIRE(parser.parseFile(scoped_file.filename()));
+		REQUIRE_EQ(1u, parser.midimap.size());
+		CHECK_EQ(42, parser.midimap[0].note_id);
+		CHECK_EQ(std::string("Kick"), parser.midimap[0].instrument_name);
+	}
 }
