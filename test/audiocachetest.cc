@@ -432,4 +432,164 @@ TEST_CASE_FIXTURE(AudioCacheTestFixture, "AudioCacheTest")
 
 		audio_cache.close(id);
 	}
+
+	SUBCASE("poolExhaustionUnderrunFromOpen")
+	{
+		printf("\npool_exhaustion_underrun_from_open()\n");
+
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
+
+		// Fully preload the file so open() doesn't need streaming.
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr);
+		REQUIRE_EQ(audio_file.preloadedsize, audio_file.size);
+
+		const std::size_t pool_size = 2;
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(pool_size);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// Fill the pool completely.
+		cacheid_t ids[pool_size];
+		for(std::size_t i = 0; i < pool_size; ++i)
+		{
+			audio_cache.open(audio_file, 0, 0, ids[i]);
+			REQUIRE_NE(CACHE_DUMMYID, ids[i]);
+		}
+		CHECK_EQ(std::size_t(0), settings.number_of_underruns.load());
+
+		// One more open() must exhaust the pool and return CACHE_DUMMYID.
+		cacheid_t overflow_id;
+		audio_cache.open(audio_file, 0, 0, overflow_id);
+		CHECK_EQ(CACHE_DUMMYID, overflow_id);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
+
+		// next() with the resulting CACHE_DUMMYID also increments underruns.
+		std::size_t sz = FRAMESIZE;
+		sample_t* result = audio_cache.next(CACHE_DUMMYID, sz);
+		CHECK_NE(nullptr, result);
+		CHECK_EQ(std::size_t(2), settings.number_of_underruns.load());
+
+		for(std::size_t i = 0; i < pool_size; ++i)
+		{
+			audio_cache.close(ids[i]);
+		}
+	}
+
+	SUBCASE("unloadedFileNextUnderrun")
+	{
+		printf("\nunloaded_file_next_underrun()\n");
+
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
+
+		// Create AudioFile but do not call load() -- data and size remain zero.
+		AudioFile audio_file(filename.c_str(), 0);
+		REQUIRE_UNARY(audio_file.isValid());
+		REQUIRE_EQ(nullptr, audio_file.data);
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(10);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// open() succeeds (file is valid) but sets preloaded_samples to
+		// nullptr.
+		cacheid_t id;
+		audio_cache.open(audio_file, 0, 0, id);
+		REQUIRE_NE(CACHE_DUMMYID, id);
+		CHECK_EQ(std::size_t(0), settings.number_of_underruns.load());
+
+		// next() hits the null front-buffer path and triggers an underrun.
+		std::size_t sz = FRAMESIZE;
+		sample_t* result = audio_cache.next(id, sz);
+		CHECK_NE(nullptr, result);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
+
+		audio_cache.close(id);
+	}
+
+	SUBCASE("repeatedDummyIdUnderrunIncrements")
+	{
+		printf("\nrepeated_dummy_id_underrun_increments()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(10);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		// Each call to next(CACHE_DUMMYID) must increment the counter by one.
+		const std::size_t iterations = 5;
+		for(std::size_t i = 0; i < iterations; ++i)
+		{
+			std::size_t sz = FRAMESIZE;
+			sample_t* result = audio_cache.next(CACHE_DUMMYID, sz);
+			CHECK_NE(nullptr, result);
+			CHECK_EQ(i + 1, settings.number_of_underruns.load());
+		}
+	}
+
+	SUBCASE("setFrameSizeShrinkNoRealloc")
+	{
+		printf("\nset_frame_size_shrink_no_realloc()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+
+		// First allocation at 256.
+		audio_cache.setFrameSize(256);
+		CHECK_EQ(std::size_t(256), audio_cache.getFrameSize());
+
+		// Shrinking below nodata_framesize: nodata is NOT reallocated (covers
+		// the else-branch of if(framesize > nodata_framesize)), but
+		// this->framesize IS updated to the new value.
+		audio_cache.setFrameSize(64);
+		CHECK_EQ(std::size_t(64), audio_cache.getFrameSize());
+	}
+
+	SUBCASE("destructorWithNullNodata")
+	{
+		printf("\ndestructor_with_null_nodata()\n");
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		// setFrameSize is never called, so nodata remains nullptr.
+		// When audio_cache is destroyed, the destructor executes
+		// delete[] nullptr which is valid C++ and covers the null-nodata
+		// branch of ~AudioCache().
+	}
+
+	SUBCASE("openWithInvalidFile")
+	{
+		printf("\nopen_with_invalid_file()\n");
+
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel.wav");
+
+		AudioFile audio_file(filename.c_str(), 0);
+		audio_file.load(nullptr);
+		REQUIRE_UNARY(audio_file.isValid());
+		audio_file.invalidateForTesting();
+		CHECK_UNARY_FALSE(audio_file.isValid());
+
+		Settings settings;
+		AudioCache audio_cache(settings);
+		audio_cache.init(10);
+		audio_cache.setAsyncMode(false);
+		audio_cache.setFrameSize(FRAMESIZE);
+		audio_cache.updateChunkSize(1);
+
+		cacheid_t id;
+		audio_cache.open(audio_file, 0, 0, id);
+		CHECK_EQ(CACHE_DUMMYID, id);
+		CHECK_EQ(std::size_t(1), settings.number_of_underruns.load());
+	}
 }
