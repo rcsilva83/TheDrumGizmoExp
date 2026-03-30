@@ -115,18 +115,18 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 		return;
 	}
 
-	std::size_t size = sf_info.frames;
-	std::size_t preloadedsize = sf_info.frames;
+	const std::size_t file_size = sf_info.frames;
+	std::size_t preloaded_size = file_size;
 
-	if(preloadedsize > sample_limit)
+	if(preloaded_size > sample_limit)
 	{
-		preloadedsize = sample_limit;
+		preloaded_size = sample_limit;
 	}
 
-	sample_t* data = new sample_t[preloadedsize];
+	sample_t* preloaded_data = new sample_t[preloaded_size];
 	if(sf_info.channels == 1)
 	{
-		preloadedsize = sf_read_float(fh, data, preloadedsize);
+		preloaded_size = sf_read_float(fh, preloaded_data, preloaded_size);
 	}
 	else
 	{
@@ -153,21 +153,21 @@ void AudioFile::load(LogFunction logger, std::size_t sample_limit)
 			for(int i = 0;
 			    (i < frames_read) && (total_frames_read < sample_limit); ++i)
 			{
-				data[total_frames_read++] =
+				preloaded_data[total_frames_read++] =
 				    buffer[i * sf_info.channels + filechannel];
 			}
-		} while((frames_read > 0) && (total_frames_read < preloadedsize) &&
+		} while((frames_read > 0) && (total_frames_read < preloaded_size) &&
 		        (total_frames_read < sample_limit));
 
 		// set data size to total bytes read
-		preloadedsize = total_frames_read;
+		preloaded_size = total_frames_read;
 	}
 
 	sf_close(fh);
 
-	this->data = data;
-	this->size = size;
-	this->preloadedsize = preloadedsize;
+	this->data = preloaded_data;
+	this->size = file_size;
+	this->preloadedsize = preloaded_size;
 	is_loaded = true;
 }
 
