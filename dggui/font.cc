@@ -26,13 +26,10 @@
  */
 #include "font.h"
 
-#include <cassert>
-
 namespace dggui
 {
 
-Font::Font(const std::string& fontfile)
-	: img_font(fontfile)
+Font::Font(const std::string& fontfile) : img_font(fontfile)
 {
 	std::size_t px = 0;
 	std::size_t c;
@@ -44,8 +41,12 @@ Font::Font(const std::string& fontfile)
 
 		if(c > 0)
 		{
-			assert(character.offset >= characters[c - 1].offset);
-			characters[c - 1].width = character.offset - characters[c - 1].offset;
+			if(character.offset < characters[c - 1].offset)
+			{
+				break;
+			}
+			characters[c - 1].width =
+			    character.offset - characters[c - 1].offset;
 			if(characters[c].offset != characters[c - 1].offset)
 			{
 				--characters[c - 1].width;
@@ -60,7 +61,7 @@ Font::Font(const std::string& fontfile)
 
 			// Find next purple pixel in top row:
 			if((pixel.red() == 255) && (pixel.green() == 0) &&
-			   (pixel.blue() == 255) && (pixel.alpha() == 255))
+			    (pixel.blue() == 255) && (pixel.alpha() == 255))
 			{
 				break;
 			}
@@ -75,11 +76,14 @@ Font::Font(const std::string& fontfile)
 	{
 		--c;
 
-		assert(characters[c].offset >= characters[c - 1].offset);
-		characters[c - 1].width = characters[c].offset - characters[c - 1].offset;
-		if(characters[c].offset != characters[c - 1].offset)
+		if(characters[c].offset >= characters[c - 1].offset)
 		{
-			--characters[c - 1].width;
+			characters[c - 1].width =
+			    characters[c].offset - characters[c - 1].offset;
+			if(characters[c].offset != characters[c - 1].offset)
+			{
+				--characters[c - 1].width;
+			}
 		}
 	}
 }
@@ -112,10 +116,10 @@ int Font::letterSpacing() const
 	return spacing;
 }
 
-PixelBufferAlpha *Font::render(const std::string& text) const
+PixelBufferAlpha* Font::render(const std::string& text) const
 {
-	PixelBufferAlpha *pb =
-		new PixelBufferAlpha(textWidth(text), textHeight(text));
+	PixelBufferAlpha* pb =
+	    new PixelBufferAlpha(textWidth(text), textHeight(text));
 
 	int x_offset = 0;
 	for(std::size_t i = 0; i < text.length(); ++i)
@@ -136,4 +140,4 @@ PixelBufferAlpha *Font::render(const std::string& text) const
 	return pb;
 }
 
-} // dggui::
+} // namespace dggui

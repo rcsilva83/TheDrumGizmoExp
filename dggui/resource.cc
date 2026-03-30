@@ -26,15 +26,15 @@
  */
 #include "resource.h"
 
-#include <hugin.hpp>
-#include <cstdio>
 #include <climits>
+#include <cstdio>
+#include <hugin.hpp>
 
 #include <platform.h>
 
 #if DG_PLATFORM != DG_PLATFORM_WINDOWS
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif
 
@@ -76,6 +76,14 @@ Resource::Resource(const std::string& name)
 	if(nameIsInternal(name))
 	{
 		// Use internal resource:
+		if(rc_data == nullptr)
+		{
+			ERR(rc,
+			    "Internal resource table is not linked in (rc_data is null). "
+			    "Could not load '%s'\n",
+			    name.c_str());
+			return;
+		}
 
 		// Find internal resource in rc_data.
 		const rc_data_t* p = rc_data;
@@ -107,7 +115,7 @@ Resource::Resource(const std::string& name)
 		}
 
 		// Read from file:
-		std::FILE *fp = std::fopen(name.data(), "rb");
+		std::FILE* fp = std::fopen(name.data(), "rb");
 		if(!fp)
 		{
 			return;
@@ -122,9 +130,9 @@ Resource::Resource(const std::string& name)
 
 		long filesize = std::ftell(fp);
 
-		// Apparently fseek doesn't fail if fp points to a directory that has been
-		// opened (which doesn't fail either!!) and ftell will then fail by either
-		// returning -1 or LONG_MAX
+		// Apparently fseek doesn't fail if fp points to a directory that has
+		// been opened (which doesn't fail either!!) and ftell will then fail by
+		// either returning -1 or LONG_MAX
 		if(filesize == -1L || filesize == LONG_MAX)
 		{
 			std::fclose(fp);
@@ -152,7 +160,7 @@ Resource::Resource(const std::string& name)
 	isValid = true;
 }
 
-const char *Resource::data()
+const char* Resource::data()
 {
 	if(isValid == false)
 	{
@@ -173,7 +181,7 @@ size_t Resource::size()
 {
 	if(isValid == false)
 	{
-	  return 0;
+		return 0;
 	}
 
 	if(isInternal)
@@ -191,4 +199,4 @@ bool Resource::valid()
 	return isValid;
 }
 
-} // dggui::
+} // namespace dggui
