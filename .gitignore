@@ -66,3 +66,4 @@ build-*/
 *.deb
 *.gcov
 coverage-*.json
+tmp-artifacts/
