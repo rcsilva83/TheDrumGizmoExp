@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Required for building shared libraries (LV2/VST plugins) from static libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckLibraryExists)
@@ -757,6 +760,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginlv2.cc"
 			plugin/drumgizmo_plugin.cc
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
 		)
 		set_target_properties(drumgizmo_lv2 PROPERTIES
 			PREFIX ""
@@ -820,6 +824,7 @@ if(DG_NEED_PLUGIN_GUI)
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/midievent.cc"
 			"${DG_PLUGINGIZMO_SOURCE_DIR}/pluginvst.cc"
 			plugin/drumgizmo_plugin.cc
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
 		)
 		set_target_properties(drumgizmo_vst PROPERTIES
 			PREFIX ""

@@ -26,18 +26,19 @@
  */
 #pragma once
 
-#include <string>
 #include <array>
+#include <string>
 
-#include "pixelbuffer.h"
 #include "image.h"
+#include "pixelbuffer.h"
 
 namespace dggui
 {
 
-class Font {
+class Font
+{
 public:
-	Font(const std::string& fontfile = ":resources/font.png");
+	explicit Font(const std::string& fontfile = ":resources/font.png");
 
 	size_t textWidth(const std::string& text) const;
 	size_t textHeight(const std::string& text = "") const;
@@ -45,12 +46,13 @@ public:
 	void setLetterSpacing(int letterSpacing);
 	int letterSpacing() const;
 
-	PixelBufferAlpha *render(const std::string& text) const;
+	PixelBufferAlpha* render(const std::string& text) const;
 
 private:
 	Image img_font;
 
-	class Character {
+	class Character
+	{
 	public:
 		std::size_t offset{0};
 		std::size_t width{0};
@@ -62,4 +64,4 @@ private:
 	int spacing{1};
 };
 
-} // dggui::
+} // namespace dggui
