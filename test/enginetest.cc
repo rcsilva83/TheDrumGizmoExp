@@ -797,4 +797,186 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		ie.setFireChoke(true);
 		CHECK(dg.run(51u * nsamples, buf.data(), nsamples));
 	}
+
+	SUBCASE("kitSwitchResetsActiveEvents")
+	{
+		// Verify that events_ds.clear() is called when drumkit_file changes
+		// so that sample events from the old kit are discarded immediately.
+		// 0x1110 is a fixed non-zero sample value that produces audible output.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("ks_hit.wav", 1024, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "ks_kit1", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineBufferDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		oe.setInternalBufferSize(nsamples);
+
+		auto kit1_file = drumkit_creator.create(kit_data);
+		auto kit2_file = drumkit_creator.createStdKit("ks_kit2");
+
+		// Load kit1 and wait for it to finish loading.
+		settings.drumkit_file.store(kit1_file);
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Fire an audition onset to create a SampleEvent in events_ds.
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(0.8f);
+		settings.audition_counter.store(1);
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+
+		// The channel-0 output must be non-zero: the WAV data is constant
+		// 0x1110, so every rendered sample contributes a non-zero value.
+		auto* ch0_buf = oe.getBuffer(0);
+		REQUIRE(ch0_buf != nullptr);
+		bool has_nonzero = false;
+		for(size_t i = 0; i < nsamples; ++i)
+		{
+			if(ch0_buf[i] != 0.0f)
+			{
+				has_nonzero = true;
+				break;
+			}
+		}
+		CHECK_UNARY(has_nonzero);
+
+		// Switch to kit2 — the next run() call detects the drumkit_file
+		// change and calls events_ds.clear() before processing anything else.
+		settings.drumkit_file.store(kit2_file);
+		CHECK(dg.run(51u * nsamples, buf.data(), nsamples));
+
+		// After events_ds.clear(), no SampleEvents are active — the rendered
+		// output for ch0 must be all zeros.
+		bool all_zero_after_switch = true;
+		for(size_t i = 0; i < nsamples; ++i)
+		{
+			if(ch0_buf[i] != 0.0f)
+			{
+				all_zero_after_switch = false;
+				break;
+			}
+		}
+		CHECK_UNARY(all_zero_after_switch);
+	}
+
+	SUBCASE("kitSwitchNoStaleInstrumentMappingAfterSwitch")
+	{
+		// Verify that kit metadata (name, load status) is fully replaced after
+		// switching kits, with no data from the previous kit remaining.
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit1_file = drumkit_creator.createStdKit("stale_kit_a");
+		auto kit2_file = drumkit_creator.createStdKit("stale_kit_b");
+
+		// Load kit1 and confirm that its metadata is visible.
+		settings.drumkit_file.store(kit1_file);
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		CHECK_EQ(settings.drumkit_name.load(), std::string("stale_kit_a"));
+		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+
+		// Switch to kit2 and wait for it to finish loading.
+		settings.drumkit_file.store(kit2_file);
+		for(int i = 50; i < 100; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// kit2's metadata must have fully replaced kit1's — no stale values.
+		CHECK_EQ(settings.drumkit_name.load(), std::string("stale_kit_b"));
+		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+
+		// The engine accepts onset events for the new kit without crashing.
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(0.5f);
+		settings.audition_counter.store(1);
+		CHECK(dg.run(100u * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("kitSwitchDeterministicStateAfterRepeatedToggles")
+	{
+		// Verify that after rapid back-and-forth kit switches the engine
+		// settles into a deterministic state matching the last kit stored.
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit1_file = drumkit_creator.createStdKit("toggle_kit1");
+		auto kit2_file = drumkit_creator.createStdKit("toggle_kit2");
+
+		// Rapidly toggle between two kits, giving each side time to partially
+		// load.  This exercises rapid-switch and partially-loaded code paths.
+		size_t run_pos = 0;
+		for(int iter = 0; iter < 5; ++iter)
+		{
+			settings.drumkit_file.store(kit1_file);
+			for(int j = 0; j < 5; ++j)
+			{
+				dg.run(run_pos * nsamples, buf.data(), nsamples);
+				++run_pos;
+				std::this_thread::sleep_for(std::chrono::milliseconds(2));
+			}
+			settings.drumkit_file.store(kit2_file);
+			for(int j = 0; j < 5; ++j)
+			{
+				dg.run(run_pos * nsamples, buf.data(), nsamples);
+				++run_pos;
+				std::this_thread::sleep_for(std::chrono::milliseconds(2));
+			}
+		}
+
+		// Leave the engine on kit2 and wait for it to finish loading.
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(run_pos * nsamples, buf.data(), nsamples);
+			++run_pos;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// After all toggles the loaded kit must be kit2 (the last kit stored).
+		CHECK_EQ(settings.drumkit_name.load(), std::string("toggle_kit2"));
+		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+
+		// The engine still processes frames cleanly after settling.
+		CHECK(dg.run(run_pos * nsamples, buf.data(), nsamples));
+	}
 }
