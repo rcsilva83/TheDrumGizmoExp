@@ -51,10 +51,10 @@ namespace dggui
 static bool pathIsFile(const std::string& path)
 {
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
-	return (GetFileAttributesA(path.data()) & FILE_ATTRIBUTE_DIRECTORY) == 0;
+	return (GetFileAttributesA(path.c_str()) & FILE_ATTRIBUTE_DIRECTORY) == 0;
 #else
 	struct stat s;
-	if(stat(path.data(), &s) != 0)
+	if(stat(path.c_str(), &s) != 0)
 	{
 		return false; // error
 	}
@@ -115,7 +115,7 @@ Resource::Resource(const std::string& name)
 		}
 
 		// Read from file:
-		std::FILE* fp = std::fopen(name.data(), "rb");
+		std::FILE* fp = std::fopen(name.c_str(), "rb");
 		if(!fp)
 		{
 			return;
@@ -146,9 +146,9 @@ Resource::Resource(const std::string& name)
 		std::rewind(fp);
 
 		char buffer[32];
-		while(!std::feof(fp))
+		size_t read_size;
+		while((read_size = std::fread(buffer, 1, sizeof(buffer), fp)) > 0)
 		{
-			size_t read_size = std::fread(buffer, 1, sizeof(buffer), fp);
 			externalData.append(buffer, read_size);
 		}
 
