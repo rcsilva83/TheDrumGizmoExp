@@ -157,4 +157,56 @@ TEST_CASE("ConfigParserTest")
 
 		CHECK_EQ(std::string("42"), parser.value("foo", "-"));
 	}
+
+	SUBCASE("unsupportedVersionRejection")
+	{
+		// A fresh parser with an unsupported version must return false
+		// and leave the value map empty.
+		ConfigParser parser;
+		CHECK(!parser.parseString("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                          "<config version=\"2.0\">\n"
+		                          "  <value name=\"foo\">42</value>\n"
+		                          "</config>"));
+		CHECK_EQ(std::string("-"), parser.value("foo", "-"));
+		CHECK_EQ(std::string("default"), parser.value("missing", "default"));
+	}
+
+	SUBCASE("missingConfigNode")
+	{
+		// When the document contains no <config> root element, parseString
+		// must succeed (no error) but must not populate any values.
+		ConfigParser parser;
+
+		// Root element exists but is not named "config".
+		CHECK(parser.parseString("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                         "<settings>\n"
+		                         "  <value name=\"foo\">42</value>\n"
+		                         "</settings>"));
+		CHECK_EQ(std::string("-"), parser.value("foo", "-"));
+
+		// Empty document with a placeholder root but no <config> child.
+		CHECK(parser.parseString("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                         "<root/>"));
+		CHECK_EQ(std::string("-"), parser.value("foo", "-"));
+	}
+
+	SUBCASE("recoveryAfterVersionFailure")
+	{
+		// Seeded values must survive a subsequent unsupported-version failure.
+		ConfigParser parser;
+
+		CHECK(parser.parseString("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                         "<config>\n"
+		                         "  <value name=\"foo\">42</value>\n"
+		                         "</config>"));
+		CHECK_EQ(std::string("42"), parser.value("foo", "-"));
+
+		CHECK(!parser.parseString("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                          "<config version=\"2.0\">\n"
+		                          "  <value name=\"foo\">99</value>\n"
+		                          "</config>"));
+
+		// Prior value must be preserved after the version-rejected parse.
+		CHECK_EQ(std::string("42"), parser.value("foo", "-"));
+	}
 }
