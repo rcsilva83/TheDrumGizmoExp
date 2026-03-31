@@ -27,6 +27,9 @@
 #include <doctest/doctest.h>
 
 #include <chrono>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -978,5 +981,119 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 
 		// The engine still processes frames cleanly after settling.
 		CHECK(dg.run(run_pos * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("getSamplesCoversBleedControlScale")
+	{
+		// A kit where channel 0 has main="true" causes DOMLoader to set
+		// all other channels to is_not_main.  Enabling bleed control then
+		// applies master_bleed scaling to those non-main sample events when
+		// the audio cache is opened, covering the
+		// `sample_event.scale *= master_bleed` branch (drumgizmo.cc:386).
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("bleed.wav", 64, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}, {&wav_infos.front(), 2}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "bleed_kit", 2, instruments, wav_infos};
+
+		auto kit_file = drumkit_creator.create(kit_data);
+
+		// Patch the kit XML: mark the first channelmap as main="true".
+		// DOMLoader will set default_main_state = is_not_main for the
+		// remaining channels, making af.mainState() == is_not_main on ch1.
+		{
+			std::ifstream in(kit_file);
+			std::ostringstream ss;
+			ss << in.rdbuf();
+			std::string content = ss.str();
+			in.close();
+
+			const std::string from = "channelmap in=\"ch0\" out=\"ch0\"/>";
+			const std::string to =
+			    "channelmap in=\"ch0\" out=\"ch0\" main=\"true\"/>";
+			auto pos = content.find(from);
+			if(pos != std::string::npos)
+			{
+				content.replace(pos, from.size(), to);
+			}
+
+			std::ofstream out(kit_file);
+			out << content;
+		}
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		settings.enable_bleed_control.store(true);
+		settings.master_bleed.store(0.5f);
+		settings.drumkit_file.store(kit_file);
+
+		// Wait for the kit to load (DOMLoader marks ch1 as is_not_main).
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Fire onset: ch1 SampleEvent has mainState()==is_not_main and
+		// enable_bleed_control==true → scale *= master_bleed executes.
+		settings.audition_instrument.store("instr1");
+		settings.audition_velocity.store(0.8f);
+		settings.audition_counter.store(1);
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+	}
+
+	SUBCASE("getSamplesCoversUnloadedAudioFilePath")
+	{
+		// Fire an onset immediately after the drumkit XML is parsed (AudioFile
+		// objects exist and are valid) but before the audio data has been
+		// loaded from disk.  getSamples then encounters !af.isLoaded() == true
+		// and schedules the event for removal, covering that branch.
+		//
+		// SmallKit has a 549833-sample WAV file shared across 13 channels;
+		// loading 13 × 549833 × 2 bytes takes enough time that the main
+		// thread can fire an onset while at least one file is still unloaded.
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetWithOffsetDummy ie(0u);
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.createSmallKit("unloaded_kit");
+
+		// Store kit file and call run() in a tight loop.  The onset fires
+		// every call via AudioInputEngineOnsetWithOffsetDummy.  Once the
+		// kit parses (kit.isValid() == true) but before all audio files
+		// are read from disk, processOnset creates a SampleEvent referencing
+		// an unloaded AudioFile; getSamples removes it via the isLoaded path.
+		settings.drumkit_file.store(kit_file);
+		for(int i = 0; i < 200; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		// Confirm the kit finished loading (test completion check).
+		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
 	}
 }
