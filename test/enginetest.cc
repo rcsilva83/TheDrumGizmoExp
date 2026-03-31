@@ -848,7 +848,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 
 		// The channel-0 output must be non-zero: the WAV data is constant
 		// 0x1110, so every rendered sample contributes a non-zero value.
-		auto* ch0_buf = oe.getBuffer(0);
+		auto const* ch0_buf = oe.getBuffer(0);
 		REQUIRE(ch0_buf != nullptr);
 		bool has_nonzero = false;
 		for(size_t i = 0; i < nsamples; ++i)
