@@ -584,6 +584,9 @@ jobs:
           cp build-release/drumgizmo dist/bin/drumgizmo
           cp build-release/dgvalidator dist/bin/dgvalidator
 
+          mkdir -p dist/lv2
+          cp -a build-release/plugin/drumgizmo.lv2 dist/lv2/drumgizmo.lv2
+
           tar -czf drumgizmo-linux-binaries.tar.gz -C dist/bin drumgizmo dgvalidator
 
       - name: Upload Linux binaries
@@ -599,4 +602,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: lv2-plugin
-          path: build-release/plugin/drumgizmo.lv2
+          path: dist/lv2
