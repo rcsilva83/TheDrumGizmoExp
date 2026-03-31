@@ -94,7 +94,7 @@ size_t Font::textWidth(const std::string& text) const
 
 	for(unsigned char cha : text)
 	{
-		auto& character = characters[cha];
+		const auto& character = characters[cha];
 		len += character.width + spacing + character.post_bias;
 	}
 
@@ -125,7 +125,7 @@ PixelBufferAlpha* Font::render(const std::string& text) const
 	for(std::size_t i = 0; i < text.length(); ++i)
 	{
 		unsigned char cha = text[i];
-		auto& character = characters.at(cha);
+		const auto& character = characters.at(cha);
 		for(size_t x = 0; x < character.width; ++x)
 		{
 			for(size_t y = 0; y < img_font.height(); ++y)

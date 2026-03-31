@@ -26,9 +26,9 @@
  */
 #pragma once
 
-#include <string>
 #include <list>
 #include <memory>
+#include <string>
 
 namespace dggui
 {
@@ -50,21 +50,24 @@ enum class EventType
 class Event
 {
 public:
-	virtual ~Event() {}
+	virtual ~Event()
+	{
+	}
 
 	virtual EventType type() = 0;
 };
 
-class MouseMoveEvent
-	: public Event
+class MouseMoveEvent : public Event
 {
 public:
-	EventType type() { return EventType::mouseMove; }
+	EventType type() override
+	{
+		return EventType::mouseMove;
+	}
 
 	int x;
 	int y;
 };
-
 
 enum class Direction
 {
@@ -79,11 +82,13 @@ enum class MouseButton
 	left,
 };
 
-class ButtonEvent
-	: public Event
+class ButtonEvent : public Event
 {
 public:
-	EventType type() { return EventType::button; }
+	EventType type() override
+	{
+		return EventType::button;
+	}
 
 	int x;
 	int y;
@@ -94,11 +99,13 @@ public:
 	bool doubleClick;
 };
 
-class ScrollEvent
-	: public Event
+class ScrollEvent : public Event
 {
 public:
-	EventType type() { return EventType::scroll; }
+	EventType type() override
+	{
+		return EventType::scroll;
+	}
 
 	int x;
 	int y;
@@ -106,11 +113,13 @@ public:
 	float delta;
 };
 
-class RepaintEvent
-	: public Event
+class RepaintEvent : public Event
 {
 public:
-	EventType type() { return EventType::repaint; }
+	EventType type() override
+	{
+		return EventType::repaint;
+	}
 
 	int x;
 	int y;
@@ -135,11 +144,13 @@ enum class Key
 	character, //!< The actual character is stored in KeyEvent::text
 };
 
-class KeyEvent
-	: public Event
+class KeyEvent : public Event
 {
 public:
-	EventType type() { return EventType::key; }
+	EventType type() override
+	{
+		return EventType::key;
+	}
 
 	Direction direction;
 
@@ -147,48 +158,58 @@ public:
 	std::string text;
 };
 
-class CloseEvent
-	: public Event
+class CloseEvent : public Event
 {
 public:
-	EventType type() { return EventType::close; }
+	EventType type() override
+	{
+		return EventType::close;
+	}
 };
 
-class ResizeEvent
-	: public Event
+class ResizeEvent : public Event
 {
 public:
-	EventType type() { return EventType::resize; }
+	EventType type() override
+	{
+		return EventType::resize;
+	}
 
 	size_t width;
 	size_t height;
 };
 
-class MoveEvent
-	: public Event
+class MoveEvent : public Event
 {
 public:
-	EventType type() { return EventType::move; }
+	EventType type() override
+	{
+		return EventType::move;
+	}
 
 	int x;
 	int y;
 };
 
-class MouseEnterEvent
-	: public Event
+class MouseEnterEvent : public Event
 {
 public:
-	EventType type() { return EventType::mouseEnter; }
+	EventType type() override
+	{
+		return EventType::mouseEnter;
+	}
 
 	int x;
 	int y;
 };
 
-class MouseLeaveEvent
-	: public Event
+class MouseLeaveEvent : public Event
 {
 public:
-	EventType type() { return EventType::mouseLeave; }
+	EventType type() override
+	{
+		return EventType::mouseLeave;
+	}
 
 	int x;
 	int y;
@@ -209,4 +230,4 @@ struct Rect
 	}
 };
 
-} // dggui::
+} // namespace dggui

@@ -148,8 +148,8 @@ Resource::Resource(const std::string& name)
 		char buffer[32];
 		while(!std::feof(fp))
 		{
-			size_t size = std::fread(buffer, 1, sizeof(buffer), fp);
-			externalData.append(buffer, size);
+			size_t read_size = std::fread(buffer, 1, sizeof(buffer), fp);
+			externalData.append(buffer, read_size);
 		}
 
 		std::fclose(fp);
