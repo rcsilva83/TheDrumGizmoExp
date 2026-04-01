@@ -841,9 +841,8 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// Poll until drumkit loading is complete, with a bounded timeout.
 		size_t current_time = 0;
 		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
-		for(int i = 0;
-		    i < max_iterations &&
-		    settings.drumkit_load_status.load() != LoadStatus::Done;
+		for(int i = 0; i < max_iterations &&
+		               settings.drumkit_load_status.load() != LoadStatus::Done;
 		    ++i)
 		{
 			dg.run(current_time, buf.data(), nsamples);
@@ -1023,6 +1022,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// remaining channels, making af.mainState() == is_not_main on ch1.
 		{
 			std::ifstream in(kit_file);
+			REQUIRE_UNARY(in.is_open());
 			std::ostringstream ss;
 			ss << in.rdbuf();
 			std::string content = ss.str();
@@ -1032,12 +1032,11 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			const std::string to =
 			    "channelmap in=\"ch0\" out=\"ch0\" main=\"true\"/>";
 			auto pos = content.find(from);
-			if(pos != std::string::npos)
-			{
-				content.replace(pos, from.size(), to);
-			}
+			REQUIRE_NE(pos, std::string::npos);
+			content.replace(pos, from.size(), to);
 
 			std::ofstream out(kit_file);
+			REQUIRE_UNARY(out.is_open());
 			out << content;
 		}
 
@@ -1055,19 +1054,30 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		settings.master_bleed.store(0.5f);
 		settings.drumkit_file.store(kit_file);
 
-		// Wait for the kit to load (DOMLoader marks ch1 as is_not_main).
-		for(int i = 0; i < 50; ++i)
+		// Poll until drumkit loading is complete, with a bounded timeout.
+		size_t current_time = 0;
+		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
+		for(int i = 0; i < max_iterations &&
+		               settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
 		{
-			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
+
+		// Kit must have loaded, and the patched main="true" must have caused
+		// DOMLoader to set has_bleed_control = true (confirming ch1 is
+		// is_not_main and the bleed-control scaling path will be exercised).
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+		REQUIRE_UNARY(settings.has_bleed_control.load());
 
 		// Fire onset: ch1 SampleEvent has mainState()==is_not_main and
 		// enable_bleed_control==true → scale *= master_bleed executes.
 		settings.audition_instrument.store("instr1");
 		settings.audition_velocity.store(0.8f);
 		settings.audition_counter.store(1);
-		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+		CHECK(dg.run(current_time, buf.data(), nsamples));
 	}
 
 	SUBCASE("getSamplesCoversUnloadedAudioFilePath")
@@ -1116,7 +1126,8 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
-		// Ensure we actually exercised the intended timing window at least once.
+		// Ensure we actually exercised the intended timing window at least
+		// once.
 		CHECK(saw_intermediate_load_state);
 		// Confirm the kit finished loading (test completion check).
 		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
