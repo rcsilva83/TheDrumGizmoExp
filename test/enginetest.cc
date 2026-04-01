@@ -1098,12 +1098,26 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// are read from disk, processOnset creates a SampleEvent referencing
 		// an unloaded AudioFile; getSamples removes it via the isLoaded path.
 		settings.drumkit_file.store(kit_file);
+
+		// Track whether we ever observe an intermediate load state while
+		// firing onsets, to avoid relying solely on timing assumptions.
+		bool saw_intermediate_load_state{false};
+
 		for(int i = 0; i < 200; ++i)
 		{
 			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+
+			auto status = settings.drumkit_load_status.load();
+			if(status == LoadStatus::Parsing || status == LoadStatus::Loading)
+			{
+				saw_intermediate_load_state = true;
+			}
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
+		// Ensure we actually exercised the intended timing window at least once.
+		CHECK(saw_intermediate_load_state);
 		// Confirm the kit finished loading (test completion check).
 		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
 	}
