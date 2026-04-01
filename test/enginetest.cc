@@ -837,17 +837,28 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 
 		// Load kit1 and wait for it to finish loading.
 		settings.drumkit_file.store(kit1_file);
-		for(int i = 0; i < 50; ++i)
+
+		// Poll until drumkit loading is complete, with a bounded timeout.
+		size_t current_time = 0;
+		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
+		for(int i = 0;
+		    i < max_iterations &&
+		    settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
 		{
-			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
+
+		// Ensure kit loading actually finished before auditioning.
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
 		// Fire an audition onset to create a SampleEvent in events_ds.
 		settings.audition_instrument.store("instr1");
 		settings.audition_velocity.store(0.8f);
 		settings.audition_counter.store(1);
-		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+		CHECK(dg.run(current_time, buf.data(), nsamples));
 
 		// The channel-0 output must be non-zero: the WAV data is constant
 		// 0x1110, so every rendered sample contributes a non-zero value.
