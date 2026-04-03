@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/CMakeFiles/hugin-populate"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/CMakeFiles/hugin-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/CMakeFiles/hugin-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"hugin-populate"
+		],
+		"name" : "hugin-populate"
+	}
+}

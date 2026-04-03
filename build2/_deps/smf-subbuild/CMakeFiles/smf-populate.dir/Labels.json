@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/smf-populate"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/smf-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/smf-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"smf-populate"
+		],
+		"name" : "smf-populate"
+	}
+}

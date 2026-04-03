@@ -1,0 +1,15 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The download step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+method=git
+command=/usr/local/bin/cmake;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/getoptpp-subbuild/getoptpp-populate-prefix/tmp/getoptpp-populate-gitclone.cmake
+source_dir=/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/cpm-cache/getoptpp/bbae31606e455f8990d3bbfaad963ebffbfd836a
+work_dir=/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/cpm-cache/getoptpp
+repository=git://git.drumgizmo.org/getoptpp.git
+remote=origin
+init_submodules=TRUE
+recurse_submodules=--recursive
+submodules=
+CMP0097=NEW
+      

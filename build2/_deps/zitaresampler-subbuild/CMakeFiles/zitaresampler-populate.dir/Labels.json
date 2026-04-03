@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/CMakeFiles/zitaresampler-populate"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/CMakeFiles/zitaresampler-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/CMakeFiles/zitaresampler-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/zitaresampler-subbuild/zitaresampler-populate-prefix/src/zitaresampler-populate-stamp/zitaresampler-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"zitaresampler-populate"
+		],
+		"name" : "zitaresampler-populate"
+	}
+}

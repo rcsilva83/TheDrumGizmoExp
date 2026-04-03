@@ -1,0 +1,21 @@
+# ninja log v7
+0	5	1775218704657913151	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-mkdir	f9f02e0daf236a10
+0	5	1775218704657913151	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-mkdir	f9f02e0daf236a10
+5	844	1775218705497910559	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-download	80b55833a16df771
+5	844	1775218705497910559	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-download	80b55833a16df771
+844	854	1775218705497910559	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-update	de623622d0b5e1fa
+844	854	1775218705497910559	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-update	de623622d0b5e1fa
+854	857	1775218705510910519	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-patch	b7b503437a498ade
+854	857	1775218705510910519	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-patch	b7b503437a498ade
+857	861	1775218705513910510	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-configure	5d349cb31c91271f
+857	861	1775218705513910510	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-configure	5d349cb31c91271f
+861	864	1775218705517910497	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-build	8d3ba0f9fc70703b
+861	864	1775218705517910497	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-build	8d3ba0f9fc70703b
+864	868	1775218705520910488	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-install	f3958280c00636fd
+864	868	1775218705520910488	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-install	f3958280c00636fd
+868	872	1775218705524910476	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-test	d8e947c4c1d41ad9
+868	872	1775218705524910476	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-test	d8e947c4c1d41ad9
+872	877	1775218705529910460	CMakeFiles/pugixml-populate-complete	8a477d0c2476f69
+872	877	1775218705529910460	pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-done	8a477d0c2476f69
+872	877	1775218705529910460	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/CMakeFiles/pugixml-populate-complete	8a477d0c2476f69
+872	877	1775218705529910460	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugixml-subbuild/pugixml-populate-prefix/src/pugixml-populate-stamp/pugixml-populate-done	8a477d0c2476f69

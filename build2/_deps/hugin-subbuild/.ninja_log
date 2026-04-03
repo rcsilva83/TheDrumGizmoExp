@@ -1,0 +1,21 @@
+# ninja log v7
+0	4	1775218697909932487	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-mkdir	56ff9de9c43c75ae
+0	4	1775218697909932487	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-mkdir	56ff9de9c43c75ae
+5	1173	1775218699077929326	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-download	39b126a75586a938
+5	1173	1775218699077929326	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-download	39b126a75586a938
+1173	1181	1775218699078929323	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-update	fe15afb49b2c12b2
+1173	1181	1775218699078929323	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-update	fe15afb49b2c12b2
+1181	1185	1775218699089929294	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-patch	7d4952aa7cc0d4d9
+1181	1185	1775218699089929294	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-patch	7d4952aa7cc0d4d9
+1185	1189	1775218699093929283	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-configure	5c1e44f58097412b
+1185	1189	1775218699093929283	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-configure	5c1e44f58097412b
+1189	1193	1775218699097929272	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-build	6dfccf3a2f19d03f
+1189	1193	1775218699097929272	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-build	6dfccf3a2f19d03f
+1193	1196	1775218699101929261	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-install	c758d653773d563c
+1193	1196	1775218699101929261	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-install	c758d653773d563c
+1196	1200	1775218699104929253	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-test	13017a34468cfe5b
+1196	1200	1775218699104929253	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-test	13017a34468cfe5b
+1200	1205	1775218699109929240	CMakeFiles/hugin-populate-complete	e4dc797d22b2eaaf
+1200	1205	1775218699109929240	hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-done	e4dc797d22b2eaaf
+1200	1205	1775218699109929240	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/CMakeFiles/hugin-populate-complete	e4dc797d22b2eaaf
+1200	1205	1775218699109929240	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/hugin-subbuild/hugin-populate-prefix/src/hugin-populate-stamp/hugin-populate-done	e4dc797d22b2eaaf

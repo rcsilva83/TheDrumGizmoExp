@@ -1,0 +1,21 @@
+# ninja log v7
+1	5	1775218699157929109	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-mkdir	967e079f7de31948
+1	5	1775218699157929109	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-mkdir	967e079f7de31948
+5	1157	1775218700309925992	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-download	f91047af6ef5c7dd
+5	1157	1775218700309925992	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-download	f91047af6ef5c7dd
+1157	1165	1775218700310925989	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-update	68228cea5f45967c
+1157	1165	1775218700310925989	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-update	68228cea5f45967c
+1165	1169	1775218700322925957	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-patch	90e28bf0c2a0210
+1165	1169	1775218700322925957	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-patch	90e28bf0c2a0210
+1169	1173	1775218700325925949	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-configure	6808244469b1b87c
+1169	1173	1775218700325925949	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-configure	6808244469b1b87c
+1173	1176	1775218700329925938	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-build	8eef07b30ca3d4a8
+1173	1176	1775218700329925938	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-build	8eef07b30ca3d4a8
+1176	1180	1775218700332925930	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-install	dea7f07e183e43e1
+1176	1180	1775218700332925930	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-install	dea7f07e183e43e1
+1180	1184	1775218700336925919	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-test	6ac7f906910c6506
+1180	1184	1775218700336925919	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-test	6ac7f906910c6506
+1184	1189	1775218700341925906	CMakeFiles/pluginizmo-populate-complete	8bcd74b23b0aa38c
+1184	1189	1775218700341925906	pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-done	8bcd74b23b0aa38c
+1184	1189	1775218700341925906	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/CMakeFiles/pluginizmo-populate-complete	8bcd74b23b0aa38c
+1184	1189	1775218700341925906	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pluginizmo-subbuild/pluginizmo-populate-prefix/src/pluginizmo-populate-stamp/pluginizmo-populate-done	8bcd74b23b0aa38c

@@ -1,0 +1,21 @@
+# ninja log v7
+1	5	1775218706925906152	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-mkdir	626b87022a9b6460
+1	5	1775218706925906152	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-mkdir	626b87022a9b6460
+5	966	1775218707887903184	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-download	75e5d12bfd1e34d6
+5	966	1775218707887903184	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-download	75e5d12bfd1e34d6
+966	974	1775218707888903181	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-update	4b4b0871839685aa
+966	974	1775218707888903181	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-update	4b4b0871839685aa
+974	978	1775218707899903147	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-patch	efe123b527eca1a2
+974	978	1775218707899903147	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-patch	efe123b527eca1a2
+978	981	1775218707903903135	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-configure	40eea65b94a8028c
+978	981	1775218707903903135	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-configure	40eea65b94a8028c
+981	985	1775218707906903125	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-build	140b9299419fdae1
+981	985	1775218707906903125	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-build	140b9299419fdae1
+985	989	1775218707909903116	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-install	a192dc7a152481f1
+985	989	1775218707909903116	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-install	a192dc7a152481f1
+989	993	1775218707913903104	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-test	cc549e83d97de85c
+989	993	1775218707913903104	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-test	cc549e83d97de85c
+993	998	1775218707919903085	CMakeFiles/doctest-populate-complete	4449c763bd495262
+993	998	1775218707919903085	doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-done	4449c763bd495262
+993	998	1775218707919903085	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/CMakeFiles/doctest-populate-complete	4449c763bd495262
+993	998	1775218707919903085	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/doctest-subbuild/doctest-populate-prefix/src/doctest-populate-stamp/doctest-populate-done	4449c763bd495262

@@ -1,0 +1,3 @@
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/lodepng-subbuild/CMakeFiles/lodepng-populate.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/lodepng-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/lodepng-subbuild/CMakeFiles/rebuild_cache.dir

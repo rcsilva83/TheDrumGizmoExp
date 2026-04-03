@@ -1,0 +1,21 @@
+# ninja log v7
+0	4	1775218711515892018	smf-populate-prefix/src/smf-populate-stamp/smf-populate-mkdir	85154becb627cd39
+0	4	1775218711515892018	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-mkdir	85154becb627cd39
+4	288	1775218711798891150	smf-populate-prefix/src/smf-populate-stamp/smf-populate-download	c20715e6cf71b8c0
+4	288	1775218711798891150	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-download	c20715e6cf71b8c0
+288	296	1775218711799891147	smf-populate-prefix/src/smf-populate-stamp/smf-populate-update	f07b614d2c5a128c
+288	296	1775218711799891147	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-update	f07b614d2c5a128c
+296	300	1775218711810891113	smf-populate-prefix/src/smf-populate-stamp/smf-populate-patch	c16b196d70d5dada
+296	300	1775218711810891113	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-patch	c16b196d70d5dada
+300	304	1775218711814891101	smf-populate-prefix/src/smf-populate-stamp/smf-populate-configure	4362228e31012503
+300	304	1775218711814891101	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-configure	4362228e31012503
+304	307	1775218711818891088	smf-populate-prefix/src/smf-populate-stamp/smf-populate-build	931bea30a7f52469
+304	307	1775218711818891088	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-build	931bea30a7f52469
+307	311	1775218711822891076	smf-populate-prefix/src/smf-populate-stamp/smf-populate-install	310a118b5fb38250
+307	311	1775218711822891076	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-install	310a118b5fb38250
+311	315	1775218711825891067	smf-populate-prefix/src/smf-populate-stamp/smf-populate-test	afd005d7e13b127
+311	315	1775218711825891067	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-test	afd005d7e13b127
+315	320	1775218711830891052	CMakeFiles/smf-populate-complete	e368d221a130e9a3
+315	320	1775218711830891052	smf-populate-prefix/src/smf-populate-stamp/smf-populate-done	e368d221a130e9a3
+315	320	1775218711830891052	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/CMakeFiles/smf-populate-complete	e368d221a130e9a3
+315	320	1775218711830891052	/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/smf-subbuild/smf-populate-prefix/src/smf-populate-stamp/smf-populate-done	e368d221a130e9a3
