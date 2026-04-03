@@ -278,6 +278,7 @@ public:
 	{
 		(void)pos;
 		(void)len;
+		// Use an instrument index that can never be valid in any test kit.
 		events.push_back({EventType::OnSet, 999999u, 0, 1.0f});
 	}
 };
@@ -299,6 +300,8 @@ public:
 		(void)len;
 		for(size_t i = 0; i < onset_count; ++i)
 		{
+			// Space onsets 8 samples apart so they have distinct offsets and
+			// are not folded into a single event by the deduplication logic.
 			events.push_back({EventType::OnSet, 0u, i * 8u, 1.0f});
 		}
 	}
