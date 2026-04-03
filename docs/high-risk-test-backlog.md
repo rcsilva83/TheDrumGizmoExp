@@ -39,16 +39,23 @@ Formula:
 
 ## Prioritized Gaps
 
-| Rank | ID | Area | Untested scenario | Score |
-| ---- | -- | ---- | ----------------- | ----: |
-| 1 | HR-01 | Audio cache | Event queue behavior under concurrent `setChunkSize()`, `close()`, and pending async reads | 4.75 |
-| 2 | HR-02 | Engine lifecycle | Resampling path behavior in `DrumGizmo::run()` (ratio != 1.0), including latency and buffer transitions | 4.55 |
-| 3 | HR-03 | MIDI input/mapping | `AudioInputEngineMidi::processNote()` semantic edge cases (note-on velocity 0, aftertouch choke, short packets, multi-map fanout) | 4.45 |
-| 4 | HR-04 | Parsing | Robustness for malformed/partial XML in drumkit/instrument parsing beyond happy-path fixture shapes | 4.20 |
-| 5 | HR-05 | Audio cache | Underrun and dummy-id behavior when preload/file validity/cache-pool limits fail under load | 4.05 |
-| 6 | HR-06 | MIDI map parser | Repeat parse state handling and invalid-map entry filtering behavior in `MidiMapParser` | 3.85 |
-| 7 | HR-07 | Engine lifecycle | Kit switching assertions in `test/enginetest.cc` are absent despite heavy lifecycle churn loops | 3.75 |
-| 8 | HR-08 | Config parser | Version handling and missing-node edge behavior not fully asserted against persisted parser state | 3.55 |
+| Rank | ID | Area | Untested scenario | Score | Status |
+| ---- | -- | ---- | ----------------- | ----: | ------ |
+| 1 | HR-01 | Audio cache | Event queue behavior under concurrent `setChunkSize()`, `close()`, and pending async reads | 4.75 | implemented (`test/audiocacheeventhandlertest.cc`) |
+| 2 | HR-02 | Engine lifecycle | Resampling path behavior in `DrumGizmo::run()` (ratio != 1.0), including latency and buffer transitions | 4.55 | in progress |
+| 3 | HR-03 | MIDI input/mapping | `AudioInputEngineMidi::processNote()` semantic edge cases (note-on velocity 0, aftertouch choke, short packets, multi-map fanout) | 4.45 | implemented (`test/audioinputenginemiditest.cc`) |
+| 4 | HR-04 | Parsing | Robustness for malformed/partial XML in drumkit/instrument parsing beyond happy-path fixture shapes | 4.20 | in progress |
+| 5 | HR-05 | Audio cache | Underrun and dummy-id behavior when preload/file validity/cache-pool limits fail under load | 4.05 | in progress |
+| 6 | HR-06 | MIDI map parser | Repeat parse state handling and invalid-map entry filtering behavior in `MidiMapParser` | 3.85 | implemented (`test/midimapparsertest.cc`) |
+| 7 | HR-07 | Engine lifecycle | Kit switching assertions in `test/enginetest.cc` are absent despite heavy lifecycle churn loops | 3.75 | in progress |
+| 8 | HR-08 | Config parser | Version handling and missing-node edge behavior not fully asserted against persisted parser state | 3.55 | in progress |
+
+## Recently Addressed
+
+- `TST-AC-01` (`test/audiocacheeventhandlertest.cc`)
+  - Adds threaded close-event release coverage (ID is reusable after queued close is processed).
+  - Adds threaded/non-threaded parity coverage for identical `pushLoadNextEvent()` reads.
+  - Complements existing queue-deduplication and `setChunkSize()` queue-clear assertions.
 
 ## Follow-Up Work Items
 

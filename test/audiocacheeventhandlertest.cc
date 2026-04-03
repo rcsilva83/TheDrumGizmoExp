@@ -411,4 +411,93 @@ TEST_CASE_FIXTURE(
 
 		CHECK_EQ(2u, event_handler.pendingEventCount());
 	}
+
+	SUBCASE("threaded_close_event_releases_id_after_processing")
+	{
+		AudioCacheIDManager id_manager;
+		id_manager.init(1);
+
+		AudioCacheEventHandler event_handler(id_manager);
+		event_handler.setThreaded(true);
+		event_handler.start();
+
+		cacheid_t id = id_manager.registerID({});
+		REQUIRE_NE(CACHE_DUMMYID, id);
+
+		event_handler.pushCloseEvent(id);
+
+		cacheid_t replacement_id = CACHE_DUMMYID;
+		int timeout = load_timeout_ms;
+		while(timeout > 0)
+		{
+			replacement_id = id_manager.registerID({});
+			if(replacement_id != CACHE_DUMMYID)
+			{
+				break;
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			--timeout;
+		}
+
+		CHECK_NE(CACHE_DUMMYID, replacement_id);
+
+		event_handler.stop();
+	}
+
+	SUBCASE("threaded_and_nonthreaded_load_parity")
+	{
+		auto filename =
+		    drumkit_creator.createSingleChannelWav("single_channel_parity.wav");
+
+		constexpr size_t chunk_size = 64;
+
+		std::vector<sample_t> nonthreaded_buf(chunk_size, 0.0f);
+		std::vector<sample_t> threaded_buf(chunk_size, 0.0f);
+		volatile bool nonthreaded_ready{false};
+		volatile bool threaded_ready{false};
+
+		{
+			AudioCacheIDManager id_manager;
+			id_manager.init(2);
+
+			AudioCacheEventHandler event_handler(id_manager);
+			event_handler.setChunkSize(chunk_size);
+
+			AudioCacheFile& afile = event_handler.openFile(filename);
+			event_handler.pushLoadNextEvent(
+			    &afile, 0, 0, nonthreaded_buf.data(), &nonthreaded_ready);
+		}
+
+		{
+			AudioCacheIDManager id_manager;
+			id_manager.init(2);
+
+			AudioCacheEventHandler event_handler(id_manager);
+			event_handler.setChunkSize(chunk_size);
+			event_handler.setThreaded(true);
+			event_handler.start();
+
+			AudioCacheFile& afile = event_handler.openFile(filename);
+			event_handler.pushLoadNextEvent(
+			    &afile, 0, 0, threaded_buf.data(), &threaded_ready);
+
+			int timeout = load_timeout_ms;
+			while(!threaded_ready && timeout > 0)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				--timeout;
+			}
+
+			event_handler.stop();
+		}
+
+		CHECK_UNARY(nonthreaded_ready);
+		CHECK_UNARY(threaded_ready);
+
+		for(size_t i = 0; i < chunk_size; ++i)
+		{
+			CHECK_EQ(nonthreaded_buf[i], threaded_buf[i]);
+		}
+	}
 }
