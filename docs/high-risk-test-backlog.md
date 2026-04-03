@@ -5,12 +5,14 @@ paths and converts them into a prioritized implementation backlog.
 
 ## Scope Audited
 
+### Audit round 1 (2026-03-24)
+
 - Audio cache (`src/audiocache*.cc`)
 - Parsing (`src/configparser.cc`, `src/dgxmlparser.cc`, `src/midimapparser.cc`)
 - MIDI mapping/input (`src/midimapper.cc`, `src/audioinputenginemidi.cc`)
 - Engine lifecycle (`src/drumgizmo.cc`)
 
-Current coverage references used in this audit:
+Coverage references used in audit round 1:
 
 - `test/audiocachetest.cc`
 - `test/audiocachefiletest.cc`
@@ -20,6 +22,17 @@ Current coverage references used in this audit:
 - `test/midimapparsertest.cc`
 - `test/midimappertest.cc`
 - `test/enginetest.cc`
+
+### Audit round 2 (2026-04-03)
+
+HR-01 through HR-08 were all implemented between 2026-03-24 and 2026-04-03
+(see PRs #112, #111 and related). This round re-audits the same modules plus
+`src/inputprocessor.cc` now that the first-wave gaps are closed.
+
+Additional coverage references added in round 2:
+
+- `test/audioinputenginemiditest.cc` (new file, covers TST-MIDI-01)
+- Updated coverage gaps from `docs/coverage-top20-file-gaps.md`
 
 ## Prioritization Criteria
 
@@ -39,134 +52,189 @@ Formula:
 
 ## Prioritized Gaps
 
-| Rank | ID | Area | Untested scenario | Score |
-| ---- | -- | ---- | ----------------- | ----: |
-| 1 | HR-01 | Audio cache | Event queue behavior under concurrent `setChunkSize()`, `close()`, and pending async reads | 4.75 |
-| 2 | HR-02 | Engine lifecycle | Resampling path behavior in `DrumGizmo::run()` (ratio != 1.0), including latency and buffer transitions | 4.55 |
-| 3 | HR-03 | MIDI input/mapping | `AudioInputEngineMidi::processNote()` semantic edge cases (note-on velocity 0, aftertouch choke, short packets, multi-map fanout) | 4.45 |
-| 4 | HR-04 | Parsing | Robustness for malformed/partial XML in drumkit/instrument parsing beyond happy-path fixture shapes | 4.20 |
-| 5 | HR-05 | Audio cache | Underrun and dummy-id behavior when preload/file validity/cache-pool limits fail under load | 4.05 |
-| 6 | HR-06 | MIDI map parser | Repeat parse state handling and invalid-map entry filtering behavior in `MidiMapParser` | 3.85 |
-| 7 | HR-07 | Engine lifecycle | Kit switching assertions in `test/enginetest.cc` are absent despite heavy lifecycle churn loops | 3.75 |
-| 8 | HR-08 | Config parser | Version handling and missing-node edge behavior not fully asserted against persisted parser state | 3.55 |
+### Round 1 items (all completed)
+
+| Rank | ID | Area | Untested scenario | Score | Status |
+| ---- | -- | ---- | ----------------- | ----: | ------ |
+| 1 | HR-01 | Audio cache | Event queue behavior under concurrent `setChunkSize()`, `close()`, and pending async reads | 4.75 | ✅ Done (TST-AC-01) |
+| 2 | HR-02 | Engine lifecycle | Resampling path behavior in `DrumGizmo::run()` (ratio != 1.0), including latency and buffer transitions | 4.55 | ✅ Done (TST-ENG-01) |
+| 3 | HR-03 | MIDI input/mapping | `AudioInputEngineMidi::processNote()` semantic edge cases (note-on velocity 0, aftertouch choke, short packets, multi-map fanout) | 4.45 | ✅ Done (TST-MIDI-01) |
+| 4 | HR-04 | Parsing | Robustness for malformed/partial XML in drumkit/instrument parsing beyond happy-path fixture shapes | 4.20 | ✅ Done (TST-PARSE-01) |
+| 5 | HR-05 | Audio cache | Underrun and dummy-id behavior when preload/file validity/cache-pool limits fail under load | 4.05 | ✅ Done (TST-AC-02) |
+| 6 | HR-06 | MIDI map parser | Repeat parse state handling and invalid-map entry filtering behavior in `MidiMapParser` | 3.85 | ✅ Done (TST-MIDI-02) |
+| 7 | HR-07 | Engine lifecycle | Kit switching assertions in `test/enginetest.cc` are absent despite heavy lifecycle churn loops | 3.75 | ✅ Done (TST-ENG-02) |
+| 8 | HR-08 | Config parser | Version handling and missing-node edge behavior not fully asserted against persisted parser state | 3.55 | ✅ Done (TST-CFG-01) |
+
+### Round 2 items (new findings)
+
+| Rank | ID | Area | Untested scenario | Score | Status |
+| ---- | -- | ---- | ----------------- | ----: | ------ |
+| 9  | HR-09 | Input processor | Voice-limit enforcement path in `InputProcessor::limitVoices()` when `enable_voice_limit` is true | 4.10 | ⬜ Open (TST-INPUT-01) |
+| 10 | HR-10 | Input processor | `processOnset()` with out-of-bounds instrument ID silently drops the event; not directly asserted | 3.80 | ⬜ Open (TST-INPUT-02) |
+| 11 | HR-11 | Input processor | Choke-group rampdown via `applyChokeGroup()` when two instruments share a group name | 3.60 | ⬜ Open (TST-INPUT-03) |
 
 ## Follow-Up Work Items
 
-### HR-01: Audio cache concurrent queue/chunk transitions
+### ✅ HR-01: Audio cache concurrent queue/chunk transitions
 
-- Why high risk: asynchronous queueing + manual memory ownership in
-  `AudioCacheEventHandler` and `AudioCache` combines lock, semaphore, and
-  deferred close behavior.
-- Current gap signal: `test/audiocacheeventhandlertest.cc` only constructs the
-  handler and has no event-processing assertions.
-- Implementation backlog item: `TST-AC-01`
-  - Add deterministic tests for:
-    - deduplication of same `(file, pos)` load events across channels,
-    - `setChunkSize()` while events are queued,
-    - `close()` ordering vs queued load events,
-    - non-threaded vs threaded parity.
-  - Target files: `test/audiocacheeventhandlertest.cc`, `test/audiocachetest.cc`.
+- Implementation backlog item: `TST-AC-01` — **Completed**
+- Implemented in: `test/audiocacheeventhandlertest.cc`, `test/audiocachetest.cc`
+- Key subcases added:
+  - `setChunkSize_with_queued_close_event_clears_queue`
+  - `setChunkSize_different_value_disables_active_ids`
+  - `deduplicate_load_events_threaded_both_channels_ready`
+  - `updateChunkSizeWhileEventsQueued`, `closeWhileLoadQueued`
 
-### HR-02: Engine resampling runtime path
+### ✅ HR-02: Engine resampling runtime path
 
-- Why high risk: this path touches sample-rate conversion state, per-channel
-  buffers, and mixed internal/external output buffers during every block.
-- Current gap signal: `test/enginetest.cc` does not assert resampling branch
-  behavior and mostly stress-runs kit switching loops.
-- Implementation backlog item: `TST-ENG-01`
-  - Add tests for:
-    - `ratio != 1.0` path in `DrumGizmo::run()`,
-    - `setSamplerate()` quality clamping and prefill behavior,
-    - expected `getLatency()` changes with/without resampling.
-  - Target files: `test/enginetest.cc` (+ focused engine fixture helpers).
+- Implementation backlog item: `TST-ENG-01` — **Completed**
+- Implemented in: `test/enginetest.cc`
+- Key subcases added:
+  - `setSamplerateQualityClamping`
+  - `getLatencyIncludesResamplerWhenEnabled`
+  - `getLatencyExcludesResamplerWhenDisabled`
+  - `resamplingRecommendedSetWhenRatioNotOne`
+  - `runWithRatioNotOne`, `runWithRatioOne`
+  - `runtimeEnableResamplingToggleAffectsLatency`
+  - `runtimeResamplingQualityChangeAffectsLatency`
 
-### HR-03: MIDI event semantics and mapping fanout
+### ✅ HR-03: MIDI event semantics and mapping fanout
 
-- Why high risk: mapping and trigger semantics directly affect hit correctness
-  and choke behavior at runtime.
-- Current gap signal: mapping tables are tested, but raw MIDI packet processing
-  in `AudioInputEngineMidi::processNote()` is untested.
-- Implementation backlog item: `TST-MIDI-01`
-  - Add tests for:
-    - short packet ignore (`len < 3`),
-    - note-on with velocity 0 (must not emit OnSet),
-    - aftertouch > 0 emitting choke,
-    - one note mapped to multiple instruments.
-  - Target file: new `test/audioinputenginemiditest.cc`.
+- Implementation backlog item: `TST-MIDI-01` — **Completed**
+- Implemented in: `test/audioinputenginemiditest.cc` (new file)
+- Key subcases added:
+  - `regression_0_9_19_note_on_velocity_zero_generates_no_event`
+  - `regression_0_9_20_aftertouch_velocity_gt_zero_generates_choke`
+  - `short_buffer_generates_no_event`
+  - `one_note_mapped_to_multiple_instruments_generates_multiple_events`
+  - `loadMidiMap_empty_filename_returns_false`
 
-### HR-04: Parser robustness on malformed/partial XML
+### ✅ HR-04: Parser robustness on malformed/partial XML
 
-- Why high risk: malformed user kit XML should fail safely without producing
-  partially inconsistent runtime data.
-- Current gap signal: parser tests are primarily valid-shape fixtures plus one
-  simple invalid case per parser.
-- Implementation backlog item: `TST-PARSE-01`
-  - Add negative/edge parser cases for:
-    - missing required attributes,
-    - unknown/unsupported versions,
-    - repeated/conflicting nodes,
-    - invalid numeric conversions and boundary values.
-  - Target files: `test/dgxmlparsertest.cc`, `test/configparsertest.cc`,
-    `test/midimapparsertest.cc`.
+- Implementation backlog item: `TST-PARSE-01` — **Completed**
+- Implemented in: `test/dgxmlparsertest.cc`, `test/configparsertest.cc`,
+  `test/midimapparsertest.cc`
+- Key subcases added:
+  - `drumkitMalformedXml`, `drumkitMissingRequiredAttributes`
+  - `instrumentMissingRequiredAttributes`
+  - `instrumentVersionAndFailureMatrix`, `normalizedAttributeMatrix`
+  - `unsupportedVersionRejection`, `missingConfigNode`
+  - `edgeCaseMatrix` (all parsers)
 
-### HR-05: Audio cache underrun and pool exhaustion behavior
+### ✅ HR-05: Audio cache underrun and pool exhaustion behavior
 
-- Why high risk: fallback-to-silence and underrun counters protect real-time
-  stability when resources are constrained.
-- Current gap signal: happy-path reads are heavily tested, but forced-pool
-  exhaustion and sustained underrun transitions are not asserted.
-- Implementation backlog item: `TST-AC-02`
-  - Add tests for:
-    - `CACHE_DUMMYID` path when ID pool is exhausted,
-    - invalid/unloaded file path through `open()` and `next()`,
-    - underrun counter increments across repeated fallback blocks.
-  - Target file: `test/audiocachetest.cc`.
+- Implementation backlog item: `TST-AC-02` — **Completed**
+- Implemented in: `test/audiocachetest.cc`
+- Key subcases added:
+  - `nullFrontBufferUnderrun`
+  - `poolExhaustionUnderrunFromOpen`
+  - `unloadedFileNextUnderrun`
+  - `repeatedDummyIdUnderrunIncrements`
+  - `dummyIdOperations`
 
-### HR-06: MidiMapParser state and filtering edge cases
+### ✅ HR-06: MidiMapParser state and filtering edge cases
 
-- Why medium risk: parser state is mutable and currently append-based.
-- Current gap signal: tests do not call `parseFile()` multiple times on the
-  same parser instance and do not assert all invalid map-entry variants.
-- Implementation backlog item: `TST-MIDI-02`
-  - Add tests for:
-    - repeated parse on one parser object,
-    - empty/missing `note` and `instr` attributes,
-    - root-node absent behavior.
-  - Target file: `test/midimapparsertest.cc`.
+- Implementation backlog item: `TST-MIDI-02` — **Completed**
+- Implemented in: `test/midimapparsertest.cc`
+- Key subcases added:
+  - `repeatValidParseFileAccumulatesEntries`
+  - `wrongRootProducesNoMappings`
+  - `emptyMidimapRootProducesNoMappings`
+  - `mapEntryWithBothAttributesAbsentIsSkipped`
 
-### HR-07: Engine kit-switch lifecycle assertions
+### ✅ HR-07: Engine kit-switch lifecycle assertions
 
-- Why medium risk: rapid drumkit swapping is exercised but not verified, so
-  regressions could pass silently.
-- Current gap signal: `test/enginetest.cc` primarily checks survivability.
-- Implementation backlog item: `TST-ENG-02`
-  - Add assertions for:
-    - expected event reset behavior on kit change,
-    - no stale instrument mapping after switch,
-    - deterministic state after repeated toggles.
+- Implementation backlog item: `TST-ENG-02` — **Completed**
+- Implemented in: `test/enginetest.cc`
+- Key subcases added:
+  - `kitSwitchResetsActiveEvents`
+  - `kitSwitchNoStaleInstrumentMappingAfterSwitch`
+  - `kitSwitchDeterministicStateAfterRepeatedToggles`
+
+### ✅ HR-08: Config parser state/version behavior
+
+- Implementation backlog item: `TST-CFG-01` — **Completed**
+- Implemented in: `test/configparsertest.cc`
+- Key subcases added:
+  - `unsupportedVersionRejection`
+  - `missingConfigNode`
+  - `recoveryAfterVersionFailure`
+  - `recoveryAfterParseFailure`
+
+### HR-09: Voice-limit enforcement in InputProcessor
+
+- Why high risk: `InputProcessor::limitVoices()` silently ramps down the
+  oldest drum-hit voice when the per-instrument cap is exceeded. A bug here
+  produces incorrect or stale audio output with no error signal. The entire
+  `settings.enable_voice_limit` true-branch in `processOnset()` (line 265)
+  and the full `limitVoices()` function body (~60 lines) are currently
+  uncovered.
+- Current gap signal: `src/inputprocessor.cc` has 5.7% branch coverage
+  (rank 13 in coverage-top20-file-gaps); none of the current `enginetest.cc`
+  subcases set `settings.enable_voice_limit = true`.
+- Implementation backlog item: `TST-INPUT-01`
+  - Add tests that:
+    - enable voice limiting (`settings.enable_voice_limit.store(true)`,
+      `settings.voice_limit_max.store(N)`),
+    - fire more than `N` onset events for the same instrument,
+    - assert the engine keeps running without crash,
+    - optionally assert that the oldest voice is ramped down (observable
+      via output silence on later runs).
   - Target file: `test/enginetest.cc`.
 
-### HR-08: Config parser state/version behavior
+### HR-10: processOnset with out-of-bounds instrument ID
 
-- Why medium risk: config parsing is user-entry-point sensitive but low
-  runtime-frequency.
-- Current gap signal: no explicit assertions that parser state is safe after
-  parse failures or unsupported version declarations.
-- Implementation backlog item: `TST-CFG-01`
-  - Add tests for:
-    - unsupported `version` rejection,
-    - missing `<config>` node behavior,
-    - value lookup behavior after failed parse attempts.
-  - Target file: `test/configparsertest.cc`.
+- Why high risk: if the input engine or MIDI mapper supplies an instrument
+  index beyond `kit.instruments.size()`, `processOnset()` sets `instr =
+  nullptr` and returns `false`, silently discarding the event. This path is
+  not directly asserted; a regression that accidentally crashes or corrupts
+  state would be invisible.
+- Current gap signal: the `instrument_id >= kit.instruments.size()` false-
+  branch in `processOnset()` (line 224) and `processChoke()` (line 323) are
+  not covered by any test.
+- Implementation backlog item: `TST-INPUT-02`
+  - Add a custom `AudioInputEngine` stub that fires `OnSet` events with a
+    very large instrument index (e.g. 999999).
+  - Assert that `DrumGizmo::run()` returns `true` (does not crash or stop)
+    and produces all-zero output.
+  - Target file: `test/enginetest.cc`.
+
+### HR-11: Choke-group rampdown via applyChokeGroup
+
+- Why high risk: choke-group behavior is central to realistic cymbal/hi-hat
+  simulation. If `applyChokeGroup()` fails to find matching group names, or
+  the rampdown is never applied, the wrong instruments continue playing.
+- Current gap signal: `applyChokeGroup()` (line 153 in
+  `src/inputprocessor.cc`) is never called in any current test because the
+  standard test kits (`createStdKit`) do not include `<group>` elements in
+  instrument XML. The `if(instr.getGroup() == "")` early-return path is also
+  never hit.
+- Implementation backlog item: `TST-INPUT-03`
+  - Create a drumkit XML fixture with two instruments that share the same
+    `<group>` name (requires extending `DrumkitCreator` or writing raw XML).
+  - Fire an onset for instrument A while instrument A is already playing.
+  - Assert that the previously playing SampleEvents for instrument A are
+    ramped down (the rampdown path in `applyChokeGroup` is exercised).
+  - Target file: `test/enginetest.cc` (possibly with `DrumkitCreator`
+    extension).
 
 ## Execution Order Recommendation
 
+### Round 1 (all completed)
+
+1. `TST-AC-01` ✅
+2. `TST-ENG-01` ✅
+3. `TST-MIDI-01` ✅
+4. `TST-PARSE-01` ✅
+5. `TST-AC-02` ✅
+6. `TST-MIDI-02` ✅
+7. `TST-ENG-02` ✅
+8. `TST-CFG-01` ✅
+
+### Round 2
+
 Implement in this order for highest risk reduction per effort:
 
-1. `TST-AC-01`
-2. `TST-ENG-01`
-3. `TST-MIDI-01`
-4. `TST-PARSE-01`
-5. `TST-AC-02`
-
-Items 6-8 can proceed in parallel once top runtime-critical gaps are covered.
+1. `TST-INPUT-01` (voice limit — highest score, pure settings toggle)
+2. `TST-INPUT-02` (out-of-bounds instrument ID — simple custom stub)
+3. `TST-INPUT-03` (choke group — requires kit XML extension, higher effort)

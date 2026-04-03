@@ -1,3 +1,0 @@
-/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugl-subbuild/CMakeFiles/pugl-populate.dir
-/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugl-subbuild/CMakeFiles/edit_cache.dir
-/home/runner/work/TheDrumGizmoExp/TheDrumGizmoExp/build2/_deps/pugl-subbuild/CMakeFiles/rebuild_cache.dir

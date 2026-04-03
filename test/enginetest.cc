@@ -268,6 +268,45 @@ private:
 	bool fire_choke{false};
 };
 
+// Fires OnSet events with an instrument index that is far beyond any loaded
+// kit's instrument count (TST-INPUT-02). Used to cover the
+// `instrument_id >= kit.instruments.size()` false-branch in processOnset.
+class AudioInputEngineOutOfBoundsInstrumentDummy : public AudioInputEngineDummy
+{
+public:
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		events.push_back({EventType::OnSet, 999999u, 0, 1.0f});
+	}
+};
+
+// Fires count OnSet events for instrument 0 on every run() call.
+// Used to drive voice-limit enforcement (TST-INPUT-01): with
+// voice_limit_max < count, limitVoices() is triggered every run.
+class AudioInputEngineRepeatedOnsetDummy : public AudioInputEngineDummy
+{
+public:
+	explicit AudioInputEngineRepeatedOnsetDummy(size_t count)
+	    : onset_count(count)
+	{
+	}
+
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		for(size_t i = 0; i < onset_count; ++i)
+		{
+			events.push_back({EventType::OnSet, 0u, i * 8u, 1.0f});
+		}
+	}
+
+private:
+	size_t onset_count;
+};
+
 struct test_engineFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -1131,5 +1170,119 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		CHECK(saw_intermediate_load_state);
 		// Confirm the kit finished loading (test completion check).
 		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+	}
+
+	SUBCASE("processOnsetOutOfBoundsInstrumentIdIsIgnored")
+	{
+		// TST-INPUT-02: When the input engine fires an OnSet event whose
+		// instrument index is larger than kit.instruments.size(), processOnset
+		// sets instr = nullptr and returns false (silently discarding the
+		// event). The engine must keep running without crashing and produce
+		// all-zero output for the frame since no SampleEvent is created.
+		Settings settings;
+		AudioOutputEngineBufferDummy oe;
+		AudioInputEngineOutOfBoundsInstrumentDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		oe.setInternalBufferSize(nsamples);
+
+		auto kit_file = drumkit_creator.createStdKit("oob_kit");
+		settings.drumkit_file.store(kit_file);
+
+		// Wait for the kit to load.
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+
+		// The input engine fires instrument_id=999999 every run. After the
+		// kit is loaded the event hits processOnset which guards against
+		// out-of-bounds access via `if(instrument_id <
+		// kit.instruments.size())`. instr stays nullptr → the function returns
+		// false → no SampleEvent is created → output stays all-zero. The engine
+		// itself must keep running.
+		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+
+		const sample_t* ch0 = oe.getBuffer(0);
+		REQUIRE(ch0 != nullptr);
+		bool all_zero = true;
+		for(size_t i = 0; i < nsamples; ++i)
+		{
+			if(ch0[i] != 0.0f)
+			{
+				all_zero = false;
+				break;
+			}
+		}
+		CHECK_UNARY(all_zero);
+	}
+
+	SUBCASE("voiceLimitCapsActiveVoicesDoesNotCrash")
+	{
+		// TST-INPUT-01: Exercises the `settings.enable_voice_limit` true-branch
+		// in processOnset and the limitVoices() function body.
+		//
+		// With voice_limit_max=1 and 3 OnSet events per run, after 2 groups are
+		// already playing a third onset calls limitVoices(instrument_id=0,
+		// max=1, rampdown_time) which finds 2 non-ramping groups > 1, locates
+		// the oldest via its offset, and applies applyChoke() to it. The engine
+		// must keep running (return true) throughout this sequence.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("vl_hit.wav", 2048, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "vl_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		// 3 onsets per run; voice limit of 1 triggers limitVoices() from the
+		// second onset onward once 2 groups have accumulated.
+		AudioInputEngineRepeatedOnsetDummy ie(3);
+		AudioOutputEngineDummy oe;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		// Wait for the kit to load.
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		for(int i = 0; i < 50; ++i)
+		{
+			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+
+		// Enable voice limiting with max = 1 so that limitVoices() is called
+		// whenever more than 1 group is playing.
+		settings.enable_voice_limit.store(true);
+		settings.voice_limit_max.store(1u);
+		settings.voice_limit_rampdown.store(50.0f); // 50 ms rampdown
+
+		// Run several frames. Each frame fires 3 onsets; with voice_limit=1
+		// the path through limitVoices() is exercised on every frame after the
+		// first onset.
+		for(int i = 50; i < 55; ++i)
+		{
+			CHECK(dg.run(
+			    static_cast<size_t>(i) * nsamples, buf.data(), nsamples));
+		}
 	}
 }
