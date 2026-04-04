@@ -1185,6 +1185,21 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// Ensure we actually exercised the intended timing window at least
 		// once.
 		CHECK(saw_intermediate_load_state);
+
+		// Wait for the kit to finish loading (bounded, to handle the
+		// double-loadkit() cycle caused by SettingRef::hasChanged() firstAccess
+		// on reload_counter). The loader resets status to Parsing/Loading on
+		// the second pass; give it up to ~2 s to reach Done.
+		size_t current_time = 200u * nsamples;
+		for(size_t i = 0;
+		    i < 2000 && settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
 		// Confirm the kit finished loading (test completion check).
 		CHECK_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
 	}
