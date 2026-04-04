@@ -70,7 +70,9 @@ public:
 		std::string name;
 		std::string filename;
 		std::vector<SampleData> sample_data;
-		std::string group;
+		//! Instrument choke-group name.  Instruments sharing the same non-empty
+	//! group name will mute each other when triggered.  Empty = no group.
+	std::string group;
 	};
 
 	struct DrumkitData

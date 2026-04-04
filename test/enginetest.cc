@@ -329,9 +329,9 @@ private:
 class AudioInputEngineOnsetOnDemandDummy : public AudioInputEngineDummy
 {
 public:
-	void fireOnset(std::size_t instrument_idx, std::size_t offset = 0)
+	void fireOnset(std::size_t instrument_id, std::size_t offset = 0)
 	{
-		pending_instrument = instrument_idx;
+		pending_instrument = instrument_id;
 		pending_offset = offset;
 		has_pending = true;
 	}
