@@ -1238,8 +1238,19 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		}
 		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
+		// Stabilisation: run for 200 ms to let any second loadkit() cycle
+		// complete before validating the out-of-bounds processOnset path.
+		for(size_t i = 0; i < 200; ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
 		// The input engine fires instrument_id=999999 every run. After the
-		// kit is loaded the event hits processOnset which guards against
+		// kit is loaded and settled, the event hits processOnset which guards
+		// against
 		// out-of-bounds access via `if(instrument_id <
 		// kit.instruments.size())`. instr stays nullptr → the function returns
 		// false → no SampleEvent is created → output stays all-zero. The engine
