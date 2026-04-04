@@ -286,6 +286,9 @@ public:
 // Fires count OnSet events for instrument 0 on every run() call.
 // Used to drive voice-limit enforcement (TST-INPUT-01): with
 // voice_limit_max < count, limitVoices() is triggered every run.
+// Call setEnabled(true) only after the drumkit is fully loaded to
+// avoid dangling AudioFile* references during the loader's second
+// loadkit() cycle.
 class AudioInputEngineRepeatedOnsetDummy : public AudioInputEngineDummy
 {
 public:
@@ -294,10 +297,19 @@ public:
 	{
 	}
 
+	void setEnabled(bool v)
+	{
+		enabled = v;
+	}
+
 	void run(size_t pos, size_t len, std::vector<event_t>& events) override
 	{
 		(void)pos;
 		(void)len;
+		if(!enabled)
+		{
+			return;
+		}
 		for(size_t i = 0; i < onset_count; ++i)
 		{
 			// Space onsets 8 samples apart so each generated SampleEvent gets a
@@ -309,6 +321,7 @@ public:
 
 private:
 	size_t onset_count;
+	bool enabled{false};
 };
 
 struct test_engineFixture
@@ -1270,12 +1283,17 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		settings.drumkit_file.store(kit_file);
 
 		// Poll until drumkit loading is complete, with a bounded timeout.
+		// Events are NOT fired during loading (onset firing is disabled) to
+		// avoid dangling AudioFile* references while the loader performs its
+		// second loadkit() cycle (a known loader behaviour triggered by the
+		// firstAccess flag in SettingRef::hasChanged()).
 		constexpr size_t nsamples = 256;
 		std::vector<sample_t> buf(nsamples, 0.0f);
 		size_t current_time = 0;
-		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
-		for(int i = 0; i < max_iterations &&
-		               settings.drumkit_load_status.load() != LoadStatus::Done;
+		const size_t max_iterations = 2000; // ~2 seconds at 1 ms per iteration
+		for(size_t i = 0;
+		    i < max_iterations &&
+		    settings.drumkit_load_status.load() != LoadStatus::Done;
 		    ++i)
 		{
 			CHECK(dg.run(current_time, buf.data(), nsamples));
@@ -1284,8 +1302,19 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		}
 		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
-		// Enable voice limiting with max = 1 so that limitVoices() is called
-		// whenever more than 1 group is playing.
+		// Stabilisation: run for 200 ms to let the loader's second loadkit()
+		// cycle (if any) complete before we start creating SampleEvents.
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// Enable event firing now that the kit is fully settled, then set up
+		// voice limiting with max = 1 so limitVoices() is called on every run.
+		ie.setEnabled(true);
 		settings.enable_voice_limit.store(true);
 		settings.voice_limit_max.store(1u);
 		settings.voice_limit_rampdown.store(50.0f); // 50 ms rampdown
