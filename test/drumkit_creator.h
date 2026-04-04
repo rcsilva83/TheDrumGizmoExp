@@ -3,7 +3,7 @@
  *            drumkit_creator.h
  *
  *  Thu Jan 12 18:51:34 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -70,6 +70,7 @@ public:
 		std::string name;
 		std::string filename;
 		std::vector<SampleData> sample_data;
+		std::string group;
 	};
 
 	struct DrumkitData

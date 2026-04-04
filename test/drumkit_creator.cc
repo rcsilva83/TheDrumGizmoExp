@@ -3,7 +3,7 @@
  *            drumkit_creator.cc
  *
  *  Thu Jan 12 18:51:34 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -363,7 +363,12 @@ std::string DrumkitCreator::createDrumkitFile(const DrumkitData& data, const std
 	instruments += "<instruments>\n";
 	for (const auto& instrument: data.instruments)
 	{
-		instruments += "<instrument name=\"" + instrument.name + "\" file=\"" + instrument.filename + "\">\n";
+		instruments += "<instrument name=\"" + instrument.name + "\" file=\"" + instrument.filename + "\"";
+		if(!instrument.group.empty())
+		{
+			instruments += " group=\"" + instrument.group + "\"";
+		}
+		instruments += ">\n";
 		for (std::size_t i = 0; i < data.number_of_channels; ++i)
 		{
 			std::string i_str = std::to_string(i);
