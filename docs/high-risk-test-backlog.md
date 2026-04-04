@@ -69,8 +69,8 @@ Formula:
 
 | Rank | ID | Area | Untested scenario | Score | Status |
 | ---- | -- | ---- | ----------------- | ----: | ------ |
-| 9  | HR-09 | Input processor | Voice-limit enforcement path in `InputProcessor::limitVoices()` when `enable_voice_limit` is true | 4.10 | ⬜ Open (TST-INPUT-01) |
-| 10 | HR-10 | Input processor | `processOnset()` with out-of-bounds instrument ID silently drops the event; not directly asserted | 3.80 | ⬜ Open (TST-INPUT-02) |
+| 9  | HR-09 | Input processor | Voice-limit enforcement path in `InputProcessor::limitVoices()` when `enable_voice_limit` is true | 4.10 | ✅ Done (TST-INPUT-01) |
+| 10 | HR-10 | Input processor | `processOnset()` with out-of-bounds instrument ID logs an error and drops the event; not directly asserted | 3.80 | ✅ Done (TST-INPUT-02) |
 | 11 | HR-11 | Input processor | Choke-group rampdown via `applyChokeGroup()` when two instruments share a group name | 3.60 | ⬜ Open (TST-INPUT-03) |
 
 ## Follow-Up Work Items
@@ -161,7 +161,7 @@ Formula:
   - `recoveryAfterVersionFailure`
   - `recoveryAfterParseFailure`
 
-### HR-09: Voice-limit enforcement in InputProcessor
+### ✅ HR-09: Voice-limit enforcement in InputProcessor
 
 - Why high risk: `InputProcessor::limitVoices()` silently ramps down the
   oldest drum-hit voice when the per-instrument cap is exceeded. A bug here
@@ -172,32 +172,25 @@ Formula:
 - Current gap signal: `src/inputprocessor.cc` has 5.7% branch coverage
   (rank 13 in coverage-top20-file-gaps); none of the current `enginetest.cc`
   subcases set `settings.enable_voice_limit = true`.
-- Implementation backlog item: `TST-INPUT-01`
-  - Add tests that:
-    - enable voice limiting (`settings.enable_voice_limit.store(true)`,
-      `settings.voice_limit_max.store(N)`),
-    - fire more than `N` onset events for the same instrument,
-    - assert the engine keeps running without crash,
-    - optionally assert that the oldest voice is ramped down (observable
-      via output silence on later runs).
-  - Target file: `test/enginetest.cc`.
+- Implementation backlog item: `TST-INPUT-01` — **Completed**
+- Implemented in: `test/enginetest.cc`
+- Key subcase added:
+  - `voiceLimitCapsActiveVoicesDoesNotCrash`
 
-### HR-10: processOnset with out-of-bounds instrument ID
+### ✅ HR-10: processOnset with out-of-bounds instrument ID
 
 - Why high risk: if the input engine or MIDI mapper supplies an instrument
   index beyond `kit.instruments.size()`, `processOnset()` sets `instr =
-  nullptr` and returns `false`, silently discarding the event. This path is
+  nullptr`, logs an error, and returns `false`, dropping the event. This path is
   not directly asserted; a regression that accidentally crashes or corrupts
   state would be invisible.
 - Current gap signal: the `instrument_id >= kit.instruments.size()` false-
   branch in `processOnset()` (line 224) and `processChoke()` (line 323) are
   not covered by any test.
-- Implementation backlog item: `TST-INPUT-02`
-  - Add a custom `AudioInputEngine` stub that fires `OnSet` events with a
-    very large instrument index (e.g. 999999).
-  - Assert that `DrumGizmo::run()` returns `true` (does not crash or stop)
-    and produces all-zero output.
-  - Target file: `test/enginetest.cc`.
+- Implementation backlog item: `TST-INPUT-02` — **Completed**
+- Implemented in: `test/enginetest.cc`
+- Key subcase added:
+  - `processOnsetOutOfBoundsInstrumentIdIsIgnored`
 
 ### HR-11: Choke-group rampdown via applyChokeGroup
 
@@ -238,3 +231,9 @@ Implement in this order for highest risk reduction per effort:
 1. `TST-INPUT-01` (voice limit — highest score, pure settings toggle)
 2. `TST-INPUT-02` (out-of-bounds instrument ID — simple custom stub)
 3. `TST-INPUT-03` (choke group — requires kit XML extension, higher effort)
+
+Status update:
+
+1. `TST-INPUT-01` ✅
+2. `TST-INPUT-02` ✅
+3. `TST-INPUT-03` ⬜

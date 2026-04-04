@@ -300,8 +300,9 @@ public:
 		(void)len;
 		for(size_t i = 0; i < onset_count; ++i)
 		{
-			// Space onsets 8 samples apart so they have distinct offsets and
-			// are not folded into a single event by the deduplication logic.
+			// Space onsets 8 samples apart so each generated SampleEvent gets a
+			// distinct offset, making oldest-voice selection deterministic when
+			// limitVoices() is exercised.
 			events.push_back({EventType::OnSet, 0u, i * 8u, 1.0f});
 		}
 	}
@@ -1179,7 +1180,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 	{
 		// TST-INPUT-02: When the input engine fires an OnSet event whose
 		// instrument index is larger than kit.instruments.size(), processOnset
-		// sets instr = nullptr and returns false (silently discarding the
+		// sets instr = nullptr, logs an error, and returns false (dropping the
 		// event). The engine must keep running without crashing and produce
 		// all-zero output for the frame since no SampleEvent is created.
 		Settings settings;
@@ -1196,13 +1197,18 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		auto kit_file = drumkit_creator.createStdKit("oob_kit");
 		settings.drumkit_file.store(kit_file);
 
-		// Wait for the kit to load.
-		for(int i = 0; i < 50; ++i)
+		// Poll until drumkit loading is complete, with a bounded timeout.
+		size_t current_time = 0;
+		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
+		for(int i = 0; i < max_iterations &&
+		               settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
 		{
-			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
-		REQUIRE_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
 		// The input engine fires instrument_id=999999 every run. After the
 		// kit is loaded the event hits processOnset which guards against
@@ -1210,7 +1216,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// kit.instruments.size())`. instr stays nullptr → the function returns
 		// false → no SampleEvent is created → output stays all-zero. The engine
 		// itself must keep running.
-		CHECK(dg.run(50u * nsamples, buf.data(), nsamples));
+		CHECK(dg.run(current_time, buf.data(), nsamples));
 
 		const sample_t* ch0 = oe.getBuffer(0);
 		REQUIRE(ch0 != nullptr);
@@ -1263,15 +1269,20 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		auto kit_file = drumkit_creator.create(kit_data);
 		settings.drumkit_file.store(kit_file);
 
-		// Wait for the kit to load.
+		// Poll until drumkit loading is complete, with a bounded timeout.
 		constexpr size_t nsamples = 256;
 		std::vector<sample_t> buf(nsamples, 0.0f);
-		for(int i = 0; i < 50; ++i)
+		size_t current_time = 0;
+		const int max_iterations = 2000; // ~2 seconds at 1 ms per iteration
+		for(int i = 0; i < max_iterations &&
+		               settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
 		{
-			dg.run(static_cast<size_t>(i) * nsamples, buf.data(), nsamples);
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
-		REQUIRE_EQ(settings.drumkit_load_status.load(), LoadStatus::Done);
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
 		// Enable voice limiting with max = 1 so that limitVoices() is called
 		// whenever more than 1 group is playing.
@@ -1282,10 +1293,10 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// Run several frames. Each frame fires 3 onsets; with voice_limit=1
 		// the path through limitVoices() is exercised on every frame after the
 		// first onset.
-		for(int i = 50; i < 55; ++i)
+		for(int i = 0; i < 5; ++i)
 		{
-			CHECK(dg.run(
-			    static_cast<size_t>(i) * nsamples, buf.data(), nsamples));
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
 		}
 	}
 }
