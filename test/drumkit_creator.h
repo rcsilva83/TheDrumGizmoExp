@@ -147,8 +147,8 @@ private:
 	std::string createTemporaryDirectory(const std::string& name);
 	std::vector<Sample> createData(
 	    const WavInfo& wav_info, std::size_t number_of_channels);
-	void createInstrument(const InstrumentData& data,
-	    std::size_t, const std::string& dir);
+	void createInstrument(
+	    const InstrumentData& data, std::size_t, const std::string& dir);
 	std::string createDrumkitFile(
 	    const DrumkitData& data, const std::string& dir);
 };

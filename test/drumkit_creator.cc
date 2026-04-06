@@ -303,8 +303,8 @@ auto DrumkitCreator::createData(const WavInfo& wav_info,
 	return data_vec;
 }
 
-void DrumkitCreator::createInstrument(const InstrumentData& data,
-    std::size_t, const std::string& dir)
+void DrumkitCreator::createInstrument(
+    const InstrumentData& data, std::size_t, const std::string& dir)
 {
 	std::string header = "<?xml version='1.0' encoding='UTF-8'?>\n"
 	                     "<instrument name=\"" +

@@ -1881,7 +1881,8 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// Instrument 0 directs-chokes instrument 1 (by name).
 		DrumkitCreator::InstrumentData instr0{
 		    "dc_instr0", "dc_instr0.xml", sample_data};
-		instr0.chokes.push_back(DrumkitCreator::InstrumentData::ChokeRef{"dc_instr1", 68.0});
+		instr0.chokes.push_back(
+		    DrumkitCreator::InstrumentData::ChokeRef{"dc_instr1", 68.0});
 
 		DrumkitCreator::InstrumentData instr1{
 		    "dc_instr1", "dc_instr1.xml", sample_data};
