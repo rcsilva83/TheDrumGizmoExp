@@ -342,8 +342,8 @@ public:
 		(void)len;
 		if(has_pending)
 		{
-			events.push_back({EventType::OnSet, pending_instrument,
-			                  pending_offset, 1.0f});
+			events.push_back(
+			    {EventType::OnSet, pending_instrument, pending_offset, 1.0f});
 			has_pending = false;
 		}
 	}
