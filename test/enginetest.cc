@@ -1550,28 +1550,32 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		auto kit_file = drumkit_creator.create(kit_data);
 		settings.drumkit_file.store(kit_file);
 
-		// Poll until kit is fully loaded.
 		size_t current_time = 0;
-		const size_t max_iter = 2000;
-		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
-		                                      LoadStatus::Done;
-		    ++i)
+		auto waitForDrumkitLoadAndStabilise = [&](size_t& time)
 		{
-			CHECK(dg.run(current_time, buf.data(), nsamples));
-			current_time += nsamples;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+			const size_t max_iter = 2000;
 
-		// Stabilisation: let the second loadkit() cycle complete.
-		for(size_t i = 0; i < 200; ++i)
-		{
-			dg.run(current_time, buf.data(), nsamples);
-			current_time += nsamples;
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+			// Poll until kit is fully loaded.
+			for(size_t i = 0; i < max_iter &&
+			                  settings.drumkit_load_status.load() != LoadStatus::Done;
+			    ++i)
+			{
+				CHECK(dg.run(time, buf.data(), nsamples));
+				time += nsamples;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 
+			// Stabilisation: let the second loadkit() cycle complete.
+			for(size_t i = 0; i < 200; ++i)
+			{
+				CHECK(dg.run(time, buf.data(), nsamples));
+				time += nsamples;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+		};
+		waitForDrumkitLoadAndStabilise(current_time);
 		settings.enable_voice_limit.store(true);
 		settings.voice_limit_max.store(1u);
 		settings.voice_limit_rampdown.store(50.0f);
