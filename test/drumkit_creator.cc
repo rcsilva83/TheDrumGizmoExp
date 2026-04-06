@@ -3,7 +3,7 @@
  *            drumkit_creator.cc
  *
  *  Thu Jan 12 18:51:34 CET 2017
- *  Copyright 2017 Andrï¿½ Nusser
+ *  Copyright 2017 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
