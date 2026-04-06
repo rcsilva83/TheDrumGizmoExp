@@ -96,7 +96,7 @@ public:
 			std::string instrument_name;
 			double choketime{68.0};
 
-			ChokeRef(std::string name_, double choketime_ = 68.0)
+			explicit ChokeRef(std::string name_, double choketime_ = 68.0)
 			    : instrument_name(std::move(name_)), choketime(choketime_)
 			{
 			}
