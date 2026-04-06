@@ -3,7 +3,7 @@
  *            drumkit_creator.h
  *
  *  Thu Jan 12 18:51:34 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 AndrÃ© Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -40,11 +40,11 @@ public:
 	//! variable.
 	struct WavInfo
 	{
-		std::string filename;
-		std::size_t length;
+		const std::string filename;
+		const std::size_t length;
 
-		bool is_random;
-		Sample sample;
+		const bool is_random;
+		const Sample sample;
 
 		WavInfo(const std::string& filename, std::size_t length)
 		    : filename(filename), length(length), is_random(true), sample(0)
@@ -71,8 +71,9 @@ public:
 		std::string name;
 		// Vector of non-owning pointers and therefore it is raw.
 		std::vector<Audiofile> audiofiles;
-		bool normalized{false};
+		bool normalized{false}; //!< If true, velocity multiplies amplitude.
 
+		SampleData() = default;
 		SampleData(std::string name_, std::vector<Audiofile> audiofiles_,
 		    bool normalized_ = false)
 		    : name(std::move(name_))
@@ -87,10 +88,11 @@ public:
 		std::string name;
 		std::string filename;
 		std::vector<SampleData> sample_data;
-		std::string
-		    group; //!< Optional group name (emitted as group="..." in kit XML)
+		//! Instrument choke-group name.  Instruments sharing the same non-empty
+		//! group name will mute each other when triggered.  Empty = no group.
+		std::string group;
 
-		//! Optional directed choke targets emitted inside the instrument XML.
+		//! Optional directed choke targets emitted inside the drumkit XML.
 		struct ChokeRef
 		{
 			std::string instrument_name;
