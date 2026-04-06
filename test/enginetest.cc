@@ -1755,13 +1755,13 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			out << content;
 		}
 
-		// FireVictim: instr1 (id=1) onset creates SampleEvents for the victim.
+		// FireVictim: instr2 (id=1) onset creates SampleEvents for the victim.
 		// FireInitiators: three instr0 (id=0, has <chokes>) onsets in one
 		// frame.
-		//   Onset 1 – applyDirectedChoke finds instr1's events, chokes them
+		//   Onset 1 – applyDirectedChoke finds instr2's events, chokes them
 		//             (instrument_id match TRUE, rampdown==-1 TRUE). Adds
 		//             instr0.
-		//   Onset 2 – finds instr1 ramping (rampdown FALSE) + instr0's own
+		//   Onset 2 – finds instr2 ramping (rampdown FALSE) + instr0's own
 		//   events
 		//             (instrument_id 0 != choke target 1 → FALSE). Both FALSE.
 		//   Onset 3 – further exercise.
