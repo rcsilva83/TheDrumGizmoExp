@@ -3,7 +3,7 @@
  *            drumkit_creator.h
  *
  *  Thu Jan 12 18:51:34 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 AndrÃ© Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -26,9 +26,9 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 class DrumkitCreator
 {
@@ -36,7 +36,8 @@ public:
 	using Sample = uint16_t;
 
 	//! If is_random is true then this overrules the sample member. If is_random
-	//! is false however, every sample is chosen as the one in the member variable.
+	//! is false however, every sample is chosen as the one in the member
+	//! variable.
 	struct WavInfo
 	{
 		const std::string filename;
@@ -46,10 +47,17 @@ public:
 		const Sample sample;
 
 		WavInfo(const std::string& filename, std::size_t length)
-			: filename(filename), length(length), is_random(true), sample(0) {}
+		    : filename(filename), length(length), is_random(true), sample(0)
+		{
+		}
 
 		WavInfo(const std::string& filename, std::size_t length, Sample sample)
-			: filename(filename), length(length), is_random(false), sample(sample) {}
+		    : filename(filename)
+		    , length(length)
+		    , is_random(false)
+		    , sample(sample)
+		{
+		}
 	};
 
 	struct Audiofile
@@ -70,6 +78,9 @@ public:
 		std::string name;
 		std::string filename;
 		std::vector<SampleData> sample_data;
+		//! Instrument choke-group name.  Instruments sharing the same non-empty
+		//! group name will mute each other when triggered.  Empty = no group.
+		std::string group;
 	};
 
 	struct DrumkitData
@@ -90,7 +101,8 @@ public:
 	std::string create(const DrumkitData& data);
 
 	//! Creates a single wav file
-	void createWav(const WavInfo& wav_info, std::size_t number_of_channels, const std::string& dir);
+	void createWav(const WavInfo& wav_info, std::size_t number_of_channels,
+	    const std::string& dir);
 
 	//! Those functions create some special wav files, drumkits, and midimaps
 	//@{
@@ -112,9 +124,10 @@ private:
 	bool is_valid(const DrumkitData& data);
 
 	std::string createTemporaryDirectory(const std::string& name);
-	std::vector<Sample> createData(const WavInfo& wav_info,
-	                               std::size_t number_of_channels);
-	void createInstrument(const InstrumentData& data, std::size_t number_of_channels,
-	                      const std::string& dir);
-	std::string createDrumkitFile(const DrumkitData& data, const std::string& dir);
+	std::vector<Sample> createData(
+	    const WavInfo& wav_info, std::size_t number_of_channels);
+	void createInstrument(const InstrumentData& data,
+	    std::size_t number_of_channels, const std::string& dir);
+	std::string createDrumkitFile(
+	    const DrumkitData& data, const std::string& dir);
 };

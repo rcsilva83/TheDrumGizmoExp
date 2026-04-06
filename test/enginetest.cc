@@ -477,6 +477,36 @@ private:
 	bool fire_stop{false};
 };
 
+// TST-INPUT-03: Fires a single OnSet event for a configurable instrument
+// index on the very next run() call, then auto-resets.
+class AudioInputEngineOnsetOnDemandDummy : public AudioInputEngineDummy
+{
+public:
+	void fireOnset(std::size_t instrument_id, std::size_t offset = 0)
+	{
+		pending_instrument = instrument_id;
+		pending_offset = offset;
+		has_pending = true;
+	}
+
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		if(has_pending)
+		{
+			events.push_back(
+			    {EventType::OnSet, pending_instrument, pending_offset, 1.0f});
+			has_pending = false;
+		}
+	}
+
+private:
+	bool has_pending{false};
+	std::size_t pending_instrument{0};
+	std::size_t pending_offset{0};
+};
+
 struct test_engineFixture
 {
 	DrumkitCreator drumkit_creator;
@@ -1553,11 +1583,9 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		settings.drumkit_file.store(kit_file);
 
 		size_t current_time = 0;
-		auto waitForDrumkitLoadAndStabilise = [&](size_t& time)
+		auto pollUntilLoaded = [&](size_t& time)
 		{
 			const size_t max_iter = 2000;
-
-			// Poll until kit is fully loaded.
 			for(size_t i = 0;
 			    i < max_iter &&
 			    settings.drumkit_load_status.load() != LoadStatus::Done;
@@ -1568,8 +1596,10 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
-
-			// Stabilisation: let the second loadkit() cycle complete.
+		};
+		auto stabilise = [&](size_t& time)
+		{
+			// Let the second loadkit() cycle complete.
 			for(size_t i = 0; i < 200; ++i)
 			{
 				CHECK(dg.run(time, buf.data(), nsamples));
@@ -1578,7 +1608,8 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			}
 			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
 		};
-		waitForDrumkitLoadAndStabilise(current_time);
+		pollUntilLoaded(current_time);
+		stabilise(current_time);
 		settings.enable_voice_limit.store(true);
 		settings.voice_limit_max.store(1u);
 		settings.voice_limit_rampdown.store(50.0f);
@@ -1751,10 +1782,10 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			// Find the first </instrument> (instr1's closing tag) and
 			// insert the <chokes> block immediately before it.
 			const std::string from = "</instrument>";
-			const std::string choke_xml =
-			    "<chokes>\n"
-			    "<choke instrument=\"instr2\" choketime=\"68\"/>\n"
-			    "</chokes>\n";
+			const std::string choke_xml = R"(<chokes>
+<choke instrument="instr2" choketime="68"/>
+</chokes>
+)";
 			auto pos = content.find(from);
 			REQUIRE_NE(pos, std::string::npos);
 			content.insert(pos, choke_xml);
@@ -1972,6 +2003,343 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		settings.audition_instrument.store("instr1");
 		settings.audition_velocity.store(0.8f);
 		settings.audition_counter.store(1);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+	SUBCASE("applyChokeGroupGroupedInstrumentWithNoActiveEvents")
+	{
+		// TST-INPUT-03b: Covers the applyChokeGroup() path where
+		// instr.getGroup() is non-empty (false-branch of early-return) and
+		// events_ds is empty on the first onset.  The channel loop enters,
+		// ch.num < NUM_CHANNELS is satisfied, and the inner events loop
+		// exits immediately without entering its body.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("cg_empty.wav", 64, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr0", "instr0.xml", sample_data, "hihat"}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "cg_empty_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		const size_t max_iter = 2000;
+		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
+		                                      LoadStatus::Done;
+		    ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// First onset: applyChokeGroup runs with getGroup()="hihat" but
+		// events_ds is empty → the inner events loop exits without its body
+		// being entered (false-branch of the early-return covered here too).
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+
+	SUBCASE("applyChokeGroupSameInstrumentSkipped")
+	{
+		// TST-INPUT-03d: Covers the false-branch of
+		// event_sample.instrument_id != instrument_id when the same
+		// instrument is re-triggered while it is still playing.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("cg_same.wav", 1024, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr0", "instr0.xml", sample_data, "hihat"}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "cg_same_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		const size_t max_iter = 2000;
+		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
+		                                      LoadStatus::Done;
+		    ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// First onset: instr0 starts playing.
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+		current_time += nsamples;
+
+		// Second onset for the same instrument: applyChokeGroup finds
+		// instr0's SampleEvent, group matches, but instrument_id == 0
+		// (same) → event_sample.instrument_id != instrument_id is false
+		// → no rampdown applied.
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+
+	SUBCASE("applyChokeGroupRampdownAndAlreadyRampingPaths")
+	{
+		// TST-INPUT-03c+f: Two instruments sharing group "hihat".
+		// - Firing instr1 while instr0 plays: all three conditions true
+		//   → applyChoke() is called (rampdown-applied path).
+		// - Firing instr1 again: instr0's events already have
+		//   rampdown_count > 0 → the rampdown_count == -1 false-branch.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("cg_ramp.wav", 1024, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr0", "instr0.xml", sample_data, "hihat"},
+		    {"instr1", "instr1.xml", sample_data, "hihat"}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "cg_ramp_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		const size_t max_iter = 2000;
+		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
+		                                      LoadStatus::Done;
+		    ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// instr0 starts playing.
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+		current_time += nsamples;
+
+		// instr1 fires (same group): applyChokeGroup sees instr0's SampleEvent
+		// → group matches, instrument_id differs (0 != 1), rampdown_count == -1
+		// → all three conditions true → applyChoke() applied.
+		ie.fireOnset(1);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+		current_time += nsamples;
+
+		// instr1 fires again: instr0's events now have rampdown_count > 0
+		// → the rampdown_count == -1 condition is false → already-ramping
+		// skip path exercised.
+		ie.fireOnset(1);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+
+	SUBCASE("applyChokeGroupDifferentGroupSkipped")
+	{
+		// TST-INPUT-03e: Covers the short-circuit false-branch of the first
+		// condition (event_sample.group != instr.getGroup()) when two
+		// instruments belong to different groups.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("cg_diffgrp.wav", 1024, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr0", "instr0.xml", sample_data, "hihat"},
+		    {"instr1", "instr1.xml", sample_data, "snare"}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "cg_diffgrp_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		const size_t max_iter = 2000;
+		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
+		                                      LoadStatus::Done;
+		    ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// instr0 (group "hihat") starts playing.
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+		current_time += nsamples;
+
+		// instr1 (group "snare") fires: applyChokeGroup sees instr0's
+		// SampleEvent (group="hihat") but instr1.getGroup()="snare" →
+		// event_sample.group != instr.getGroup() → first condition false
+		// (short-circuit) → no rampdown.
+		ie.fireOnset(1);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+
+	SUBCASE("applyChokeGroupSkipsChannelAboveNumChannels")
+	{
+		// TST-INPUT-03g: Covers the ch.num >= NUM_CHANNELS true-branch in
+		// applyChokeGroup().  A kit with 17 channels has channel 16 with
+		// ch.num == 16 == NUM_CHANNELS, which hits the continue guard.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("cg_17ch.wav", 64, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr0", "instr0.xml", sample_data, "hihat"},
+		    {"instr1", "instr1.xml", sample_data, "hihat"}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "cg_17ch_kit", 17, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineOnsetOnDemandDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		const size_t max_iter = 2000;
+		for(size_t i = 0; i < max_iter && settings.drumkit_load_status.load() !=
+		                                      LoadStatus::Done;
+		    ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// instr0 fires: SampleEvent created for ch0 only (ch1-ch15 have no
+		// audiofile mapping; ch16 is skipped by the NUM_CHANNELS guard in
+		// processOnset before it can be added to events_ds).
+		ie.fireOnset(0);
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+		current_time += nsamples;
+
+		// instr1 fires (same group): applyChokeGroup iterates all 17
+		// channels; ch16 has ch.num == 16 == NUM_CHANNELS → the
+		// ch.num >= NUM_CHANNELS true-branch is taken (continue).
+		ie.fireOnset(1);
 		CHECK(dg.run(current_time, buf.data(), nsamples));
 	}
 }
