@@ -400,8 +400,7 @@ std::string DrumkitCreator::createDrumkitFile(
 			instruments += "<chokes>\n";
 			for(const auto& choke : instrument.chokes)
 			{
-				instruments += "<choke instrument=\"" +
-				               choke.instrument_name +
+				instruments += "<choke instrument=\"" + choke.instrument_name +
 				               "\" choketime=\"" +
 				               std::to_string(choke.choketime) + "\"/>\n";
 			}
