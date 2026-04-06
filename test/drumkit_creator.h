@@ -142,7 +142,7 @@ private:
 	std::vector<std::string> created_files;
 	std::vector<std::string> created_directories;
 
-	bool is_valid(const DrumkitData& data);
+	bool is_valid(const DrumkitData& data) const;
 
 	std::string createTemporaryDirectory(const std::string& name);
 	std::vector<Sample> createData(
