@@ -433,9 +433,11 @@ public:
 			events.push_back({EventType::OnSet, victim_id, 0u, 1.0f});
 			break;
 		case Phase::FireInitiators:
-			// Three onsets in the same frame so that:
-			// - onset 2 sees onset 1's events (own-instrument id FALSE)
-			// - onset 2/3 see the victim's events ramping (rampdown FALSE)
+			// Three onsets in the same frame. Onset 2 observes the initiator
+			// events already added by onset 1 (same instrument, so the
+			// instrument_id-mismatch condition is false) and also observes
+			// the victim's events already ramping (rampdown-active condition
+			// is false), exercising both false branches of the choke guards.
 			events.push_back({EventType::OnSet, initiator_id, 0u, 1.0f});
 			events.push_back({EventType::OnSet, initiator_id, 8u, 1.0f});
 			events.push_back({EventType::OnSet, initiator_id, 16u, 1.0f});
@@ -1556,8 +1558,9 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			const size_t max_iter = 2000;
 
 			// Poll until kit is fully loaded.
-			for(size_t i = 0; i < max_iter &&
-			                  settings.drumkit_load_status.load() != LoadStatus::Done;
+			for(size_t i = 0;
+			    i < max_iter &&
+			    settings.drumkit_load_status.load() != LoadStatus::Done;
 			    ++i)
 			{
 				CHECK(dg.run(time, buf.data(), nsamples));
@@ -1720,7 +1723,9 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		    {"stroke", audiofiles}};
 
 		// instr1 (index 0) is the choke initiator; instr2 (index 1) is the
-		// victim. The choke is written into instr1.xml after kit creation.
+		// victim. The directed choke is declared inside instr1's block in the
+		// drumkit XML (not in the instrument's own XML file), because
+		// parseDrumkitFile() is what reads the directed-choke table.
 		std::vector<DrumkitCreator::InstrumentData> instruments = {
 		    {"instr1", "instr1.xml", sample_data},
 		    {"instr2", "instr2.xml", sample_data}};
