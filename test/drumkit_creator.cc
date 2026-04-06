@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -95,7 +96,7 @@ std::string DrumkitCreator::create(const DrumkitData& data)
 	}
 	else
 	{
-		throw "DrumkitData not valid";
+		throw std::runtime_error("DrumkitData not valid");
 	}
 
 	return drumkit_filename;
@@ -113,7 +114,7 @@ void DrumkitCreator::createWav(const WavInfo& wav_info,
 	auto sndfile = sf_open(filename.c_str(), SFM_WRITE, &sfinfo);
 	if(!sndfile)
 	{
-		throw "The wav file could not be created";
+		throw std::runtime_error("The wav file could not be created");
 	}
 
 	created_files.push_back(filename);
@@ -243,7 +244,7 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 
@@ -300,12 +301,11 @@ auto DrumkitCreator::createData(const WavInfo& wav_info,
 }
 
 void DrumkitCreator::createInstrument(const InstrumentData& data,
-    std::size_t number_of_channels, const std::string& dir)
+    std::size_t, const std::string& dir)
 {
 	std::string header = "<?xml version='1.0' encoding='UTF-8'?>\n"
 	                     "<instrument name=\"" +
 	                     data.name + "\" version=\"2.0\">\n";
-	// FIXME sampleref
 	std::string samples_open = "  <samples>\n";
 	std::string samples;
 	float power = 1.0f;
@@ -342,7 +342,7 @@ void DrumkitCreator::createInstrument(const InstrumentData& data,
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 }
@@ -416,7 +416,7 @@ std::string DrumkitCreator::createDrumkitFile(
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 

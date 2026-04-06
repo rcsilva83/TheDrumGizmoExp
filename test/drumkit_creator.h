@@ -40,11 +40,11 @@ public:
 	//! variable.
 	struct WavInfo
 	{
-		const std::string filename;
-		const std::size_t length;
+		std::string filename;
+		std::size_t length;
 
-		const bool is_random;
-		const Sample sample;
+		bool is_random;
+		Sample sample;
 
 		WavInfo(const std::string& filename, std::size_t length)
 		    : filename(filename), length(length), is_random(true), sample(0)
@@ -148,7 +148,7 @@ private:
 	std::vector<Sample> createData(
 	    const WavInfo& wav_info, std::size_t number_of_channels);
 	void createInstrument(const InstrumentData& data,
-	    std::size_t number_of_channels, const std::string& dir);
+	    std::size_t, const std::string& dir);
 	std::string createDrumkitFile(
 	    const DrumkitData& data, const std::string& dir);
 };
