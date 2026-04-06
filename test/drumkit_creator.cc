@@ -276,6 +276,7 @@ std::string DrumkitCreator::createTemporaryDirectory(const std::string& name)
 	char dir_name[MAX_PATH];
 	GetTempPath(sizeof(temp_dir), temp_dir);
 	GetTempFileName(temp_dir, name.c_str(), 0, dir_name);
+	DeleteFile(dir_name);
 	if(CreateDirectory(dir_name, 0))
 	{
 		created_directories.push_back(dir_name);
@@ -292,7 +293,7 @@ auto DrumkitCreator::createData(const WavInfo& wav_info,
 	    number_of_channels * wav_info.length, wav_info.sample);
 	if(wav_info.is_random)
 	{
-		Random rand(42); // Fix the seed to make it reproducable.
+		Random rand(42); // Fix the seed to make it reproducible.
 		int lower_bound = std::numeric_limits<Sample>::min();
 		int upper_bound = std::numeric_limits<Sample>::max();
 
@@ -395,11 +396,9 @@ std::string DrumkitCreator::createDrumkitFile(
 			instruments += "<chokes>\n";
 			for(const auto& choke : instrument.chokes)
 			{
-				instruments +=
-				    "<choke instrument=\"" + choke.instrument_name +
-				    "\" choketime=\"" +
-				    std::to_string(static_cast<int>(choke.choketime)) +
-				    "\"/>\n";
+				instruments += "<choke instrument=\"" + choke.instrument_name +
+				               "\" choketime=\"" +
+				               std::to_string(choke.choketime) + "\"/>\n";
 			}
 			instruments += "</chokes>\n";
 		}

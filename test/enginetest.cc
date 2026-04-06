@@ -1480,9 +1480,8 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// TST-INPUT-02 (normalized-samples branch): When normalized_samples is
 		// enabled and the selected sample has normalized=true, processOnset
 		// multiplies event_sample.scale by event.velocity (line 303). This
-		// test creates a kit with a normalized sample and verifies that the
-		// engine runs and produces non-zero output, confirming that the
-		// normalized-samples branch is exercised.
+		// test creates a kit with a normalized sample and fires repeated
+		// onsets to exercise that code path for coverage (no crash).
 		std::vector<DrumkitCreator::WavInfo> wav_infos = {
 		    DrumkitCreator::WavInfo("norm_hit.wav", 2048, 0x1110)};
 
