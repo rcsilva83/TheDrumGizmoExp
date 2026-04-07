@@ -223,14 +223,9 @@ Formula:
 
 ### Round 2
 
-Implement in this order for highest risk reduction per effort:
+All round 2 items were implemented. The order below reflects the actual
+implementation sequence:
 
-1. `TST-INPUT-01` (voice limit — highest score, pure settings toggle)
-2. `TST-INPUT-02` (out-of-bounds instrument ID — simple custom stub)
-3. `TST-INPUT-03` (choke group — requires kit XML extension, higher effort)
-
-Status update:
-
-1. `TST-INPUT-01` ✅
-2. `TST-INPUT-02` ✅
-3. `TST-INPUT-03` ✅
+1. `TST-INPUT-01` ✅ (voice limit — highest score, pure settings toggle)
+2. `TST-INPUT-02` ✅ (out-of-bounds instrument ID — simple custom stub)
+3. `TST-INPUT-03` ✅ (choke group — required kit XML extension)

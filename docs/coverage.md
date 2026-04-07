@@ -44,9 +44,13 @@ on Ubuntu with GCC.
 
 **Notes**
 
-- `plugingui/` and `drumgizmo/` show 0% because none of their translation units
-  are exercised by the current headless unit-test suite (no audio I/O or GUI
-  rendering is performed during tests).
+- `plugingui/` shows 1.1% line coverage because a small number of template
+  instantiations are pulled in indirectly; none of its UI translation units
+  are exercised by the headless unit-test suite (no GUI rendering is performed
+  during tests).
+- `drumgizmo/` shows 17.1% line coverage because the CLI application links
+  against the engine and some shared utility code that is exercised indirectly;
+  the CLI-specific paths (argument parsing, I/O loop) remain untested.
 - `plugin/` has no instrumented lines because the LV2/VST wrappers are not
   built in the test configuration.
 - The `test/` module itself has high line coverage (97%) because all test code
@@ -139,6 +143,10 @@ target. Steps marked **current** are the active thresholds.
 
 #### Overall coverage (34% → 90%, +2%/cycle)
 
+Cycle numbering is cumulative from the original baseline of 34% (commit a7f2c07,
+2026-03-24). Cycle 11 (56%) is the current enforced floor; earlier cycles are
+historical reference only.
+
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
 |     0 |       34% |          |
@@ -172,6 +180,10 @@ target. Steps marked **current** are the active thresholds.
 |    28 |       90% | **target** |
 
 #### `src/` module (54% → 90%, +2%/cycle)
+
+Cycle numbering is cumulative from the original baseline of 54% (commit a7f2c07,
+2026-03-24). Cycle 9 (72%) is the current enforced floor; earlier cycles are
+historical reference only.
 
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
