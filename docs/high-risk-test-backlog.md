@@ -71,7 +71,7 @@ Formula:
 | ---- | -- | ---- | ----------------- | ----: | ------ |
 | 9  | HR-09 | Input processor | Voice-limit enforcement path in `InputProcessor::limitVoices()` when `enable_voice_limit` is true | 4.10 | ✅ Done (TST-INPUT-01) |
 | 10 | HR-10 | Input processor | `processOnset()` with out-of-bounds instrument ID logs an error and drops the event; not directly asserted | 3.80 | ✅ Done (TST-INPUT-02) |
-| 11 | HR-11 | Input processor | Choke-group rampdown via `applyChokeGroup()` when two instruments share a group name | 3.60 | ⬜ Open (TST-INPUT-03) |
+| 11 | HR-11 | Input processor | Choke-group rampdown via `applyChokeGroup()` when two instruments share a group name | 3.60 | ✅ Done (TST-INPUT-03) |
 
 ## Follow-Up Work Items
 
@@ -192,24 +192,21 @@ Formula:
 - Key subcase added:
   - `processOnsetOutOfBoundsInstrumentIdIsIgnored`
 
-### HR-11: Choke-group rampdown via applyChokeGroup
+### ✅ HR-11: Choke-group rampdown via applyChokeGroup
 
 - Why high risk: choke-group behavior is central to realistic cymbal/hi-hat
   simulation. If `applyChokeGroup()` fails to find matching group names, or
   the rampdown is never applied, the wrong instruments continue playing.
-- Current gap signal: `applyChokeGroup()` (line 153 in
-  `src/inputprocessor.cc`) is never called in any current test because the
-  standard test kits (`createStdKit`) do not include `<group>` elements in
-  instrument XML. The `if(instr.getGroup() == "")` early-return path is also
-  never hit.
-- Implementation backlog item: `TST-INPUT-03`
-  - Create a drumkit XML fixture with two instruments that share the same
-    `<group>` name (requires extending `DrumkitCreator` or writing raw XML).
-  - Fire an onset for instrument A while instrument A is already playing.
-  - Assert that the previously playing SampleEvents for instrument A are
-    ramped down (the rampdown path in `applyChokeGroup` is exercised).
-  - Target file: `test/enginetest.cc` (possibly with `DrumkitCreator`
-    extension).
+- Implementation backlog item: `TST-INPUT-03` — **Completed**
+- Implemented in: `test/enginetest.cc`
+- Key subcases added:
+  - `chokeGroupMutesOtherInstrumentSameGroup`
+  - `applyDirectedChokeRampsDownVictimEvents`
+  - `applyChokeGroupNoEventsForSameGroup`
+  - `applyChokeGroupNoEventOnFirstOnset`
+  - `applyChokeGroupInstrumentWithNoGroup`
+  - `applyChokeGroupTwoInstrumentsSameGroup`
+  - `applyChokeGroupChannelOutOfBounds`
 
 ## Execution Order Recommendation
 
@@ -236,4 +233,4 @@ Status update:
 
 1. `TST-INPUT-01` ✅
 2. `TST-INPUT-02` ✅
-3. `TST-INPUT-03` ⬜
+3. `TST-INPUT-03` ✅

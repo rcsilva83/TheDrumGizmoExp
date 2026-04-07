@@ -16,10 +16,10 @@ branches with explicit per-file branch/line targets.
 
 ---
 
-## Baseline (2026-03-24)
+## Baseline (2026-04-07)
 
 The numbers below were collected on commit
-[a7f2c07](https://github.com/rcsilva83/TheDrumGizmoExp/commit/a7f2c077990acbe2a357c522548a20ee4c654f3e)
+[81e7f3e](https://github.com/rcsilva83/TheDrumGizmoExp/commit/81e7f3e69cc74bff9d9abb28705a4d1e323a8304)
 with the standard test suite (`DG_ENABLE_TESTS=ON`, LV2/VST/NLS disabled) running
 on Ubuntu with GCC.
 
@@ -27,20 +27,20 @@ on Ubuntu with GCC.
 
 | Metric     | Covered | Total  | Coverage |
 | ---------- | ------: | -----: | -------: |
-| Lines      |   4,131 | 11,935 |    34.6% |
-| Functions  |     458 |  1,444 |    31.7% |
-| Branches   |   6,758 | 25,476 |    26.5% |
+| Lines      |   8,509 | 14,897 |    57.1% |
+| Functions  |     675 |  1,524 |    44.3% |
+| Branches   |  16,007 | 25,955 |    61.7% |
 
 ### By module
 
 | Module        | Lines (cov/total) | Line % | Function % | Branch % |
 | ------------- | ----------------: | -----: | ---------: | -------: |
-| `src/`        |      1,994 / 3,674 |  54.3% |      57.9% |    29.3% |
-| `dggui/`      |        382 / 3,705 |  10.3% |      11.6% |     5.0% |
-| `plugingui/`  |          0 / 1,410 |   0.0% |       0.0% |     0.0% |
+| `src/`        |      2,735 / 3,694 |  74.0% |      72.0% |    59.4% |
+| `dggui/`      |        861 / 3,722 |  23.1% |      18.6% |    34.9% |
+| `plugingui/`  |         16 / 1,410 |   1.1% |       2.6% |     0.8% |
 | `plugin/`     |           0 / 0    |    N/A |        N/A |      N/A |
-| `drumgizmo/`  |          0 / 1,280 |   0.0% |       0.0% |     0.0% |
-| `test/`       |      1,755 / 1,866 |  94.1% |      82.5% |    41.9% |
+| `drumgizmo/`  |        219 / 1,280 |  17.1% |      17.6% |    20.3% |
+| `test/`       |      4,678 / 4,791 |  97.6% |      87.8% |    73.7% |
 
 **Notes**
 
@@ -49,8 +49,8 @@ on Ubuntu with GCC.
   rendering is performed during tests).
 - `plugin/` has no instrumented lines because the LV2/VST wrappers are not
   built in the test configuration.
-- The `test/` module itself has high line coverage (94%) because all test code
-  runs under doctest; the uncovered ~6% is test helpers and edge-case paths.
+- The `test/` module itself has high line coverage (97%) because all test code
+  runs under doctest; the uncovered ~3% is test helpers and edge-case paths.
 
 ---
 
@@ -106,8 +106,8 @@ buffer to tolerate natural measurement variation:
 
 | Scope    | Min line % | Note                                    |
 | -------- | ---------: | --------------------------------------- |
-| Overall  |        34% | Baseline 34.6 % (commit a7f2c07)        |
-| `src/`   |        54% | Baseline 54.3 % (commit a7f2c07)        |
+| Overall  |        56% | Baseline 57.1 % (commit 81e7f3e)        |
+| `src/`   |        72% | Baseline 74.0 % (commit 81e7f3e)        |
 
 ---
 
@@ -141,7 +141,7 @@ target. Steps marked **current** are the active thresholds.
 
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
-|     0 |       34% | **current** |
+|     0 |       34% |          |
 |     1 |       36% |          |
 |     2 |       38% |          |
 |     3 |       40% |          |
@@ -152,7 +152,7 @@ target. Steps marked **current** are the active thresholds.
 |     8 |       50% |          |
 |     9 |       52% |          |
 |    10 |       54% |          |
-|    11 |       56% |          |
+|    11 |       56% | **current** |
 |    12 |       58% |          |
 |    13 |       60% |          |
 |    14 |       62% |          |
@@ -175,7 +175,7 @@ target. Steps marked **current** are the active thresholds.
 
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
-|     0 |       54% | **current** |
+|     0 |       54% |          |
 |     1 |       56% |          |
 |     2 |       58% |          |
 |     3 |       60% |          |
@@ -184,7 +184,7 @@ target. Steps marked **current** are the active thresholds.
 |     6 |       66% |          |
 |     7 |       68% |          |
 |     8 |       70% |          |
-|     9 |       72% |          |
+|     9 |       72% | **current** |
 |    10 |       74% |          |
 |    11 |       76% |          |
 |    12 |       78% |          |
