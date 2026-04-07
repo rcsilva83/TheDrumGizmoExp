@@ -16,10 +16,10 @@ branches with explicit per-file branch/line targets.
 
 ---
 
-## Baseline (2026-03-24)
+## Baseline (2026-04-07)
 
 The numbers below were collected on commit
-[a7f2c07](https://github.com/rcsilva83/TheDrumGizmoExp/commit/a7f2c077990acbe2a357c522548a20ee4c654f3e)
+[81e7f3e](https://github.com/rcsilva83/TheDrumGizmoExp/commit/81e7f3e)
 with the standard test suite (`DG_ENABLE_TESTS=ON`, LV2/VST/NLS disabled) running
 on Ubuntu with GCC.
 

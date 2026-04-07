@@ -5,7 +5,7 @@ Prioritization is sorted by uncovered branch count (descending), then
 uncovered line count.
 
 - Source summary: `coverage-summary.json`
-- Generated at (UTC): `2026-03-24 14:29:28Z`
+- Generated at (UTC): `2026-04-07T00:00:00Z`
 - Excluded prefixes: `test/`
 
 | Rank | File | Uncovered branches | Branches (cov/total) | Branch % | Uncovered lines | Lines (cov/total) | Line % | Branch target | Line target |
