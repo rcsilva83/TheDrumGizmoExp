@@ -324,6 +324,49 @@ private:
 	bool enabled{false};
 };
 
+// Fires a Choke event every run() call with an out-of-bounds instrument index.
+// Used to test processChoke()'s guard against invalid instrument IDs.
+class AudioInputEngineOutOfBoundsChokeDummy : public AudioInputEngineDummy
+{
+public:
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		// Use an instrument index that can never be valid in any test kit.
+		events.push_back({EventType::Choke, 999999u, 0, 0.0f});
+	}
+};
+
+// Fires OnSet events alternating between two instrument IDs (0 and 1).
+// Used to trigger applyChokeGroup: when two instruments share a group,
+// firing instrument 1 while instrument 0 is playing causes the running
+// instrument-0 SampleEvents to be ramped down.
+class AudioInputEngineAlternatingOnsetDummy : public AudioInputEngineDummy
+{
+public:
+	void setEnabled(bool v)
+	{
+		enabled = v;
+	}
+
+	void run(size_t pos, size_t len, std::vector<event_t>& events) override
+	{
+		(void)pos;
+		(void)len;
+		if(!enabled)
+		{
+			return;
+		}
+		events.push_back({EventType::OnSet, next_id, 0, 1.0f});
+		next_id = (next_id == 0u) ? 1u : 0u;
+	}
+
+private:
+	size_t next_id{0};
+	bool enabled{false};
+};
+
 // Cycles through phases to exercise the !non_ramping.size() early-return
 // branch in limitVoices() when all active voice groups are already ramping.
 //   Phase::Idle         – fires no events (used during kit loading).
@@ -1531,6 +1574,189 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		// Run several frames. Each frame fires 3 onsets; with voice_limit=1
 		// the path through limitVoices() is exercised on every frame after the
 		// first onset.
+		for(int i = 0; i < 5; ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+		}
+	}
+
+	SUBCASE("processChokeOutOfBoundsInstrumentIdIsIgnored")
+	{
+		// TST-INPUT-02 (processChoke guard): When the input engine fires a
+		// Choke event whose instrument index is larger than
+		// kit.instruments.size(), processChoke sets instr = nullptr, logs an
+		// error, and returns false, dropping the event. The engine must keep
+		// running without crashing.
+		Settings settings;
+		AudioOutputEngineBufferDummy oe;
+		AudioInputEngineOutOfBoundsChokeDummy ie;
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+		oe.setInternalBufferSize(nsamples);
+
+		auto kit_file = drumkit_creator.createStdKit("oob_choke_kit");
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		auto pollUntilLoaded = [&](size_t& time)
+		{
+			for(int i = 0; i < 2000 && settings.drumkit_load_status.load() !=
+			                               LoadStatus::Done;
+			    ++i)
+			{
+				CHECK(dg.run(time, buf.data(), nsamples));
+				time += nsamples;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+			for(size_t i = 0; i < 200; ++i)
+			{
+				CHECK(dg.run(time, buf.data(), nsamples));
+				time += nsamples;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+		};
+		pollUntilLoaded(current_time);
+
+		// The input engine fires instrument_id=999999 Choke events every run.
+		// processChoke guards against out-of-bounds access; instr stays
+		// nullptr → the function returns false → the engine keeps running.
+		CHECK(dg.run(current_time, buf.data(), nsamples));
+	}
+
+	SUBCASE("processOnsetKitWithExtraChannelsSkipsExcessChannels")
+	{
+		// TST-INPUT-02 (channel guard): When the kit has more channels than
+		// NUM_CHANNELS (16), processOnset's inner channel loop hits the
+		// `if(ch.num >= NUM_CHANNELS) continue;` guard for the excess
+		// channels. This test creates a NUM_CHANNELS+1 channel kit and fires
+		// valid onsets, verifying that the engine does not crash and that the
+		// excess channel is silently skipped.
+		constexpr size_t num_ch = 17u; // > NUM_CHANNELS (16)
+
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("extra_ch.wav", 1, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles;
+		for(size_t i = 0; i < num_ch; ++i)
+		{
+			audiofiles.push_back({&wav_infos.front(), 1u});
+		}
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"instr1", "instr1.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "extra_ch_kit", num_ch, instruments, wav_infos};
+
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineRepeatedOnsetDummy ie(1);
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		for(int i = 0;
+		    i < 2000 && settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		// Enable onsets. The 17th kit channel (num=16 == NUM_CHANNELS) is
+		// skipped by the ch.num >= NUM_CHANNELS guard in processOnset.
+		ie.setEnabled(true);
+		for(int i = 0; i < 5; ++i)
+		{
+			CHECK(dg.run(current_time, buf.data(), nsamples));
+			current_time += nsamples;
+		}
+	}
+
+	SUBCASE("processOnsetNormalizedSamplesDisabledSkipsBranch")
+	{
+		// TST-INPUT-02 (normalized_samples=false short-circuit): When
+		// settings.normalized_samples is false, the `&&` short-circuits before
+		// calling sample->getNormalized(), covering the false-branch of the
+		// compound condition at processOnset line 301.
+		std::vector<DrumkitCreator::WavInfo> wav_infos = {
+		    DrumkitCreator::WavInfo("ns_false.wav", 512, 0x1110)};
+
+		std::vector<DrumkitCreator::Audiofile> audiofiles = {
+		    {&wav_infos.front(), 1}};
+
+		std::vector<DrumkitCreator::SampleData> sample_data = {
+		    {"stroke", audiofiles, /*normalized=*/true}};
+
+		std::vector<DrumkitCreator::InstrumentData> instruments = {
+		    {"ns_instr", "ns_instr.xml", sample_data}};
+
+		DrumkitCreator::DrumkitData kit_data{
+		    "ns_false_kit", 1, instruments, wav_infos};
+
+		Settings settings;
+		// Explicitly disable normalized-samples so processOnset's compound
+		// condition short-circuits at the first operand (false && ...).
+		settings.normalized_samples.store(false);
+		AudioOutputEngineDummy oe;
+		AudioInputEngineRepeatedOnsetDummy ie(1);
+		DrumGizmo dg(settings, oe, ie);
+		dg.setFrameSize(256);
+		CHECK(dg.init());
+
+		constexpr size_t nsamples = 256;
+		std::vector<sample_t> buf(nsamples, 0.0f);
+
+		auto kit_file = drumkit_creator.create(kit_data);
+		settings.drumkit_file.store(kit_file);
+
+		size_t current_time = 0;
+		for(int i = 0;
+		    i < 2000 && settings.drumkit_load_status.load() != LoadStatus::Done;
+		    ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		for(size_t i = 0; i < 200; ++i)
+		{
+			dg.run(current_time, buf.data(), nsamples);
+			current_time += nsamples;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		REQUIRE(settings.drumkit_load_status.load() == LoadStatus::Done);
+
+		ie.setEnabled(true);
 		for(int i = 0; i < 5; ++i)
 		{
 			CHECK(dg.run(current_time, buf.data(), nsamples));

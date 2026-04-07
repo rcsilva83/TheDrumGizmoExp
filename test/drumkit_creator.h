@@ -71,6 +71,16 @@ public:
 		std::string name;
 		// Vector of non-owning pointers and therefore it is raw.
 		std::vector<Audiofile> audiofiles;
+		bool normalized{false}; //!< If true, velocity multiplies amplitude.
+
+		SampleData() = default;
+		SampleData(std::string name_, std::vector<Audiofile> audiofiles_,
+		    bool normalized_ = false)
+		    : name(std::move(name_))
+		    , audiofiles(std::move(audiofiles_))
+		    , normalized(normalized_)
+		{
+		}
 	};
 
 	struct InstrumentData
@@ -81,6 +91,19 @@ public:
 		//! Instrument choke-group name.  Instruments sharing the same non-empty
 		//! group name will mute each other when triggered.  Empty = no group.
 		std::string group;
+
+		//! Optional directed choke targets emitted inside the drumkit XML.
+		struct ChokeRef
+		{
+			std::string instrument_name;
+			double choketime{68.0};
+
+			explicit ChokeRef(std::string name_, double choketime_ = 68.0)
+			    : instrument_name(std::move(name_)), choketime(choketime_)
+			{
+			}
+		};
+		std::vector<ChokeRef> chokes;
 	};
 
 	struct DrumkitData
@@ -121,13 +144,13 @@ private:
 	std::vector<std::string> created_files;
 	std::vector<std::string> created_directories;
 
-	bool is_valid(const DrumkitData& data);
+	bool is_valid(const DrumkitData& data) const;
 
 	std::string createTemporaryDirectory(const std::string& name);
 	std::vector<Sample> createData(
 	    const WavInfo& wav_info, std::size_t number_of_channels);
-	void createInstrument(const InstrumentData& data,
-	    std::size_t number_of_channels, const std::string& dir);
+	void createInstrument(
+	    const InstrumentData& data, std::size_t, const std::string& dir);
 	std::string createDrumkitFile(
 	    const DrumkitData& data, const std::string& dir);
 };

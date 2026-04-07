@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -95,7 +96,7 @@ std::string DrumkitCreator::create(const DrumkitData& data)
 	}
 	else
 	{
-		throw "DrumkitData not valid";
+		throw std::runtime_error("DrumkitData not valid");
 	}
 
 	return drumkit_filename;
@@ -113,7 +114,7 @@ void DrumkitCreator::createWav(const WavInfo& wav_info,
 	auto sndfile = sf_open(filename.c_str(), SFM_WRITE, &sfinfo);
 	if(!sndfile)
 	{
-		throw "The wav file could not be created";
+		throw std::runtime_error("The wav file could not be created");
 	}
 
 	created_files.push_back(filename);
@@ -243,7 +244,7 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 
@@ -254,7 +255,7 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 // private member functions
 //
 
-bool DrumkitCreator::is_valid(const DrumkitData& data)
+bool DrumkitCreator::is_valid(const DrumkitData& data) const
 {
 	// TODO Check the consistency of the data.
 	return true;
@@ -276,9 +277,12 @@ std::string DrumkitCreator::createTemporaryDirectory(const std::string& name)
 	GetTempPath(sizeof(temp_dir), temp_dir);
 	if(GetTempFileName(temp_dir, name.c_str(), 0, dir_name) != 0)
 	{
-		CreateDirectory(dir_name, 0);
-		created_directories.push_back(dir_name);
-		return std::string(dir_name);
+		DeleteFile(dir_name);
+		if(CreateDirectory(dir_name, 0))
+		{
+			created_directories.push_back(dir_name);
+			return std::string(dir_name);
+		}
 	}
 #endif
 
@@ -303,8 +307,8 @@ auto DrumkitCreator::createData(const WavInfo& wav_info,
 	return data_vec;
 }
 
-void DrumkitCreator::createInstrument(const InstrumentData& data,
-    std::size_t /*number_of_channels*/, const std::string& dir)
+void DrumkitCreator::createInstrument(
+    const InstrumentData& data, std::size_t, const std::string& dir)
 {
 	std::string prefix = "<?xml version='1.0' encoding='UTF-8'?>\n"
 	                     "<instrument name=\"" +
@@ -317,7 +321,12 @@ void DrumkitCreator::createInstrument(const InstrumentData& data,
 	for(const auto& sample : data.sample_data)
 	{
 		samples += "<sample name=\"" + sample.name + "\" power=\"" +
-		           std::to_string(power) + "\">\n";
+		           std::to_string(power) + "\"";
+		if(sample.normalized)
+		{
+			samples += " normalized=\"true\"";
+		}
+		samples += ">\n";
 		power += 0.1f;
 
 		for(std::size_t i = 0; i < sample.audiofiles.size(); ++i)
@@ -343,7 +352,7 @@ void DrumkitCreator::createInstrument(const InstrumentData& data,
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 }
@@ -386,6 +395,17 @@ std::string DrumkitCreator::createDrumkitFile(
 			instruments += "<channelmap in=\"ch" + i_str + "\" out=\"ch" +
 			               i_str + "\"/>\n";
 		}
+		if(!instrument.chokes.empty())
+		{
+			instruments += "<chokes>\n";
+			for(const auto& choke : instrument.chokes)
+			{
+				instruments += "<choke instrument=\"" + choke.instrument_name +
+				               "\" choketime=\"" +
+				               std::to_string(choke.choketime) + "\"/>\n";
+			}
+			instruments += "</chokes>\n";
+		}
 		instruments += "</instrument>\n";
 	}
 	instruments += "</instruments>\n";
@@ -402,7 +422,7 @@ std::string DrumkitCreator::createDrumkitFile(
 	}
 	else
 	{
-		throw "File could not be opened";
+		throw std::runtime_error("File could not be opened");
 	}
 	file.close();
 
