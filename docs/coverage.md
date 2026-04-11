@@ -142,6 +142,7 @@ issue requirement.  The remaining 7% (34 branches) consists of the untested
 branches listed above.
 
 
+New CLI tests were added in `test/drumgizmoclitest.cc` to cover the previously
 untested argument-parsing and I/O branches in `drumgizmo/drumgizmoc.cc`.
 
 The following branches are now exercised by the extended `drumgizmoclitest`

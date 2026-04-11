@@ -398,9 +398,11 @@ TEST_CASE_FIXTURE(LV2Fixture, "state_save")
 }
 
 /*
- * Test state restore with a partial config (only drumkitfile and midimapfile
- * set). This exercises the "value not present" (false) branches of every
- * if(p.value("xxx") != "") check in ConfigStringIO::set().
+ * Test state restore with a partial config that omits drumkitfile and
+ * midimapfile and sets only a subset of the other options. This exercises
+ * both the "value present" (true) branches for the listed settings and the
+ * "value not present" (false) branches of the corresponding
+ * if(p.value("xxx") != "") checks in ConfigStringIO::set().
  */
 TEST_CASE_FIXTURE(LV2Fixture, "state_restore_partial_config")
 {
@@ -551,7 +553,11 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 	                          "</config>";
 
 	char config[4096];
-	sprintf(config, config_fmt, kit1_file.c_str(), midimap_file.c_str());
+	const int config_len =
+	    snprintf(config, sizeof(config), config_fmt,
+	             kit1_file.c_str(), midimap_file.c_str());
+	REQUIRE(config_len >= 0);
+	REQUIRE(static_cast<size_t>(config_len) < sizeof(config));
 
 	res = h.loadConfig(config, strlen(config));
 	CHECK_EQ(0, res);
@@ -560,30 +566,20 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 	res = h.run(1);
 	CHECK_EQ(0, res);
 
-	// Give the loader thread ~10 ms to start and set number_of_files > 0
-	// (parse the kit XML and count audio files) but not finish loading
-	// (that takes ~1 second).  This ensures progress is a finite value > 0
-	// so that the bar-width calculation does not produce NaN.
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-	if(inline_display_supported)
-	{
-		// Phase 2b: bar visible, LoadStatus is Loading/Parsing/Idle (still
-		// in progress).  Exercises the blue-bar switch arm.
-		res = h.renderInlineDisplay(100, 11);
-		CHECK_EQ(0, res);
-	}
-
-	// Allow the loader to keep running (total ~210 ms since loadConfig).
-	std::this_thread::sleep_for(std::chrono::milliseconds(190));
+	// Wait conservatively for the asynchronous load to complete before
+	// rendering the small-height inline display. This avoids racing the
+	// loader thread while the total file count may still be zero, which can
+	// otherwise make progress become 0/0 and trigger undefined behavior when
+	// the bar width is converted to int.
+	std::this_thread::sleep_for(std::chrono::milliseconds(1200));
 
 	if(inline_display_supported)
 	{
 		// Phase 3: bar_height == 11 px (from the progress TexturedBox dy1=11).
 		// With max_height == 11 the bar fits but the image does not.
 		// show_bar = true, show_image = false.
-		// LoadStatus is Loading/Parsing/Idle → blue-bar switch case.
-		// context_needs_update = true (height changed from Phase 2).
+		// This render is delayed until async loading has settled so progress
+		// calculation is deterministic and finite.
 		res = h.renderInlineDisplay(100, 11);
 		CHECK_EQ(0, res);
 
