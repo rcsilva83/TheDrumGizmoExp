@@ -528,6 +528,79 @@ int LV2TestHost::loadConfig(const char* config, size_t size)
 	return 0;
 }
 
+// KXStudio inline display extension (not part of standard LV2 headers).
+#define LV2_INLINE_DISPLAY__interface \
+	"http://kxstudio.sf.net/ns/lv2ext/inlinedisplay#interface"
+
+typedef struct
+{
+	unsigned char* data;
+	int width;
+	int height;
+	int stride;
+} LV2InlineDisplaySurface;
+
+typedef struct
+{
+	LV2InlineDisplaySurface* (*render)(LV2_Handle handle, uint32_t w, uint32_t h);
+} LV2InlineDisplayInterface;
+
+int LV2TestHost::saveConfig()
+{
+	if(instance_state == InstanceState::NotCreated)
+	{
+		return 1;
+	}
+
+	LilvState* state = lilv_state_new_from_instance(plugin,
+	                                                instance,
+	                                                &map,
+	                                                nullptr,
+	                                                nullptr,
+	                                                nullptr,
+	                                                nullptr,
+	                                                nullptr,
+	                                                nullptr,
+	                                                LV2_STATE_IS_POD |
+	                                                    LV2_STATE_IS_PORTABLE,
+	                                                features);
+
+	if(!state)
+	{
+		return 2;
+	}
+
+	lilv_state_free(state);
+
+	return 0;
+}
+
+int LV2TestHost::renderInlineDisplay(uint32_t width, uint32_t height)
+{
+	if(instance_state == InstanceState::NotCreated)
+	{
+		return 1;
+	}
+
+	const LV2InlineDisplayInterface* iface =
+	    (const LV2InlineDisplayInterface*)lilv_instance_get_extension_data(
+	        instance, LV2_INLINE_DISPLAY__interface);
+
+	if(iface == nullptr)
+	{
+		return 2; // Extension not supported by this plugin
+	}
+
+	if(iface->render == nullptr)
+	{
+		return 3; // Render function pointer is null
+	}
+
+	iface->render(lilv_instance_get_handle(instance), width, height);
+
+	return 0;
+}
+
 int LV2TestHost::connectPort(int port, void* portdata)
 {
 	if(!instance)
