@@ -42,7 +42,7 @@ class Canvas;
 class Painter
 {
 public:
-	Painter(Canvas& canvas);
+	explicit Painter(Canvas& canvas);
 	~Painter();
 
 	void setColour(const Colour& colour);

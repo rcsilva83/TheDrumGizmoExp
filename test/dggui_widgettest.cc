@@ -550,7 +550,7 @@ TEST_CASE("WidgetTest")
 	SUBCASE("getImageCache_no_crash")
 	{
 		dggui::Widget w(&win);
-		auto& cache = w.getImageCache();
+		const auto& cache = w.getImageCache();
 		(void)cache;
 	}
 
