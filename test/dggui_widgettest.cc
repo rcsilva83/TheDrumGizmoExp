@@ -681,7 +681,7 @@ TEST_CASE("ButtonBaseTest")
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
 
-		dggui::ButtonEvent ev2;
+		dggui::ButtonEvent ev2{};
 		ev2.button = dggui::MouseButton::right;
 		ev2.direction = dggui::Direction::up;
 		btn.sendButtonEvent(&ev2);
@@ -702,7 +702,7 @@ TEST_CASE("ButtonBaseTest")
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
 
-		dggui::ButtonEvent ev2;
+		dggui::ButtonEvent ev2{};
 		ev2.button = dggui::MouseButton::left;
 		ev2.direction = dggui::Direction::up;
 		btn.sendButtonEvent(&ev2);
