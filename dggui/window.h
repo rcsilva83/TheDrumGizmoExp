@@ -43,7 +43,7 @@ class Window : public Widget
 {
 public:
 	explicit Window(void* native_window = nullptr);
-	~Window();
+	~Window() override;
 
 	void setFixedSize(int width, int height);
 	void setAlwaysOnTop(bool always_on_top);

@@ -60,7 +60,7 @@ private:
 class Layout : public Listener
 {
 public:
-	Layout(LayoutItem* parent);
+	explicit Layout(LayoutItem* parent);
 	virtual ~Layout()
 	{
 	}
@@ -83,7 +83,7 @@ protected:
 class BoxLayout : public Layout
 {
 public:
-	BoxLayout(LayoutItem* parent);
+	explicit BoxLayout(LayoutItem* parent);
 
 	//! \brief Set to false to only move the items, not scale them.
 	void setResizeChildren(bool resize_children);
@@ -91,7 +91,7 @@ public:
 	void setSpacing(size_t spacing);
 
 	// From Layout:
-	virtual void layout() override = 0;
+	void layout() override = 0;
 
 protected:
 	bool resizeChildren{false};
@@ -114,7 +114,7 @@ public:
 	void setHAlignment(HAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	HAlignment align;
@@ -136,7 +136,7 @@ public:
 	void setVAlignment(VAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	VAlignment align;
@@ -159,7 +159,7 @@ public:
 	GridLayout(LayoutItem* parent, std::size_t number_of_columns,
 	    std::size_t number_of_rows);
 
-	virtual ~GridLayout()
+	~GridLayout() override
 	{
 	}
 

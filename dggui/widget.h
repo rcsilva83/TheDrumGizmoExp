@@ -60,6 +60,9 @@ public:
 	explicit Widget(Widget* parent);
 	virtual ~Widget();
 
+	Widget(const Widget&) = delete;
+	Widget& operator=(const Widget&) = delete;
+
 	virtual void show();
 	virtual void hide();
 	void setVisible(bool visible);
@@ -96,24 +99,31 @@ public:
 
 	virtual void repaintEvent(RepaintEvent* repaintEvent)
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void buttonEvent(ButtonEvent* buttonEvent)
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void scrollEvent(ScrollEvent* scrollEvent)
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void keyEvent(KeyEvent* keyEvent)
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void mouseLeaveEvent()
 	{
+		// No-op in base class; subclasses may override.
 	}
 	virtual void mouseEnterEvent()
 	{
+		// No-op in base class; subclasses may override.
 	}
 
 	virtual ImageCache& getImageCache();
