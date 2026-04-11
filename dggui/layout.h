@@ -114,7 +114,7 @@ public:
 	void setHAlignment(HAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	HAlignment align;
@@ -136,7 +136,7 @@ public:
 	void setVAlignment(VAlignment alignment);
 
 	// From BoxLayout:
-	virtual void layout() override;
+	void layout() override;
 
 protected:
 	VAlignment align;
@@ -164,8 +164,8 @@ public:
 	}
 
 	// From Layout:
-	virtual void removeItem(LayoutItem* item) override;
-	virtual void layout() override;
+	void removeItem(LayoutItem* item) override;
+	void layout() override;
 
 	void setPosition(LayoutItem* item, GridRange const& range);
 
