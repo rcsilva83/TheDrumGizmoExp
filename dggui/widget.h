@@ -86,12 +86,13 @@ public:
 
 	virtual bool isFocusable()
 	{
-		return false; // Not focusable by default; subclasses may override.
+		// Not focusable by default; subclasses may override.
+		return false;
 	}
 	virtual bool catchMouse()
 	{
-		return false; // Does not catch mouse events by default; subclasses may
-		              // override.
+		// Does not catch mouse events by default; subclasses may override.
+		return false;
 	}
 
 	void addChild(Widget* widget);
