@@ -342,6 +342,28 @@ dg_add_doctest_test(powermaptest
 		"${CMAKE_SOURCE_DIR}/test/powermaptest.cc"
 )
 
+dg_add_doctest_test(channelmixertest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/channel.cc"
+		"${CMAKE_SOURCE_DIR}/src/channelmixer.cc"
+		"${CMAKE_SOURCE_DIR}/test/channelmixertest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		SndFile::sndfile
+)
+
+dg_add_doctest_test(rangemaptest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/test/rangemaptest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
 dg_add_doctest_test(inputfilterstest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/latencyfilter.cc"

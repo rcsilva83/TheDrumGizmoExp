@@ -25,7 +25,61 @@
  */
 #include <doctest/doctest.h>
 
+#include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "../src/directory.h"
+
+// Helper: create an empty file at the given path.
+static void create_empty_file(const std::string& path)
+{
+	int fd = open(path.c_str(), O_CREAT | O_WRONLY, 0644);
+	if(fd >= 0)
+	{
+		close(fd);
+	}
+}
+
+// RAII helper that creates a temporary directory tree for Directory tests.
+// Layout under base_path/:
+//   alpha/          – subdirectory (comes before beta/ alphabetically)
+//   beta/           – subdirectory
+//   .hidden/        – hidden subdirectory (filtered by DIRECTORY_HIDDEN)
+//   drum.xml        – XML file (should appear in entryList)
+//   kit.xml         – XML file (should appear in entryList)
+//   readme.txt      – non-XML file (filtered out)
+//   x               – name shorter than ".xml" suffix length (filtered out)
+struct TempDirFixture
+{
+	std::string base_path;
+
+	TempDirFixture()
+	{
+		char templ[] = "/tmp/dg-dirtest-XXXXXX";
+		const char* p = mkdtemp(templ);
+		base_path = p ? p : "";
+		REQUIRE(!base_path.empty());
+
+		mkdir((base_path + "/alpha").c_str(), 0755);
+		mkdir((base_path + "/beta").c_str(), 0755);
+		mkdir((base_path + "/.hidden").c_str(), 0755);
+		create_empty_file(base_path + "/drum.xml");
+		create_empty_file(base_path + "/kit.xml");
+		create_empty_file(base_path + "/readme.txt");
+		create_empty_file(base_path + "/x");
+	}
+
+	~TempDirFixture()
+	{
+		// Recursively remove the temp tree.
+		std::string cmd = "rm -rf " + base_path;
+		(void)system(cmd.c_str());
+	}
+};
 
 TEST_CASE("DirectoryTest")
 {
@@ -131,5 +185,168 @@ TEST_CASE("DirectoryTest")
 		std::string cwd = Directory::cwd();
 		REQUIRE(!cwd.empty());
 		CHECK_EQ('/', cwd[0]); // must be an absolute path
+	}
+}
+
+TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
+{
+	SUBCASE("constructor_sets_path")
+	{
+		// Constructing a Directory immediately makes path() return the cleaned
+		// path of the directory passed in.
+		Directory d(base_path);
+		CHECK_EQ(base_path, d.path());
+	}
+
+	SUBCASE("isDir_instance_method_true_for_directory")
+	{
+		Directory d(base_path);
+		CHECK_UNARY(d.isDir());
+	}
+
+	SUBCASE("isDir_instance_method_false_for_file_path")
+	{
+		// Point Directory at one of the XML files – isDir() should return false.
+		Directory d(base_path + "/drum.xml");
+		CHECK_UNARY(!d.isDir());
+	}
+
+	SUBCASE("count_and_entryList_reflect_directory_contents")
+	{
+		// After construction, the entry list should contain the two
+		// visible subdirectories ("..", "/alpha", "/beta") and the two
+		// XML files ("drum.xml", "kit.xml").  Hidden entries and non-XML
+		// files are filtered by listFiles.
+		Directory d(base_path);
+		auto entries = d.entryList();
+
+		// Verify that count() agrees with the actual list size.
+		CHECK_EQ(d.count(), entries.size());
+
+		// We must find "..", "/alpha", "/beta", "drum.xml", "kit.xml".
+		auto has = [&](const std::string& name)
+		{
+			for(const auto& e : entries)
+			{
+				if(e == name)
+				{
+					return true;
+				}
+			}
+			return false;
+		};
+
+		CHECK_UNARY(has(".."));
+		CHECK_UNARY(has("/alpha"));
+		CHECK_UNARY(has("/beta"));
+		CHECK_UNARY(has("drum.xml"));
+		CHECK_UNARY(has("kit.xml"));
+
+		// Hidden directory and non-XML files must NOT appear.
+		CHECK_UNARY(!has("/.hidden"));
+		CHECK_UNARY(!has(".hidden"));
+		CHECK_UNARY(!has("readme.txt"));
+		CHECK_UNARY(!has("x"));
+	}
+
+	SUBCASE("setPath_changes_directory")
+	{
+		// Start in the base directory, then change to alpha/ via setPath.
+		Directory d(base_path);
+		std::string alpha_path = base_path + "/alpha";
+		d.setPath(alpha_path);
+		CHECK_EQ(alpha_path, d.path());
+	}
+
+	SUBCASE("refresh_repopulates_entry_list")
+	{
+		Directory d(base_path);
+		std::size_t before = d.count();
+		// Create a new XML file and refresh to pick it up.
+		std::string new_file = base_path + "/new.xml";
+		create_empty_file(new_file);
+		d.refresh();
+		CHECK_EQ(before + 1, d.count());
+		// Clean up
+		unlink(new_file.c_str());
+	}
+
+	SUBCASE("cd_empty_string_returns_true_no_change")
+	{
+		Directory d(base_path);
+		CHECK_UNARY(d.cd(""));
+		CHECK_EQ(base_path, d.path());
+	}
+
+	SUBCASE("cd_dot_returns_true_no_change")
+	{
+		Directory d(base_path);
+		CHECK_UNARY(d.cd("."));
+		CHECK_EQ(base_path, d.path());
+	}
+
+	SUBCASE("cd_valid_subdir_returns_true_and_changes_path")
+	{
+		Directory d(base_path);
+		CHECK_UNARY(d.cd("alpha"));
+		CHECK_EQ(base_path + "/alpha", d.path());
+	}
+
+	SUBCASE("cd_nonexistent_subdir_returns_false")
+	{
+		Directory d(base_path);
+		CHECK_UNARY(!d.cd("nonexistent_subdir_xyz"));
+		// Path must stay unchanged on failure.
+		CHECK_EQ(base_path, d.path());
+	}
+
+	SUBCASE("cdUp_moves_to_parent")
+	{
+		Directory d(base_path + "/alpha");
+		CHECK_UNARY(d.cdUp());
+		CHECK_EQ(base_path, d.path());
+	}
+
+	SUBCASE("fileExists_true_for_existing_file")
+	{
+		Directory d(base_path);
+		// fileExists checks path + SEP + filename; drum.xml is not a directory.
+		CHECK_UNARY(d.fileExists("drum.xml"));
+	}
+
+	SUBCASE("fileExists_false_for_directory")
+	{
+		// fileExists returns !isDir(path+name), so a subdirectory yields false.
+		Directory d(base_path);
+		CHECK_UNARY(!d.fileExists("alpha"));
+	}
+
+	SUBCASE("listFiles_without_hidden_filter_includes_hidden_dirs")
+	{
+		// Calling listFiles with filter=0 should include the hidden directory
+		// (it is a directory, so its hidden flag does not get ANDed with filter=0).
+		auto entries = Directory::listFiles(base_path, 0);
+
+		auto has = [&](const std::string& name)
+		{
+			for(const auto& e : entries)
+			{
+				if(e == name)
+				{
+					return true;
+				}
+			}
+			return false;
+		};
+
+		// With filter=0, !(entryinfo && 0) is always true, so hidden dirs appear.
+		CHECK_UNARY(has("/.hidden"));
+	}
+
+	SUBCASE("listFiles_on_nonexistent_path_returns_empty")
+	{
+		auto entries =
+		    Directory::listFiles("/this/path/does/not/exist/at/all", 0);
+		CHECK_UNARY(entries.empty());
 	}
 }
