@@ -124,7 +124,7 @@ void* NativeWindowHeadless::getNativeWindowHandle() const
 
 Point NativeWindowHeadless::translateToScreen(const Point& point)
 {
-	return point;
+	return {point.x + _x, point.y + _y};
 }
 
 void NativeWindowHeadless::injectEvent(std::shared_ptr<Event> event)

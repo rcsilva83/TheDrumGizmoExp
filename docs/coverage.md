@@ -118,7 +118,7 @@ in-process event queue and a `Window::injectTestEvent()` helper (available when
 
 ---
 
-## Post-improvement (2026-04-11)
+## Post-improvement (2026-04-11) — CLI tests
 
 New CLI tests were added in `test/drumgizmoclitest.cc` to cover the previously
 untested argument-parsing and I/O branches in `drumgizmo/drumgizmoc.cc`.

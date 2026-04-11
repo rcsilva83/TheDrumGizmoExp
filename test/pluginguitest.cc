@@ -117,6 +117,7 @@ TEST_CASE("MainWindow: construction without crash")
 {
 	Settings s;
 	SettingsNotifier sn{s};
+	(void)sn;
 	GUI::MainWindow win{s, nullptr};
 	CHECK_UNARY(win.processEvents());
 }
