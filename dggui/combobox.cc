@@ -38,7 +38,9 @@ namespace dggui
 
 void ComboBox::listboxSelectHandler()
 {
-	ButtonEvent buttonEvent;
+	ButtonEvent buttonEvent{};
+	buttonEvent.button = MouseButton::left;
+	buttonEvent.doubleClick = false;
 	buttonEvent.direction = Direction::down;
 	this->buttonEvent(&buttonEvent);
 }
