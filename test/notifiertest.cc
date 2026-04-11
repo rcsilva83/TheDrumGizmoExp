@@ -189,4 +189,63 @@ TEST_CASE("NotifierTest")
 		notifier();
 		CHECK_EQ(0u, triggers.size());
 	}
+
+	SUBCASE("disconnect_later_slot_traverses_earlier_slot")
+	{
+		// When two slots are connected and the second one is disconnected,
+		// the iterator must traverse the first slot (false branch of the
+		// it->first == object comparison) before finding the second.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe foo1(triggers);
+		Probe foo2(triggers);
+
+		notifier.connect(&foo1, &Probe::slot);
+		notifier.connect(&foo2, &Probe::slot);
+
+		// Disconnect the second slot; this causes the iterator to check foo1
+		// first (false branch) and then foo2 (true branch).
+		notifier.disconnect(&foo2);
+
+		notifier();
+		// Only foo1 must still receive the notification.
+		REQUIRE_EQ(1u, triggers.size());
+		CHECK_EQ(&foo1, triggers[0]);
+	}
+
+	SUBCASE("disconnect_nonexistent_listener_is_safe")
+	{
+		// Calling disconnect() with a listener that was never connected must
+		// be a safe no-op.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe connected(triggers);
+		Probe unconnected(triggers);
+
+		notifier.connect(&connected, &Probe::slot);
+		notifier.disconnect(&unconnected); // must not crash or remove anything
+
+		notifier();
+		REQUIRE_EQ(1u, triggers.size());
+		CHECK_EQ(&connected, triggers[0]);
+	}
+
+	SUBCASE("notifier_dtor_unregisters_from_listeners")
+	{
+		// When a Notifier is destroyed before its Listeners, its dtor must
+		// unregister itself from those Listeners so they do not try to
+		// disconnect from a dangling pointer later.
+		std::vector<Probe*> triggers;
+		Probe listener(triggers);
+
+		{
+			Notifier<> notifier;
+			notifier.connect(&listener, &Probe::slot);
+			notifier(); // fires once while alive
+		} // notifier destroyed here while listener still alive
+
+		// The listener is still alive and must not crash or reference a
+		// dangling notifier when it is later destroyed.
+		CHECK_EQ(1u, triggers.size());
+	}
 }

@@ -33,6 +33,9 @@
 #include <random.h>
 #include <settings.h>
 
+#include <string>
+#include <vector>
+
 #include "path.h"
 #include "scopedfile.h"
 
@@ -348,5 +351,241 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 	SUBCASE("testTest")
 	{
 		testTest();
+	}
+
+	SUBCASE("channel_not_in_kit_is_logged_and_load_continues")
+	{
+		// Create a minimal instrument that references a channel "Ghost" which
+		// is not present in the kit's channel list.  loadDom must log a warning
+		// via the provided logger and still return true (no early return for
+		// this error).
+		ScopedFile scoped_instr(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument version=\"2.0\" name=\"GhostDrum\">\n"
+		    " <samples>\n"
+		    "  <sample name=\"s1\" power=\"1.0\">\n"
+		    "   <audiofile channel=\"Ghost\" file=\"ghost.wav\" "
+		    "filechannel=\"1\"/>\n"
+		    "  </sample>\n"
+		    " </samples>\n"
+		    "</instrument>");
+
+		// The kit has only "Kick"; there is no channelmap mapping "Ghost" to
+		// any kit channel, so the instrument channel "Ghost" will stay at
+		// NO_CHANNEL after the lookup loop.
+		ScopedFile scoped_kit(
+		    std::string("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		                "  <channels>\n"
+		                "   <channel name=\"Kick\"/>\n"
+		                "  </channels>\n"
+		                "  <instruments>\n"
+		                "    <instrument name=\"GhostDrum\" file=\"") +
+		    getFile(scoped_instr.filename()) +
+		    "\">\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumKit drumkit;
+		DrumkitDOM drumkitdom;
+		std::vector<InstrumentDOM> instrumentdoms;
+		CHECK(parseDrumkitFile(scoped_kit.filename(), drumkitdom));
+		auto basepath = getPath(scoped_kit.filename());
+		for(const auto& ref : drumkitdom.instruments)
+		{
+			instrumentdoms.emplace_back();
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
+		}
+
+		std::vector<std::string> log_messages;
+		auto logger = [&](LogLevel, const std::string& msg)
+		{ log_messages.push_back(msg); };
+
+		DOMLoader domloader(settings, random);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
+		CHECK(result);
+
+		// At least one warning about the missing kit channel was logged.
+		bool found_warning{false};
+		for(const auto& msg : log_messages)
+		{
+			if(msg.find("Missing channel") != std::string::npos)
+			{
+				found_warning = true;
+			}
+		}
+		CHECK(found_warning);
+	}
+
+	SUBCASE("missing_instrument_name_returns_false")
+	{
+		// The drumkit DOM references an instrument "Nonexistent" but no
+		// InstrumentDOM with that name is provided.  loadDom must return false.
+		ScopedFile scoped_instr(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument version=\"2.0\" name=\"RealName\">\n"
+		    " <samples>\n"
+		    "  <sample name=\"s1\" power=\"1.0\">\n"
+		    "   <audiofile channel=\"Ch\" file=\"test.wav\" "
+		    "filechannel=\"1\"/>\n"
+		    "  </sample>\n"
+		    " </samples>\n"
+		    "</instrument>");
+
+		// The kit references "Nonexistent" but the instrument file is for
+		// "RealName".  After parsing, the InstrumentDOM will have name
+		// "RealName", not "Nonexistent", so loadDom cannot find a match.
+		ScopedFile scoped_kit(
+		    std::string("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		                "  <channels>\n"
+		                "   <channel name=\"Ch\"/>\n"
+		                "  </channels>\n"
+		                "  <instruments>\n"
+		                "    <instrument name=\"Nonexistent\" file=\"") +
+		    getFile(scoped_instr.filename()) +
+		    "\">\n"
+		    "      <channelmap in=\"Ch\" out=\"Ch\"/>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumKit drumkit;
+		DrumkitDOM drumkitdom;
+		std::vector<InstrumentDOM> instrumentdoms;
+		CHECK(parseDrumkitFile(scoped_kit.filename(), drumkitdom));
+		auto basepath = getPath(scoped_kit.filename());
+		for(const auto& ref : drumkitdom.instruments)
+		{
+			instrumentdoms.emplace_back();
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
+		}
+
+		std::vector<std::string> log_messages;
+		auto logger = [&](LogLevel, const std::string& msg)
+		{ log_messages.push_back(msg); };
+
+		DOMLoader domloader(settings, random);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
+		// loadDom returns false because "Nonexistent" has no matching DOM.
+		CHECK(!result);
+	}
+
+	SUBCASE("v10_instrument_missing_sampleref_returns_false")
+	{
+		// A version 1.0 instrument uses a <sampleref> that does not match any
+		// <sample> name.  loadDom must return false.
+		ScopedFile scoped_instr(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument name=\"BadV1\">\n"
+		    " <samples>\n"
+		    "  <sample name=\"RealSample\">\n"
+		    "   <audiofile channel=\"Ch\" file=\"test.wav\"/>\n"
+		    "  </sample>\n"
+		    " </samples>\n"
+		    " <velocities>\n"
+		    "  <velocity lower=\"0\" upper=\"1.0\">\n"
+		    "   <sampleref probability=\"1.0\" name=\"NoSuchSample\"/>\n"
+		    "  </velocity>\n"
+		    " </velocities>\n"
+		    "</instrument>");
+
+		ScopedFile scoped_kit(
+		    std::string("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		                "  <channels>\n"
+		                "   <channel name=\"Ch\"/>\n"
+		                "  </channels>\n"
+		                "  <instruments>\n"
+		                "    <instrument name=\"BadV1\" file=\"") +
+		    getFile(scoped_instr.filename()) +
+		    "\">\n"
+		    "      <channelmap in=\"Ch\" out=\"Ch\"/>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumKit drumkit;
+		DrumkitDOM drumkitdom;
+		std::vector<InstrumentDOM> instrumentdoms;
+		CHECK(parseDrumkitFile(scoped_kit.filename(), drumkitdom));
+		auto basepath = getPath(scoped_kit.filename());
+		for(const auto& ref : drumkitdom.instruments)
+		{
+			instrumentdoms.emplace_back();
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
+		}
+
+		std::vector<std::string> log_messages;
+		auto logger = [&](LogLevel, const std::string& msg)
+		{ log_messages.push_back(msg); };
+
+		DOMLoader domloader(settings, random);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
+		CHECK(!result);
+	}
+
+	SUBCASE("missing_choke_target_is_skipped_and_load_continues")
+	{
+		// An instrument has a choke entry whose target instrument name does not
+		// exist in the loaded kit.  The choke must be silently skipped and
+		// loadDom must return true.
+		ScopedFile scoped_instr(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<instrument version=\"2.0\" name=\"ChokingDrum\">\n"
+		    " <samples>\n"
+		    "  <sample name=\"s1\" power=\"1.0\">\n"
+		    "   <audiofile channel=\"Ch\" file=\"test.wav\" "
+		    "filechannel=\"1\"/>\n"
+		    "  </sample>\n"
+		    " </samples>\n"
+		    "</instrument>");
+
+		// The kit has a <chokes> section referencing "GhostTarget" which is
+		// not a loaded instrument.
+		ScopedFile scoped_kit(
+		    std::string("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                "<drumkit samplerate=\"44100\" version=\"2.0.0\">\n"
+		                "  <channels>\n"
+		                "   <channel name=\"Ch\"/>\n"
+		                "  </channels>\n"
+		                "  <instruments>\n"
+		                "    <instrument name=\"ChokingDrum\" file=\"") +
+		    getFile(scoped_instr.filename()) +
+		    "\">\n"
+		    "      <channelmap in=\"Ch\" out=\"Ch\"/>\n"
+		    "      <chokes>\n"
+		    "        <choke instrument=\"GhostTarget\" choketime=\"68\"/>\n"
+		    "      </chokes>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>");
+
+		DrumKit drumkit;
+		DrumkitDOM drumkitdom;
+		std::vector<InstrumentDOM> instrumentdoms;
+		CHECK(parseDrumkitFile(scoped_kit.filename(), drumkitdom));
+		auto basepath = getPath(scoped_kit.filename());
+		for(const auto& ref : drumkitdom.instruments)
+		{
+			instrumentdoms.emplace_back();
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
+		}
+
+		DOMLoader domloader(settings, random);
+		bool result =
+		    domloader.loadDom(basepath, drumkitdom, instrumentdoms, drumkit);
+		CHECK(result);
+		// The loaded instrument should have no chokes (skipped).
+		REQUIRE_EQ(1u, drumkit.instruments.size());
+		CHECK_EQ(0u, drumkit.instruments[0]->getChokes().size());
 	}
 }

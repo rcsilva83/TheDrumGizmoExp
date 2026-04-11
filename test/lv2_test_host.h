@@ -69,6 +69,8 @@ public:
 	int deactivate();
 
 	int loadConfig(const char* config, size_t size);
+	int saveConfig();
+	int renderInlineDisplay(uint32_t width, uint32_t height);
 	int run(int num_samples);
 
 private:

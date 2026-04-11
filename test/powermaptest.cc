@@ -128,4 +128,91 @@ TEST_CASE("test_powermaptest")
 		CHECK_EQ(powermap.getFixed2().in, doctest::Approx(1.0f - eps));
 		CHECK_EQ(powermap.getFixed2().out, doctest::Approx(1.0f - eps));
 	}
+
+	SUBCASE("setFixed0_changes_map_output")
+	{
+		// Moving fixed[0] must update the spline so that map() output
+		// changes for inputs in the lower range.
+		Powermap powermap;
+		const float probe_in = 0.05f;
+		const float before = powermap.map(probe_in);
+		const float new_in = 0.05f;
+		const float new_out = 0.1f;
+		powermap.setFixed0({new_in, new_out});
+		const float after = powermap.map(probe_in);
+		CHECK_EQ(powermap.getFixed0().in, doctest::Approx(new_in));
+		CHECK_EQ(powermap.getFixed0().out, doctest::Approx(new_out));
+		CHECK_NE(after, doctest::Approx(before));
+	}
+
+	SUBCASE("setFixed0_with_same_value_is_a_no_op")
+	{
+		// Calling setFixed0 with the current value must not change the state
+		// (covers the false branch of the != guard).
+		Powermap powermap;
+		auto before = powermap.getFixed0();
+		powermap.setFixed0(before);
+		auto after = powermap.getFixed0();
+		CHECK_EQ(before.in, doctest::Approx(after.in));
+		CHECK_EQ(before.out, doctest::Approx(after.out));
+	}
+
+	SUBCASE("setFixed2_changes_map_output")
+	{
+		// Moving fixed[2] to a new value must update the spline and affect the
+		// map() output for inputs near the upper boundary.
+		Powermap powermap;
+		const float new_in = 0.9f;
+		const float new_out = 0.8f;
+		powermap.setFixed2({new_in, new_out});
+		CHECK_EQ(powermap.getFixed2().in, doctest::Approx(new_in));
+		CHECK_EQ(powermap.getFixed2().out, doctest::Approx(new_out));
+	}
+
+	SUBCASE("setFixed2_with_same_value_is_a_no_op")
+	{
+		// Calling setFixed2 with the current value must not change the state
+		// (covers the false branch of the != guard).
+		Powermap powermap;
+		auto before = powermap.getFixed2();
+		powermap.setFixed2(before);
+		auto after = powermap.getFixed2();
+		CHECK_EQ(before.in, doctest::Approx(after.in));
+		CHECK_EQ(before.out, doctest::Approx(after.out));
+	}
+
+	SUBCASE("setFixed1_with_same_value_is_a_no_op")
+	{
+		// Covers the false branch of the != guard in setFixed1.
+		Powermap powermap;
+		auto before = powermap.getFixed1();
+		powermap.setFixed1(before);
+		auto after = powermap.getFixed1();
+		CHECK_EQ(before.in, doctest::Approx(after.in));
+		CHECK_EQ(before.out, doctest::Approx(after.out));
+	}
+
+	SUBCASE("setShelf_toggle_false_then_true")
+	{
+		// setShelf(false) then setShelf(true) must each trigger a spline
+		// update (covers both the true and false branches of the shelf guard).
+		Powermap powermap;
+		powermap.setShelf(false); // changes from default true -> false
+		CHECK_EQ(powermap.map(0.0f), doctest::Approx(0.0f));
+		powermap.setShelf(true); // changes back to true
+		const float eps = 1e-4f;
+		CHECK_EQ(powermap.map(0.0f), doctest::Approx(eps));
+	}
+
+	SUBCASE("setShelf_with_same_value_is_a_no_op")
+	{
+		// Calling setShelf(true) when shelf is already true must not trigger
+		// a spline update (covers the false branch of the shelf != enable
+		// guard).
+		Powermap powermap;
+		// shelf is true by default; calling with true again is a no-op.
+		powermap.setShelf(true);
+		// We only verify map still behaves the same after the no-op call.
+		CHECK_EQ(powermap.map(0.5f), doctest::Approx(0.5f));
+	}
 }

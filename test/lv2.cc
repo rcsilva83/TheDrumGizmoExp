@@ -371,6 +371,272 @@ TEST_CASE_FIXTURE(LV2Fixture, "run_no_output_ports_connected")
 	CHECK_EQ(0, res);
 }
 
+/*
+ * Test state save (exercises ConfigStringIO::get() and all bool2str/float2str/
+ * int2str helper functions).
+ */
+TEST_CASE_FIXTURE(LV2Fixture, "state_save")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	res = h.saveConfig();
+	CHECK_EQ(0, res);
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
+/*
+ * Test state restore with a partial config that omits drumkitfile and
+ * midimapfile and sets only a subset of the other options. This exercises
+ * both the "value present" (true) branches for the listed settings and the
+ * "value not present" (false) branches of the corresponding
+ * if(p.value("xxx") != "") checks in ConfigStringIO::set().
+ */
+TEST_CASE_FIXTURE(LV2Fixture, "state_restore_partial_config")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	// Provide only a subset of settings (no drumkitfile / midimapfile).
+	// This exercises:
+	//   - The FALSE branch of every if(p.value("xxx") != "") for the
+	//     settings that are absent (all the ones not listed here).
+	//   - The TRUE branch for the settings that ARE listed.
+	//   - The FALSE branch of the drumkitfile / midimapfile guards at the
+	//     bottom of ConfigStringIO::set() (lines 848 and 854).
+	const char partial_config[] =
+	    "<config version=\"1.0\">\n"
+	    "  <value name=\"enable_velocity_modifier\">false</value>\n"
+	    "  <value name=\"velocity_modifier_falloff\">0.5</value>\n"
+	    "  <value name=\"velocity_modifier_weight\">0.25</value>\n"
+	    "  <value name=\"velocity_stddev\">0.1</value>\n"
+	    "  <value name=\"sample_selection_f_close\">0.3</value>\n"
+	    "  <value name=\"sample_selection_f_diverse\">0.4</value>\n"
+	    "  <value name=\"sample_selection_f_random\">0.3</value>\n"
+	    "  <value name=\"enable_velocity_randomiser\">false</value>\n"
+	    "  <value name=\"velocity_randomiser_weight\">0.1</value>\n"
+	    "  <value name=\"enable_resampling\">true</value>\n"
+	    "  <value name=\"resampling_quality\">1.0</value>\n"
+	    "  <value name=\"disk_cache_upper_limit\">1048576</value>\n"
+	    "  <value name=\"disk_cache_chunk_size\">1073741824</value>\n"
+	    "  <value name=\"disk_cache_enable\">true</value>\n"
+	    "  <value name=\"enable_bleed_control\">false</value>\n"
+	    "  <value name=\"master_bleed\">1.0</value>\n"
+	    "  <value name=\"enable_latency_modifier\">false</value>\n"
+	    "  <value name=\"latency_laid_back_ms\">0.0</value>\n"
+	    "  <value name=\"latency_stddev\">100.0</value>\n"
+	    "  <value name=\"latency_regain\">0.9</value>\n"
+	    "  <value name=\"enable_powermap\">false</value>\n"
+	    "  <value name=\"powermap_fixed0_x\">0.0</value>\n"
+	    "  <value name=\"powermap_fixed0_y\">0.0</value>\n"
+	    "  <value name=\"powermap_fixed1_x\">0.5</value>\n"
+	    "  <value name=\"powermap_fixed1_y\">0.5</value>\n"
+	    "  <value name=\"powermap_fixed2_x\">1.0</value>\n"
+	    "  <value name=\"powermap_fixed2_y\">1.0</value>\n"
+	    "  <value name=\"powermap_shelf\">false</value>\n"
+	    "  <value name=\"enable_voice_limit\">false</value>\n"
+	    "  <value name=\"voice_limit_max\">64</value>\n"
+	    "  <value name=\"voice_limit_rampdown\">0.5</value>\n"
+	    "</config>";
+
+	res = h.loadConfig(partial_config, strlen(partial_config));
+	CHECK_EQ(0, res);
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
+/*
+ * Test state restore with invalid XML. This exercises the parse-error branch
+ * (p.parseString() returns false) in ConfigStringIO::set().
+ */
+TEST_CASE_FIXTURE(LV2Fixture, "state_restore_invalid_config")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	const char invalid_config[] = "<<not valid xml>>";
+
+	res = h.loadConfig(invalid_config, strlen(invalid_config));
+	CHECK_EQ(
+	    0, res); // loadConfig itself succeeds; the plugin handles the error
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
+/*
+ * Test the inline display rendering across multiple LoadStatus values.
+ * Exercises all major branches in DrumGizmoPlugin::onInlineRedraw():
+ *   - show_bar / show_image visibility conditions (varied max_height)
+ *   - context_needs_update (first call vs. same-dimension repeated call)
+ *   - something_needs_update true and false paths
+ *   - LoadStatus::Idle/Loading/Parsing (blue bar) and Done (green bar)
+ *   - inline_image_first_draw path for the image block
+ *   - pixel-format conversion loop
+ *
+ * If the inline display extension is not supported by the installed plugingizmo
+ * version, renderInlineDisplay() returns 2 and the display-specific checks are
+ * skipped gracefully.
+ */
+TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
+{
+	int res;
+
+	LV2TestHost h(LV2_PATH);
+
+	res = h.open(DG_URI);
+	CHECK_EQ(0, res);
+
+	res = h.createInstance(44100);
+	CHECK_EQ(0, res);
+
+	// Phase 1: render before any kit is loaded (LoadStatus::Idle,
+	// number_of_files == 0).  Use max_height == 0 so show_bar and show_image
+	// are both false, avoiding the division-by-zero in the progress
+	// calculation that would occur when number_of_files == 0.
+	// This exercises: context_needs_update = true (first call, data is null),
+	// something_needs_update = true, show_bar = false, show_image = false.
+	res = h.renderInlineDisplay(100, 0);
+	bool inline_display_supported = (res == 0);
+	// Extension either succeeds (0) or is not supported (2).
+	CHECK_UNARY(res == 0 || res == 2);
+
+	if(inline_display_supported)
+	{
+		// Phase 2: same dimensions again — context.data is now set, dimensions
+		// unchanged, no settings have changed → context_needs_update = false,
+		// something_needs_update = false.  The update block is skipped.
+		res = h.renderInlineDisplay(100, 0);
+		CHECK_EQ(0, res);
+	}
+
+	// Load a valid kit to get the plugin into an active loading state.
+	auto kit1_file = drumkit_creator.createStdKit("idkit");
+	auto midimap_file = drumkit_creator.createStdMidimap("idmidimap");
+
+	const char config_fmt[] = "<config version=\"1.0\">\n"
+	                          "  <value name=\"drumkitfile\">%s</value>\n"
+	                          "  <value name=\"midimapfile\">%s</value>\n"
+	                          "</config>";
+
+	char config[4096];
+	const int config_len = snprintf(config, sizeof(config), config_fmt,
+	    kit1_file.c_str(), midimap_file.c_str());
+	REQUIRE(config_len >= 0);
+	REQUIRE(static_cast<size_t>(config_len) < sizeof(config));
+
+	res = h.loadConfig(config, strlen(config));
+	CHECK_EQ(0, res);
+
+	// Trigger the async kit-loading machinery.
+	res = h.run(1);
+	CHECK_EQ(0, res);
+
+	// Wait conservatively for the asynchronous load to complete before
+	// rendering the small-height inline display. This avoids racing the
+	// loader thread while the total file count may still be zero, which can
+	// otherwise make progress become 0/0 and trigger undefined behavior when
+	// the bar width is converted to int.
+	std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+
+	if(inline_display_supported)
+	{
+		// Phase 3: bar_height == 11 px (from the progress TexturedBox dy1=11).
+		// With max_height == 11 the bar fits but the image does not.
+		// show_bar = true, show_image = false.
+		// This render is delayed until async loading has settled so progress
+		// calculation is deterministic and finite.
+		res = h.renderInlineDisplay(100, 11);
+		CHECK_EQ(0, res);
+
+		// Phase 4: large max_height makes both bar and image visible.
+		// show_bar = true, show_image = true.
+		// inline_image_first_draw path exercised.
+		res = h.renderInlineDisplay(100, 100000);
+		CHECK_EQ(0, res);
+
+		// Phase 5: same dimensions again.
+		// context_needs_update = false; inline_image_first_draw is now false.
+		// something_needs_update may be false (no changes since last render).
+		res = h.renderInlineDisplay(100, 100000);
+		CHECK_EQ(0, res);
+
+		// Phase 6: different width — forces context.width != width, so
+		// context_needs_update = true again.
+		res = h.renderInlineDisplay(200, 100000);
+		CHECK_EQ(0, res);
+	}
+
+	// Wait for the kit to finish loading (LoadStatus::Done).
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	if(inline_display_supported)
+	{
+		// Phase 7: LoadStatus::Done → green-bar switch case.
+		res = h.renderInlineDisplay(100, 100000);
+		CHECK_EQ(0, res);
+	}
+
+	// Phase 8: Trigger a reload of the same kit so that the plugin transitions
+	// back to Loading/Parsing/Idle.  Run once to kick off the async loader,
+	// then render IMMEDIATELY (before the loader thread finishes) so that we
+	// exercise the LoadStatus::Idle/Loading/Parsing → blue bar switch arm.
+	res = h.loadConfig(config, strlen(config));
+	CHECK_EQ(0, res);
+	res = h.run(1);
+	CHECK_EQ(0, res);
+
+	if(inline_display_supported)
+	{
+		// Render right away: LoadStatus is very likely still Idle/Loading here.
+		// The switch dispatches to case LoadStatus::Parsing/Loading/Idle.
+		res = h.renderInlineDisplay(100, 100000);
+		CHECK_EQ(0, res);
+	}
+
+	// Let the second load finish cleanly before destroying the instance.
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	res = h.destroyInstance();
+	CHECK_EQ(0, res);
+
+	res = h.close();
+	CHECK_EQ(0, res);
+}
+
 TEST_CASE_FIXTURE(LV2Fixture, "test1")
 {
 	int res;
