@@ -27,6 +27,8 @@
 
 #include <doctest/doctest.h>
 
+#include <config.h>
+
 #include "drumkit_creator.h"
 #include "scopedfile.h"
 
@@ -280,6 +282,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
+#ifdef HAVE_WORDEXP
 	SUBCASE("streamingparmsValidLimitRunSucceeds")
 	{
 		auto result = runDrumgizmoCli(
@@ -303,6 +306,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos,
 		    result.output.find("Unknown streamingparms argument unknown"));
 	}
+#endif // HAVE_WORDEXP
 
 	SUBCASE("timingHumanizerRunSucceeds")
 	{
@@ -312,6 +316,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
+#ifdef HAVE_WORDEXP
 	SUBCASE("timingHumanizerparmsLaidbackValidRunSucceeds")
 	{
 		auto result = runDrumgizmoCli(
@@ -388,6 +393,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
+#endif // HAVE_WORDEXP
 
 	SUBCASE("velocityHumanizerRunSucceeds")
 	{
@@ -397,6 +403,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
+#ifdef HAVE_WORDEXP
 	SUBCASE("velocityHumanizerparmsAttackValidRunSucceeds")
 	{
 		auto result = runDrumgizmoCli(
@@ -457,6 +464,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		    result.output.find(
 		        "Unknown velocity-humanizerparms argument unknown"));
 	}
+#endif // HAVE_WORDEXP
 
 	SUBCASE("voiceLimitRunSucceeds")
 	{
@@ -465,6 +473,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
+#ifdef HAVE_WORDEXP
 	SUBCASE("voiceLimitparmsMaxValidRunSucceeds")
 	{
 		auto result = runDrumgizmoCli(
@@ -503,7 +512,9 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos,
 		    result.output.find("Unknown voice limitparms argument unknown"));
 	}
+#endif // HAVE_WORDEXP
 
+#ifdef HAVE_WORDEXP
 	SUBCASE("parametersCloseValidRunSucceeds")
 	{
 		auto result = runDrumgizmoCli(
@@ -559,6 +570,7 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos,
 		    result.output.find("Unknown parameters argument unknown"));
 	}
+#endif // HAVE_WORDEXP
 
 	SUBCASE("endposInvalidValuePrintsErrorAndContinues")
 	{
