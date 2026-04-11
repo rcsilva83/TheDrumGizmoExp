@@ -48,8 +48,8 @@ static void create_empty_file(const std::string& path)
 }
 
 // Callback for nftw()-based recursive deletion.
-static int remove_entry(const char* fpath, const struct stat*, int typeflag,
-    struct FTW*)
+static int remove_entry(
+    const char* fpath, const struct stat*, int typeflag, struct FTW*)
 {
 	if(typeflag == FTW_DP)
 	{
