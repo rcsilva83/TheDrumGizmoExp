@@ -25,10 +25,7 @@ jobs:
             gettext \
             libglib2.0-dev \
             libjack-jackd2-dev \
-            libasound2-dev \
-            lv2-dev \
-            liblilv-dev \
-            libssl-dev
+            libasound2-dev
 
       - name: Configure
         run: |
@@ -36,7 +33,7 @@ jobs:
             -G Ninja \
             -DDG_ENABLE_TESTS=ON \
             -DDG_WITH_NLS=OFF \
-            -DDG_ENABLE_LV2=ON \
+            -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
             -DDG_GUI_BACKEND=headless \
             -DCMAKE_BUILD_TYPE=Debug \
