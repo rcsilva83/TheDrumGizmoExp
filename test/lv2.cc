@@ -553,9 +553,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 	                          "</config>";
 
 	char config[4096];
-	const int config_len =
-	    snprintf(config, sizeof(config), config_fmt,
-	             kit1_file.c_str(), midimap_file.c_str());
+	const int config_len = snprintf(config, sizeof(config), config_fmt,
+	    kit1_file.c_str(), midimap_file.c_str());
 	REQUIRE(config_len >= 0);
 	REQUIRE(static_cast<size_t>(config_len) < sizeof(config));
 
