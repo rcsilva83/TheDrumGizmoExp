@@ -30,6 +30,9 @@
 
 #include "painter.h"
 
+#ifdef UI_HEADLESS
+#include "nativewindow_headless.h"
+#else
 #ifndef UI_PUGL
 #ifdef UI_X11
 #include "nativewindow_x11.h"
@@ -43,6 +46,7 @@
 #else
 #include "nativewindow_pugl.h"
 #endif // !UI_PUGL
+#endif // UI_HEADLESS
 
 namespace dggui
 {
@@ -55,6 +59,9 @@ Window::Window(void* native_window)
 	_width = wpixbuf.width;
 	_height = wpixbuf.height;
 
+#ifdef UI_HEADLESS
+	native = new NativeWindowHeadless(native_window, *this);
+#else
 #ifndef UI_PUGL
 #ifdef UI_X11
 	native = new NativeWindowX11(native_window, *this);
@@ -69,6 +76,7 @@ Window::Window(void* native_window)
 	// Use pugl
 	native = new NativeWindowPugl(native_window, *this);
 #endif // !UI_PUGL
+#endif // UI_HEADLESS
 
 	eventhandler = new EventHandler(*native, *this);
 
@@ -203,6 +211,13 @@ Point Window::translateToScreen(const Point& point)
 {
 	return native->translateToScreen(point);
 }
+
+#ifdef UI_HEADLESS
+void Window::injectTestEvent(std::shared_ptr<Event> event)
+{
+	static_cast<NativeWindowHeadless*>(native)->injectEvent(event);
+}
+#endif
 
 std::size_t Window::translateToWindowX()
 {

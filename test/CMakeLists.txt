@@ -501,6 +501,28 @@ if(TARGET dg_plugingui)
 			dg_core
 			Threads::Threads
 	)
+
+	if(DG_SELECTED_GUI_BACKEND STREQUAL "headless")
+		dg_add_doctest_test(pluginguitest
+			SOURCES
+				"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+				"${CMAKE_SOURCE_DIR}/test/pluginguitest.cc"
+				"${DG_PLUGINGUI_RESOURCE_DATA}"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${CMAKE_SOURCE_DIR}/plugingui"
+				"${DG_HUGIN_INCLUDE_DIR}"
+			COMPILE_DEFINITIONS
+				${DG_GUI_COMPILE_DEFINITIONS}
+				DISABLE_HUGIN
+			DEPENDENCIES
+				dg_plugingui_resource_data
+			LINK_LIBRARIES
+				dg_plugingui
+				dg_core
+				Threads::Threads
+		)
+	endif()
 endif()
 
 if(DG_ENABLE_CLI)

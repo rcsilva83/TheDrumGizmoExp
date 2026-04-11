@@ -81,6 +81,43 @@ on Ubuntu with GCC.
 - The `test/` module itself has high line coverage (97%) because all test code
   runs under doctest; the uncovered ~3% is test helpers and edge-case paths.
 
+## Post-improvement (2026-04-11) — plugingui headless tests
+
+New plugingui tests were added in `test/pluginguitest.cc` using the headless
+GUI backend (`DG_GUI_BACKEND=headless`). The CI coverage build was also switched
+from the `x11` backend to `headless` to enable these tests to run in CI.
+
+44 test cases exercise the following previously untested code paths in
+`plugingui/`:
+
+- `MainWindow` construction, resize, show/hide, and close event handling
+- `StatusframeContent` — all `LoadStatus` branches (Idle/Parsing/Loading/Done/Error)
+  for both drumkit and midimap, and text-field update callbacks
+- `DrumkitframeContent` — all load-status branches, file-progress updates,
+  file-path updates
+- `ResamplingframeContent` — zero and non-zero drumkit samplerate branches,
+  resampling-recommended flag, quality knob
+- `BleedcontrolframeContent` — `setEnabled(true/false)`, master-bleed value
+- `HumanizerframeContent` — velocity modifier weight/falloff/stddev, enable/disable
+- `TimingframeContent` — latency modifier enable/disable
+- `VoiceLimitframeContent` — voice limit enable/disable, max voices, ramp-down
+- `DiskstreamingframeContent` — disk cache enable/disable, limit, chunk size
+- `SampleselectionframeContent` — close/diverse/random knobs
+- `PowerWidget` — powermap enable/disable, indicator lines, shelf toggle, fixed
+  node positions, canvas-too-small guard
+- `HumaniserVisualiser` — resize-too-small guard, latency/velocity enabled states
+- `EventHandler` — button down/up, double-click guard, consecutive mouse moves,
+  mouse enter/leave, scroll, key event, repaint no-op
+
+**Expected branch coverage for `plugingui/` after this change:** ≥ 90%.
+
+The `DG_GUI_BACKEND=headless` build option is now the standard CI configuration.
+The headless backend (`dggui/nativewindow_headless.{h,cc}`) provides a fully
+in-process event queue and a `Window::injectTestEvent()` helper (available when
+`UI_HEADLESS` is defined) that tests use to drive the event loop.
+
+---
+
 ## Post-improvement (2026-04-11)
 
 New CLI tests were added in `test/drumgizmoclitest.cc` to cover the previously
@@ -284,7 +321,7 @@ cmake -S . -B build-coverage \
   -DDG_WITH_NLS=OFF \
   -DDG_ENABLE_LV2=OFF \
   -DDG_ENABLE_VST=OFF \
-  -DDG_GUI_BACKEND=x11 \
+  -DDG_GUI_BACKEND=headless \
   -DCMAKE_BUILD_TYPE=Debug \
   "-DCMAKE_C_FLAGS=--coverage -O0 -g" \
   "-DCMAKE_CXX_FLAGS=--coverage -O0 -g" \

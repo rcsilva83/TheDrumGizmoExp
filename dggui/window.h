@@ -77,6 +77,12 @@ public:
 	//! Translate a local window coordinate to a global screen coordinate.
 	Point translateToScreen(const Point& point);
 
+#ifdef UI_HEADLESS
+	//! Inject a synthetic GUI event into the native window queue.
+	//! Only available with the headless backend; used by automated tests.
+	void injectTestEvent(std::shared_ptr<Event> event);
+#endif
+
 protected:
 	// For the EventHandler
 	friend class EventHandler;
