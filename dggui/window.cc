@@ -54,7 +54,7 @@
 namespace dggui
 {
 
-Window::Window(void* native_window) : Widget(nullptr), wpixbuf(1, 1)
+Window::Window(void* native_window) : Widget(nullptr)
 {
 	// Make sure we have a valid size when initialising the NativeWindow
 	_width = wpixbuf.width;

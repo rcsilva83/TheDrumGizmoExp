@@ -101,7 +101,7 @@ protected:
 	friend class NativeWindowWin32;
 	friend class NativeWindowPugl;
 	friend class NativeWindowCocoa;
-	PixelBuffer wpixbuf;
+	PixelBuffer wpixbuf{1, 1};
 
 	size_t refcount{0};
 
