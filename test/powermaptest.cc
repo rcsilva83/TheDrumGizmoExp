@@ -131,14 +131,18 @@ TEST_CASE("test_powermaptest")
 
 	SUBCASE("setFixed0_changes_map_output")
 	{
-		// Moving fixed[0] to a new value must update the spline and affect the
-		// map() output for inputs in the lower range.
+		// Moving fixed[0] must update the spline so that map() output
+		// changes for inputs in the lower range.
 		Powermap powermap;
+		const float probe_in = 0.05f;
+		const float before = powermap.map(probe_in);
 		const float new_in = 0.05f;
 		const float new_out = 0.1f;
 		powermap.setFixed0({new_in, new_out});
+		const float after = powermap.map(probe_in);
 		CHECK_EQ(powermap.getFixed0().in, doctest::Approx(new_in));
 		CHECK_EQ(powermap.getFixed0().out, doctest::Approx(new_out));
+		CHECK_NE(after, doctest::Approx(before));
 	}
 
 	SUBCASE("setFixed0_with_same_value_is_a_no_op")

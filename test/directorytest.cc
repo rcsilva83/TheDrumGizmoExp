@@ -26,23 +26,36 @@
 #include <doctest/doctest.h>
 
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
+
+#ifndef _WIN32
 #include <fcntl.h>
+#include <ftw.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 
 #include "../src/directory.h"
+
+#ifndef _WIN32
 
 // Helper: create an empty file at the given path.
 static void create_empty_file(const std::string& path)
 {
 	int fd = open(path.c_str(), O_CREAT | O_WRONLY, 0644);
-	if(fd >= 0)
+	REQUIRE(fd >= 0);
+	REQUIRE(close(fd) == 0);
+}
+
+// Callback for nftw()-based recursive deletion.
+static int remove_entry(const char* fpath, const struct stat*, int typeflag,
+    struct FTW*)
+{
+	if(typeflag == FTW_DP)
 	{
-		close(fd);
+		return rmdir(fpath);
 	}
+	return unlink(fpath);
 }
 
 // RAII helper that creates a temporary directory tree for Directory tests.
@@ -76,11 +89,12 @@ struct TempDirFixture
 
 	~TempDirFixture()
 	{
-		// Recursively remove the temp tree.
-		std::string cmd = "rm -rf " + base_path;
-		(void)system(cmd.c_str());
+		// Recursively remove the temp tree using explicit filesystem calls.
+		nftw(base_path.c_str(), remove_entry, 64, FTW_DEPTH | FTW_PHYS);
 	}
 };
+
+#endif // _WIN32
 
 TEST_CASE("DirectoryTest")
 {
@@ -221,6 +235,7 @@ TEST_CASE("DirectoryTest")
 	}
 }
 
+#ifndef _WIN32
 TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
 {
 	SUBCASE("constructor_sets_path")
@@ -374,3 +389,4 @@ TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
 		CHECK_UNARY(entries.empty());
 	}
 }
+#endif // _WIN32
