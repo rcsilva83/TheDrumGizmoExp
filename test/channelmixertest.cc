@@ -105,4 +105,20 @@ TEST_CASE("ChannelMixerTest")
 		CHECK_EQ(m.output, &channels[0]);
 		CHECK_EQ(doctest::Approx(0.6f), m.gain);
 	}
+
+	SUBCASE("empty_channels_with_nullptr_default_leaves_defaultchannel_null")
+	{
+		// When channels is empty and defc is nullptr, the
+		// "channels.size() > 0" short-circuit must prevent the fallback
+		// from running, so defaultchannel stays nullptr.  Looking up a
+		// slot must not crash, and gain is still stored.
+		Channels empty_channels;
+		ChannelMixer mixer(empty_channels, nullptr, 0.9f);
+
+		InstrumentChannel ich("ic5");
+		MixerSettings& m = mixer.lookup(ich);
+
+		CHECK(m.output == nullptr);
+		CHECK_EQ(doctest::Approx(0.9f), m.gain);
+	}
 }

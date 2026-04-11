@@ -355,6 +355,21 @@ dg_add_doctest_test(channelmixertest
 		SndFile::sndfile
 )
 
+dg_add_doctest_test(audiofiletest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/audiofile.cc"
+		"${CMAKE_SOURCE_DIR}/src/random.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+		"${CMAKE_SOURCE_DIR}/test/audiofiletest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+	LINK_LIBRARIES
+		Threads::Threads
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(rangemaptest
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/test/rangemaptest.cc"

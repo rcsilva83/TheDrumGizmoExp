@@ -186,6 +186,38 @@ TEST_CASE("DirectoryTest")
 		REQUIRE(!cwd.empty());
 		CHECK_EQ('/', cwd[0]); // must be an absolute path
 	}
+
+	SUBCASE("seperator_returns_slash")
+	{
+		// Exercise the seperator() function so its line is hit.
+		Directory d("/tmp");
+		CHECK_EQ(std::string("/"), d.seperator());
+	}
+
+	SUBCASE("cleanPath_dotdot_at_root_does_not_go_above_root")
+	{
+		// "/../foo" should normalise to "/foo" without popping the empty
+		// path.  This exercises the false branch of
+		// `if(!path.empty())` in parsePath.
+		CHECK_EQ(Directory::cleanPath("/../foo"), "/foo");
+	}
+
+	SUBCASE("pathDirectory_of_directory_returns_itself")
+	{
+		// When the filepath IS a directory, pathDirectory must return it
+		// unchanged.  This covers the isDir(filepath) == true branch.
+		std::string result = Directory::pathDirectory("/tmp");
+		CHECK_EQ(result, "/tmp");
+	}
+
+	SUBCASE("pathDirectory_of_empty_string_returns_root")
+	{
+		// An empty filepath is not a directory and parsePath("") yields an
+		// empty path vector, exercising the `path.size() == 0` false branch
+		// of pathDirectory's second conditional.
+		std::string result = Directory::pathDirectory("");
+		CHECK_EQ(result, "/");
+	}
 }
 
 TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")

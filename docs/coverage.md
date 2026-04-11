@@ -16,6 +16,31 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Baseline (2026-04-11) — branch-coverage push
+
+The numbers below were collected after adding new tests for `directorytest`,
+`channelmixertest`, `rangemaptest`, `powermaptest`, `domloadertest`,
+`notifiertest`, `audiofiletest` (targeting `src/` branch coverage).
+
+Measurement command:
+```sh
+gcovr --root . --filter 'src/' --exclude-throw-branches --branch --txt
+```
+
+### `src/` branch coverage
+
+| Metric   | Covered | Total | Coverage |
+| -------- | ------: | ----: | -------: |
+| Branches |   1,963 | 2,409 |    81.5% |
+
+The remaining gap to 90% (≈205 branches) is dominated by dead-code paths
+(`powerlist::getMasterChannel`, `AUTO_CALCULATE_POWER` ifdef),
+OS-level error branches in `sem.cc` (EINTR/ETIMEDOUT),
+and complex threading paths in `drumkitloader.cc` / `drumgizmo.cc` that
+require full engine integration tests to exercise.
+
+---
+
 ## Baseline (2026-04-07)
 
 The numbers below were collected on commit
