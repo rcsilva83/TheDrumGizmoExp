@@ -41,7 +41,7 @@ class Window
 	: public Widget
 {
 public:
-	Window(void* native_window = nullptr);
+	explicit Window(void* native_window = nullptr);
 	~Window();
 
 	void setFixedSize(int width, int height);

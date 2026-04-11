@@ -109,7 +109,7 @@ enum class HAlignment
 class VBoxLayout : public BoxLayout
 {
 public:
-	VBoxLayout(LayoutItem* parent);
+	explicit VBoxLayout(LayoutItem* parent);
 
 	void setHAlignment(HAlignment alignment);
 
@@ -131,7 +131,7 @@ enum class VAlignment
 class HBoxLayout : public BoxLayout
 {
 public:
-	HBoxLayout(LayoutItem* parent);
+	explicit HBoxLayout(LayoutItem* parent);
 
 	void setVAlignment(VAlignment alignment);
 
@@ -164,8 +164,8 @@ public:
 	}
 
 	// From Layout:
-	virtual void removeItem(LayoutItem* item);
-	virtual void layout();
+	virtual void removeItem(LayoutItem* item) override;
+	virtual void layout() override;
 
 	void setPosition(LayoutItem* item, GridRange const& range);
 

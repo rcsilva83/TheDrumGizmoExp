@@ -59,7 +59,7 @@ class Widget
 {
 	friend class Painter;
 public:
-	Widget(Widget* parent);
+	explicit Widget(Widget* parent);
 	virtual ~Widget();
 
 	virtual void show();
