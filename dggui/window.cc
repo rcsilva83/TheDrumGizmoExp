@@ -26,7 +26,6 @@
  */
 #include "window.h"
 
-#include <cstring>
 #include <memory>
 
 #include <cpp11fix.h>
@@ -103,16 +102,16 @@ void Window::setCaption(const std::string& caption)
 	native->setCaption(caption);
 }
 
-//! This overload the resize method on Widget and simply requests a window
-//! resize on the windowmanager/OS. The resized() method is called by the event
+//! This overloads the resize method on Widget and simply requests a window
+//! resize on the window manager/OS. The resized() method is called by the event
 //! handler once the window has been resized.
 void Window::resize(std::size_t width, std::size_t height)
 {
 	native->resize(width, height);
 }
 
-//! This overload the move method on Widget and simply requests a window move
-//! on the windowmanager/OS. The moved() method is called by the event handler
+//! This overloads the move method on Widget and simply requests a window move
+//! on the window manager/OS. The moved() method is called by the event handler
 //! once the window has been moved.
 void Window::move(int x, int y)
 {

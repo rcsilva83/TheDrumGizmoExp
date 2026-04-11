@@ -25,8 +25,6 @@
  */
 #include "nativewindow_headless.h"
 
-#include "window.h"
-
 namespace dggui
 {
 

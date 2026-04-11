@@ -637,7 +637,7 @@ TEST_CASE("ButtonBaseTest")
 	{
 		TestButton btn(&win);
 		btn.resize(80, 30);
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::down;
 		ev.x = 5;
@@ -652,14 +652,14 @@ TEST_CASE("ButtonBaseTest")
 		VoidProbe probe;
 		btn.clickNotifier.connect(&probe, &VoidProbe::slot);
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		ev_down.x = 5;
 		ev_down.y = 5;
 		btn.sendButtonEvent(&ev_down);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		ev_up.x = 5;
@@ -676,7 +676,7 @@ TEST_CASE("ButtonBaseTest")
 		VoidProbe probe;
 		btn.clickNotifier.connect(&probe, &VoidProbe::slot);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::right;
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
@@ -697,7 +697,7 @@ TEST_CASE("ButtonBaseTest")
 		VoidProbe probe;
 		btn.clickNotifier.connect(&probe, &VoidProbe::slot);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
@@ -714,7 +714,7 @@ TEST_CASE("ButtonBaseTest")
 	{
 		TestButton btn(&win);
 		btn.resize(80, 30);
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
@@ -733,7 +733,7 @@ TEST_CASE("ButtonBaseTest")
 	{
 		TestButton btn(&win);
 		btn.resize(80, 30);
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::down;
 		btn.sendButtonEvent(&ev);
@@ -756,7 +756,7 @@ TEST_CASE("ButtonBaseTest")
 		VoidProbe probe;
 		btn.clickNotifier.connect(&probe, &VoidProbe::slot);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::up;
 		btn.sendButtonEvent(&ev);
@@ -816,12 +816,12 @@ TEST_CASE("ToggleTest")
 		// toggle
 		t.sendMouseEnter();
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		t.sendButtonEvent(&ev_down);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		t.sendButtonEvent(&ev_up);
@@ -845,7 +845,7 @@ TEST_CASE("ToggleTest")
 		BoolProbe probe;
 		t.stateChangedNotifier.connect(&probe, &BoolProbe::slot);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::right;
 		ev.direction = dggui::Direction::down;
 		t.sendButtonEvent(&ev);
@@ -1261,7 +1261,7 @@ TEST_CASE("LineEditTest")
 		dggui::LineEdit le(&win);
 		le.resize(200, 30);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::left;
 		ev.direction = dggui::Direction::down;
 		ev.x = 5;
@@ -1446,14 +1446,14 @@ TEST_CASE("SliderTest")
 		TestSlider s(&win);
 		s.resize(200, 30);
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		ev_down.x = 100;
 		ev_down.y = 15;
 		s.sendButtonEvent(&ev_down);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		ev_up.x = 100;
@@ -1466,7 +1466,7 @@ TEST_CASE("SliderTest")
 		TestSlider s(&win);
 		s.resize(200, 30);
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		ev_down.x = 50;
@@ -1478,7 +1478,7 @@ TEST_CASE("SliderTest")
 		mv.y = 15;
 		s.sendMouseMove(&mv);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		ev_up.x = 100;
@@ -1504,7 +1504,7 @@ TEST_CASE("SliderTest")
 		TestSlider s(&win);
 		s.resize(200, 30);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::right;
 		ev.direction = dggui::Direction::down;
 		ev.x = 50;
@@ -1566,14 +1566,14 @@ TEST_CASE("KnobTest")
 		TestKnob k(&win);
 		k.resize(60, 60);
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		ev_down.x = 30;
 		ev_down.y = 30;
 		k.sendButtonEvent(&ev_down);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		ev_up.x = 30;
@@ -1586,7 +1586,7 @@ TEST_CASE("KnobTest")
 		TestKnob k(&win);
 		k.resize(60, 60);
 
-		dggui::ButtonEvent ev_down;
+		dggui::ButtonEvent ev_down{};
 		ev_down.button = dggui::MouseButton::left;
 		ev_down.direction = dggui::Direction::down;
 		ev_down.x = 30;
@@ -1598,7 +1598,7 @@ TEST_CASE("KnobTest")
 		mv.y = 25;
 		k.sendMouseMove(&mv);
 
-		dggui::ButtonEvent ev_up;
+		dggui::ButtonEvent ev_up{};
 		ev_up.button = dggui::MouseButton::left;
 		ev_up.direction = dggui::Direction::up;
 		ev_up.x = 35;
@@ -1611,7 +1611,7 @@ TEST_CASE("KnobTest")
 		TestKnob k(&win);
 		k.resize(60, 60);
 
-		dggui::ButtonEvent ev;
+		dggui::ButtonEvent ev{};
 		ev.button = dggui::MouseButton::right;
 		ev.direction = dggui::Direction::down;
 		k.sendButtonEvent(&ev);
