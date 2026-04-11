@@ -31,8 +31,8 @@
 namespace dggui
 {
 
-NativeWindowHeadless::NativeWindowHeadless(void* /*native_window*/,
-                                           Window& /*window*/)
+NativeWindowHeadless::NativeWindowHeadless(
+    void* /*native_window*/, Window& /*window*/)
 {
 }
 
@@ -132,4 +132,4 @@ void NativeWindowHeadless::injectEvent(std::shared_ptr<Event> event)
 	injected_events.push_back(event);
 }
 
-} // dggui::
+} // namespace dggui

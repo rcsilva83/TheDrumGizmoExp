@@ -34,8 +34,7 @@ class Window;
 
 //! Headless (no-display) implementation of NativeWindow.
 //! Used for automated testing without a graphical environment.
-class NativeWindowHeadless
-	: public NativeWindow
+class NativeWindowHeadless : public NativeWindow
 {
 public:
 	NativeWindowHeadless(void* native_window, Window& window);
@@ -71,4 +70,4 @@ private:
 	EventQueue injected_events;
 };
 
-} // dggui::
+} // namespace dggui

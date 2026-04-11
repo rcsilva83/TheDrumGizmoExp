@@ -28,17 +28,16 @@
 
 #include "widget.h"
 
-#include "pixelbuffer.h"
-#include "nativewindow.h"
-#include "image.h"
 #include "eventhandler.h"
+#include "image.h"
 #include "imagecache.h"
+#include "nativewindow.h"
+#include "pixelbuffer.h"
 
 namespace dggui
 {
 
-class Window
-	: public Widget
+class Window : public Widget
 {
 public:
 	explicit Window(void* native_window = nullptr);
@@ -122,4 +121,4 @@ protected:
 	ImageCache image_cache;
 };
 
-} // dggui::
+} // namespace dggui

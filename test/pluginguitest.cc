@@ -25,9 +25,9 @@
  */
 #include <doctest/doctest.h>
 
-#include <settings.h>
-#include <notifier.h>
 #include <dggui/guievent.h>
+#include <notifier.h>
+#include <settings.h>
 
 #include <mainwindow.h>
 
@@ -89,8 +89,8 @@ struct PluginGuiFixture
 // Event helpers
 // ---------------------------------------------------------------------------
 
-static std::shared_ptr<dggui::ButtonEvent>
-makeButtonEvent(int x, int y, dggui::Direction dir, bool doubleClick = false)
+static std::shared_ptr<dggui::ButtonEvent> makeButtonEvent(
+    int x, int y, dggui::Direction dir, bool doubleClick = false)
 {
 	auto evt = std::make_shared<dggui::ButtonEvent>();
 	evt->x = x;
@@ -101,8 +101,7 @@ makeButtonEvent(int x, int y, dggui::Direction dir, bool doubleClick = false)
 	return evt;
 }
 
-static std::shared_ptr<dggui::MouseMoveEvent>
-makeMouseMoveEvent(int x, int y)
+static std::shared_ptr<dggui::MouseMoveEvent> makeMouseMoveEvent(int x, int y)
 {
 	auto evt = std::make_shared<dggui::MouseMoveEvent>();
 	evt->x = x;
@@ -204,7 +203,7 @@ TEST_CASE("StatusframeContent: drumkit load status - all branches")
 	f.resize(750, 740);
 
 	for(auto status : {LoadStatus::Idle, LoadStatus::Parsing,
-	                   LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
+	        LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
 	{
 		f.settings.drumkit_load_status.store(status);
 		f.applySettings();
@@ -218,7 +217,7 @@ TEST_CASE("StatusframeContent: midimap load status - all branches")
 	f.resize(750, 740);
 
 	for(auto status : {LoadStatus::Idle, LoadStatus::Parsing,
-	                   LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
+	        LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
 	{
 		f.settings.midimap_load_status.store(status);
 		f.applySettings();
@@ -251,7 +250,7 @@ TEST_CASE("DrumkitframeContent: drumkit load status - all states")
 	f.resize(750, 740);
 
 	for(auto status : {LoadStatus::Idle, LoadStatus::Parsing,
-	                   LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
+	        LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
 	{
 		f.settings.drumkit_load_status.store(status);
 		f.applySettings();
@@ -265,7 +264,7 @@ TEST_CASE("DrumkitframeContent: midimap load status - all states")
 	f.resize(750, 740);
 
 	for(auto status : {LoadStatus::Idle, LoadStatus::Parsing,
-	                   LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
+	        LoadStatus::Loading, LoadStatus::Done, LoadStatus::Error})
 	{
 		f.settings.midimap_load_status.store(status);
 		f.applySettings();
@@ -319,7 +318,8 @@ TEST_CASE("ResamplingframeContent: drumkit samplerate non-zero branch")
 	CHECK_UNARY(f.processEvents());
 }
 
-TEST_CASE("ResamplingframeContent: session samplerate and resampling recommended")
+TEST_CASE(
+    "ResamplingframeContent: session samplerate and resampling recommended")
 {
 	PluginGuiFixture f;
 	f.resize(750, 740);
@@ -608,7 +608,7 @@ TEST_CASE("EventHandler: double-click followed by down (absorbed by guard)")
 
 	// doubleClick=true sets lastWasDoubleClick; next down event is skipped
 	f.inject(makeButtonEvent(200, 200, dggui::Direction::down,
-	                         /*doubleClick=*/true));
+	    /*doubleClick=*/true));
 	f.inject(makeButtonEvent(200, 200, dggui::Direction::down));
 
 	CHECK_UNARY(f.processEvents());

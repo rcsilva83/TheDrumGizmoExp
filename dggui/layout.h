@@ -182,7 +182,8 @@ protected:
 	std::unordered_map<LayoutItem*, GridRange> grid_ranges;
 
 private:
-	struct CellSize {
+	struct CellSize
+	{
 		std::size_t width;
 		std::size_t height;
 	};
@@ -192,4 +193,4 @@ private:
 	    LayoutItem& item, GridRange const& range, CellSize cell_size) const;
 };
 
-} // dggui::
+} // namespace dggui
