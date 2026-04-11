@@ -16,6 +16,19 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Baseline (2026-04-11)
+
+New tests added for the `dggui/` module: `pixelbuffertest` and `dggui_widgettest`.
+These test suites add headless coverage of the GUI widget event and rendering paths.
+
+### By module (post-dggui coverage improvement)
+
+| Module        | Notes |
+| ------------- | ----- |
+| `dggui/`      | New headless widget/pixelbuffer test suite added (`pixelbuffertest`, `dggui_widgettest`). Branch coverage improvement targeting ≥90% via `UI_HEADLESS` backend + widget event tests. |
+
+---
+
 ## Baseline (2026-04-07)
 
 The numbers below were collected on commit

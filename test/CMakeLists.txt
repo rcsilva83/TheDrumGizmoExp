@@ -449,6 +449,35 @@ if(TARGET dg_dggui)
 			dg_dggui
 			Threads::Threads
 	)
+
+	dg_add_doctest_test(pixelbuffertest
+		SOURCES
+			"${CMAKE_SOURCE_DIR}/dggui/colour.cc"
+			"${CMAKE_SOURCE_DIR}/dggui/pixelbuffer.cc"
+			"${CMAKE_SOURCE_DIR}/test/pixelbuffertest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			DISABLE_HUGIN
+	)
+endif()
+
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(dggui_widgettest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/dggui_widgettest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			dg_plugingui
+			Threads::Threads
+	)
 endif()
 
 if(TARGET dg_plugingui)
