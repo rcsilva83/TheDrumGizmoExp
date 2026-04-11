@@ -60,7 +60,7 @@ private:
 class Layout : public Listener
 {
 public:
-	Layout(LayoutItem* parent);
+	explicit Layout(LayoutItem* parent);
 	virtual ~Layout()
 	{
 	}
@@ -83,7 +83,7 @@ protected:
 class BoxLayout : public Layout
 {
 public:
-	BoxLayout(LayoutItem* parent);
+	explicit BoxLayout(LayoutItem* parent);
 
 	//! \brief Set to false to only move the items, not scale them.
 	void setResizeChildren(bool resize_children);

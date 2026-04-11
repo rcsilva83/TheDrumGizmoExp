@@ -96,24 +96,31 @@ public:
 
 	virtual void repaintEvent(RepaintEvent* repaintEvent)
 	{
+		// no-op
 	}
 	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 	{
+		// no-op
 	}
 	virtual void buttonEvent(ButtonEvent* buttonEvent)
 	{
+		// no-op
 	}
 	virtual void scrollEvent(ScrollEvent* scrollEvent)
 	{
+		// no-op
 	}
 	virtual void keyEvent(KeyEvent* keyEvent)
 	{
+		// no-op
 	}
 	virtual void mouseLeaveEvent()
 	{
+		// no-op
 	}
 	virtual void mouseEnterEvent()
 	{
+		// no-op
 	}
 
 	virtual ImageCache& getImageCache();
