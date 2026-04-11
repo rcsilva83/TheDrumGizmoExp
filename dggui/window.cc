@@ -27,6 +27,9 @@
 #include "window.h"
 
 #include <cstring>
+#include <memory>
+
+#include <cpp11fix.h>
 
 #include "painter.h"
 
@@ -58,33 +61,31 @@ Window::Window(void* native_window) : Widget(nullptr), wpixbuf(1, 1)
 	_height = wpixbuf.height;
 
 #ifdef UI_HEADLESS
-	native = new NativeWindowHeadless(native_window, *this);
+	native = std::make_unique<NativeWindowHeadless>(native_window, *this);
 #else
 #ifndef UI_PUGL
 #ifdef UI_X11
-	native = new NativeWindowX11(native_window, *this);
+	native = std::make_unique<NativeWindowX11>(native_window, *this);
 #endif // UI_X11
 #ifdef UI_WIN32
-	native = new NativeWindowWin32(native_window, *this);
+	native = std::make_unique<NativeWindowWin32>(native_window, *this);
 #endif // UI_WIN32
 #ifdef UI_COCOA
-	native = new NativeWindowCocoa(native_window, *this);
+	native = std::make_unique<NativeWindowCocoa>(native_window, *this);
 #endif // UI_COCOA
 #else
 	// Use pugl
-	native = new NativeWindowPugl(native_window, *this);
+	native = std::make_unique<NativeWindowPugl>(native_window, *this);
 #endif // !UI_PUGL
 #endif // UI_HEADLESS
 
-	eventhandler = new EventHandler(*native, *this);
+	eventhandler = std::make_unique<EventHandler>(*native, *this);
 
 	setVisible(true); // The root widget is always visible.
 }
 
 Window::~Window()
 {
-	delete native;
-	delete eventhandler;
 }
 
 void Window::setFixedSize(int w, int h)
@@ -149,7 +150,7 @@ ImageCache& Window::getImageCache()
 
 EventHandler* Window::eventHandler()
 {
-	return eventhandler;
+	return eventhandler.get();
 }
 
 Widget* Window::keyboardFocus()

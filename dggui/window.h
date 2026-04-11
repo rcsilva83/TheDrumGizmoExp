@@ -28,6 +28,8 @@
 
 #include "widget.h"
 
+#include <memory>
+
 #include "pixelbuffer.h"
 #include "nativewindow.h"
 #include "image.h"
@@ -107,8 +109,8 @@ protected:
 	Widget* _buttonDownFocus{nullptr};
 	Widget* _mouseFocus{nullptr};
 
-	NativeWindow* native{nullptr};
-	EventHandler* eventhandler{nullptr};
+	std::unique_ptr<NativeWindow> native;
+	std::unique_ptr<EventHandler> eventhandler;
 
 	size_t maxRefcount{0};
 
