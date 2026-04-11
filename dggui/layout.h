@@ -61,9 +61,7 @@ class Layout : public Listener
 {
 public:
 	explicit Layout(LayoutItem* parent);
-	virtual ~Layout()
-	{
-	}
+	~Layout() override = default;
 
 	virtual void addItem(LayoutItem* item);
 	virtual void removeItem(LayoutItem* item);
@@ -91,7 +89,7 @@ public:
 	void setSpacing(size_t spacing);
 
 	// From Layout:
-	virtual void layout() override = 0;
+	void layout() override = 0;
 
 protected:
 	bool resizeChildren{false};
@@ -159,9 +157,7 @@ public:
 	GridLayout(LayoutItem* parent, std::size_t number_of_columns,
 	    std::size_t number_of_rows);
 
-	~GridLayout() override
-	{
-	}
+	~GridLayout() override = default;
 
 	// From Layout:
 	void removeItem(LayoutItem* item) override;

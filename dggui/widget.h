@@ -58,7 +58,7 @@ class Widget : public Listener, public LayoutItem, public Canvas
 
 public:
 	explicit Widget(Widget* parent);
-	virtual ~Widget();
+	~Widget() override;
 
 	Widget(const Widget&) = delete;
 	Widget& operator=(const Widget&) = delete;
@@ -86,11 +86,12 @@ public:
 
 	virtual bool isFocusable()
 	{
-		return false;
+		return false; // Not focusable by default; subclasses may override.
 	}
 	virtual bool catchMouse()
 	{
-		return false;
+		return false; // Does not catch mouse events by default; subclasses may
+		              // override.
 	}
 
 	void addChild(Widget* widget);
