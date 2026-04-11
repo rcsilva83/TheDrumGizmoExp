@@ -529,8 +529,9 @@ int LV2TestHost::loadConfig(const char* config, size_t size)
 }
 
 // Harrison Consoles inline display extension (used by plugingizmo's PluginLV2).
-// Not part of the standard LV2 headers; defined in plugingizmo/inline-display.h.
-#define LV2_INLINE_DISPLAY__interface \
+// Not part of the standard LV2 headers; defined in
+// plugingizmo/inline-display.h.
+#define LV2_INLINE_DISPLAY__interface                                          \
 	"http://harrisonconsoles.com/lv2/inlinedisplay#interface"
 
 typedef struct
@@ -543,7 +544,8 @@ typedef struct
 
 typedef struct
 {
-	LV2InlineDisplaySurface* (*render)(LV2_Handle handle, uint32_t w, uint32_t h);
+	LV2InlineDisplaySurface* (*render)(
+	    LV2_Handle handle, uint32_t w, uint32_t h);
 } LV2InlineDisplayInterface;
 
 int LV2TestHost::saveConfig()
@@ -553,18 +555,9 @@ int LV2TestHost::saveConfig()
 		return 1;
 	}
 
-	LilvState* state = lilv_state_new_from_instance(plugin,
-	                                                instance,
-	                                                &map,
-	                                                nullptr,
-	                                                nullptr,
-	                                                nullptr,
-	                                                nullptr,
-	                                                nullptr,
-	                                                nullptr,
-	                                                LV2_STATE_IS_POD |
-	                                                    LV2_STATE_IS_PORTABLE,
-	                                                features);
+	LilvState* state = lilv_state_new_from_instance(plugin, instance, &map,
+	    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+	    LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE, features);
 
 	if(!state)
 	{
@@ -584,8 +577,9 @@ int LV2TestHost::renderInlineDisplay(uint32_t width, uint32_t height)
 	}
 
 	const LV2InlineDisplayInterface* iface =
-	    (const LV2InlineDisplayInterface*)lilv_instance_get_extension_data(
-	        instance, LV2_INLINE_DISPLAY__interface);
+	    static_cast<const LV2InlineDisplayInterface*>(
+	        lilv_instance_get_extension_data(
+	            instance, LV2_INLINE_DISPLAY__interface));
 
 	if(iface == nullptr)
 	{

@@ -485,7 +485,8 @@ TEST_CASE_FIXTURE(LV2Fixture, "state_restore_invalid_config")
 	const char invalid_config[] = "<<not valid xml>>";
 
 	res = h.loadConfig(invalid_config, strlen(invalid_config));
-	CHECK_EQ(0, res); // loadConfig itself succeeds; the plugin handles the error
+	CHECK_EQ(
+	    0, res); // loadConfig itself succeeds; the plugin handles the error
 
 	res = h.destroyInstance();
 	CHECK_EQ(0, res);
@@ -544,11 +545,10 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 	auto kit1_file = drumkit_creator.createStdKit("idkit");
 	auto midimap_file = drumkit_creator.createStdMidimap("idmidimap");
 
-	const char config_fmt[] =
-	    "<config version=\"1.0\">\n"
-	    "  <value name=\"drumkitfile\">%s</value>\n"
-	    "  <value name=\"midimapfile\">%s</value>\n"
-	    "</config>";
+	const char config_fmt[] = "<config version=\"1.0\">\n"
+	                          "  <value name=\"drumkitfile\">%s</value>\n"
+	                          "  <value name=\"midimapfile\">%s</value>\n"
+	                          "</config>";
 
 	char config[4096];
 	sprintf(config, config_fmt, kit1_file.c_str(), midimap_file.c_str());
