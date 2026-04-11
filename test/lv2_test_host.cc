@@ -528,9 +528,10 @@ int LV2TestHost::loadConfig(const char* config, size_t size)
 	return 0;
 }
 
-// KXStudio inline display extension (not part of standard LV2 headers).
+// Harrison Consoles inline display extension (used by plugingizmo's PluginLV2).
+// Not part of the standard LV2 headers; defined in plugingizmo/inline-display.h.
 #define LV2_INLINE_DISPLAY__interface \
-	"http://kxstudio.sf.net/ns/lv2ext/inlinedisplay#interface"
+	"http://harrisonconsoles.com/lv2/inlinedisplay#interface"
 
 typedef struct
 {

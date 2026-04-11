@@ -414,10 +414,46 @@ TEST_CASE_FIXTURE(LV2Fixture, "state_restore_partial_config")
 	res = h.createInstance(44100);
 	CHECK_EQ(0, res);
 
+	// Provide only a subset of settings (no drumkitfile / midimapfile).
+	// This exercises:
+	//   - The FALSE branch of every if(p.value("xxx") != "") for the
+	//     settings that are absent (all the ones not listed here).
+	//   - The TRUE branch for the settings that ARE listed.
+	//   - The FALSE branch of the drumkitfile / midimapfile guards at the
+	//     bottom of ConfigStringIO::set() (lines 848 and 854).
 	const char partial_config[] =
 	    "<config version=\"1.0\">\n"
-	    "  <value name=\"drumkitfile\">/nonexistent/kit.xml</value>\n"
-	    "  <value name=\"midimapfile\">/nonexistent/midimap.xml</value>\n"
+	    "  <value name=\"enable_velocity_modifier\">false</value>\n"
+	    "  <value name=\"velocity_modifier_falloff\">0.5</value>\n"
+	    "  <value name=\"velocity_modifier_weight\">0.25</value>\n"
+	    "  <value name=\"velocity_stddev\">0.1</value>\n"
+	    "  <value name=\"sample_selection_f_close\">0.3</value>\n"
+	    "  <value name=\"sample_selection_f_diverse\">0.4</value>\n"
+	    "  <value name=\"sample_selection_f_random\">0.3</value>\n"
+	    "  <value name=\"enable_velocity_randomiser\">false</value>\n"
+	    "  <value name=\"velocity_randomiser_weight\">0.1</value>\n"
+	    "  <value name=\"enable_resampling\">true</value>\n"
+	    "  <value name=\"resampling_quality\">1.0</value>\n"
+	    "  <value name=\"disk_cache_upper_limit\">1048576</value>\n"
+	    "  <value name=\"disk_cache_chunk_size\">1073741824</value>\n"
+	    "  <value name=\"disk_cache_enable\">true</value>\n"
+	    "  <value name=\"enable_bleed_control\">false</value>\n"
+	    "  <value name=\"master_bleed\">1.0</value>\n"
+	    "  <value name=\"enable_latency_modifier\">false</value>\n"
+	    "  <value name=\"latency_laid_back_ms\">0.0</value>\n"
+	    "  <value name=\"latency_stddev\">100.0</value>\n"
+	    "  <value name=\"latency_regain\">0.9</value>\n"
+	    "  <value name=\"enable_powermap\">false</value>\n"
+	    "  <value name=\"powermap_fixed0_x\">0.0</value>\n"
+	    "  <value name=\"powermap_fixed0_y\">0.0</value>\n"
+	    "  <value name=\"powermap_fixed1_x\">0.5</value>\n"
+	    "  <value name=\"powermap_fixed1_y\">0.5</value>\n"
+	    "  <value name=\"powermap_fixed2_x\">1.0</value>\n"
+	    "  <value name=\"powermap_fixed2_y\">1.0</value>\n"
+	    "  <value name=\"powermap_shelf\">false</value>\n"
+	    "  <value name=\"enable_voice_limit\">false</value>\n"
+	    "  <value name=\"voice_limit_max\">64</value>\n"
+	    "  <value name=\"voice_limit_rampdown\">0.5</value>\n"
 	    "</config>";
 
 	res = h.loadConfig(partial_config, strlen(partial_config));
@@ -524,9 +560,22 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 	res = h.run(1);
 	CHECK_EQ(0, res);
 
-	// Allow the loader thread to start and set number_of_files > 0 so that
-	// the progress ratio is a valid finite number.
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	// Give the loader thread ~10 ms to start and set number_of_files > 0
+	// (parse the kit XML and count audio files) but not finish loading
+	// (that takes ~1 second).  This ensures progress is a finite value > 0
+	// so that the bar-width calculation does not produce NaN.
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	if(inline_display_supported)
+	{
+		// Phase 2b: bar visible, LoadStatus is Loading/Parsing/Idle (still
+		// in progress).  Exercises the blue-bar switch arm.
+		res = h.renderInlineDisplay(100, 11);
+		CHECK_EQ(0, res);
+	}
+
+	// Allow the loader to keep running (total ~210 ms since loadConfig).
+	std::this_thread::sleep_for(std::chrono::milliseconds(190));
 
 	if(inline_display_supported)
 	{
@@ -565,6 +614,26 @@ TEST_CASE_FIXTURE(LV2Fixture, "inline_display_coverage")
 		res = h.renderInlineDisplay(100, 100000);
 		CHECK_EQ(0, res);
 	}
+
+	// Phase 8: Trigger a reload of the same kit so that the plugin transitions
+	// back to Loading/Parsing/Idle.  Run once to kick off the async loader,
+	// then render IMMEDIATELY (before the loader thread finishes) so that we
+	// exercise the LoadStatus::Idle/Loading/Parsing → blue bar switch arm.
+	res = h.loadConfig(config, strlen(config));
+	CHECK_EQ(0, res);
+	res = h.run(1);
+	CHECK_EQ(0, res);
+
+	if(inline_display_supported)
+	{
+		// Render right away: LoadStatus is very likely still Idle/Loading here.
+		// The switch dispatches to case LoadStatus::Parsing/Loading/Idle.
+		res = h.renderInlineDisplay(100, 100000);
+		CHECK_EQ(0, res);
+	}
+
+	// Let the second load finish cleanly before destroying the instance.
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	res = h.destroyInstance();
 	CHECK_EQ(0, res);
