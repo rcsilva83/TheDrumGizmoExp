@@ -42,8 +42,7 @@ NativeWindowHeadless::~NativeWindowHeadless()
 
 void NativeWindowHeadless::setFixedSize(std::size_t width, std::size_t height)
 {
-	_width = width;
-	_height = height;
+	resize(width, height);
 }
 
 void NativeWindowHeadless::setAlwaysOnTop(bool /*always_on_top*/)
@@ -70,6 +69,11 @@ void NativeWindowHeadless::move(int x, int y)
 {
 	_x = x;
 	_y = y;
+
+	auto event = std::make_shared<MoveEvent>();
+	event->x = x;
+	event->y = y;
+	injected_events.push_back(event);
 }
 
 std::pair<int, int> NativeWindowHeadless::getPosition() const
