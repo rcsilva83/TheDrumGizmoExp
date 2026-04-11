@@ -91,7 +91,7 @@ public:
 	void setSpacing(size_t spacing);
 
 	// From Layout:
-	void layout() override = 0;
+	virtual void layout() override = 0;
 
 protected:
 	bool resizeChildren{false};
