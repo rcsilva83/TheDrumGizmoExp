@@ -51,9 +51,7 @@
 namespace dggui
 {
 
-Window::Window(void* native_window)
-	: Widget(nullptr)
-	, wpixbuf(1, 1)
+Window::Window(void* native_window) : Widget(nullptr), wpixbuf(1, 1)
 {
 	// Make sure we have a valid size when initialising the NativeWindow
 	_width = wpixbuf.width;
@@ -104,9 +102,9 @@ void Window::setCaption(const std::string& caption)
 	native->setCaption(caption);
 }
 
-//! This overload the resize method on Widget and simply requests a window resize
-//! on the windowmanager/OS. The resized() method is called by the event handler
-//! once the window has been resized.
+//! This overload the resize method on Widget and simply requests a window
+//! resize on the windowmanager/OS. The resized() method is called by the event
+//! handler once the window has been resized.
 void Window::resize(std::size_t width, std::size_t height)
 {
 	native->resize(width, height);
@@ -194,7 +192,6 @@ Widget* Window::mouseFocus()
 void Window::setMouseFocus(Widget* widget)
 {
 	_mouseFocus = widget;
-
 }
 
 void Window::needsRedraw()
@@ -227,8 +224,7 @@ std::size_t Window::translateToWindowY()
 void Window::resized(std::size_t width, std::size_t height)
 {
 	auto size = native->getSize();
-	if((wpixbuf.width != size.first) ||
-	   (wpixbuf.height != size.second))
+	if((wpixbuf.width != size.first) || (wpixbuf.height != size.second))
 	{
 		wpixbuf.realloc(size.first, size.second);
 		Widget::resize(size.first, size.second);
@@ -271,4 +267,4 @@ bool Window::updateBuffer()
 	return true;
 }
 
-} // dggui::
+} // namespace dggui

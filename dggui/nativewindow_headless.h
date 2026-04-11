@@ -33,9 +33,9 @@ namespace dggui
 class Window;
 
 //! Headless (no-display) NativeWindow implementation for unit testing.
-//! All display operations are no-ops; getEvents() always returns an empty queue.
-class NativeWindowHeadless
-	: public NativeWindow
+//! All display operations are no-ops; getEvents() always returns an empty
+//! queue.
+class NativeWindowHeadless : public NativeWindow
 {
 public:
 	NativeWindowHeadless(void* native_window, Window& window);
@@ -66,4 +66,4 @@ private:
 	bool _visible{false};
 };
 
-} // dggui::
+} // namespace dggui

@@ -85,9 +85,9 @@ TEST_CASE("PixelBufferAlphaTest")
 		dggui::PixelBufferAlpha buf(8, 4);
 		// Build a scanline of 3 RGBA pixels
 		std::uint8_t line[12] = {
-			100, 150, 200, 255,  // pixel 0: opaque
-			10,  20,  30,  128,  // pixel 1: semi-transparent
-			50,  60,  70,  0,    // pixel 2: transparent
+		    100, 150, 200, 255, // pixel 0: opaque
+		    10, 20, 30, 128,    // pixel 1: semi-transparent
+		    50, 60, 70, 0,      // pixel 2: transparent
 		};
 		buf.writeLine(1, 2, line, 3);
 
@@ -230,10 +230,10 @@ TEST_CASE("PixelBufferAlphaTest")
 		dggui::PixelBufferAlpha buf(8, 4);
 		// 3 opaque pixels followed by 1 transparent
 		std::uint8_t line[16] = {
-			100, 0, 0, 255,  // opaque
-			101, 0, 0, 255,  // opaque
-			102, 0, 0, 255,  // opaque
-			200, 0, 0, 0,    // transparent
+		    100, 0, 0, 255, // opaque
+		    101, 0, 0, 255, // opaque
+		    102, 0, 0, 255, // opaque
+		    200, 0, 0, 0,   // transparent
 		};
 		buf.blendLine(0, 0, line, 4);
 
@@ -425,7 +425,8 @@ TEST_CASE("PixelBufferTest")
 		dggui::Rect result = dst.updateBuffer(bufs);
 		// dirty rect is computed but invisible buffer is not blended
 		// (result rect comes from dirty flag, which was set)
-		// The function still returns a non-empty rect from the dirty flag tracking
+		// The function still returns a non-empty rect from the dirty flag
+		// tracking
 	}
 
 	SUBCASE("updateBuffer_buffer_outside_window_skipped")

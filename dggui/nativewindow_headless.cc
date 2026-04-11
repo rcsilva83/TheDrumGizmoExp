@@ -30,8 +30,8 @@
 namespace dggui
 {
 
-NativeWindowHeadless::NativeWindowHeadless(void* /*native_window*/,
-                                           Window& /*window*/)
+NativeWindowHeadless::NativeWindowHeadless(
+    void* /*native_window*/, Window& /*window*/)
 {
 }
 
@@ -113,4 +113,4 @@ Point NativeWindowHeadless::translateToScreen(const Point& point)
 	return point;
 }
 
-} // dggui::
+} // namespace dggui
