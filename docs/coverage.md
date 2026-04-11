@@ -56,6 +56,32 @@ on Ubuntu with GCC.
 - The `test/` module itself has high line coverage (97%) because all test code
   runs under doctest; the uncovered ~3% is test helpers and edge-case paths.
 
+## Post-improvement (2026-04-11)
+
+New CLI tests were added in `test/drumgizmoclitest.cc` to cover the previously
+untested argument-parsing and I/O branches in `drumgizmo/drumgizmoc.cc`.
+
+The following branches are now exercised by the extended `drumgizmoclitest`
+suite:
+
+- `--version` flag (prints version + copyright, exits 0)
+- `--inputengine help` / `--outputengine help` (lists available engines)
+- Invalid output engine name (error path)
+- `--async-load` flag (async kit-loading path)
+- `--bleed`, `--no-resampling`, `--streaming` flags
+- `--streamingparms`: valid `limit=`, invalid (zero) limit, unknown key
+- `--timing-humanizer` flag
+- `--timing-humanizerparms`: valid and out-of-range `laidback`, `tightness`,
+  `regain`; unknown key; multiple comma-separated parameters
+- `--velocity-humanizer` flag
+- `--velocity-humanizerparms`: valid and out-of-range `attack`, `release`,
+  `stddev`; unknown key
+- `--voice-limit` flag
+- `--voice-limitparms`: valid and out-of-range `max`, `rampdown`; unknown key
+- `--parameters`: valid and out-of-range `close`, `diverse`, `random`;
+  unknown key
+- `--endpos` with an invalid (non-numeric) value (catch block)
+
 ---
 
 ## Coverage Targets
