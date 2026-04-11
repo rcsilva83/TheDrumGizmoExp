@@ -203,7 +203,8 @@ TEST_CASE("test_powermaptest")
 	SUBCASE("setShelf_with_same_value_is_a_no_op")
 	{
 		// Calling setShelf(true) when shelf is already true must not trigger
-		// a spline update (covers the false branch of the shelf != enable guard).
+		// a spline update (covers the false branch of the shelf != enable
+		// guard).
 		Powermap powermap;
 		// shelf is true by default; calling with true again is a no-op.
 		powermap.setShelf(true);

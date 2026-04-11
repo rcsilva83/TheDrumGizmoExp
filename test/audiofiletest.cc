@@ -86,7 +86,8 @@ TEST_CASE("AudioFileTest")
 	{
 		// Calling load() a second time when the file is already loaded must
 		// return immediately (the "already loaded" early-exit branch).
-		std::string wav_path = creator.createSingleChannelWav("test_idempotent");
+		std::string wav_path =
+		    creator.createSingleChannelWav("test_idempotent");
 		AudioFile af(wav_path, 0);
 		af.load(nullptr);
 

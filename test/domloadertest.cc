@@ -33,8 +33,8 @@
 #include <random.h>
 #include <settings.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "path.h"
 #include "scopedfile.h"
@@ -355,8 +355,8 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 
 	SUBCASE("channel_not_in_kit_is_logged_and_load_continues")
 	{
-		// Create a minimal instrument that references a channel "Ghost" which is
-		// not present in the kit's channel list.  loadDom must log a warning
+		// Create a minimal instrument that references a channel "Ghost" which
+		// is not present in the kit's channel list.  loadDom must log a warning
 		// via the provided logger and still return true (no early return for
 		// this error).
 		ScopedFile scoped_instr(
@@ -395,19 +395,17 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 		for(const auto& ref : drumkitdom.instruments)
 		{
 			instrumentdoms.emplace_back();
-			CHECK(parseInstrumentFile(basepath + "/" + ref.file,
-			                          instrumentdoms.back()));
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
 		}
 
 		std::vector<std::string> log_messages;
 		auto logger = [&](LogLevel, const std::string& msg)
-		{
-			log_messages.push_back(msg);
-		};
+		{ log_messages.push_back(msg); };
 
 		DOMLoader domloader(settings, random);
-		bool result = domloader.loadDom(basepath, drumkitdom, instrumentdoms,
-		                                drumkit, logger);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
 		CHECK(result);
 
 		// At least one warning about the missing kit channel was logged.
@@ -463,19 +461,17 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 		for(const auto& ref : drumkitdom.instruments)
 		{
 			instrumentdoms.emplace_back();
-			CHECK(parseInstrumentFile(basepath + "/" + ref.file,
-			                          instrumentdoms.back()));
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
 		}
 
 		std::vector<std::string> log_messages;
 		auto logger = [&](LogLevel, const std::string& msg)
-		{
-			log_messages.push_back(msg);
-		};
+		{ log_messages.push_back(msg); };
 
 		DOMLoader domloader(settings, random);
-		bool result = domloader.loadDom(basepath, drumkitdom, instrumentdoms,
-		                                drumkit, logger);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
 		// loadDom returns false because "Nonexistent" has no matching DOM.
 		CHECK(!result);
 	}
@@ -522,19 +518,17 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 		for(const auto& ref : drumkitdom.instruments)
 		{
 			instrumentdoms.emplace_back();
-			CHECK(parseInstrumentFile(basepath + "/" + ref.file,
-			                          instrumentdoms.back()));
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
 		}
 
 		std::vector<std::string> log_messages;
 		auto logger = [&](LogLevel, const std::string& msg)
-		{
-			log_messages.push_back(msg);
-		};
+		{ log_messages.push_back(msg); };
 
 		DOMLoader domloader(settings, random);
-		bool result = domloader.loadDom(basepath, drumkitdom, instrumentdoms,
-		                                drumkit, logger);
+		bool result = domloader.loadDom(
+		    basepath, drumkitdom, instrumentdoms, drumkit, logger);
 		CHECK(!result);
 	}
 
@@ -582,13 +576,13 @@ TEST_CASE_FIXTURE(DOMLoaderTest, "DOMLoaderTest")
 		for(const auto& ref : drumkitdom.instruments)
 		{
 			instrumentdoms.emplace_back();
-			CHECK(parseInstrumentFile(basepath + "/" + ref.file,
-			                          instrumentdoms.back()));
+			CHECK(parseInstrumentFile(
+			    basepath + "/" + ref.file, instrumentdoms.back()));
 		}
 
 		DOMLoader domloader(settings, random);
-		bool result = domloader.loadDom(basepath, drumkitdom, instrumentdoms,
-		                                drumkit);
+		bool result =
+		    domloader.loadDom(basepath, drumkitdom, instrumentdoms, drumkit);
 		CHECK(result);
 		// The loaded instrument should have no chokes (skipped).
 		REQUIRE_EQ(1u, drumkit.instruments.size());

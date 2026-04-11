@@ -25,6 +25,7 @@
  */
 #include <doctest/doctest.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -238,7 +239,8 @@ TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
 
 	SUBCASE("isDir_instance_method_false_for_file_path")
 	{
-		// Point Directory at one of the XML files – isDir() should return false.
+		// Point Directory at one of the XML files – isDir() should return
+		// false.
 		Directory d(base_path + "/drum.xml");
 		CHECK_UNARY(!d.isDir());
 	}
@@ -258,14 +260,8 @@ TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
 		// We must find "..", "/alpha", "/beta", "drum.xml", "kit.xml".
 		auto has = [&](const std::string& name)
 		{
-			for(const auto& e : entries)
-			{
-				if(e == name)
-				{
-					return true;
-				}
-			}
-			return false;
+			return std::any_of(entries.begin(), entries.end(),
+			    [&](const std::string& entry) { return entry == name; });
 		};
 
 		CHECK_UNARY(has(".."));
@@ -356,22 +352,18 @@ TEST_CASE_FIXTURE(TempDirFixture, "DirectoryInstanceTest")
 	SUBCASE("listFiles_without_hidden_filter_includes_hidden_dirs")
 	{
 		// Calling listFiles with filter=0 should include the hidden directory
-		// (it is a directory, so its hidden flag does not get ANDed with filter=0).
+		// (it is a directory, so its hidden flag does not get ANDed with
+		// filter=0).
 		auto entries = Directory::listFiles(base_path, 0);
 
 		auto has = [&](const std::string& name)
 		{
-			for(const auto& e : entries)
-			{
-				if(e == name)
-				{
-					return true;
-				}
-			}
-			return false;
+			return std::any_of(entries.begin(), entries.end(),
+			    [&](const std::string& entry) { return entry == name; });
 		};
 
-		// With filter=0, !(entryinfo && 0) is always true, so hidden dirs appear.
+		// With filter=0, !(entryinfo && 0) is always true, so hidden dirs
+		// appear.
 		CHECK_UNARY(has("/.hidden"));
 	}
 
