@@ -81,10 +81,6 @@ Window::Window(void* native_window) : Widget(nullptr), wpixbuf(1, 1)
 	setVisible(true); // The root widget is always visible.
 }
 
-Window::~Window()
-{
-}
-
 void Window::setFixedSize(int w, int h)
 {
 	native->setFixedSize(w, h);

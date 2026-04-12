@@ -43,7 +43,7 @@ class Window : public Widget
 {
 public:
 	explicit Window(void* native_window = nullptr);
-	~Window();
+	~Window() = default;
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
