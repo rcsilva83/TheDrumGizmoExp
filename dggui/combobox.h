@@ -42,7 +42,7 @@ class ComboBox : public Widget
 {
 public:
 	ComboBox(Widget* parent);
-	virtual ~ComboBox();
+	~ComboBox() override;
 
 	void addItem(const std::string& name, const std::string& value);
 
@@ -56,13 +56,18 @@ public:
 	{
 		return true;
 	}
-	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
-	virtual void keyEvent(KeyEvent* keyEvent) override;
+	void repaintEvent(RepaintEvent* repaintEvent) override;
+	void buttonEvent(ButtonEvent* buttonEvent) override;
+	void keyEvent(KeyEvent* keyEvent) override;
 
-	Notifier<std::string, std::string> valueChangedNotifier;
+	Notifier<std::string, std::string>& valueChanged()
+	{
+		return valueChangedNotifier;
+	}
 
 private:
+	Notifier<std::string, std::string> valueChangedNotifier;
+
 	TexturedBox box{getImageCache(), ":resources/widget.png", 0,
 	    0,         // atlas offset (x, y)
 	    7, 1, 7,   // dx1, dx2, dx3

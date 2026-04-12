@@ -1857,7 +1857,7 @@ TEST_CASE("ComboBoxTest")
 		std::string notified_name;
 		std::string notified_value;
 		StrStrProbe probe;
-		cb.valueChangedNotifier.connect(&probe, &StrStrProbe::slot);
+		cb.valueChanged().connect(&probe, &StrStrProbe::slot);
 
 		// First click: open the listbox
 		dggui::ButtonEvent ev1{};

@@ -101,8 +101,8 @@ void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 
 	std::string _text = selectedName();
 
-	int w = width();
-	int h = height();
+	int w = static_cast<int>(width());
+	int h = static_cast<int>(height());
 	if(w == 0 || h == 0)
 	{
 		return;
@@ -112,22 +112,16 @@ void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 	p.drawImage(0, 0, box);
 
 	p.setColour(Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0 / 255.0f, 1.0f));
-	p.drawText(BORDER - 4 + 3, height() / 2 + 5 + 1 + 1, font, _text);
-
-	//  p.setColour(Colour(1, 1, 1));
-	//  p.drawText(BORDER - 4, (height()+font.textHeight()) / 2 + 1, font,
-	//  _text);
-
-	// int n = height() / 2;
-
-	//  p.drawLine(width() - n - 6, 1 + 6, width() - 1 - 6, 1 + 6);
+	p.drawText(BORDER - 4 + 3, static_cast<int>(height()) / 2 + 5 + 1 + 1,
+	    font, _text);
 	{
 		int arrow_w = 10;
 		int arrow_h = 6;
-		drawArrow(p, width() - 6 - 4 - arrow_w, (height() - arrow_h) / 2,
-		    arrow_w, arrow_h);
-		p.drawLine(width() - 6 - 4 - arrow_w - 4, 7,
-		    width() - 6 - 4 - arrow_w - 4, height() - 8);
+		drawArrow(p, static_cast<int>(width()) - 6 - 4 - arrow_w,
+		    (static_cast<int>(height()) - arrow_h) / 2, arrow_w, arrow_h);
+		p.drawLine(static_cast<int>(width()) - 6 - 4 - arrow_w - 4, 7,
+		    static_cast<int>(width()) - 6 - 4 - arrow_w - 4,
+		    static_cast<int>(height()) - 8);
 	}
 }
 
@@ -137,58 +131,6 @@ void ComboBox::keyEvent(KeyEvent* keyEvent)
 	{
 		return;
 	}
-
-	/*
-	switch(keyEvent->keycode) {
-	case Key::up:
-	    {
-	        selected--;
-	        if(selected < 0)
-	        {
-	            selected = 0;
-	        }
-	        if(selected < scroll_offset)
-	        {
-	            scroll_offset = selected;
-	            if(scroll_offset < 0)
-	            {
-	                scroll_offset = 0;
-	            }
-	        }
-	    }
-	    break;
-	case Key::down:
-	    {
-	        // Number of items that can be displayed at a time.
-	        int numitems = height() / (font.textHeight() + padding);
-
-	        selected++;
-	        if(selected > (items.size() - 1))
-	        {
-	            selected = (items.size() - 1);
-	        }
-	        if(selected > (scroll_offset + numitems - 1))
-	        {
-	            scroll_offset = selected - numitems + 1;
-	            if(scroll_offset > (items.size() - 1))
-	            {
-	                scroll_offset = (items.size() - 1);
-	            }
-	        }
-	    }
-	    break;
-	case Key::home:
-	    selected = 0;
-	    break;
-	case Key::end:
-	    selected = items.size() - 1;
-	    break;
-	default:
-	    break;
-	}
-
-	redraw();
-	*/
 }
 
 void ComboBox::buttonEvent(ButtonEvent* buttonEvent)

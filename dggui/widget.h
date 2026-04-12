@@ -99,23 +99,23 @@ public:
 	void removeChild(Widget* widget);
 	void reparent(Widget* parent);
 
-	virtual void repaintEvent(RepaintEvent* repaintEvent)
+	virtual void repaintEvent(RepaintEvent* /*repaintEvent*/)
 	{
 		// No-op in base class; subclasses may override.
 	}
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+	virtual void mouseMoveEvent(MouseMoveEvent* /*mouseMoveEvent*/)
 	{
 		// No-op in base class; subclasses may override.
 	}
-	virtual void buttonEvent(ButtonEvent* buttonEvent)
+	virtual void buttonEvent(ButtonEvent* /*buttonEvent*/)
 	{
 		// No-op in base class; subclasses may override.
 	}
-	virtual void scrollEvent(ScrollEvent* scrollEvent)
+	virtual void scrollEvent(ScrollEvent* /*scrollEvent*/)
 	{
 		// No-op in base class; subclasses may override.
 	}
-	virtual void keyEvent(KeyEvent* keyEvent)
+	virtual void keyEvent(KeyEvent* /*keyEvent*/)
 	{
 		// No-op in base class; subclasses may override.
 	}
