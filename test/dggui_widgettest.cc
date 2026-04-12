@@ -31,6 +31,7 @@
 
 #include <dggui/button_base.h>
 #include <dggui/colour.h>
+#include <dggui/combobox.h>
 #include <dggui/eventhandler.h>
 #include <dggui/frame.h>
 #include <dggui/guievent.h>
@@ -1753,5 +1754,120 @@ TEST_CASE("FrameWidgetTest")
 		dggui::FrameWidget f(&win, true, true);
 		f.resize(200, 100);
 		f.setHelpText("Some help text");
+	}
+}
+
+// ---------------------------------------------------------------------------
+// ComboBox tests
+// ---------------------------------------------------------------------------
+
+TEST_CASE("ComboBoxTest")
+{
+	dggui::Window win;
+	win.resize(300, 400);
+
+	SUBCASE("addItem_and_selectedValue_after_select")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("Item 1", "val1");
+		cb.addItem("Item 2", "val2");
+		cb.selectItem(0);
+		CHECK_EQ(std::string("val1"), cb.selectedValue());
+		CHECK_EQ(std::string("Item 1"), cb.selectedName());
+	}
+
+	SUBCASE("clear_removes_items")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("Item 1", "val1");
+		cb.clear();
+		CHECK_EQ(std::string(""), cb.selectedValue());
+	}
+
+	SUBCASE("buttonEvent_left_down_toggles_listbox")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("A", "a");
+		cb.addItem("B", "b");
+
+		dggui::ButtonEvent ev{};
+		ev.button = dggui::MouseButton::left;
+		ev.direction = dggui::Direction::down;
+		ev.doubleClick = false;
+		cb.buttonEvent(&ev);
+	}
+
+	SUBCASE("buttonEvent_right_click_ignored")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("A", "a");
+
+		dggui::ButtonEvent ev{};
+		ev.button = dggui::MouseButton::right;
+		ev.direction = dggui::Direction::down;
+		ev.doubleClick = false;
+		cb.buttonEvent(&ev);
+		// No crash expected; state unchanged
+	}
+
+	SUBCASE("keyEvent_direction_down_early_return")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("A", "a");
+
+		dggui::KeyEvent kev{};
+		kev.direction = dggui::Direction::down;
+		cb.keyEvent(&kev);
+	}
+
+	SUBCASE("repaintEvent_no_crash")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("Hello", "world");
+		cb.selectItem(0);
+		dggui::RepaintEvent rev{};
+		cb.repaintEvent(&rev);
+	}
+
+	SUBCASE("valueChangedNotifier_fired_on_second_click")
+	{
+		dggui::ComboBox cb(&win);
+		cb.resize(120, 30);
+		cb.addItem("A", "a");
+		cb.addItem("B", "b");
+		cb.selectItem(0);
+
+		std::string notified_name;
+		std::string notified_value;
+		cb.valueChangedNotifier.connect(
+		    [&notified_name, &notified_value](
+		        const std::string& name, const std::string& value)
+		    {
+			    notified_name = name;
+			    notified_value = value;
+		    });
+
+		// First click: open the listbox
+		dggui::ButtonEvent ev1{};
+		ev1.button = dggui::MouseButton::left;
+		ev1.direction = dggui::Direction::down;
+		ev1.doubleClick = false;
+		cb.buttonEvent(&ev1);
+
+		// Second click: close and emit valueChanged
+		dggui::ButtonEvent ev2{};
+		ev2.button = dggui::MouseButton::left;
+		ev2.direction = dggui::Direction::down;
+		ev2.doubleClick = false;
+		cb.buttonEvent(&ev2);
+
+		CHECK_EQ(std::string("A"), notified_name);
+		CHECK_EQ(std::string("a"), notified_value);
 	}
 }

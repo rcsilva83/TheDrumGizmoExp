@@ -26,8 +26,8 @@
  */
 #include "combobox.h"
 
-#include "painter.h"
 #include "font.h"
+#include "painter.h"
 
 #include <stdio.h>
 
@@ -38,16 +38,14 @@ namespace dggui
 
 void ComboBox::listboxSelectHandler()
 {
-	ButtonEvent buttonEvent{};
-	buttonEvent.button = MouseButton::left;
-	buttonEvent.doubleClick = false;
-	buttonEvent.direction = Direction::down;
-	this->buttonEvent(&buttonEvent);
+	ButtonEvent ev{};
+	ev.button = MouseButton::left;
+	ev.doubleClick = false;
+	ev.direction = Direction::down;
+	this->buttonEvent(&ev);
 }
 
-ComboBox::ComboBox(Widget* parent)
-	: Widget(parent)
-	, listbox(parent)
+ComboBox::ComboBox(Widget* parent) : Widget(parent), listbox(parent)
 {
 	CONNECT(&listbox, selectionNotifier, this, &ComboBox::listboxSelectHandler);
 	CONNECT(&listbox, clickNotifier, this, &ComboBox::listboxSelectHandler);
@@ -59,7 +57,7 @@ ComboBox::~ComboBox()
 {
 }
 
-void ComboBox::addItem(std::string name, std::string value)
+void ComboBox::addItem(const std::string& name, const std::string& value)
 {
 	listbox.addItem(name, value);
 }
@@ -87,14 +85,14 @@ std::string ComboBox::selectedValue()
 	return listbox.selectedValue();
 }
 
-static void drawArrow(Painter &p, int x, int y, int w, int h)
+static void drawArrow(Painter& p, int x, int y, int w, int h)
 {
-	p.drawLine(x, y, x+(w/2), y+h);
-	p.drawLine(x+(w/2), y+h, x+w, y);
+	p.drawLine(x, y, x + (w / 2), y + h);
+	p.drawLine(x + (w / 2), y + h, x + w, y);
 
 	y++;
-	p.drawLine(x, y, x+(w/2), y+h);
-	p.drawLine(x+(w/2), y+h, x+w, y);
+	p.drawLine(x, y, x + (w / 2), y + h);
+	p.drawLine(x + (w / 2), y + h, x + w, y);
 }
 
 void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
@@ -113,38 +111,24 @@ void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 	box.setSize(w, h);
 	p.drawImage(0, 0, box);
 
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0/255.0f, 1.0f));
-	p.drawText(BORDER - 4 + 3, height()/2+5 + 1 + 1, font, _text);
+	p.setColour(Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0 / 255.0f, 1.0f));
+	p.drawText(BORDER - 4 + 3, height() / 2 + 5 + 1 + 1, font, _text);
 
 	//  p.setColour(Colour(1, 1, 1));
-	//  p.drawText(BORDER - 4, (height()+font.textHeight()) / 2 + 1, font, _text);
+	//  p.drawText(BORDER - 4, (height()+font.textHeight()) / 2 + 1, font,
+	//  _text);
 
-	//int n = height() / 2;
+	// int n = height() / 2;
 
 	//  p.drawLine(width() - n - 6, 1 + 6, width() - 1 - 6, 1 + 6);
 	{
-		int w = 10;
-		int h = 6;
-		drawArrow(p, width() - 6 - 4 - w, (height() - h) / 2, w, h);
-		p.drawLine(width() - 6 - 4 - w - 4, 7,
-		           width() - 6 - 4 - w - 4, height() - 8);
+		int arrow_w = 10;
+		int arrow_h = 6;
+		drawArrow(p, width() - 6 - 4 - arrow_w, (height() - arrow_h) / 2,
+		    arrow_w, arrow_h);
+		p.drawLine(width() - 6 - 4 - arrow_w - 4, 7,
+		    width() - 6 - 4 - arrow_w - 4, height() - 8);
 	}
-}
-
-void ComboBox::scrollEvent(ScrollEvent* scrollEvent)
-{
-	/*
-	scroll_offset += e->delta;
-	if(scroll_offset < 0)
-	{
-		scroll_offset = 0;
-	}
-	if(scroll_offset > (items.size() - 1))
-	{
-		scroll_offset = (items.size() - 1);
-	}
-	redraw();
-	*/
 }
 
 void ComboBox::keyEvent(KeyEvent* keyEvent)
@@ -157,50 +141,50 @@ void ComboBox::keyEvent(KeyEvent* keyEvent)
 	/*
 	switch(keyEvent->keycode) {
 	case Key::up:
-		{
-			selected--;
-			if(selected < 0)
-			{
-				selected = 0;
-			}
-			if(selected < scroll_offset)
-			{
-				scroll_offset = selected;
-				if(scroll_offset < 0)
-				{
-					scroll_offset = 0;
-				}
-			}
-		}
-		break;
+	    {
+	        selected--;
+	        if(selected < 0)
+	        {
+	            selected = 0;
+	        }
+	        if(selected < scroll_offset)
+	        {
+	            scroll_offset = selected;
+	            if(scroll_offset < 0)
+	            {
+	                scroll_offset = 0;
+	            }
+	        }
+	    }
+	    break;
 	case Key::down:
-		{
-			// Number of items that can be displayed at a time.
-			int numitems = height() / (font.textHeight() + padding);
+	    {
+	        // Number of items that can be displayed at a time.
+	        int numitems = height() / (font.textHeight() + padding);
 
-			selected++;
-			if(selected > (items.size() - 1))
-			{
-				selected = (items.size() - 1);
-			}
-			if(selected > (scroll_offset + numitems - 1))
-			{
-				scroll_offset = selected - numitems + 1;
-				if(scroll_offset > (items.size() - 1))
-				{
-					scroll_offset = (items.size() - 1);
-				}
-			}
-		}
-		break;
+	        selected++;
+	        if(selected > (items.size() - 1))
+	        {
+	            selected = (items.size() - 1);
+	        }
+	        if(selected > (scroll_offset + numitems - 1))
+	        {
+	            scroll_offset = selected - numitems + 1;
+	            if(scroll_offset > (items.size() - 1))
+	            {
+	                scroll_offset = (items.size() - 1);
+	            }
+	        }
+	    }
+	    break;
 	case Key::home:
-		selected = 0;
-		break;
+	    selected = 0;
+	    break;
 	case Key::end:
-		selected = items.size() - 1;
-		break;
+	    selected = items.size() - 1;
+	    break;
 	default:
-		break;
+	    break;
 	}
 
 	redraw();
@@ -233,4 +217,4 @@ void ComboBox::buttonEvent(ButtonEvent* buttonEvent)
 	listbox.setVisible(!listbox.visible());
 }
 
-} // dggui::
+} // namespace dggui
