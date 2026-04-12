@@ -25,6 +25,8 @@
  */
 #include "nativewindow_headless.h"
 
+#include "widget.h"
+
 namespace dggui
 {
 
