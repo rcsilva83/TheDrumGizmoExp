@@ -531,7 +531,7 @@ TEST_CASE("WidgetTest")
 	{
 		dggui::Widget w(&win);
 		SizeSizeProbe probe;
-		w.sizeChangeNotifier.connect(&probe, &SizeSizeProbe::slot);
+		w.sizeChangeNotifier().connect(&probe, &SizeSizeProbe::slot);
 		w.resize(80, 60);
 		CHECK_EQ(std::size_t(80u), probe.w);
 		CHECK_EQ(std::size_t(60u), probe.h);
@@ -541,7 +541,7 @@ TEST_CASE("WidgetTest")
 	{
 		dggui::Widget w(&win);
 		IntIntProbe probe;
-		w.positionChangeNotifier.connect(&probe, &IntIntProbe::slot);
+		w.positionChangeNotifier().connect(&probe, &IntIntProbe::slot);
 		w.move(7, 13);
 		CHECK_EQ(7, probe.x);
 		CHECK_EQ(13, probe.y);

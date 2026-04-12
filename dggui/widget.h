@@ -138,8 +138,14 @@ public:
 
 	bool hasKeyboardFocus();
 
-	Notifier<std::size_t, std::size_t> sizeChangeNotifier; // (width, height)
-	Notifier<int, int> positionChangeNotifier;             // (x, y)
+	Notifier<std::size_t, std::size_t>& sizeChangeNotifier()
+	{
+		return _sizeChangeNotifier;
+	}
+	Notifier<int, int>& positionChangeNotifier()
+	{
+		return _positionChangeNotifier;
+	}
 
 	//! Translate x-coordinate from parent-space to window-space.
 	virtual std::size_t translateToWindowX();
@@ -150,6 +156,8 @@ public:
 protected:
 	friend class EventHandler;
 	PixelBufferAlpha pixbuf{0, 0};
+	Notifier<std::size_t, std::size_t> _sizeChangeNotifier;    // (width, height)
+	Notifier<int, int> _positionChangeNotifier;                // (x, y)
 
 	std::vector<Widget*> children;
 

@@ -95,7 +95,7 @@ static void drawArrow(Painter& p, int x, int y, int w, int h)
 	p.drawLine(x + (w / 2), y + h, x + w, y);
 }
 
-void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
+void ComboBox::repaintEvent(RepaintEvent* /*repaintEvent*/)
 {
 	Painter p(*this);
 

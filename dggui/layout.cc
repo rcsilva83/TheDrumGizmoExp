@@ -58,7 +58,7 @@ Layout::Layout(LayoutItem* parent) : parent(parent)
 	auto widget = dynamic_cast<Widget*>(parent);
 	if(widget)
 	{
-		CONNECT(widget, sizeChangeNotifier, this, &Layout::sizeChanged);
+		widget->sizeChangeNotifier().connect(this, &Layout::sizeChanged);
 	}
 }
 

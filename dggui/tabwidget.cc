@@ -35,7 +35,7 @@ TabWidget::TabWidget(Widget *parent)
 	: Widget(parent)
 	, stack(this)
 {
-	CONNECT(this, sizeChangeNotifier, this, &TabWidget::sizeChanged);
+	CONNECT(this, _sizeChangeNotifier, this, &TabWidget::sizeChanged);
 	CONNECT(&stack, currentChanged, this, &TabWidget::setActiveButtons);
 }
 

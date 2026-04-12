@@ -41,7 +41,7 @@ namespace dggui
 class ComboBox : public Widget
 {
 public:
-	ComboBox(Widget* parent);
+	explicit ComboBox(Widget* parent);
 	~ComboBox() override;
 
 	void addItem(const std::string& name, const std::string& value);
@@ -56,7 +56,7 @@ public:
 	{
 		return true;
 	}
-	void repaintEvent(RepaintEvent* repaintEvent) override;
+	void repaintEvent(RepaintEvent* /*repaintEvent*/) override;
 	void buttonEvent(ButtonEvent* buttonEvent) override;
 	void keyEvent(KeyEvent* keyEvent) override;
 
@@ -68,7 +68,7 @@ public:
 private:
 	Notifier<std::string, std::string> valueChangedNotifier;
 
-	TexturedBox box{getImageCache(), ":resources/widget.png", 0,
+	TexturedBox box{Widget::getImageCache(), ":resources/widget.png", 0,
 	    0,         // atlas offset (x, y)
 	    7, 1, 7,   // dx1, dx2, dx3
 	    7, 63, 7}; // dy1, dy2, dy3

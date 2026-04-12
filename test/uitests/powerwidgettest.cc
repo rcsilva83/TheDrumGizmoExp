@@ -52,7 +52,7 @@ public:
 		setCaption("PowerWidgetTest Window");
 		CONNECT(eventHandler(), closeNotifier, this,
 		        &TestWindow::closeEventHandler);
-		CONNECT(this, sizeChangeNotifier, this, &TestWindow::sizeChanged);
+		CONNECT(this, _sizeChangeNotifier, this, &TestWindow::sizeChanged);
 	}
 
 	void sizeChanged(std::size_t width, std::size_t height)

@@ -146,7 +146,7 @@ void Widget::resize(std::size_t width, std::size_t height)
 	pixbuf.x = translateToWindowX();
 	pixbuf.y = translateToWindowY();
 	redraw();
-	sizeChangeNotifier(width, height);
+	_sizeChangeNotifier(width, height);
 }
 
 void Widget::move(int x, int y)
@@ -173,7 +173,7 @@ void Widget::move(int x, int y)
 	//pixbuf.x = translateToWindowX();
 	//pixbuf.y = translateToWindowY();
 
-	positionChangeNotifier(x, y);
+	_positionChangeNotifier(x, y);
 }
 
 int Widget::x() const

@@ -3,7 +3,7 @@
  *            frame.cc
  *
  *  Tue Feb  7 21:07:56 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -57,7 +57,7 @@ FrameWidget::FrameWidget(Widget* parent, bool has_switch, bool has_help_text)
 	}
 	help_button.setVisible(has_help_text);
 
-	CONNECT(this, sizeChangeNotifier, this, &FrameWidget::sizeChanged);
+	CONNECT(this, _sizeChangeNotifier, this, &FrameWidget::sizeChanged);
 }
 
 void FrameWidget::repaintEvent(RepaintEvent* repaintEvent)

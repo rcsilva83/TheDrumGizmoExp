@@ -103,7 +103,7 @@ public:
 		setCaption("TabWidgetTest Window");
 		CONNECT(eventHandler(), closeNotifier,
 		        this, &TestWindow::closeEventHandler);
-		CONNECT(this, sizeChangeNotifier, this, &TestWindow::sizeChanged);
+		CONNECT(this, _sizeChangeNotifier, this, &TestWindow::sizeChanged);
 		tabs.move(0, 0);
 		tabs.addTab("Tab1", &widget1);
 		tabs.addTab("Tab2", &widget2);

@@ -44,8 +44,8 @@ public:
 		setCaption("ResizeTest Window");
 		CONNECT(eventHandler(), closeNotifier,
 		        this, &TestWindow::closeEventHandler);
-		CONNECT(this, sizeChangeNotifier, this, &TestWindow::sizeChanged);
-		CONNECT(this, positionChangeNotifier, this, &TestWindow::positionChanged);
+		CONNECT(this, _sizeChangeNotifier, this, &TestWindow::sizeChanged);
+		CONNECT(this, _positionChangeNotifier, this, &TestWindow::positionChanged);
 	}
 
 	void sizeChanged(std::size_t width, std::size_t height)

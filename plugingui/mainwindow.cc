@@ -45,7 +45,7 @@ MainWindow::MainWindow(Settings& settings, void* native_window)
 {
 	config.load();
 
-	CONNECT(this, sizeChangeNotifier, this, &MainWindow::sizeChanged);
+	CONNECT(this, _sizeChangeNotifier, this, &MainWindow::sizeChanged);
 	CONNECT(eventHandler(), closeNotifier, this, &MainWindow::closeEventHandler);
 
 	setCaption(std::string(_("DrumGizmo v")) + VERSION);

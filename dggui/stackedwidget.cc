@@ -32,7 +32,7 @@ namespace dggui
 StackedWidget::StackedWidget(Widget *parent)
 	: Widget(parent)
 {
-	CONNECT(this, sizeChangeNotifier, this, &StackedWidget::sizeChanged);
+	CONNECT(this, _sizeChangeNotifier, this, &StackedWidget::sizeChanged);
 }
 
 StackedWidget::~StackedWidget()

@@ -3,7 +3,7 @@
  *            framewidgettest.cc
  *
  *  Sat Feb 11 23:36:04 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -103,7 +103,7 @@ public:
 		setCaption("FrameWidgetTest Window");
 		CONNECT(eventHandler(), closeNotifier, this,
 		    &TestWindow::closeEventHandler);
-		CONNECT(this, sizeChangeNotifier, this, &TestWindow::sizeChanged);
+		CONNECT(this, _sizeChangeNotifier, this, &TestWindow::sizeChanged);
 
 		layout.setSpacing(10);
 		layout.setResizeChildren(true);
