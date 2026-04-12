@@ -118,6 +118,17 @@ struct IntIntProbe : public Listener
 	}
 };
 
+struct StrStrProbe : public Listener
+{
+	std::string first;
+	std::string second;
+	void slot(const std::string& a, const std::string& b)
+	{
+		first = a;
+		second = b;
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Test subclasses exposing protected event handlers
 // ---------------------------------------------------------------------------
@@ -1845,13 +1856,8 @@ TEST_CASE("ComboBoxTest")
 
 		std::string notified_name;
 		std::string notified_value;
-		cb.valueChangedNotifier.connect(
-		    [&notified_name, &notified_value](
-		        const std::string& name, const std::string& value)
-		    {
-			    notified_name = name;
-			    notified_value = value;
-		    });
+		StrStrProbe probe;
+		cb.valueChangedNotifier.connect(&probe, &StrStrProbe::slot);
 
 		// First click: open the listbox
 		dggui::ButtonEvent ev1{};
@@ -1867,7 +1873,7 @@ TEST_CASE("ComboBoxTest")
 		ev2.doubleClick = false;
 		cb.buttonEvent(&ev2);
 
-		CHECK_EQ(std::string("A"), notified_name);
-		CHECK_EQ(std::string("a"), notified_value);
+		CHECK_EQ(std::string("A"), probe.first);
+		CHECK_EQ(std::string("a"), probe.second);
 	}
 }
