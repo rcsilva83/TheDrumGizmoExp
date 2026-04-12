@@ -59,6 +59,8 @@ class Widget : public Listener, public LayoutItem, public Canvas
 public:
 	explicit Widget(Widget* parent);
 	virtual ~Widget();
+	Widget(const Widget&) = delete;
+	Widget& operator=(const Widget&) = delete;
 
 	virtual void show();
 	virtual void hide();

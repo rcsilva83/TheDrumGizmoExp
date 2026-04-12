@@ -34,6 +34,8 @@
 #include "nativewindow.h"
 #include "pixelbuffer.h"
 
+#include <memory>
+
 namespace dggui
 {
 
@@ -42,6 +44,8 @@ class Window : public Widget
 public:
 	explicit Window(void* native_window = nullptr);
 	~Window();
+	Window(const Window&) = delete;
+	Window& operator=(const Window&) = delete;
 
 	void setFixedSize(int width, int height);
 	void setAlwaysOnTop(bool always_on_top);
@@ -112,8 +116,8 @@ protected:
 	Widget* _buttonDownFocus{nullptr};
 	Widget* _mouseFocus{nullptr};
 
-	NativeWindow* native{nullptr};
-	EventHandler* eventhandler{nullptr};
+	std::unique_ptr<NativeWindow> native;
+	std::unique_ptr<EventHandler> eventhandler;
 
 	size_t maxRefcount{0};
 
