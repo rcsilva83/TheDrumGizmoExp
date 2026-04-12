@@ -43,8 +43,8 @@ class Window : public Widget
 {
 public:
 	explicit Window(void* native_window = nullptr);
-	~Window() = default;
-	Window(const Window&) = delete;
+	~Window() override = default;
+	explicit Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
 	void setFixedSize(int width, int height);
