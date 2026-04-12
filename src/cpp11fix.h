@@ -3,7 +3,7 @@
  *            cpp11fix.h
  *
  *  Mi 20. Jan 10:22:36 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -28,11 +28,15 @@
 
 #include <memory>
 
-namespace std {
+#if __cplusplus < 201402L
+namespace std
+{
 
-template <typename T, typename ...Args>
-std::unique_ptr<T> make_unique(Args&& ...args) {
+template <typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args)
+{
 	return std::unique_ptr<T>{new T{std::forward<Args>(args)...}};
 }
 
-} // std
+} // namespace std
+#endif

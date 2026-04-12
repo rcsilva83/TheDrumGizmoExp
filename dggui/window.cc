@@ -58,31 +58,25 @@ Window::Window(void* native_window) : Widget(nullptr), wpixbuf(1, 1)
 	_height = wpixbuf.height;
 
 #ifdef UI_HEADLESS
-	native = std::unique_ptr<NativeWindow>(
-	    new NativeWindowHeadless(native_window, *this));
+	native = std::make_unique<NativeWindowHeadless>(native_window, *this);
 #else
 #ifndef UI_PUGL
 #ifdef UI_X11
-	native = std::unique_ptr<NativeWindow>(
-	    new NativeWindowX11(native_window, *this));
+	native = std::make_unique<NativeWindowX11>(native_window, *this);
 #endif // UI_X11
 #ifdef UI_WIN32
-	native = std::unique_ptr<NativeWindow>(
-	    new NativeWindowWin32(native_window, *this));
+	native = std::make_unique<NativeWindowWin32>(native_window, *this);
 #endif // UI_WIN32
 #ifdef UI_COCOA
-	native = std::unique_ptr<NativeWindow>(
-	    new NativeWindowCocoa(native_window, *this));
+	native = std::make_unique<NativeWindowCocoa>(native_window, *this);
 #endif // UI_COCOA
 #else
 	// Use pugl
-	native = std::unique_ptr<NativeWindow>(
-	    new NativeWindowPugl(native_window, *this));
+	native = std::make_unique<NativeWindowPugl>(native_window, *this);
 #endif // !UI_PUGL
 #endif // UI_HEADLESS
 
-	eventhandler =
-	    std::unique_ptr<EventHandler>(new EventHandler(*native, *this));
+	eventhandler = std::make_unique<EventHandler>(*native, *this);
 
 	setVisible(true); // The root widget is always visible.
 }
