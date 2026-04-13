@@ -16,6 +16,24 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Update (2026-04-13) — `dggui/` branch-coverage push (headless path)
+
+To improve `dggui/` branch coverage without requiring a window-system backend,
+`test/utf8test.cc` was expanded with additional cases that exercise previously
+untested UTF-8 decoding branches:
+
+- 3-byte UTF-8 sequence handling (`0xE0..0xEF` path)
+- 4-byte UTF-8 sequence handling (`0xF0..0xF4` path)
+- the explicit `\xc4\x87` fallback mapping branch
+- mixed-input decoding with ASCII + mapped + unmapped multibyte sequences
+
+These tests target a low-risk, fully headless part of `dggui/` and are intended
+as a first step toward the issue goal of `dggui/` 90% branch coverage.
+A full post-change coverage percentage update is pending a network-enabled CI
+run (the local environment could not fetch all CMake CPM dependencies).
+
+---
+
 ## Baseline (2026-04-11) — branch-coverage push
 
 The numbers below were collected after adding new tests for `directorytest`,

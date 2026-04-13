@@ -120,6 +120,35 @@ TEST_CASE("UTF8Test")
 		CHECK_EQ(latin1, decoded);
 	}
 
+	SUBCASE("toLatin1_unmapped_three_byte_sequence_is_dropped")
+	{
+		// U+20AC (Euro sign) uses three UTF-8 bytes and is not in map_decode.
+		std::string utf8_str{"\xe2\x82\xac"};
+		CHECK_EQ(std::string(""), utf8.toLatin1(utf8_str));
+	}
+
+	SUBCASE("toLatin1_unmapped_four_byte_sequence_is_dropped")
+	{
+		// U+1F600 (😀) uses four UTF-8 bytes and is not in map_decode.
+		std::string utf8_str{"\xf0\x9f\x98\x80"};
+		CHECK_EQ(std::string(""), utf8.toLatin1(utf8_str));
+	}
+
+	SUBCASE("toLatin1_supports_hardcoded_c_acute_fallback")
+	{
+		// UTF-8 sequence \xc4\x87 is explicitly mapped to latin-1 'c'.
+		std::string utf8_str{"\xc4\x87"};
+		CHECK_EQ(std::string("c"), utf8.toLatin1(utf8_str));
+	}
+
+	SUBCASE("toLatin1_mixed_ascii_two_three_and_four_byte_sequences")
+	{
+		std::string utf8_str{"A\xc3\xa9\xe2\x82\xac\xf0\x9f\x98\x80Z"};
+		// 'A' + latin1 'é' + (drop euro) + (drop emoji) + 'Z'
+		std::string expected{"A\xe9Z"};
+		CHECK_EQ(expected, utf8.toLatin1(utf8_str));
+	}
+
 	SUBCASE("roundtrip_ascii_unchanged")
 	{
 		std::string ascii = "DrumGizmo 0.9.20";
