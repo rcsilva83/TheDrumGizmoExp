@@ -39,7 +39,7 @@ include("${DG_CPM_FILE}")
 
 CPMAddPackage(
 	NAME hugin
-	GIT_REPOSITORY git://git.drumgizmo.org/hugin.git
+	GIT_REPOSITORY http://git.drumgizmo.org/hugin.git
 	GIT_TAG ${DG_HUGIN_GIT_TAG}
 	DOWNLOAD_ONLY YES
 )
