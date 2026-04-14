@@ -2,7 +2,7 @@ set(DG_CPM_VERSION "0.40.8" CACHE STRING "CPM.cmake version")
 set(DG_CPM_URL "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${DG_CPM_VERSION}/CPM.cmake" CACHE STRING "CPM.cmake download URL")
 set(DG_CPM_SOURCE_CACHE "${CMAKE_BINARY_DIR}/cpm-cache" CACHE PATH "Directory used by CPM.cmake to cache dependency sources")
 set(DG_CPM_FILE "${CMAKE_BINARY_DIR}/cmake/CPM_${DG_CPM_VERSION}.cmake" CACHE FILEPATH "Downloaded CPM.cmake file")
-set(DG_DRUMGIZMO_GIT_BASE_URL "https://git.drumgizmo.org" CACHE STRING "Base URL for DrumGizmo hosted git dependencies")
+set(DG_DRUMGIZMO_GIT_BASE_URL "http://git.drumgizmo.org" CACHE STRING "Base URL for DrumGizmo hosted git dependencies")
 
 set(DG_HUGIN_GIT_TAG "3e2e1589dc50bd944cfd63d58a846921966224af" CACHE STRING "hugin commit")
 set(DG_PLUGINGIZMO_GIT_TAG "a88c76afd8fbfe31b76010bac34c1437b1927245" CACHE STRING "plugingizmo commit")
