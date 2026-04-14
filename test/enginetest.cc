@@ -40,7 +40,7 @@
 class AudioOutputEngineDummy : public AudioOutputEngine
 {
 public:
-	bool init(const Channels& channels) override
+	bool init(const Channels& /*channels*/) override
 	{
 		return true;
 	}
@@ -120,7 +120,7 @@ private:
 class AudioInputEngineDummy : public AudioInputEngine
 {
 public:
-	bool init(const Instruments& instruments) override
+	bool init(const Instruments& /*instruments*/) override
 	{
 		return true;
 	}
@@ -226,9 +226,8 @@ private:
 class FailingOutputEngineDummy : public AudioOutputEngineDummy
 {
 public:
-	bool init(const Channels& channels) override
+	bool init(const Channels& /*channels*/) override
 	{
-		(void)channels;
 		return false;
 	}
 };
@@ -236,9 +235,8 @@ public:
 class FailingInputEngineDummy : public AudioInputEngineDummy
 {
 public:
-	bool init(const Instruments& instruments) override
+	bool init(const Instruments& /*instruments*/) override
 	{
-		(void)instruments;
 		return false;
 	}
 };
@@ -1894,11 +1892,12 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			std::string content = ss.str();
 			in.close();
 
-			for(const std::string& fname : {"instr1.xml", "instr2.xml"})
+			for(const auto& fname :
+			    std::array<const char*, 2>{{"instr1.xml", "instr2.xml"}})
 			{
-				const std::string from = "file=\"" + fname + "\">";
+				const std::string from = "file=\"" + std::string(fname) + "\">";
 				const std::string to =
-				    "file=\"" + fname + "\" group=\"hihat\">";
+				    "file=\"" + std::string(fname) + "\" group=\"hihat\">";
 				auto pos = content.find(from);
 				REQUIRE_NE(pos, std::string::npos);
 				content.replace(pos, from.size(), to);

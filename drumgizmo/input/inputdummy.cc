@@ -3,7 +3,7 @@
  *            inputdummy.cc
  *
  *  Fr 22. Jan 08:14:58 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -34,12 +34,13 @@ DummyInputEngine::~DummyInputEngine()
 {
 }
 
-bool DummyInputEngine::init(const Instruments& instruments)
+bool DummyInputEngine::init(const Instruments& /*instruments*/)
 {
 	return true;
 }
 
-void DummyInputEngine::setParm(const std::string& parm, const std::string& value)
+void DummyInputEngine::setParm(
+    const std::string& /*parm*/, const std::string& /*value*/)
 {
 }
 
@@ -56,7 +57,8 @@ void DummyInputEngine::pre()
 {
 }
 
-void DummyInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
+void DummyInputEngine::run(
+    std::size_t /*pos*/, std::size_t /*len*/, std::vector<event_t>& /*events*/)
 {
 }
 

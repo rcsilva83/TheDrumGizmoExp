@@ -50,6 +50,8 @@ public:
 	virtual void post() = 0;
 
 	//! Reimplement to receive sample rate changes.
-	virtual void setSampleRate(double sample_rate) {}
+	virtual void setSampleRate(double)
+	{
+	}
 	virtual bool isFreewheeling() const = 0;
 };

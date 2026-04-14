@@ -104,6 +104,23 @@ public:
 			}
 		};
 		std::vector<ChokeRef> chokes;
+
+		InstrumentData() = default;
+		InstrumentData(std::string name_, std::string filename_,
+		    std::vector<SampleData> sample_data_)
+		    : name(std::move(name_))
+		    , filename(std::move(filename_))
+		    , sample_data(std::move(sample_data_))
+		{
+		}
+		InstrumentData(std::string name_, std::string filename_,
+		    std::vector<SampleData> sample_data_, std::string group_)
+		    : name(std::move(name_))
+		    , filename(std::move(filename_))
+		    , sample_data(std::move(sample_data_))
+		    , group(std::move(group_))
+		{
+		}
 	};
 
 	struct DrumkitData

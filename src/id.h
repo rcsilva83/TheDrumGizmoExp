@@ -43,6 +43,7 @@ public:
 	ID(IDType id = invalid_value) : id(id)
 	{
 	}
+	ID(const ID<T>&) = default;
 
 	operator IDType() const
 	{

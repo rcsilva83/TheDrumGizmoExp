@@ -46,18 +46,26 @@ public:
 	virtual void stop() = 0;
 
 	virtual void pre(std::size_t nsamples) = 0;
-	virtual void run(int ch, sample_t *samples, std::size_t nsamples) = 0;
+	virtual void run(int ch, sample_t* samples, std::size_t nsamples) = 0;
 	virtual void post(std::size_t nsamples) = 0;
 
 	//! Overload this method to use internal buffer directly.
-	virtual sample_t *getBuffer(int ch) const { return NULL; }
+	virtual sample_t* getBuffer(int) const
+	{
+		return NULL;
+	}
 
 	//! Overload this method to force engine to use different buffer size.
-	virtual std::size_t getBufferSize() const { return 1024; }
+	virtual std::size_t getBufferSize() const
+	{
+		return 1024;
+	}
 	virtual std::size_t getSamplerate() const = 0;
 	virtual bool isFreewheeling() const = 0;
 
 	//! Overload this method to get notification of latency changes.
 	//! \param latency The new latency in samples.
-	virtual void onLatencyChange(std::size_t latency) {}
+	virtual void onLatencyChange(std::size_t)
+	{
+	}
 };

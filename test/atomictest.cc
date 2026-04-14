@@ -3,7 +3,7 @@
  *            atomic.cc
  *
  *  Wed Mar 23 09:17:12 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -39,7 +39,7 @@ struct AtomicTestFixture
 
 	template <typename T> bool isLockFree()
 	{
-		Atomic<T> a;
+		Atomic<T> a{};
 		return a.is_lock_free();
 	}
 };

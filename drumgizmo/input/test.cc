@@ -31,11 +31,11 @@
 #include "test.h"
 
 TestInputEngine::TestInputEngine()
-	: AudioInputEngine{}
-	, probability{0.1}
-	, instrument{-1}
-	, length{-1}
-	, sample_rate{44100.0}
+    : AudioInputEngine{}
+    , probability{0.1}
+    , instrument{-1}
+    , length{-1}
+    , sample_rate{44100.0}
 {
 }
 
@@ -43,7 +43,7 @@ TestInputEngine::~TestInputEngine()
 {
 }
 
-bool TestInputEngine::init(const Instruments& instruments)
+bool TestInputEngine::init(const Instruments& /*instruments*/)
 {
 	return true;
 }
@@ -106,7 +106,7 @@ void TestInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 		event.instrument = rand() % 32;
 	}
 
-	event.velocity = (float)rand()/(float)RAND_MAX;
+	event.velocity = (float)rand() / (float)RAND_MAX;
 	event.offset = len;
 }
 

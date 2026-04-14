@@ -71,7 +71,7 @@ class Listener;
 class NotifierBase
 {
 public:
-	virtual void disconnect(Listener* object)
+	virtual void disconnect(Listener*)
 	{
 	}
 };
