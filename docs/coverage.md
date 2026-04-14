@@ -16,6 +16,40 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Baseline (2026-04-14) — `dggui/` branch-coverage push
+
+The numbers below were collected after adding new headless tests for the `dggui/`
+module targeting 90% branch coverage.
+
+Measurement command:
+```sh
+gcovr --root . --filter 'dggui/' --exclude-throw-branches --branch --txt
+```
+
+### `dggui/` branch coverage
+
+| Metric   | Covered | Total | Coverage |
+| -------- | ------: | ----: | -------: |
+| Branches |      TBD | TBD   |    TBD   |
+
+**Tests added:**
+
+| Test file | Coverage target |
+| --------- | ---------------- |
+| `test/paintertest.cc` | `painter.cc` — drawCircle, drawFilledCircle, drawBox, drawBar, drawRectangle, drawFilledRectangle, drawRestrictedImage, drawImageStretched, drawPoint, drawLine, drawText rotate |
+| `test/widgettest.cc` | `widget.cc` — show/hide, resize, move, reparent, addChild/removeChild, find |
+| `test/slidertest.cc` | `slider.cc` — setValue, setColour, setEnabled, buttonEvent, mouseMoveEvent, scrollEvent |
+| `test/lineedittest.cc` | `lineedit.cc` — keyEvent (all keys), buttonEvent, repaintEvent |
+| `test/listboxbasictest.cc` | `listboxbasic.cc` — selection, keyEvent (all keys), buttonEvent, scrollEvent |
+| `test/eventhandlertest.cc` | `eventhandler.cc` — all event types (repaint, move, resize, button, scroll, key, close, mouseEnter, mouseLeave) |
+
+**Notes:**
+- Platform-specific `nativewindow_*.cc` (X11/Win32/Cocoa/Pugl) requires display server
+  mocking (Xvfb) and is excluded from headless test coverage targets.
+- Full verification pending CI run due to local CPM dependency fetch limits.
+
+---
+
 ## Baseline (2026-04-11) — branch-coverage push
 
 The numbers below were collected after adding new tests for `directorytest`,

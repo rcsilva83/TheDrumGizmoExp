@@ -272,4 +272,241 @@ TEST_CASE("PainterTest")
 			    TestColour(10, 10, 0, 128), TestColour(pixbuf.pixel(0, 0)));
 		}
 	}
+
+	SUBCASE("testDrawCircle")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Circle with radius 10 at center
+			painter.drawCircle(50, 50, 10);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Circle with radius 0 - nothing drawn
+			painter.clear();
+			painter.drawCircle(50, 50, 0);
+			auto& pixbuf = canvas.getPixelBuffer();
+			bool allTransparent = true;
+			for(std::size_t x = 0; x < pixbuf.width; ++x)
+			{
+				for(std::size_t y = 0; y < pixbuf.height; ++y)
+				{
+					const auto& c = pixbuf.pixel(x, y);
+					if(c.red() > 0 || c.green() > 0 || c.blue() > 0)
+					{
+						allTransparent = false;
+					}
+				}
+			}
+			CHECK_UNARY(allTransparent);
+		}
+
+		{ // Circle where x == y path
+			painter.clear();
+			painter.drawCircle(50, 50, 5);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawFilledCircle")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Filled circle with radius 10
+			painter.drawFilledCircle(50, 50, 10);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Filled circle with radius 0
+			painter.clear();
+			painter.drawFilledCircle(50, 50, 0);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Filled circle where x == y path
+			painter.clear();
+			painter.drawFilledCircle(50, 50, 5);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawRectangle")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Rectangle drawn
+			painter.drawRectangle(10, 10, 90, 90);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawFilledRectangle")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Filled rectangle
+			painter.drawFilledRectangle(10, 10, 50, 50);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawPoint")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Point inside bounds
+			painter.drawPoint(50, 50);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Point outside bounds (negative)
+			painter.clear();
+			painter.drawPoint(-1, -1);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Point outside bounds (beyond width)
+			painter.clear();
+			painter.drawPoint(100, 50);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Point outside bounds (beyond height)
+			painter.clear();
+			painter.drawPoint(50, 100);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawLine")
+	{
+		TestableCanvas canvas(100, 100);
+		dggui::Painter painter(canvas);
+		painter.clear();
+
+		{ // Line drawn
+			painter.drawLine(10, 10, 90, 90);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Line with steep slope (steep path)
+			painter.clear();
+			painter.drawLine(50, 10, 50, 90);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Line with x0 > x1 (swap path)
+			painter.clear();
+			painter.drawLine(90, 50, 10, 50);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawRestrictedImage")
+	{
+		TestImage image(16, 16, false);
+		REQUIRE(image.isValid());
+
+		{ // Restricted image with matching colour - should draw
+			TestableCanvas canvas(100, 100);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			dggui::Colour restriction(0, 0, 0, 255);
+			painter.drawRestrictedImage(0, 0, restriction, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Restricted image with non-matching colour - should not draw
+			TestableCanvas canvas(100, 100);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			dggui::Colour restriction(255, 255, 255, 255);
+			painter.drawRestrictedImage(0, 0, restriction, image);
+			auto& pixbuf = canvas.getPixelBuffer();
+			bool allTransparent = true;
+			for(std::size_t x = 0; x < pixbuf.width; ++x)
+			{
+				for(std::size_t y = 0; y < pixbuf.height; ++y)
+				{
+					const auto& c = pixbuf.pixel(x, y);
+					if(c.alpha() > 0)
+					{
+						allTransparent = false;
+					}
+				}
+			}
+			CHECK_UNARY(allTransparent);
+		}
+
+		{ // Restricted image with clipping
+			TestableCanvas canvas(8, 8);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			dggui::Colour restriction(0, 0, 0, 255);
+			painter.drawRestrictedImage(-5, -5, restriction, image);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawImageStretched")
+	{
+		TestImage image(16, 16, false);
+		REQUIRE(image.isValid());
+
+		{ // Normal stretch
+			TestableCanvas canvas(50, 50);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			painter.drawImageStretched(0, 0, image, 50, 50);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Stretched with clipping (exceeds buffer)
+			TestableCanvas canvas(10, 10);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			painter.drawImageStretched(-5, -5, image, 50, 50);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Stretched with zero width - early return
+			TestableCanvas canvas(100, 100);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			painter.drawImageStretched(0, 0, image, 0, 50);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+
+		{ // Stretched with zero height - early return
+			TestableCanvas canvas(100, 100);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			painter.drawImageStretched(0, 0, image, 50, 0);
+			CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		}
+	}
+
+	SUBCASE("testDrawTextRotate")
+	{
+		dggui::Font font;
+		std::string someText = "Hello";
+
+		{ // Text with rotate=true
+			TestableCanvas canvas(100, 100);
+			dggui::Painter painter(canvas);
+			painter.clear();
+			painter.drawText(0, 50, font, someText, false, true);
+			CHECK_UNARY(hasAnyDrawnPixels(canvas));
+		}
+	}
 }

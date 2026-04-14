@@ -488,6 +488,91 @@ if(TARGET dg_dggui)
 	)
 endif()
 
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(widgettest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/widgettest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
+
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(slidertest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/slidertest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
+
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(lineedittest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/lineedittest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
+
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(listboxbasictest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/listboxbasictest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
+
+if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
+	dg_add_doctest_test(eventhandlertest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/eventhandlertest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+	)
+endif()
+
 if(TARGET dg_plugingui)
 	dg_add_doctest_test(pluginconfigtest
 		SOURCES
