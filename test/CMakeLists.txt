@@ -501,6 +501,20 @@ if(TARGET dg_plugingui)
 			dg_core
 			Threads::Threads
 	)
+
+	dg_add_doctest_test(pluginguitest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/pluginguitest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_plugingui
+			dg_dggui
+			dg_core
+			Threads::Threads
+	)
 endif()
 
 if(DG_ENABLE_CLI)

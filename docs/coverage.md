@@ -168,6 +168,68 @@ suite:
 
 ---
 
+## Post-improvement (2026-04-14) — `plugingui/` coverage
+
+The `plugingui/` module previously had only 0.8% branch coverage because the
+headless unit-test suite could not exercise GUI rendering code. A new test
+executable `pluginguitest` was added to exercise the branching logic in
+plugingui frame content classes using mock widgets for headless operation.
+
+### New test file
+
+`test/pluginguitest.cc` - Added a comprehensive test suite for plugingui
+components with a `MockWidget` class that implements the `dggui::Widget` interface
+without requiring a display server. This allows testing of GUI components in a
+headless CI environment.
+
+### New tests added
+
+| Test suite | What it covers |
+|---|---|
+| `LabeledControlTest` | `setValue()` with and without transformation function, resize |
+| `StatusframeContentLoadStatusTest` | All `LoadStatus` enum values (Idle, Parsing, Loading, Done, Error) for drumkit and midimap |
+| `DrumkitframeContentLoadStatusTest` | All `LoadStatus` switch branches for kit and map loading |
+| `DiskstreamingframeContentTest` | `limitSettingsValueChanged()` unlimited vs limited branches, reload handling |
+| `ResamplingframeContentTest` | `drumkit_samplerate == 0` branch, samplerate and quality updates |
+| `VoiceLimitFrameContentTest` | Voice limit and rampdown callbacks via notifier triggering |
+| `BleedcontrolframeContentTest` | `setEnabled(true/false)`, master bleed slider callback branches |
+| `TimingframeContentTest` | Latency stddev, regain, and laidback callback branches |
+| `SampleselectionframeContentTest` | Close, diverse, and random selection callback branches |
+| `BrowseFileTest` | Width calculation branches in `resize()`, line edit and button width getters |
+| `SettingsNotifierEvaluateTest` | Full settings evaluation triggering multiple content updates |
+
+### Coverage approach
+
+The tests use a `MockWidget` class that:
+- Implements `dggui::Widget` without requiring X11 or other GUI libraries
+- Provides minimal geometry management (resize, move, position)
+- Returns a pixel buffer for drawing operations
+
+This allows instantiation of GUI classes that require a parent widget, enabling
+testing of their callback branches without actual rendering.
+
+### Branches exercised
+
+- All `switch(LoadStatus)` branches in `StatusframeContent::updateDrumkitLoadStatus()` and `updateMidimapLoadStatus()`
+- All `switch(LoadStatus)` branches in `DrumkitframeContent::setDrumKitLoadStatus()` and `setMidiMapLoadStatus()`
+- `if(new_slider_value < 0.99)` branch in `DiskstreamingframeContent::limitSettingsValueChanged()`
+- `drumkit_samplerate == 0` branch in `ResamplingframeContent::updateDrumkitSamplerate()`
+- `if(value_transformation_func)` branch in `LabeledControl::setValue()`
+- Various other callback and notification branches
+
+### Remaining untested branches
+
+| Branch | Reason |
+|---|---|
+| `PowerWidget::Canvas` repaint/button/mouse events | Requires texture resources (stddev_h, stddev_v images) and powermap spline rendering |
+| `HumaniserVisualiser::Canvas` repaint | Requires texture resources and complex painter operations |
+| `FileBrowser::changeDir()` | Requires Directory operations and file system access |
+| `DrumkitTab` event handlers | Requires mouse/button event simulation |
+| `MainWindow` and `MainTab` | Requires full window hierarchy and event handling |
+| UI translation strings | Require NLS infrastructure |
+
+---
+
 ## Coverage Targets
 
 The project targets **90% line coverage** across all modules.
