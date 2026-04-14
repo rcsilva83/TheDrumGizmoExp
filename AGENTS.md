@@ -85,6 +85,28 @@ clang-format -i <file>      # Format a single file per .clang-format
 
 There is no dedicated lint command. Debug builds use `-Wall -Werror -Wextra`.
 
+## Mandatory Pre-Commit Verification
+
+Before every **code-affecting** commit, run and verify all three stages below.
+
+Docs-only commits are exempt from this mandatory verification (optional but encouraged).
+
+1. **Static analysis** (no dedicated lint target; use strict debug warnings as analysis):
+   ```sh
+   cmake -S . -B build -DDG_WITH_DEBUG=ON
+   cmake --build build -j$(nproc)
+   ```
+2. **Build** (must complete successfully):
+   ```sh
+   cmake --build build -j$(nproc)
+   ```
+3. **Tests** (must pass):
+   ```sh
+   ctest --test-dir build --output-on-failure
+   ```
+
+If any required step fails, do **not** commit until it is fixed or intentionally skipped with a documented reason in the commit message/PR description.
+
 ## Code Style (enforced by .clang-format)
 
 - **Brace style**: Allman -- opening braces on their own line
