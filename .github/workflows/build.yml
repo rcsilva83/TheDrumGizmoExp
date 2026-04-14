@@ -30,7 +30,8 @@ jobs:
             libasound2-dev \
             lv2-dev \
             liblilv-dev \
-            libssl-dev
+            libssl-dev \
+            xvfb
 
       - name: Configure
         run: |
@@ -51,7 +52,7 @@ jobs:
         run: cmake --build build-coverage -j"$(nproc)"
 
       - name: Run tests
-        run: ctest --test-dir build-coverage --output-on-failure
+        run: xvfb-run -a ctest --test-dir build-coverage --output-on-failure
 
       - name: Upload build artifacts for coverage
         uses: actions/upload-artifact@v7

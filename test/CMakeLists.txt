@@ -503,6 +503,25 @@ if(TARGET dg_plugingui)
 	)
 endif()
 
+if(TARGET dg_plugingui AND TARGET dg_dggui AND TARGET dg_plugingui_resource_data AND DG_PLUGINGUI_RESOURCE_DATA)
+	dg_add_doctest_test(pluginguitest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/pluginguitest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		DEPENDENCIES
+			dg_plugingui_resource_data
+		LINK_LIBRARIES
+			dg_plugingui
+			dg_dggui
+			dg_core
+			Threads::Threads
+	)
+endif()
+
 if(DG_ENABLE_CLI)
 	dg_add_doctest_test(drumgizmoclitest
 		SOURCES

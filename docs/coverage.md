@@ -16,6 +16,89 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Baseline (2026-04-14) — plugingui/ coverage push
+
+New headless GUI tests were added in `test/pluginguitest.cc` to exercise
+`plugingui/` module branch coverage. The tests run under `xvfb-run` in CI to
+provide a virtual X11 display.
+
+### Coverage result
+
+| Module | Lines (cov/total) | Line % | Branch % |
+| --- | ---: | ---: | ---: |
+| `plugingui/` | 802/1,410 | 56.9% | **49.6%** |
+
+Per-file branch coverage:
+
+| File | Branches | Cov | % |
+|---|---:|---:|---:|
+| `humanizerframecontent.cc` | 38 | 38 | 100.0 |
+| `labeledcontrol.h` | 22 | 21 | 95.5 |
+| `resamplingframecontent.cc` | 39 | 37 | 94.9 |
+| `statusframecontent.cc` | 42 | 40 | 95.2 |
+| `timingframecontent.cc` | 40 | 40 | 100.0 |
+| `sampleselectionframecontent.cc` | 38 | 38 | 100.0 |
+| `voicelimitframecontent.cc` | 19 | 19 | 100.0 |
+| `pluginconfig.cc` | 9 | 9 | 100.0 |
+| `bleedcontrolframecontent.cc` | 19 | 19 | 100.0 |
+| `maintab.cc` | 147 | 141 | 95.9 |
+| `diskstreamingframecontent.cc` | 25 | 21 | 84.0 |
+| `drumkitframecontent.cc` | 110 | 52 | 47.3 |
+| `powerwidget.cc` | 143 | 28 | 19.6 |
+| `humaniservisualiser.cc` | 86 | 24 | 27.9 |
+| `filebrowser.cc` | 136 | 57 | 41.9 |
+| `visualizerframecontent.cc` | 1 | 1 | 100.0 |
+| `drumkittab.cc` | 170 | 0 | 0.0 |
+| `mainwindow.cc` | 51 | 0 | 0.0 |
+| `abouttab.cc` | 44 | 0 | 0.0 |
+
+### New tests added
+
+| Test case | Branches exercised |
+|---|---|
+| `StatusframeContent_loadstatus_all_states` | All 5 `LoadStatus` switch cases for drumkit and midimap progress bars |
+| `ResamplingFrameContent_updates` | `drumkit_samplerate` zero/non-zero branch, `resampling_recommended` true/false, `samplerate`, `resampling_quality` |
+| `DiskstreamingFrameContent_limits` | `limitSettingsValueChanged()` below threshold, `reload_counter` |
+| `BleedcontrolFrameContent_enable_disable` | `setEnabled()` true/false, `master_bleed` value |
+| `HumanizerFrameContent_settings` | `velocity_modifier_weight`, `velocity_modifier_falloff`, `velocity_stddev` |
+| `TimingFrameContent_conversions` | `latency_stddev`, `latency_regain`, `latency_laid_back_ms` |
+| `SampleSelectionFrameContent_settings` | `f_close`, `f_diverse`, `f_random` |
+| `VoiceLimitFrameContent_settings` | `voice_limit_max`, `voice_limit_rampdown`, `enable_voice_limit` toggle |
+| `SettingsNotifier_propagation` | `enable_velocity_modifier`, `enable_resampling`, `enable_latency_modifier`, `enable_powermap`, `powermap_shelf`, `enable_bleed_control`, `buffer_size`, `load_status_text`, `drumkit_name`, `drumkit_description`, `drumkit_version`, `number_of_underruns`, `disk_cache_enable`, `latency_current`, `velocity_modifier_current`, `powermap_input`, `powermap_output` |
+| `DrumkitframeContent_load_status_drumkit` | All 5 `LoadStatus` switch cases in `setDrumKitLoadStatus()` |
+| `DrumkitframeContent_load_status_midimap` | All 5 `LoadStatus` switch cases in `setMidiMapLoadStatus()`, including `Idle`→`setValue(0)`, `Parsing/Loading`→`setValue(1)`, `Done`→`setValue(2)/Green`, `Error`→`setValue(2)/Red` |
+| `DrumkitframeContent_file_and_progress_notifiers` | `drumkit_file`, `midimap_file`, `number_of_files`, `number_of_files_loaded` notifier callbacks |
+| `PowerWidget_parameter_propagation` | `powermap_shelf` true/false, `enable_powermap` toggle, `powermap_fixed0/1/2_x/y` spline control points, `powermap_input/output` |
+| `MainTab_switch_toggles` | `enable_velocity_modifier`, `enable_resampling`, `enable_powermap`, `has_bleed_control`, `enable_voice_limit` on/off toggle integration |
+| `Diskstreaming_limits_boundary_values` | `disk_cache_upper_limit` minimum value |
+
+### Coverage strategy
+
+The `plugingui/` module consists almost entirely of GUI widget classes that
+inherit from `dggui::Widget`. Because these widgets require an X11 display
+connection to be instantiated, the tests run under `xvfb-run` (virtual
+framebuffer) in CI. A `dggui::Window` is created as the root widget; each
+plugingui frame-content widget is constructed as a child of that window.
+Notifier callbacks are exercised by storing values into `Settings` atomic
+members and calling `SettingsNotifier::evaluate()` to propagate them to the
+connected GUI slots.
+
+### Remaining untested branches
+
+| Branch | Reason |
+|---|---|
+| `PowerWidget::Canvas::buttonEvent()` / `mouseMoveEvent()` | Mouse interaction requires event-loop integration |
+| `PowerWidget::Canvas::repaintEvent()` | Rendering code requires X11 paint events |
+| `DrumkitTab::init()` | Requires loading real drumkit image/map files |
+| `DrumkitFrameContent::kitBrowseClick()` / `midimapBrowseClick()` | Opens FileBrowser dialog window, requires native window coordinates |
+| `FileBrowser::setPath()` / `changeDir()` directory traversal | Requires real filesystem directories |
+| `FileBrowser::handleKeyEvent()` | Requires keyboard event injection into X11 event loop |
+| `HumaniserVisualiser::Canvas::repaintEvent()` | All drawing code requires X11 paint events |
+| `AboutTab::getAboutText()` | Requires compiled-in resources (`:resources/ABOUT` etc.) |
+| `MainWindow` full lifecycle | Requires complete plugingui + engine integration with native window |
+
+---
+
 ## Baseline (2026-04-11) — branch-coverage push
 
 The numbers below were collected after adding new tests for `directorytest`,
@@ -52,20 +135,20 @@ on Ubuntu with GCC.
 
 | Metric     | Covered | Total  | Coverage |
 | ---------- | ------: | -----: | -------: |
-| Lines      |   8,509 | 14,897 |    57.1% |
-| Functions  |     675 |  1,524 |    44.3% |
-| Branches   |  16,007 | 25,955 |    61.7% |
+| Lines      |  11,922 | 15,735 |    75.8% |
+| Functions  |     943 |  1,705 |    55.3% |
+| Branches   |  21,135 | 30,128 |    70.2% |
 
 ### By module
 
 | Module        | Lines (cov/total) | Line % | Function % | Branch % |
 | ------------- | ----------------: | -----: | ---------: | -------: |
-| `src/`        |      2,735 / 3,694 |  74.0% |      72.0% |    59.4% |
-| `dggui/`      |        861 / 3,722 |  23.1% |      18.6% |    34.9% |
-| `plugingui/`  |         16 / 1,410 |   1.1% |       2.6% |     0.8% |
+| `src/`        |      3,332 / 3,722 |  89.5% |      90.0% |    78.3% |
+| `dggui/`      |      1,427 / 3,722 |  38.3% |      45.9% |    44.2% |
+| `plugingui/`  |        802 / 1,410 |  56.9% |      58.3% |    49.6% |
 | `plugin/`     |           0 / 0    |    N/A |        N/A |      N/A |
-| `drumgizmo/`  |        219 / 1,280 |  17.1% |      17.6% |    20.3% |
-| `test/`       |      4,678 / 4,791 |  97.6% |      87.8% |    73.7% |
+| `drumgizmo/`  |        404 / 798   |  50.6% |      54.0% |    47.7% |
+| `test/`       |      5,957 / 6,083 |  97.9% |      89.3% |    74.8% |
 
 **Notes**
 
