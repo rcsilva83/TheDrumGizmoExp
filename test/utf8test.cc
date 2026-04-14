@@ -125,4 +125,157 @@ TEST_CASE("UTF8Test")
 		std::string ascii = "DrumGizmo 0.9.20";
 		CHECK_EQ(ascii, utf8.toLatin1(utf8.fromLatin1(ascii)));
 	}
+
+	SUBCASE("fromLatin1_all_control_chars_0x80_to_0x9F")
+	{
+		for(int i = 0x80; i <= 0x9F; ++i)
+		{
+			std::string latin1;
+			latin1 += static_cast<char>(i);
+			std::string result = utf8.fromLatin1(latin1);
+			CHECK_EQ(result.size(), std::size_t(2));
+			CHECK_EQ(static_cast<unsigned char>(result[0]), 0xC2);
+		}
+	}
+
+	SUBCASE("fromLatin1_all_extended_chars_0xA0_to_0xFF")
+	{
+		for(int i = 0xA0; i <= 0xFF; ++i)
+		{
+			std::string latin1;
+			latin1 += static_cast<char>(i);
+			std::string result = utf8.fromLatin1(latin1);
+			CHECK_EQ(result.size(), std::size_t(2));
+		}
+	}
+
+	SUBCASE("toLatin1_three_byte_sequence_unmapped")
+	{
+		std::string utf8_str;
+		utf8_str += '\xE2'; // 0xE2 = 3-byte lead (0xE0-0xEF range)
+		utf8_str += '\x82'; // continuation byte
+		utf8_str += '\xAC'; // continuation byte
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result.size(), std::size_t(0));
+	}
+
+	SUBCASE("toLatin1_four_byte_sequence_unmapped")
+	{
+		std::string utf8_str;
+		utf8_str += '\xF0'; // 0xF0 = 4-byte lead (0xF0-0xF4 range)
+		utf8_str += '\x9F'; // continuation byte
+		utf8_str += '\x98'; // continuation byte
+		utf8_str += '\x80'; // continuation byte
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result.size(), std::size_t(0));
+	}
+
+	SUBCASE("toLatin1_hack_mapping_c4_87_to_c")
+	{
+		std::string utf8_str;
+		utf8_str += '\xC4';
+		utf8_str += '\x87';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result, std::string("c"));
+	}
+
+	SUBCASE("toLatin1_mixed_ascii_and_multibyte")
+	{
+		std::string input;
+		input += 'H';
+		input += '\xC3';
+		input += '\xA9';
+		input += 'l';
+		input += '\xC3';
+		input += '\xB6';
+		input += '!';
+		std::string result = utf8.toLatin1(input);
+		CHECK_EQ(result.size(), std::size_t(5));
+		CHECK_EQ(result[0], 'H');
+		CHECK_EQ(static_cast<unsigned char>(result[1]), 0xE9);
+		CHECK_EQ(result[2], 'l');
+		CHECK_EQ(static_cast<unsigned char>(result[3]), 0xF6);
+		CHECK_EQ(result[4], '!');
+	}
+
+	SUBCASE("toLatin1_3byte_E0_range")
+	{
+		std::string utf8_str;
+		utf8_str += '\xE0';
+		utf8_str += '\xA0';
+		utf8_str += '\x80';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result.size(), std::size_t(0));
+	}
+
+	SUBCASE("toLatin1_4byte_F4_range")
+	{
+		std::string utf8_str;
+		utf8_str += '\xF4';
+		utf8_str += '\x8F';
+		utf8_str += '\xBF';
+		utf8_str += '\xBF';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result.size(), std::size_t(0));
+	}
+
+	SUBCASE("toLatin1_multiple_3byte_sequences")
+	{
+		std::string utf8_str;
+		utf8_str += '\xE2';
+		utf8_str += '\x82';
+		utf8_str += '\xAC';
+		utf8_str += '\xE2';
+		utf8_str += '\x82';
+		utf8_str += '\xAD';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(result.size(), std::size_t(0));
+	}
+
+	SUBCASE("fromLatin1_single_byte_0x80")
+	{
+		std::string latin1;
+		latin1 += '\x80';
+		std::string result = utf8.fromLatin1(latin1);
+		CHECK_EQ(result.size(), std::size_t(2));
+		CHECK_EQ(static_cast<unsigned char>(result[0]), 0xC2);
+		CHECK_EQ(static_cast<unsigned char>(result[1]), 0x80);
+	}
+
+	SUBCASE("fromLatin1_single_byte_0xFF")
+	{
+		std::string latin1;
+		latin1 += '\xFF';
+		std::string result = utf8.fromLatin1(latin1);
+		CHECK_EQ(result.size(), std::size_t(2));
+		CHECK_EQ(static_cast<unsigned char>(result[0]), 0xC3);
+		CHECK_EQ(static_cast<unsigned char>(result[1]), 0xBF);
+	}
+
+	SUBCASE("toLatin1_consecutive_2byte_sequences")
+	{
+		std::string input;
+		input += '\xC3';
+		input += '\xA9';
+		input += '\xC3';
+		input += '\xB8';
+		std::string result = utf8.toLatin1(input);
+		CHECK_EQ(result.size(), std::size_t(2));
+		CHECK_EQ(static_cast<unsigned char>(result[0]), 0xE9);
+		CHECK_EQ(static_cast<unsigned char>(result[1]), 0xF8);
+	}
+
+	SUBCASE("fromLatin1_long_string_all_extended")
+	{
+		std::string latin1;
+		for(int i = 0x80; i <= 0xFF; ++i)
+		{
+			latin1 += static_cast<char>(i);
+		}
+		std::string result = utf8.fromLatin1(latin1);
+		CHECK_EQ(result.size(), std::size_t(128 * 2));
+
+		std::string decoded = utf8.toLatin1(result);
+		CHECK_EQ(decoded, latin1);
+	}
 }

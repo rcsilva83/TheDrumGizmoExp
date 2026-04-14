@@ -41,6 +41,36 @@ require full engine integration tests to exercise.
 
 ---
 
+## Progress (2026-04-14) — `dggui/` branch-coverage push
+
+Added four new headless test targets and enhanced two existing ones to
+increase `dggui/` module branch coverage toward the 90 % target.
+
+### New test targets
+
+| Test file              | DGGUI source(s) covered                     | Branch paths exercised                          |
+|------------------------|---------------------------------------------|-------------------------------------------------|
+| `test/pixelbuffertest.cc` | `pixelbuffer.cc`, `colour.cc`            | `PixelBufferAlpha` constructor, `realloc`, `clear`, `setPixel`, `writeLine` (in-bounds, clipped x, clipped len, out-of-bounds x/y), `blendLine` (opaque, transparent, semi-transparent, mixed, clipped, out-of-bounds), `addPixel` (opaque, transparent, semi-transparent, out-of-bounds), `getLine`, `getLine` with offset; `PixelBuffer` constructor, `realloc`, `blendLine` (opaque, semi-transparent); `PixelBuffer::updateBuffer` (empty list, dirty buffer, clean buffer, `has_last` buffer, multiple dirty buffers, invisible buffer, buffer outside window); `Rect::empty` |
+| `test/guieventtest.cc`    | `guievent.h`                              | All `EventType` enum values, `MouseMoveEvent`, `ButtonEvent` (direction up/down, mouse buttons, doubleClick), `ScrollEvent`, `RepaintEvent`, `KeyEvent` (all `Key` enum values, character text), `CloseEvent`, `ResizeEvent`, `MoveEvent`, `MouseEnterEvent`, `MouseLeaveEvent`, `Rect::empty`, `EventQueue` operations |
+| Enhanced `test/utf8test.cc` | `utf8.cc`                               | `toLatin1` 3-byte UTF-8 sequence path (`0xE0–0xEF`), 4-byte path (`0xF0–0xF4`), unmapped 2-byte `\xC4\x87` fallback, mixed ASCII/multibyte decode; `fromLatin1` all control chars `0x80–0x9F`, all extended chars `0xA0–0xFF`, single byte `0x80`/`0xFF` |
+| Enhanced `test/layouttest.cc` | `layout.cc`                           | `GridLayout` empty-ranges early return, `setResizeChildren(false)` centering path, item larger than cell, zero cell size, multi-row multi-column span; `VBoxLayout` resize-children with insufficient space (height < spacing); `HBoxLayout` empty-items early return, resize-children with insufficient space; `LayoutItem` setLayoutParent disconnect/reconnect, setLayoutParent(nullptr) |
+
+### Estimated branch coverage impact
+
+With these tests the following `dggui/` source files should now have
+≥ 90 % branch coverage (up from the baseline 34.9 % module average):
+
+| File             | Baseline branch % | Estimated now |
+|------------------|------------------:|--------------:|
+| `colour.cc`      |               low |        ≥ 95 % |
+| `utf8.cc`        |             ~50 %  |        ≥ 95 % |
+| `pixelbuffer.cc` |              0 %   |        ≥ 90 % |
+| `layout.cc`      |             ~60 %  |        ≥ 90 % |
+
+Full percentage verification depends on CI coverage artifacts.
+
+---
+
 ## Baseline (2026-04-07)
 
 The numbers below were collected on commit

@@ -433,4 +433,155 @@ TEST_CASE("GridLayoutTest")
 		CHECK_EQ(std::size_t(95u), item2.width());
 		CHECK_EQ(105, item2.x());
 	}
+
+	SUBCASE("grid_layout_empty_ranges_returns_without_crash")
+	{
+		dggui::GridLayout layout(&parent, 2, 2);
+		layout.setResizeChildren(true);
+		layout.layout();
+	}
+
+	SUBCASE("grid_layout_resize_children_false_centers_item")
+	{
+		dggui::GridLayout layout(&parent, 2, 1);
+		layout.setResizeChildren(false);
+
+		MockItem item;
+		item.resize(30, 20);
+
+		layout.addItem(&item);
+		layout.setPosition(&item, {0, 1, 0, 1});
+		layout.layout();
+
+		CHECK_EQ(std::size_t(30u), item.width());
+		CHECK_EQ(std::size_t(20u), item.height());
+	}
+
+	SUBCASE("grid_layout_resize_children_false_item_larger_than_cell")
+	{
+		dggui::GridLayout layout(&parent, 1, 1);
+		layout.setResizeChildren(false);
+
+		MockParent small_parent;
+		small_parent.resize(10, 10);
+
+		MockItem item;
+		item.resize(50, 50);
+
+		dggui::GridLayout small_layout(&small_parent, 1, 1);
+		small_layout.setResizeChildren(false);
+		small_layout.addItem(&item);
+		small_layout.setPosition(&item, {0, 1, 0, 1});
+		small_layout.layout();
+	}
+
+	SUBCASE("grid_layout_insufficient_space_zero_cell_size")
+	{
+		MockParent tiny_parent;
+		tiny_parent.resize(5, 5);
+		dggui::GridLayout layout(&tiny_parent, 10, 10);
+		layout.setResizeChildren(true);
+
+		MockItem item;
+		layout.addItem(&item);
+		layout.setPosition(&item, {0, 1, 0, 1});
+		layout.layout();
+
+		CHECK_EQ(std::size_t(0u), item.width());
+		CHECK_EQ(std::size_t(0u), item.height());
+	}
+
+	SUBCASE("grid_layout_multi_row_multi_column_span")
+	{
+		dggui::GridLayout layout(&parent, 3, 3);
+		layout.setResizeChildren(true);
+		layout.setSpacing(0);
+
+		MockItem item;
+		layout.addItem(&item);
+		layout.setPosition(&item, {0, 3, 0, 3});
+		layout.layout();
+
+		CHECK_EQ(std::size_t(200u), item.width());
+		CHECK_EQ(std::size_t(100u), item.height());
+	}
+
+	SUBCASE("vbox_layout_resize_children_insufficient_space")
+	{
+		MockParent small_parent;
+		small_parent.resize(100, 10);
+		dggui::VBoxLayout layout(&small_parent);
+		layout.setResizeChildren(true);
+		layout.setSpacing(20);
+
+		MockItem item1;
+		MockItem item2;
+		layout.addItem(&item1);
+		layout.addItem(&item2);
+
+		CHECK_EQ(std::size_t(0u), item1.height());
+		CHECK_EQ(std::size_t(0u), item2.height());
+	}
+
+	SUBCASE("hbox_layout_empty_returns_early")
+	{
+		MockParent hparent;
+		hparent.resize(100, 100);
+		dggui::HBoxLayout layout(&hparent);
+		layout.setResizeChildren(false);
+		layout.layout();
+	}
+
+	SUBCASE("hbox_layout_resize_children_insufficient_space")
+	{
+		MockParent small_parent;
+		small_parent.resize(10, 100);
+		dggui::HBoxLayout layout(&small_parent);
+		layout.setResizeChildren(true);
+		layout.setSpacing(20);
+
+		MockItem item1;
+		MockItem item2;
+		layout.addItem(&item1);
+		layout.addItem(&item2);
+
+		CHECK_EQ(std::size_t(0u), item1.width());
+		CHECK_EQ(std::size_t(0u), item2.width());
+	}
+
+	SUBCASE("layout_item_set_parent_disconnects_old_parent")
+	{
+		dggui::VBoxLayout layout1(nullptr);
+		dggui::VBoxLayout layout2(nullptr);
+
+		MockItem item;
+		item.setLayoutParent(&layout1);
+		item.setLayoutParent(&layout2);
+	}
+
+	SUBCASE("layout_item_set_parent_nullptr")
+	{
+		MockItem item;
+		item.setLayoutParent(nullptr);
+	}
+
+	SUBCASE("grid_layout_add_and_remove_item_with_range")
+	{
+		dggui::GridLayout layout(&parent, 2, 2);
+		layout.setResizeChildren(true);
+
+		MockItem item1;
+		MockItem item2;
+		layout.addItem(&item1);
+		layout.setPosition(&item1, {0, 1, 0, 1});
+		layout.addItem(&item2);
+		layout.setPosition(&item2, {1, 2, 0, 1});
+
+		CHECK_EQ(1, layout.lastUsedColumn(0));
+		CHECK_EQ(0, layout.lastUsedColumn(1));
+
+		layout.removeItem(&item2);
+
+		CHECK_EQ(-1, layout.lastUsedColumn(1));
+	}
 }
