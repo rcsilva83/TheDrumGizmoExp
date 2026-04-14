@@ -210,8 +210,6 @@ void Painter::drawText(int x0, int y0, const Font& font,
 		{
 			int x = -1 * std::min(0, x0);
 
-			assert(x >= 0);
-			assert(y >= 0);
 			assert(x < (int)textbuf->width);
 			assert(y < (int)textbuf->height);
 
@@ -243,9 +241,7 @@ void Painter::drawText(int x0, int y0, const Font& font,
 		{
 			for(int x = -1 * std::min(0, x0); x < renderWidth; ++x)
 			{
-				assert(x >= 0);
-				assert(y >= 0);
-				assert(x < (int)textbuf->height);
+						assert(x < (int)textbuf->height);
 				assert(y < (int)textbuf->width);
 
 				auto c = textbuf->pixel(textbuf->width - y - 1, x);
@@ -267,9 +263,7 @@ void Painter::drawText(int x0, int y0, const Font& font,
 		{
 			for(int x = -1 * std::min(0, x0); x < renderWidth; ++x)
 			{
-				assert(x >= 0);
-				assert(y >= 0);
-				assert(x < (int)textbuf->width);
+						assert(x < (int)textbuf->width);
 				assert(y < (int)textbuf->height);
 
 				auto c = textbuf->pixel(x, y);
@@ -420,14 +414,10 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 			{
 				for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw; ++x)
 				{
-					assert(x >= 0);
-					assert(y >= 0);
 					assert(x < image.width());
 					assert(y < image.height());
 					auto& c = image.getPixel(x, y);
 
-					assert(x0 + x >= 0);
-					assert(y0 + y >= 0);
 					assert(x0 + x < pixbuf.width);
 					assert(y0 + y < pixbuf.height);
 
@@ -483,14 +473,10 @@ void Painter::drawRestrictedImage(int x0, int y0,
 	{
 		for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw; ++x)
 		{
-			assert(x >= 0);
-			assert(y >= 0);
 			assert(x < image.width());
 			assert(y < image.height());
 			auto& c = image.getPixel(x, y);
 
-			assert(x0 + x >= 0);
-			assert(y0 + y >= 0);
 			assert(x0 + x < pixbuf.width);
 			assert(y0 + y < pixbuf.height);
 

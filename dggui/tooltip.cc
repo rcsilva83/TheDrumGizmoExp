@@ -57,7 +57,7 @@ void Tooltip::resize(std::size_t width, std::size_t height)
 	Widget::resize(width, height);
 }
 
-void Tooltip::repaintEvent(RepaintEvent* repaintEvent)
+void Tooltip::repaintEvent(RepaintEvent*)
 {
 	if(needs_preprocessing)
 	{

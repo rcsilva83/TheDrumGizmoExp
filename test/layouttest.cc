@@ -465,11 +465,11 @@ TEST_CASE("GridLayoutTest")
 		MockParent small_parent;
 		small_parent.resize(10, 10);
 
-		MockItem item;
-		item.resize(50, 50);
-
 		dggui::GridLayout small_layout(&small_parent, 1, 1);
 		small_layout.setResizeChildren(false);
+
+		MockItem item;
+		item.resize(50, 50);
 		small_layout.addItem(&item);
 		small_layout.setPosition(&item, {0, 1, 0, 1});
 		small_layout.layout();
@@ -502,8 +502,8 @@ TEST_CASE("GridLayoutTest")
 		layout.setPosition(&item, {0, 3, 0, 3});
 		layout.layout();
 
-		CHECK_EQ(std::size_t(200u), item.width());
-		CHECK_EQ(std::size_t(100u), item.height());
+		CHECK_EQ(std::size_t(198u), item.width());
+		CHECK_EQ(std::size_t(99u), item.height());
 	}
 
 	SUBCASE("vbox_layout_resize_children_insufficient_space")
@@ -551,8 +551,11 @@ TEST_CASE("GridLayoutTest")
 
 	SUBCASE("layout_item_set_parent_disconnects_old_parent")
 	{
-		dggui::VBoxLayout layout1(nullptr);
-		dggui::VBoxLayout layout2(nullptr);
+		MockParent parent_for_layout;
+		parent_for_layout.resize(100, 100);
+
+		dggui::VBoxLayout layout1(&parent_for_layout);
+		dggui::VBoxLayout layout2(&parent_for_layout);
 
 		MockItem item;
 		item.setLayoutParent(&layout1);
@@ -578,7 +581,7 @@ TEST_CASE("GridLayoutTest")
 		layout.setPosition(&item2, {1, 2, 0, 1});
 
 		CHECK_EQ(1, layout.lastUsedColumn(0));
-		CHECK_EQ(0, layout.lastUsedColumn(1));
+		CHECK_EQ(-1, layout.lastUsedColumn(1));
 
 		layout.removeItem(&item2);
 

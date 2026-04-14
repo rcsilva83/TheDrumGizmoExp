@@ -46,7 +46,7 @@ void HelpButton::setHelpText(const std::string& help_text)
 	tip.setText(help_text);
 }
 
-void HelpButton::repaintEvent(RepaintEvent* repaintEvent)
+void HelpButton::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 

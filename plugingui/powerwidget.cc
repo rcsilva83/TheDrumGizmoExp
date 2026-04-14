@@ -66,7 +66,7 @@ void PowerWidget::chk_shelf(bool v)
 	settings.powermap_shelf.store(v);
 }
 
-void PowerWidget::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::repaintEvent(dggui::RepaintEvent *)
 {
 	dggui::Painter p(*this);
 	box.setSize(width() - 59 - 64, height());
@@ -118,7 +118,7 @@ PowerWidget::Canvas::Canvas(dggui::Widget* parent,
 	parameterChangedFloat(0);
 }
 
-void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *)
 {
 	if(width() < 1 || height() < 1)
 	{

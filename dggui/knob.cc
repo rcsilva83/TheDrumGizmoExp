@@ -174,7 +174,7 @@ void Knob::buttonEvent(ButtonEvent* buttonEvent)
 	}
 }
 
-void Knob::repaintEvent(RepaintEvent* repaintEvent)
+void Knob::repaintEvent(RepaintEvent*)
 {
 	int diameter = (width()>height()?height():width());
 	int radius = diameter / 2;

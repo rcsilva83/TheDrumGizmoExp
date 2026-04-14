@@ -149,7 +149,7 @@ void TextEdit::preprocessText()
 	}
 }
 
-void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
+void TextEdit::repaintEvent(RepaintEvent*)
 {
 	if(needs_preprocessing)
 	{

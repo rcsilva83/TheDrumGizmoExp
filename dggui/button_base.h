@@ -57,7 +57,7 @@ protected:
 	virtual void clicked() {}
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override {};
+	virtual void repaintEvent(RepaintEvent*) override {};
 	virtual void buttonEvent(ButtonEvent* e) override;
 	virtual void mouseLeaveEvent() override;
 	virtual void mouseEnterEvent() override;

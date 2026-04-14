@@ -45,7 +45,7 @@ HumaniserVisualiser::HumaniserVisualiser(dggui::Widget* parent,
 	canvas.move(7, 7);
 }
 
-void HumaniserVisualiser::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void HumaniserVisualiser::repaintEvent(dggui::RepaintEvent *)
 {
 	dggui::Painter p(*this);
 
@@ -90,7 +90,7 @@ HumaniserVisualiser::Canvas::Canvas(dggui::Widget* parent,
 	        this, &HumaniserVisualiser::Canvas::velocityStddevChanged);
 }
 
-void HumaniserVisualiser::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void HumaniserVisualiser::Canvas::repaintEvent(dggui::RepaintEvent *)
 {
 	if(width() < 1 || height() < 1)
 	{

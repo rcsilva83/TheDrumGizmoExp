@@ -135,12 +135,12 @@ void ListBoxBasic::clearSelectedValue()
 	setSelection(-1);
 }
 
-void ListBoxBasic::onScrollBarValueChange(int value)
+void ListBoxBasic::onScrollBarValueChange(int)
 {
 	redraw();
 }
 
-void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
+void ListBoxBasic::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 

@@ -216,7 +216,7 @@ std::size_t Window::translateToWindowY()
 
 //! Called by event handler when an windowmanager/OS window resize event has
 //! been received. Do not call this directly.
-void Window::resized(std::size_t width, std::size_t height)
+void Window::resized(std::size_t, std::size_t)
 {
 	auto size = native->getSize();
 	if((wpixbuf.width != size.first) ||

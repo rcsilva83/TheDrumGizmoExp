@@ -101,7 +101,7 @@ size_t Font::textWidth(const std::string& text) const
 	return len;
 }
 
-size_t Font::textHeight(const std::string& text) const
+size_t Font::textHeight(const std::string&) const
 {
 	return img_font.height();
 }

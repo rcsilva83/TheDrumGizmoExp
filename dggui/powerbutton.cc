@@ -42,7 +42,7 @@ void PowerButton::setEnabled(bool enabled)
 	redraw();
 }
 
-void PowerButton::repaintEvent(RepaintEvent* repaintEvent)
+void PowerButton::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 

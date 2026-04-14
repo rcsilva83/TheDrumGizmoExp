@@ -105,7 +105,7 @@ void Slider::setEnabled(bool enabled)
 	redraw();
 }
 
-void Slider::repaintEvent(RepaintEvent* repaintEvent)
+void Slider::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 

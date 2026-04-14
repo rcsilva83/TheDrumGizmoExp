@@ -90,7 +90,7 @@ TabID TabButton::getID() const
 	return tab_id;
 }
 
-void TabButton::repaintEvent(RepaintEvent* e)
+void TabButton::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 

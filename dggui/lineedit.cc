@@ -199,7 +199,7 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 	}
 }
 
-void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
+void LineEdit::repaintEvent(RepaintEvent *)
 {
 	Painter p(*this);
 

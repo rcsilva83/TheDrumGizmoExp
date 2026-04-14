@@ -133,7 +133,7 @@ const Colour& TexturedBox::getPixel(std::size_t x, std::size_t y) const
 	return outOfRange;
 }
 
-const std::uint8_t* TexturedBox::line(std::size_t y, std::size_t x_offset) const
+const std::uint8_t* TexturedBox::line(std::size_t, std::size_t) const
 {
 	// TODO: Gather line into temporary buffer?
 	return nullptr;

@@ -117,7 +117,7 @@ static void drawArrow(Painter &p, int x, int y, int w, int h)
 	p.drawLine(x + (w / 2), y + h, x + w, y);
 }
 
-void ScrollBar::repaintEvent(RepaintEvent* repaintEvent)
+void ScrollBar::repaintEvent(RepaintEvent*)
 {
 	Painter p(*this);
 
