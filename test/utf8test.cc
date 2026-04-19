@@ -125,4 +125,114 @@ TEST_CASE("UTF8Test")
 		std::string ascii = "DrumGizmo 0.9.20";
 		CHECK_EQ(ascii, utf8.toLatin1(utf8.fromLatin1(ascii)));
 	}
+
+	// Tests for 3-byte UTF-8 sequences (unmapped - should return empty)
+	SUBCASE("toLatin1_three_byte_sequence_unmapped")
+	{
+		// U+20AC Euro sign: UTF-8 0xE2 0x82 0xAC (3-byte sequence)
+		// Not in decode map, should be stripped (return empty string)
+		std::string utf8_str;
+		utf8_str += '\xe2';
+		utf8_str += '\x82';
+		utf8_str += '\xac';
+		std::string result = utf8.toLatin1(utf8_str);
+		// Unmapped 3-byte sequences are not in the decode map
+		// The function looks up in map_decode and if not found, returns ""
+		CHECK_EQ(std::size_t(0u), result.size());
+	}
+
+	// Tests for 4-byte UTF-8 sequences (unmapped - should return empty)
+	SUBCASE("toLatin1_four_byte_sequence_unmapped")
+	{
+		// U+1F600 Grinning face emoji: UTF-8 0xF0 0x9F 0x98 0x80 (4-byte)
+		// Not in decode map, should be stripped
+		std::string utf8_str;
+		utf8_str += '\xf0';
+		utf8_str += '\x9f';
+		utf8_str += '\x98';
+		utf8_str += '\x80';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(std::size_t(0u), result.size());
+	}
+
+	// Test for special ć -> c mapping (hack for Goran Mekic's name)
+	SUBCASE("toLatin1_special_c_acute_mapping")
+	{
+		// U+0107 (ć): UTF-8 0xC4 0x87 -> should map to "c"
+		// This is a special case in the decode map
+		std::string utf8_str;
+		utf8_str += '\xc4';
+		utf8_str += '\x87';
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(std::string("c"), result);
+	}
+
+	// Test mixed string with ASCII, 2-byte, 3-byte, and 4-byte sequences
+	SUBCASE("toLatin1_mixed_ascii_and_multibyte")
+	{
+		// "Hi " + U+0107 (ć -> c) + " test"
+		std::string utf8_str = "Hi ";
+		utf8_str += '\xc4';
+		utf8_str += '\x87';
+		utf8_str += " test";
+		std::string result = utf8.toLatin1(utf8_str);
+		CHECK_EQ(std::string("Hi c test"), result);
+	}
+
+	// Test string starting with multibyte sequence
+	SUBCASE("toLatin1_starts_with_multibyte")
+	{
+		// U+00E9 (é): UTF-8 0xC3 0xA9 -> Latin-1 0xE9
+		std::string utf8_str;
+		utf8_str += '\xc3';
+		utf8_str += '\xa9';
+		utf8_str += "nd";
+		std::string result = utf8.toLatin1(utf8_str);
+		std::string expected;
+		expected += '\xe9';
+		expected += "nd";
+		CHECK_EQ(expected, result);
+	}
+
+	// Test multiple 3-byte sequences (all unmapped, should be stripped)
+	SUBCASE("toLatin1_multiple_unmapped_three_byte")
+	{
+		// Multiple 3-byte sequences that are not in the decode map
+		std::string utf8_str;
+		utf8_str += '\xe2';
+		utf8_str += '\x82';
+		utf8_str += '\xac'; // Euro
+		utf8_str += '\xe2';
+		utf8_str += '\x80';
+		utf8_str += '\x99'; // Smart quote
+		std::string result = utf8.toLatin1(utf8_str);
+		// Both characters are unmapped, so result should be empty
+		CHECK_EQ(std::size_t(0u), result.size());
+	}
+
+	// Test boundary: C2 (start of 2-byte range)
+	SUBCASE("toLatin1_boundary_c2_start")
+	{
+		// U+0080: UTF-8 0xC2 0x80 -> Latin-1 0x80
+		std::string utf8_str;
+		utf8_str += '\xc2';
+		utf8_str += '\x80';
+		std::string result = utf8.toLatin1(utf8_str);
+		std::string expected;
+		expected += '\x80';
+		CHECK_EQ(expected, result);
+	}
+
+	// Test boundary: DF (end of 2-byte range)
+	SUBCASE("toLatin1_boundary_df_end")
+	{
+		// U+00BF: UTF-8 0xC2 0xBF -> Latin-1 0xBF (inverted question mark)
+		std::string utf8_str;
+		utf8_str += '\xc2';
+		utf8_str += '\xbf';
+		std::string result = utf8.toLatin1(utf8_str);
+		std::string expected;
+		expected += '\xbf';
+		CHECK_EQ(expected, result);
+	}
 }

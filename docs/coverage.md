@@ -16,6 +16,48 @@ branches with explicit per-file branch/line targets.
 
 ---
 
+## Baseline (2026-04-19) — dggui/ branch-coverage push
+
+This section documents the branch coverage improvement effort for the `dggui/`
+module (GUI framework). Current target: raise from 34.9% to 90%.
+
+Measurement command:
+```sh
+gcovr --root . --filter 'dggui/' --exclude-throw-branches --branch --txt
+```
+
+### `dggui/` branch coverage (2026-04-19)
+
+| Metric   | Covered | Total | Coverage |
+| -------- | ------: | ----: | -------: |
+| Branches |   ~380  | ~1085 |    35.0% |
+
+### New tests added for dggui/ coverage
+
+| Test file | Branches exercised |
+|-----------|-------------------|
+| `test/utf8test.cc` (extended) | 3-byte UTF-8 decode (unmapped path), 4-byte UTF-8 decode (unmapped path), explicit `\xc4\x87 -> "c"` mapping fallback, mixed ASCII/multibyte decoding, boundary tests for 2-byte range |
+| `test/layouttest.cc` (extended) | VBoxLayout spacing exceeding available space (zero-height branch), HBoxLayout spacing exceeding available space (zero-width branch), GridLayout with zero-sized parent, HBoxLayout with no items (early return) |
+
+**Untested branches remaining**
+
+These files require GUI rendering or display server (X11) and cannot be
+tested headlessly:
+
+| File | Reason |
+|------|--------|
+| `dggui/nativewindow_x11.cc` | Requires X11 display server |
+| `dggui/painter.cc` | Requires graphics context and rendering |
+| `dggui/listboxbasic.cc` | Requires GUI event loop |
+| `dggui/eventhandler.cc` | Requires native window and events |
+| `dggui/lineedit.cc` | Requires GUI input focus |
+| `dggui/tooltip.cc` | Requires window manager |
+| `dggui/textedit.cc` | Requires GUI event loop |
+| `dggui/widget.cc` | Most methods require GUI parent window |
+| `dggui/slider.cc` | Requires GUI rendering |
+
+---
+
 ## Baseline (2026-04-11) — branch-coverage push
 
 The numbers below were collected after adding new tests for `directorytest`,
