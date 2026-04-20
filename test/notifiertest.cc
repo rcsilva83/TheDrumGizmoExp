@@ -241,6 +241,7 @@ TEST_CASE("NotifierTest")
 		notifier();
 		// Only foo1 must still receive the notification.
 		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo1, triggers[0]);
 	}
 
@@ -258,6 +259,7 @@ TEST_CASE("NotifierTest")
 
 		notifier();
 		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&connected, triggers[0]);
 	}
 
@@ -298,6 +300,7 @@ TEST_CASE("NotifierTest")
 		widget.signal();
 
 		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&probe, triggers[0]);
 	}
 
@@ -321,7 +324,9 @@ TEST_CASE("NotifierTest")
 		notifier("world");
 
 		CHECK_EQ(2u, probe.received.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("hello", probe.received[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("world", probe.received[1]);
 	}
 
@@ -336,11 +341,17 @@ TEST_CASE("NotifierTest")
 		notifier(3, 4.0, "second");
 
 		CHECK_EQ(2u, probe.ints.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(1, probe.ints[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(3, probe.ints[1]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(2.5, probe.doubles[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(4.0, probe.doubles[1]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("first", probe.strings[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("second", probe.strings[1]);
 	}
 
@@ -419,7 +430,9 @@ TEST_CASE("NotifierTest")
 
 		notifier();
 		REQUIRE_EQ(2u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo2, triggers[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo3, triggers[1]);
 	}
 
@@ -440,7 +453,9 @@ TEST_CASE("NotifierTest")
 
 		notifier();
 		REQUIRE_EQ(2u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo1, triggers[0]);
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo3, triggers[1]);
 	}
 }
