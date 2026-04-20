@@ -35,7 +35,7 @@ TextEdit::TextEdit(Widget* parent) : Widget(parent), scroll(this)
 {
 	setReadOnly(true);
 
-	scroll.move(width() - 2*x_border - 3, y_border - 1);
+	scroll.move(width() - 2 * x_border - 3, y_border - 1);
 	scroll.resize(16, 100);
 	CONNECT(&scroll, valueChangeNotifier, this, &TextEdit::scrolled);
 }
@@ -49,8 +49,9 @@ void TextEdit::resize(std::size_t width, std::size_t height)
 	Widget::resize(width, height);
 
 	needs_preprocessing = true;
-	scroll.move(width - 2*x_border - 3, y_border - 1);
-	scroll.resize(scroll.width(), std::max((int)height - 2*(y_border - 1), 0));
+	scroll.move(width - 2 * x_border - 3, y_border - 1);
+	scroll.resize(
+	    scroll.width(), std::max((int)height - 2 * (y_border - 1), 0));
 }
 
 void TextEdit::setReadOnly(bool readonly)
@@ -82,6 +83,7 @@ void TextEdit::preprocessText()
 	std::vector<std::string> lines;
 
 	preprocessed_text.clear();
+	// cppcheck-suppress shadowVariable
 	std::string text = this->text;
 
 	// Handle tab characters
@@ -115,12 +117,12 @@ void TextEdit::preprocessText()
 	} while(pos != std::string::npos);
 
 	// Wrap long lines
-	auto const max_width = width() - 2*x_border - 10 - scroll.width();
-	for(auto const& line: lines)
+	auto const max_width = width() - 2 * x_border - 10 - scroll.width();
+	for(auto const& line : lines)
 	{
 		std::string valid;
 		std::string current;
-		for(auto c: line)
+		for(auto c : line)
 		{
 			current += c;
 			if(c == ' ')
@@ -151,6 +153,7 @@ void TextEdit::preprocessText()
 
 void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(needs_preprocessing)
 	{
 		preprocessText();
@@ -169,7 +172,8 @@ void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
 
 	box.setSize(width(), height());
 	p.drawImage(0, 0, box);
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+	p.setColour(
+	    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 
 	int ypos = font.textHeight() + y_border;
 
@@ -198,4 +202,4 @@ void TextEdit::scrolled(int value)
 	redraw();
 }
 
-} // dggui::
+} // namespace dggui

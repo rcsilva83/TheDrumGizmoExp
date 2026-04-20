@@ -35,16 +35,22 @@
 namespace dggui
 {
 
-class ButtonBase
-	: public Widget
+class ButtonBase : public Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	ButtonBase(Widget* parent);
 	virtual ~ButtonBase();
 
 	// From Widget:
-	bool isFocusable() override { return true; }
-	bool catchMouse() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
+	bool catchMouse() override
+	{
+		return true;
+	}
 
 	void setText(const std::string& text);
 
@@ -54,10 +60,18 @@ public:
 	Notifier<> clickNotifier;
 
 protected:
-	virtual void clicked() {}
+	//! Called when button is clicked. Override to implement custom click
+	//! behavior.
+	virtual void clicked()
+	{ /* Default: no action. Override in subclass. */
+	}
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override {};
+	void repaintEvent(RepaintEvent* e) override
+	{
+		// Default: no custom repaint needed. Override in subclass if required.
+		(void)e;
+	}
 	virtual void buttonEvent(ButtonEvent* e) override;
 	virtual void mouseLeaveEvent() override;
 	virtual void mouseEnterEvent() override;
@@ -65,7 +79,8 @@ protected:
 	bool enabled{true};
 	bool in_button{false};
 
-	enum class State {
+	enum class State
+	{
 		Up,
 		Down
 	};
@@ -76,4 +91,4 @@ protected:
 	State button_state{State::Up};
 };
 
-} // dggui::
+} // namespace dggui

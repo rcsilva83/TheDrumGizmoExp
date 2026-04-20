@@ -28,21 +28,29 @@
 
 #include <notifier.h>
 
-#include "widget.h"
-#include "texture.h"
 #include "font.h"
+#include "texture.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class Knob : public Widget {
+class Knob : public Widget
+{
 public:
-	Knob(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	Knob(Widget* parent);
 	virtual ~Knob() = default;
 
 	// From Widget:
-	bool catchMouse() override { return true; }
-	bool isFocusable() override { return true; }
+	bool catchMouse() override
+	{
+		return true;
+	}
+	bool isFocusable() override
+	{
+		return true;
+	}
 
 	void setValue(float value);
 	void setDefaultValue(float value);
@@ -53,7 +61,9 @@ public:
 	Notifier<float> valueChangedNotifier; // (float newValue)
 
 protected:
-	virtual void clicked() {}
+	virtual void clicked()
+	{
+	}
 
 	// From Widget:
 	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
@@ -66,7 +76,8 @@ private:
 	//! Sets the internal value and sends out the changed notification.
 	void internalSetValue(float value);
 
-	typedef enum {
+	typedef enum
+	{
 		up,
 		down
 	} state_t;
@@ -86,4 +97,4 @@ private:
 	Font font;
 };
 
-} // dggui::
+} // namespace dggui

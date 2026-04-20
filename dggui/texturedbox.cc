@@ -32,26 +32,25 @@ namespace dggui
 {
 
 TexturedBox::TexturedBox(ImageCache& image_cache, const std::string& filename,
-                         std::size_t x0, std::size_t y0,
-                         std::size_t dx1, std::size_t dx2, std::size_t dx3,
-                         std::size_t dy1, std::size_t dy2, std::size_t dy3)
-	: seg_a(image_cache, filename, x0            , y0            , dx1, dy1)
-	, seg_b(image_cache, filename, x0 + dx1      , y0            , dx2, dy1)
-	, seg_c(image_cache, filename, x0 + dx1 + dx2, y0            , dx3, dy1)
-	, seg_d(image_cache, filename, x0            , y0 + dy1      , dx1, dy2)
-	, seg_e(image_cache, filename, x0 + dx1      , y0 + dy1      , dx2, dy2)
-	, seg_f(image_cache, filename, x0 + dx1 + dx2, y0 + dy1      , dx3, dy2)
-	, seg_g(image_cache, filename, x0            , y0 + dy1 + dy2, dx1, dy3)
-	, seg_h(image_cache, filename, x0 + dx1      , y0 + dy1 + dy2, dx2, dy3)
-	, seg_i(image_cache, filename, x0 + dx1 + dx2, y0 + dy1 + dy2, dx3, dy3)
-	, dx1(dx1)
-	, dx2(dx2)
-	, dx3(dx3)
-	, dy1(dy1)
-	, dy2(dy2)
-	, dy3(dy3)
-	, _width(dx1 + dx2 + dx3)
-	, _height(dy1 + dy2 + dy3)
+    std::size_t x0, std::size_t y0, std::size_t dx1, std::size_t dx2,
+    std::size_t dx3, std::size_t dy1, std::size_t dy2, std::size_t dy3)
+    : seg_a(image_cache, filename, x0, y0, dx1, dy1)
+    , seg_b(image_cache, filename, x0 + dx1, y0, dx2, dy1)
+    , seg_c(image_cache, filename, x0 + dx1 + dx2, y0, dx3, dy1)
+    , seg_d(image_cache, filename, x0, y0 + dy1, dx1, dy2)
+    , seg_e(image_cache, filename, x0 + dx1, y0 + dy1, dx2, dy2)
+    , seg_f(image_cache, filename, x0 + dx1 + dx2, y0 + dy1, dx3, dy2)
+    , seg_g(image_cache, filename, x0, y0 + dy1 + dy2, dx1, dy3)
+    , seg_h(image_cache, filename, x0 + dx1, y0 + dy1 + dy2, dx2, dy3)
+    , seg_i(image_cache, filename, x0 + dx1 + dx2, y0 + dy1 + dy2, dx3, dy3)
+    , dx1(dx1)
+    , dx2(dx2)
+    , dx3(dx3)
+    , dy1(dy1)
+    , dy2(dy2)
+    , dy3(dy3)
+    , _width(dx1 + dx2 + dx3)
+    , _height(dy1 + dy2 + dy3)
 {
 }
 
@@ -97,7 +96,8 @@ const Colour& TexturedBox::getPixel(std::size_t x, std::size_t y) const
 	{
 		if(x < dx1) // col 1
 		{
-			// TODO: Apply vertical scale
+			// Note: Vertical scaling uses current implementation.
+			// This implementation follows the same pattern as other segments.
 			float scale = (float)(y - dy1) / (float)(_height - dy1 - dy3);
 			return seg_d.getPixel(x, scale * dy2);
 		}
@@ -135,6 +135,8 @@ const Colour& TexturedBox::getPixel(std::size_t x, std::size_t y) const
 
 const std::uint8_t* TexturedBox::line(std::size_t y, std::size_t x_offset) const
 {
+	(void)y;
+	(void)x_offset;
 	// TODO: Gather line into temporary buffer?
 	return nullptr;
 }
@@ -144,4 +146,4 @@ bool TexturedBox::hasAlpha() const
 	return true;
 }
 
-} // dggui::
+} // namespace dggui

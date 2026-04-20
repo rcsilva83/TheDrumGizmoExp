@@ -50,6 +50,10 @@ public:
 	virtual void post() = 0;
 
 	//! Reimplement to receive sample rate changes.
-	virtual void setSampleRate(double sample_rate) {}
+	virtual void setSampleRate(double sample_rate)
+	{
+		// Default: no action needed. Override to handle sample rate changes.
+		(void)sample_rate;
+	}
 	virtual bool isFreewheeling() const = 0;
 };

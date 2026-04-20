@@ -26,11 +26,11 @@
  */
 #pragma once
 
-#include "guievent.h"
-#include "pixelbuffer.h"
-#include "notifier.h"
-#include "layout.h"
 #include "canvas.h"
+#include "guievent.h"
+#include "layout.h"
+#include "notifier.h"
+#include "pixelbuffer.h"
 
 #include <vector>
 
@@ -52,13 +52,12 @@ struct Size
 class ImageCache;
 class Window;
 
-class Widget
-	: public Listener
-	, public LayoutItem
-	, public Canvas
+class Widget : public Listener, public LayoutItem, public Canvas
 {
 	friend class Painter;
+
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Widget(Widget* parent);
 	virtual ~Widget();
 
@@ -83,20 +82,52 @@ public:
 	// From Canvas
 	PixelBufferAlpha& getPixelBuffer() override;
 
-	virtual bool isFocusable() { return false; }
-	virtual bool catchMouse() { return false; }
+	virtual bool isFocusable()
+	{
+		return false;
+	}
+	virtual bool catchMouse()
+	{
+		return false;
+	}
 
 	void addChild(Widget* widget);
 	void removeChild(Widget* widget);
 	void reparent(Widget* parent);
 
-	virtual void repaintEvent(RepaintEvent* repaintEvent) {}
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) {}
-	virtual void buttonEvent(ButtonEvent* buttonEvent) {}
-	virtual void scrollEvent(ScrollEvent* scrollEvent) {}
-	virtual void keyEvent(KeyEvent* keyEvent) {}
-	virtual void mouseLeaveEvent() {}
-	virtual void mouseEnterEvent() {}
+	virtual void repaintEvent(RepaintEvent* repaintEvent)
+	{
+		// Override to implement custom rendering
+		(void)repaintEvent;
+	}
+	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+	{
+		// Override to handle mouse movement
+		(void)mouseMoveEvent;
+	}
+	virtual void buttonEvent(ButtonEvent* buttonEvent)
+	{
+		// Override to handle mouse button events
+		(void)buttonEvent;
+	}
+	virtual void scrollEvent(ScrollEvent* scrollEvent)
+	{
+		// Override to handle scroll events
+		(void)scrollEvent;
+	}
+	virtual void keyEvent(KeyEvent* keyEvent)
+	{
+		// Override to handle keyboard events
+		(void)keyEvent;
+	}
+	virtual void mouseLeaveEvent()
+	{
+		// Override to handle mouse leaving the widget
+	}
+	virtual void mouseEnterEvent()
+	{
+		// Override to handle mouse entering the widget
+	}
 
 	virtual ImageCache& getImageCache();
 
@@ -109,7 +140,7 @@ public:
 	bool hasKeyboardFocus();
 
 	Notifier<std::size_t, std::size_t> sizeChangeNotifier; // (width, height)
-	Notifier<int, int> positionChangeNotifier; // (x, y)
+	Notifier<int, int> positionChangeNotifier;             // (x, y)
 
 	//! Translate x-coordinate from parent-space to window-space.
 	virtual std::size_t translateToWindowX();
@@ -119,7 +150,7 @@ public:
 
 protected:
 	friend class EventHandler;
-	PixelBufferAlpha pixbuf{0,0};
+	PixelBufferAlpha pixbuf{0, 0};
 
 	std::vector<Widget*> children;
 
@@ -136,4 +167,4 @@ protected:
 	bool dirty{true};
 };
 
-} // dggui::
+} // namespace dggui

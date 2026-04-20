@@ -44,6 +44,7 @@ void PowerButton::setEnabled(bool enabled)
 
 void PowerButton::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	// disabled
@@ -85,4 +86,4 @@ void PowerButton::repaintEvent(RepaintEvent* repaintEvent)
 	}
 }
 
-} // dggui::
+} // namespace dggui

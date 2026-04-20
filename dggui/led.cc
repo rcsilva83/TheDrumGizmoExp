@@ -31,9 +31,7 @@
 namespace dggui
 {
 
-LED::LED(Widget *parent)
-	: Widget(parent)
-	, state(Off)
+LED::LED(Widget* parent) : Widget(parent), state(Off)
 {
 }
 
@@ -48,14 +46,16 @@ void LED::setState(state_t state)
 
 void LED::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	size_t h = height() - 1;
 	size_t w = width() - 1;
 
 	Painter p(*this);
 	float alpha = 0.9;
-	switch(state) {
+	switch(state)
+	{
 	case Red:
-		p.setColour(Colour(1, 0, 0,alpha));
+		p.setColour(Colour(1, 0, 0, alpha));
 		break;
 	case Green:
 		p.setColour(Colour(0, 1, 0, alpha));
@@ -75,7 +75,8 @@ void LED::repaintEvent(RepaintEvent* repaintEvent)
 	}
 	p.drawFilledCircle(w / 2, h / 2, size);
 
-	switch(state) {
+	switch(state)
+	{
 	case Red:
 		p.setColour(Colour(0.4, 0, 0, alpha));
 		break;
@@ -95,4 +96,4 @@ void LED::repaintEvent(RepaintEvent* repaintEvent)
 	p.drawFilledCircle(w / 3, h / 3, size / 6);
 }
 
-} // dggui::
+} // namespace dggui

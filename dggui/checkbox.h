@@ -26,15 +26,17 @@
  */
 #pragma once
 
-#include "toggle.h"
 #include "texture.h"
+#include "toggle.h"
 
 namespace dggui
 {
 
-class CheckBox : public Toggle {
+class CheckBox : public Toggle
+{
 public:
-	CheckBox(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	CheckBox(Widget* parent);
 	virtual ~CheckBox() = default;
 
 protected:
@@ -47,4 +49,4 @@ private:
 	Texture knob;
 };
 
-} // dggui::
+} // namespace dggui

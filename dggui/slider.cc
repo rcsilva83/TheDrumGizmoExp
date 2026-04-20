@@ -46,11 +46,12 @@ Slider::Slider(Widget* parent) : Widget(parent)
 void Slider::setValue(float new_value)
 {
 	current_value = new_value;
-	if (current_value < 0.)
+	if(current_value < 0.)
 	{
 		current_value = 0.;
 	}
-	else if (current_value > 1.0) {
+	else if(current_value > 1.0)
+	{
 		current_value = 1.0;
 	}
 
@@ -66,7 +67,8 @@ float Slider::value() const
 
 void Slider::setColour(Colour colour)
 {
-	switch (colour) {
+	switch(colour)
+	{
 	case Colour::Green:
 		active_inner_bar = &inner_bar_green;
 		break;
@@ -87,17 +89,22 @@ void Slider::setColour(Colour colour)
 		break;
 	}
 
-	if (enabled) { inner_bar = active_inner_bar; }
+	if(enabled)
+	{
+		inner_bar = active_inner_bar;
+	}
 }
 
 void Slider::setEnabled(bool enabled)
 {
 	this->enabled = enabled;
 
-	if (enabled) {
+	if(enabled)
+	{
 		inner_bar = active_inner_bar;
 	}
-	else {
+	else
+	{
 		active_inner_bar = inner_bar;
 		inner_bar = &inner_bar_light_grey;
 	}
@@ -107,6 +114,7 @@ void Slider::setEnabled(bool enabled)
 
 void Slider::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	auto inner_offset = (current_value / maximum) * getControlWidth();
@@ -168,14 +176,18 @@ void Slider::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 
 void Slider::scrollEvent(ScrollEvent* scrollEvent)
 {
-	if (!enabled) { return; }
+	if(!enabled)
+	{
+		return;
+	}
 
-	current_value -= scrollEvent->delta/(float)getControlWidth();
-	if (current_value < 0.)
+	current_value -= scrollEvent->delta / (float)getControlWidth();
+	if(current_value < 0.)
 	{
 		current_value = 0.;
 	}
-	else if (current_value > 1.0) {
+	else if(current_value > 1.0)
+	{
 		current_value = 1.0;
 	}
 
@@ -205,13 +217,14 @@ void Slider::recomputeCurrentValue(float x)
 		current_value = (x - button_offset) / getControlWidth();
 	}
 
-	if (current_value < 0.)
+	if(current_value < 0.)
 	{
 		current_value = 0.;
 	}
-	else if (current_value > 1.0) {
+	else if(current_value > 1.0)
+	{
 		current_value = 1.0;
 	}
 }
 
-} // dggui::
+} // namespace dggui

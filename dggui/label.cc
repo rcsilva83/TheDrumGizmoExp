@@ -26,16 +26,15 @@
  */
 #include "label.h"
 
-#include "painter.h"
 #include "guievent.h"
+#include "painter.h"
 
 #include <cpp11fix.h>
 
 namespace dggui
 {
 
-Label::Label(Widget *parent)
-	: Widget(parent)
+Label::Label(Widget* parent) : Widget(parent)
 {
 }
 
@@ -58,6 +57,7 @@ void Label::setColour(Colour colour)
 
 void Label::resetColour()
 {
+	// cppcheck-suppress ignoredReturnValue
 	colour.release();
 	redraw();
 }
@@ -69,11 +69,13 @@ void Label::resizeToText()
 
 void Label::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 	p.clear();
 
 	int offset = 0;
-	switch(alignment) {
+	switch(alignment)
+	{
 	case TextAlignment::left:
 		offset = border;
 		break;
@@ -85,13 +87,16 @@ void Label::repaintEvent(RepaintEvent* repaintEvent)
 		break;
 	}
 
-	if (colour) {
+	if(colour)
+	{
 		p.setColour(*colour);
 		p.drawText(offset, (height() + font.textHeight()) / 2, font, _text);
 	}
-	else {
-		p.drawText(offset, (height() + font.textHeight()) / 2, font, _text, true);
+	else
+	{
+		p.drawText(
+		    offset, (height() + font.textHeight()) / 2, font, _text, true);
 	}
 }
 
-} // dggui::
+} // namespace dggui

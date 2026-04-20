@@ -28,19 +28,20 @@
 
 #include <limits>
 
-#include "widget.h"
-#include "texture.h"
 #include "notifier.h"
+#include "texture.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class ScrollBar
-	: public Widget
+class ScrollBar : public Widget
 {
 	friend class ListBoxBasic;
+
 public:
-	ScrollBar(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	ScrollBar(Widget* parent);
 
 	void setRange(int range);
 	int range();
@@ -56,7 +57,10 @@ public:
 
 protected:
 	// From Widget:
-	bool catchMouse() override { return true; }
+	bool catchMouse() override
+	{
+		return true;
+	}
 	void scrollEvent(ScrollEvent* scrollEvent) override;
 	void repaintEvent(RepaintEvent* repaintEvent) override;
 	void buttonEvent(ButtonEvent* buttonEvent) override;
@@ -74,4 +78,4 @@ private:
 	Texture bg_img{getImageCache(), ":resources/widget.png", 7, 7, 1, 63};
 };
 
-} // dggui::
+} // namespace dggui

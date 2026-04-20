@@ -26,19 +26,19 @@
  */
 #pragma once
 
-#include <dggui/widget.h>
 #include <dggui/resource.h>
 #include <dggui/textedit.h>
+#include <dggui/widget.h>
 
 #include <string>
 
 namespace GUI
 {
 
-class AboutTab
-	: public dggui::Widget
+class AboutTab : public dggui::Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	AboutTab(dggui::Widget* parent);
 
 	// From Widget:
@@ -51,4 +51,4 @@ private:
 	int margin{10};
 };
 
-} // GUI::
+} // namespace GUI

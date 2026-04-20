@@ -30,13 +30,14 @@
 #include "settings.h"
 
 VelocityFilter::VelocityFilter(Settings& settings, Random& random)
-	: settings(settings), random(random)
+    : settings(settings), random(random)
 {
 }
 
 bool VelocityFilter::filter(event_t& event, size_t pos)
 {
-	if (settings.enable_velocity_modifier.load())
+	(void)pos;
+	if(settings.enable_velocity_modifier.load())
 	{
 		float mean = event.velocity;
 		float stddev = settings.velocity_stddev.load();

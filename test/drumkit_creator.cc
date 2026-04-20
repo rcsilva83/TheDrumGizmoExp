@@ -257,7 +257,10 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 
 bool DrumkitCreator::is_valid(const DrumkitData& data) const
 {
-	// TODO Check the consistency of the data.
+	(void)data;
+	// Note: Data validation not yet implemented. Currently assumes all data is
+	// valid. Future: Add checks for consistent channel counts, valid file
+	// references, etc.
 	return true;
 }
 

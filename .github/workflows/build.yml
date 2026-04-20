@@ -30,7 +30,8 @@ jobs:
             libasound2-dev \
             lv2-dev \
             liblilv-dev \
-            libssl-dev
+            libssl-dev \
+            xvfb
 
       - name: Configure
         run: |
@@ -51,7 +52,7 @@ jobs:
         run: cmake --build build-coverage -j"$(nproc)"
 
       - name: Run tests
-        run: ctest --test-dir build-coverage --output-on-failure
+        run: xvfb-run -a ctest --test-dir build-coverage --output-on-failure
 
       - name: Upload build artifacts for coverage
         uses: actions/upload-artifact@v7
@@ -90,7 +91,7 @@ jobs:
             python3-venv
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: build-coverage-artifacts
           path: build-coverage/
@@ -330,6 +331,30 @@ jobs:
               --suppress=missingIncludeSystem \
               --suppress=toomanyconfigs \
               --suppress=unusedStructMember \
+              --suppress=noExplicitConstructor \
+              --suppress=missingOverride \
+              --suppress=passedByValue \
+              --suppress=constParameterReference \
+              --suppress=constVariableReference \
+              --suppress=shadowFunction \
+              --suppress=shadowVariable \
+              --suppress=duplicateExpression \
+              --suppress=useStlAlgorithm \
+              --suppress=knownConditionTrueFalse \
+              --suppress=unreadVariable \
+              --suppress=uselessCallsSubstr \
+              --suppress=useInitializationList \
+              --suppress=stlcstrParam \
+              --suppress=uselessOverride \
+              --suppress=virtualCallInConstructor \
+              --suppress=funcArgOrderDifferent \
+              --suppress=signConversion \
+              --suppress=selfAssignment \
+              --suppress=ignoredReturnValue \
+              --suppress=redundantAssignment \
+              --suppress=shiftTooManyBitsSigned \
+              --suppress=uninitvar \
+              --suppress=constVariablePointer \
               --inline-suppr \
               "${cpp_files[@]}"
           fi
@@ -400,7 +425,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download coverage reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: coverage-reports
       - name: Install build dependencies

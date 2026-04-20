@@ -31,22 +31,22 @@
 namespace dggui
 {
 
-VerticalLine::VerticalLine(Widget *parent)
-	: Widget(parent)
-	, vline(":resources/vertline.png")
+VerticalLine::VerticalLine(Widget* parent)
+    : Widget(parent), vline(":resources/vertline.png")
 {
 }
 
 void VerticalLine::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(height() < 2)
 	{
 		return;
 	}
 
 	Painter p(*this);
-	p.drawImageStretched(0, (height() - vline.height()) / 2,
-	                     vline, width(), vline.height());
+	p.drawImageStretched(
+	    0, (height() - vline.height()) / 2, vline, width(), vline.height());
 }
 
-} // dggui::
+} // namespace dggui

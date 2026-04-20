@@ -30,21 +30,24 @@
 
 #include "font.h"
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace dggui
 {
 
-enum class TextAlignment {
+enum class TextAlignment
+{
 	left,
 	center,
 	right,
 };
 
-class Label : public Widget {
+class Label : public Widget
+{
 public:
-	Label(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	Label(Widget* parent);
 	virtual ~Label() = default;
 
 	void setText(const std::string& text);
@@ -67,4 +70,4 @@ private:
 	std::unique_ptr<Colour> colour;
 };
 
-} // dggui::
+} // namespace dggui

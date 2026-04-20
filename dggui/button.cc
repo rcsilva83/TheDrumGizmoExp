@@ -34,8 +34,7 @@
 namespace dggui
 {
 
-Button::Button(Widget* parent)
-	: ButtonBase(parent)
+Button::Button(Widget* parent) : ButtonBase(parent)
 {
 }
 
@@ -45,6 +44,7 @@ Button::~Button()
 
 void Button::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 	p.clear();
 
@@ -59,7 +59,8 @@ void Button::repaintEvent(RepaintEvent* repaintEvent)
 		return;
 	}
 
-	if (enabled) {
+	if(enabled)
+	{
 		switch(draw_state)
 		{
 		case State::Up:
@@ -73,7 +74,8 @@ void Button::repaintEvent(RepaintEvent* repaintEvent)
 			break;
 		}
 	}
-	else {
+	else
+	{
 		box_grey.setSize(w - padLeft, h - padTop);
 		p.drawImage(padLeft, padTop, box_grey);
 
@@ -85,4 +87,4 @@ void Button::repaintEvent(RepaintEvent* repaintEvent)
 	p.drawText(x, y, font, text, enabled);
 }
 
-} // dggui::
+} // namespace dggui

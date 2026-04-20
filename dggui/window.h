@@ -28,19 +28,19 @@
 
 #include "widget.h"
 
-#include "pixelbuffer.h"
-#include "nativewindow.h"
-#include "image.h"
 #include "eventhandler.h"
+#include "image.h"
 #include "imagecache.h"
+#include "nativewindow.h"
+#include "pixelbuffer.h"
 
 namespace dggui
 {
 
-class Window
-	: public Widget
+class Window : public Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Window(void* native_window = nullptr);
 	~Window();
 
@@ -116,4 +116,4 @@ protected:
 	ImageCache image_cache;
 };
 
-} // dggui::
+} // namespace dggui

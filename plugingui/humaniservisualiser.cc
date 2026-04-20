@@ -37,16 +37,15 @@ namespace GUI
 {
 
 HumaniserVisualiser::HumaniserVisualiser(dggui::Widget* parent,
-                                         Settings& settings,
-                                         SettingsNotifier& settings_notifier)
-	: dggui::Widget(parent)
-	, canvas(this, settings, settings_notifier)
+    Settings& settings, SettingsNotifier& settings_notifier)
+    : dggui::Widget(parent), canvas(this, settings, settings_notifier)
 {
 	canvas.move(7, 7);
 }
 
-void HumaniserVisualiser::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void HumaniserVisualiser::repaintEvent(dggui::RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	dggui::Painter p(*this);
 
 	box.setSize(width(), height());
@@ -64,34 +63,35 @@ void HumaniserVisualiser::resize(std::size_t width, std::size_t height)
 	canvas.resize(width - 14, height - 14);
 }
 
-HumaniserVisualiser::Canvas::Canvas(dggui::Widget* parent,
-                                    Settings& settings,
-                                    SettingsNotifier& settings_notifier)
-	: dggui::Widget(parent)
-	, settings_notifier(settings_notifier)
-	, latency_max_ms(settings.latency_max_ms.load())
-	, settings(settings)
+HumaniserVisualiser::Canvas::Canvas(dggui::Widget* parent, Settings& settings,
+    SettingsNotifier& settings_notifier)
+    : dggui::Widget(parent)
+    , settings_notifier(settings_notifier)
+    , latency_max_ms(settings.latency_max_ms.load())
+    , settings(settings)
 {
-	CONNECT(this, settings_notifier.enable_latency_modifier,
-	        this, &HumaniserVisualiser::Canvas::latencyEnabledChanged);
-	CONNECT(this, settings_notifier.enable_velocity_modifier,
-	        this, &HumaniserVisualiser::Canvas::velocityEnabledChanged);
+	CONNECT(this, settings_notifier.enable_latency_modifier, this,
+	    &HumaniserVisualiser::Canvas::latencyEnabledChanged);
+	CONNECT(this, settings_notifier.enable_velocity_modifier, this,
+	    &HumaniserVisualiser::Canvas::velocityEnabledChanged);
 
-	CONNECT(this, settings_notifier.latency_current,
-	        this, &HumaniserVisualiser::Canvas::latencyOffsetChanged);
-	CONNECT(this, settings_notifier.velocity_modifier_current,
-	        this, &HumaniserVisualiser::Canvas::velocityOffsetChanged);
+	CONNECT(this, settings_notifier.latency_current, this,
+	    &HumaniserVisualiser::Canvas::latencyOffsetChanged);
+	CONNECT(this, settings_notifier.velocity_modifier_current, this,
+	    &HumaniserVisualiser::Canvas::velocityOffsetChanged);
 
-	CONNECT(this, settings_notifier.latency_stddev,
-	        this, &HumaniserVisualiser::Canvas::latencyStddevChanged);
-	CONNECT(this, settings_notifier.latency_laid_back_ms,
-	        this, &HumaniserVisualiser::Canvas::latencyLaidbackChanged);
-	CONNECT(this, settings_notifier.velocity_stddev,
-	        this, &HumaniserVisualiser::Canvas::velocityStddevChanged);
+	CONNECT(this, settings_notifier.latency_stddev, this,
+	    &HumaniserVisualiser::Canvas::latencyStddevChanged);
+	CONNECT(this, settings_notifier.latency_laid_back_ms, this,
+	    &HumaniserVisualiser::Canvas::latencyLaidbackChanged);
+	CONNECT(this, settings_notifier.velocity_stddev, this,
+	    &HumaniserVisualiser::Canvas::velocityStddevChanged);
 }
 
-void HumaniserVisualiser::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void HumaniserVisualiser::Canvas::repaintEvent(
+    dggui::RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(width() < 1 || height() < 1)
 	{
 		return;
@@ -200,4 +200,4 @@ void HumaniserVisualiser::Canvas::velocityStddevChanged(float stddev)
 	redraw();
 }
 
-} // ::GUI
+} // namespace GUI

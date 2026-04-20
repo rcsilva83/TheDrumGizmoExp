@@ -202,6 +202,29 @@ TEST_CASE("VBoxLayoutTest")
 		CHECK_EQ(0, item1.y());
 		CHECK_EQ(30, item3.y());
 	}
+
+	SUBCASE("spacing_exceeds_available_space_vbox")
+	{
+		// Test edge case where total spacing exceeds parent height
+		// This exercises the branch where item_height becomes 0
+		MockParent small_parent;
+		small_parent.resize(100, 10); // Only 10px height
+
+		dggui::VBoxLayout layout(&small_parent);
+		layout.setResizeChildren(true);
+		layout.setSpacing(20); // 20px spacing each, but only 10px available
+
+		MockItem item1;
+		MockItem item2;
+
+		layout.addItem(&item1);
+		layout.addItem(&item2);
+
+		// With 2 items and 20px spacing each = 40px empty space,
+		// but only 10px available, item_height should be 0
+		CHECK_EQ(std::size_t(0u), item1.height());
+		CHECK_EQ(std::size_t(0u), item2.height());
+	}
 }
 
 TEST_CASE("HBoxLayoutTest")
@@ -304,6 +327,43 @@ TEST_CASE("HBoxLayoutTest")
 		// item2.x = item1.width + spacing = 40 + 10 = 50
 		CHECK_EQ(0, item1.x());
 		CHECK_EQ(50, item2.x());
+	}
+
+	SUBCASE("spacing_exceeds_available_space_hbox")
+	{
+		// Test edge case where total spacing exceeds parent width
+		MockParent small_parent;
+		small_parent.resize(10, 100); // Only 10px width
+
+		dggui::HBoxLayout layout(&small_parent);
+		layout.setResizeChildren(true);
+		layout.setSpacing(20); // 20px spacing each, but only 10px available
+
+		MockItem item1;
+		MockItem item2;
+
+		layout.addItem(&item1);
+		layout.addItem(&item2);
+
+		// With 2 items and 20px spacing each = 40px empty space,
+		// but only 10px available, item_width should be 0
+		CHECK_EQ(std::size_t(0u), item1.width());
+		CHECK_EQ(std::size_t(0u), item2.width());
+	}
+
+	SUBCASE("empty_parent_no_items")
+	{
+		// Test that HBoxLayout handles empty items gracefully
+		MockParent empty_parent;
+		empty_parent.resize(100, 50);
+
+		dggui::HBoxLayout layout(&empty_parent);
+		layout.setResizeChildren(true);
+
+		// No items added, layout() should complete without error
+		layout.layout();
+		// If we get here without crash, the test passes
+		CHECK(true);
 	}
 }
 
@@ -432,5 +492,24 @@ TEST_CASE("GridLayoutTest")
 		CHECK_EQ(0, item1.x());
 		CHECK_EQ(std::size_t(95u), item2.width());
 		CHECK_EQ(105, item2.x());
+	}
+
+	SUBCASE("zero_size_parent_no_resize")
+	{
+		// Test grid layout with zero-sized parent (cell size should be 0)
+		MockParent zero_parent;
+		zero_parent.resize(0, 0);
+
+		dggui::GridLayout layout(&zero_parent, 2, 2);
+		layout.setResizeChildren(true);
+
+		MockItem item;
+		layout.addItem(&item);
+		layout.setPosition(&item, {0, 1, 0, 1});
+		layout.layout();
+
+		// With 0x0 parent, cell size should be 0
+		CHECK_EQ(std::size_t(0u), item.width());
+		CHECK_EQ(std::size_t(0u), item.height());
 	}
 }

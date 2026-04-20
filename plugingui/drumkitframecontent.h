@@ -41,10 +41,10 @@ namespace GUI
 
 class Config;
 
-class BrowseFile
-	: public dggui::Widget
+class BrowseFile : public dggui::Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	BrowseFile(dggui::Widget* parent);
 
 	// From Widget
@@ -67,14 +67,11 @@ private:
 	int gap{10};
 };
 
-class DrumkitframeContent
-	: public dggui::Widget
+class DrumkitframeContent : public dggui::Widget
 {
 public:
-	DrumkitframeContent(dggui::Widget* parent,
-	                    Settings& settings,
-	                    SettingsNotifier& settings_notifier,
-	                    Config& config);
+	DrumkitframeContent(dggui::Widget* parent, Settings& settings,
+	    SettingsNotifier& settings_notifier, Config& config);
 
 	// From Widget
 	virtual void resize(std::size_t width, std::size_t height) override;
@@ -107,4 +104,4 @@ private:
 	Config& config;
 };
 
-} // GUI::
+} // namespace GUI

@@ -28,8 +28,7 @@
 
 #include <vector>
 
-template <typename T>
-class Grid
+template <typename T> class Grid
 {
 public:
 	using Index = std::size_t;
@@ -37,7 +36,9 @@ public:
 	{
 		T x, y;
 
-		Pos(T x, T y) : x(x), y(y) {}
+		Pos(T x, T y) : x(x), y(y)
+		{
+		}
 	};
 
 	Grid() = default;
@@ -69,84 +70,76 @@ private:
 
 template <typename T>
 Grid<T>::Grid(Index width, Index height)
-	: _width(width), _height(height), _entries(_width*_height) {}
-
-template <typename T>
-Grid<T>::Grid(Index width, Index height, T value)
-	: _width(width), _height(height), _entries(_width*_height, value) {}
-
-template <typename T>
-bool Grid<T>::is_valid(Index x, Index y) const
+    : _width(width), _height(height), _entries(_width * _height)
 {
-	return x >= 0 && x < _width && y >= 0 && y < _height;
 }
 
 template <typename T>
-bool Grid<T>::is_valid(Pos pos) const
+Grid<T>::Grid(Index width, Index height, T value)
+    : _width(width), _height(height), _entries(_width * _height, value)
+{
+}
+
+template <typename T> bool Grid<T>::is_valid(Index x, Index y) const
+{
+	return x < _width && y < _height;
+}
+
+template <typename T> bool Grid<T>::is_valid(Pos pos) const
 {
 	return is_valid(pos.x, pos.y);
 }
 
-template <typename T>
-auto Grid<T>::width() const -> Index
+template <typename T> auto Grid<T>::width() const -> Index
 {
 	return _width;
 }
 
-template <typename T>
-auto Grid<T>::height() const -> Index
+template <typename T> auto Grid<T>::height() const -> Index
 {
 	return _height;
 }
 
-template <typename T>
-T Grid<T>::operator()(Pos pos) const
+template <typename T> T Grid<T>::operator()(Pos pos) const
 {
-	return is_valid(pos) ? _entries[pos.x + _width*pos.y] : default_value;
+	return is_valid(pos) ? _entries[pos.x + _width * pos.y] : default_value;
 }
 
-template <typename T>
-T Grid<T>::operator()(Index x, Index y) const
+template <typename T> T Grid<T>::operator()(Index x, Index y) const
 {
-	return is_valid(x, y) ? _entries[x + _width*y] : default_value;
+	return is_valid(x, y) ? _entries[x + _width * y] : default_value;
 }
 
-template <typename T>
-T& Grid<T>::operator()(Pos pos)
+template <typename T> T& Grid<T>::operator()(Pos pos)
 {
-	return is_valid(pos) ? _entries[pos.x + _width*pos.y] : default_value;
+	return is_valid(pos) ? _entries[pos.x + _width * pos.y] : default_value;
 }
 
-template <typename T>
-T& Grid<T>::operator()(Index x, Index y)
+template <typename T> T& Grid<T>::operator()(Index x, Index y)
 {
-	return is_valid(x, y) ? _entries[x + _width*y] : default_value;
+	return is_valid(x, y) ? _entries[x + _width * y] : default_value;
 }
 
-template <typename T>
-std::vector<T> const& Grid<T>::getAllEntries() const
+template <typename T> std::vector<T> const& Grid<T>::getAllEntries() const
 {
 	return _entries;
 }
 
-template <typename T>
-void Grid<T>::resize(Index width, Index height)
+template <typename T> void Grid<T>::resize(Index width, Index height)
 {
 	_width = width;
 	_height = height;
-	_entries.resize(_width*_height);
+	_entries.resize(_width * _height);
 }
 
-template <typename T>
-void Grid<T>::assign(Index width, Index height, T value)
+template <typename T> void Grid<T>::assign(Index width, Index height, T value)
 {
 	_width = width;
 	_height = height;
-	_entries.assign(_width*_height, value);
+	_entries.assign(_width * _height, value);
 }
 
-template <typename T>
-void Grid<T>::setDefaultValue(T value)
+template <typename T> void Grid<T>::setDefaultValue(T value)
 {
 	default_value = value;
 }

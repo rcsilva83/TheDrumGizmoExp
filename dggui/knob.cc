@@ -28,8 +28,8 @@
 
 #include "painter.h"
 
-#include <hugin.hpp>
 #include <cmath>
+#include <hugin.hpp>
 
 namespace
 {
@@ -39,9 +39,8 @@ const double pi = std::atan(1.0) * 4.0;
 namespace dggui
 {
 
-Knob::Knob(Widget *parent)
-	: Widget(parent)
-	, img_knob(getImageCache(), ":resources/knob.png")
+Knob::Knob(Widget* parent)
+    : Widget(parent), img_knob(getImageCache(), ":resources/knob.png")
 {
 	state = up;
 
@@ -84,6 +83,7 @@ void Knob::showValue(bool show_value)
 
 void Knob::scrollEvent(ScrollEvent* scrollEvent)
 {
+	// cppcheck-suppress shadowFunction
 	float value = (current_value - (scrollEvent->delta / 200.0));
 	internalSetValue(value);
 }
@@ -98,7 +98,8 @@ void Knob::mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
 		}
 
 		float dval =
-			mouse_offset_x - (mouseMoveEvent->x + (-1 * mouseMoveEvent->y));
+		    mouse_offset_x - (mouseMoveEvent->x + (-1 * mouseMoveEvent->y));
+		// cppcheck-suppress shadowFunction
 		float value = current_value - (dval / 300.0);
 
 		internalSetValue(value);
@@ -114,8 +115,10 @@ void Knob::keyEvent(KeyEvent* keyEvent)
 		return;
 	}
 
+	// cppcheck-suppress shadowFunction
 	float value = current_value;
-	switch(keyEvent->keycode) {
+	switch(keyEvent->keycode)
+	{
 	case Key::up:
 		value += 0.01;
 		break;
@@ -151,6 +154,7 @@ void Knob::buttonEvent(ButtonEvent* buttonEvent)
 
 	if(buttonEvent->doubleClick)
 	{
+		// cppcheck-suppress shadowFunction
 		float value = default_value;
 		value -= minimum;
 		value /= (maximum - minimum);
@@ -176,10 +180,11 @@ void Knob::buttonEvent(ButtonEvent* buttonEvent)
 
 void Knob::repaintEvent(RepaintEvent* repaintEvent)
 {
-	int diameter = (width()>height()?height():width());
+	(void)repaintEvent;
+	int diameter = (width() > height() ? height() : width());
 	int radius = diameter / 2;
-	int center_x = width() / 2;
-	int center_y = height() / 2;
+	int center_x = static_cast<int>(width()) / 2;
+	int center_y = static_cast<int>(height()) / 2;
 
 	Painter p(*this);
 	p.clear();
@@ -188,10 +193,11 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 
 	float range = maximum - minimum;
 
-	if (show_value) {
+	if(show_value)
+	{
 		// Show 0, 1 or 2 decimal point depending on the size of the range
 		char buf[64];
-		if(range> 100.0f)
+		if(range > 100.0f)
 		{
 			sprintf(buf, "%.0f", current_value * range + minimum);
 		}
@@ -204,7 +210,7 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 			sprintf(buf, "%.2f", current_value * range + minimum);
 		}
 		p.drawText(center_x - font.textWidth(buf) / 2 + 1,
-				   center_y + font.textHeight(buf) / 2 + 1, font, buf);
+		    center_y + font.textHeight(buf) / 2 + 1, font, buf);
 	}
 
 	// Make it start from 20% and stop at 80%
@@ -222,10 +228,8 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 	{
 		for(int _y = -1; _y < 2; _y++)
 		{
-			p.drawLine(from_x + center_x + _x,
-			           from_y + center_y + _y,
-			           to_x + center_x + _x,
-			           to_y + center_y + _y);
+			p.drawLine(from_x + center_x + _x, from_y + center_y + _y,
+			    to_x + center_x + _x, to_y + center_y + _y);
 		}
 	}
 }
@@ -234,7 +238,7 @@ void Knob::internalSetValue(float new_value)
 {
 	if(new_value < 0.0)
 	{
-	  new_value = 0.0;
+		new_value = 0.0;
 	}
 
 	if(new_value > 1.0)
@@ -252,4 +256,4 @@ void Knob::internalSetValue(float new_value)
 	redraw();
 }
 
-} // dggui::
+} // namespace dggui

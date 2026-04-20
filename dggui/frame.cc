@@ -3,7 +3,7 @@
  *            frame.cc
  *
  *  Tue Feb  7 21:07:56 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -32,9 +32,7 @@ namespace dggui
 {
 
 FrameWidget::FrameWidget(Widget* parent, bool has_switch, bool has_help_text)
-	: Widget(parent)
-	, is_switched_on(!has_switch)
-	, bar_height(24)
+    : Widget(parent), is_switched_on(!has_switch), bar_height(24)
 {
 	if(has_switch)
 	{
@@ -44,7 +42,7 @@ FrameWidget::FrameWidget(Widget* parent, bool has_switch, bool has_help_text)
 
 		power_button.setChecked(is_switched_on);
 		CONNECT(&power_button, stateChangedNotifier, this,
-		        &FrameWidget::powerButtonStateChanged);
+		    &FrameWidget::powerButtonStateChanged);
 	}
 	power_button.setVisible(has_switch);
 
@@ -62,6 +60,7 @@ FrameWidget::FrameWidget(Widget* parent, bool has_switch, bool has_help_text)
 
 void FrameWidget::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int center_x = width() / 2;
@@ -99,7 +98,8 @@ void FrameWidget::powerButtonStateChanged(bool new_state)
 void FrameWidget::setTitle(std::string const& title)
 {
 	this->title = title;
-	label_width = font.textWidth(title.c_str()) / 2 + 1;
+	// cppcheck-suppress stlcstrParam
+	label_width = font.textWidth(title) / 2 + 1;
 }
 
 void FrameWidget::setHelpText(const std::string& help_text)
@@ -134,7 +134,8 @@ void FrameWidget::sizeChanged(int width, int height)
 		content_start_x = content_margin;
 		content_start_y = bar_height + content_margin;
 		content_width = std::max((int)width - 2 * content_margin, 0);
-		content_height = std::max((int)height - (bar_height + 2 * content_margin), 0);
+		content_height =
+		    std::max((int)height - (bar_height + 2 * content_margin), 0);
 
 		content->move(content_start_x, content_start_y);
 		content->resize(content_width, content_height);
@@ -143,4 +144,4 @@ void FrameWidget::sizeChanged(int width, int height)
 	help_button.move(width - 4 - 16, help_button.y());
 }
 
-} // dggui::
+} // namespace dggui

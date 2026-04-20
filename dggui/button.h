@@ -33,9 +33,10 @@
 namespace dggui
 {
 
-class Button
-	: public ButtonBase {
+class Button : public ButtonBase
+{
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Button(Widget* parent);
 	virtual ~Button();
 
@@ -44,22 +45,22 @@ protected:
 	virtual void repaintEvent(RepaintEvent* e) override;
 
 private:
-	TexturedBox box_up{getImageCache(), ":resources/pushbutton.png",
-			0, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			6, 12, 9}; // dy1, dy2, dy3
+	TexturedBox box_up{getImageCache(), ":resources/pushbutton.png", 0,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    6, 12, 9}; // dy1, dy2, dy3
 
-	TexturedBox box_down{getImageCache(), ":resources/pushbutton.png",
-			15, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			6, 12, 9}; // dy1, dy2, dy3
+	TexturedBox box_down{getImageCache(), ":resources/pushbutton.png", 15,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    6, 12, 9}; // dy1, dy2, dy3
 
-	TexturedBox box_grey{getImageCache(), ":resources/pushbutton.png",
-			30, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			6, 12, 9}; // dy1, dy2, dy3
+	TexturedBox box_grey{getImageCache(), ":resources/pushbutton.png", 30,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    6, 12, 9}; // dy1, dy2, dy3
 
 	Font font{":resources/fontemboss.png"};
 };
 
-} // dggui::
+} // namespace dggui

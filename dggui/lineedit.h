@@ -28,22 +28,25 @@
 
 #include <string>
 
-#include "widget.h"
 #include "font.h"
 #include "painter.h"
 #include "texturedbox.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class LineEdit
-	: public Widget
+class LineEdit : public Widget
 {
 public:
-	LineEdit(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	LineEdit(Widget* parent);
 	virtual ~LineEdit();
 
-	bool isFocusable() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
 
 	std::string getText();
 	void setText(const std::string& text);
@@ -53,19 +56,21 @@ public:
 
 	Notifier<> enterPressedNotifier;
 
-	//protected:
-	virtual void keyEvent(KeyEvent *keyEvent) override;
-	virtual void repaintEvent(RepaintEvent *repaintEvent) override;
-	virtual void buttonEvent(ButtonEvent *buttonEvent) override;
+	// protected:
+	virtual void keyEvent(KeyEvent* keyEvent) override;
+	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
+	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
 
 protected:
-	virtual void textChanged() {}
+	virtual void textChanged()
+	{
+	}
 
 private:
-	TexturedBox box{getImageCache(), ":resources/widget.png",
-			0, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			7, 63, 7}; // dy1, dy2, dy3
+	TexturedBox box{getImageCache(), ":resources/widget.png", 0,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    7, 63, 7}; // dy1, dy2, dy3
 
 	Font font;
 
@@ -74,7 +79,8 @@ private:
 	std::string visibleText;
 	size_t offsetPos{0};
 
-	enum state_t {
+	enum state_t
+	{
 		Noop,
 		WalkLeft,
 		WalkRight,
@@ -84,4 +90,4 @@ private:
 	bool readonly;
 };
 
-} // dggui::
+} // namespace dggui

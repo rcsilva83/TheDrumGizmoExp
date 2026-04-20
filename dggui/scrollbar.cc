@@ -33,8 +33,7 @@
 namespace dggui
 {
 
-ScrollBar::ScrollBar(Widget *parent)
-	: Widget(parent)
+ScrollBar::ScrollBar(Widget* parent) : Widget(parent)
 {
 }
 
@@ -102,7 +101,7 @@ int ScrollBar::value()
 
 //! Draw an up/down arrow at (x,y) with the bounding box size (w,h)
 //! If h is negative the arrow will point down, if positive it will point up.
-static void drawArrow(Painter &p, int x, int y, int w, int h)
+static void drawArrow(Painter& p, int x, int y, int w, int h)
 {
 	if(h < 0)
 	{
@@ -119,13 +118,15 @@ static void drawArrow(Painter &p, int x, int y, int w, int h)
 
 void ScrollBar::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	p.clear();
 
 	p.drawImageStretched(0, 0, bg_img, width(), height());
 
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+	p.setColour(
+	    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 	if(!maxValue)
 	{
 		return;
@@ -143,10 +144,11 @@ void ScrollBar::repaintEvent(RepaintEvent* repaintEvent)
 
 	p.drawLine(0, 0, 0, height());
 
-	drawArrow(p, width()/4, width()/4, width()/2, -1 * (width()/3));
+	drawArrow(p, width() / 4, width() / 4, width() / 2, -1 * (width() / 3));
 	p.drawLine(0, width(), width(), width());
 
-	drawArrow(p, width()/4, height() - width() + width()/4, width()/2, width()/3);
+	drawArrow(p, width() / 4, height() - width() + width() / 4, width() / 2,
+	    width() / 3);
 	p.drawLine(0, height() - width(), width(), height() - width());
 }
 
@@ -193,7 +195,7 @@ void ScrollBar::buttonEvent(ButtonEvent* buttonEvent)
 	}
 
 	if((buttonEvent->y > ((int)height() - (int)width())) &&
-	   (buttonEvent->y < (int)height()))
+	    (buttonEvent->y < (int)height()))
 	{
 		if(buttonEvent->direction == Direction::down)
 		{
@@ -212,4 +214,4 @@ void ScrollBar::buttonEvent(ButtonEvent* buttonEvent)
 	dragging = (buttonEvent->direction == Direction::down);
 }
 
-} // dggui::
+} // namespace dggui

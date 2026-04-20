@@ -26,18 +26,18 @@
  */
 #include "filebrowser.h"
 
-#include <dggui/painter.h>
 #include <dggui/button.h>
+#include <dggui/painter.h>
 
-#include <sys/types.h>
 #include <dirent.h>
 #include <stdio.h>
-
 #include <sys/types.h>
-#include <sys/stat.h>
 
-#include <platform.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <hugin.hpp>
+#include <platform.h>
 
 #ifdef __MINGW32__
 #include <direct.h>
@@ -49,15 +49,15 @@ namespace GUI
 {
 
 FileBrowser::FileBrowser(dggui::Widget* parent)
-	: dggui::Dialog(parent, true)
-	, dir(Directory::cwd())
-	, lbl_path(this)
-	, lineedit(this)
-	, listbox(this)
-	, btn_sel(this)
-	, btn_def(this)
-	, btn_esc(this)
-	, back(":resources/bg.png")
+    : dggui::Dialog(parent, true)
+    , dir(Directory::cwd())
+    , lbl_path(this)
+    , lineedit(this)
+    , listbox(this)
+    , btn_sel(this)
+    , btn_def(this)
+    , btn_esc(this)
+    , back(":resources/bg.png")
 {
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
 	above_root = false;
@@ -67,10 +67,11 @@ FileBrowser::FileBrowser(dggui::Widget* parent)
 
 	lbl_path.setText(_("Path:"));
 
-	//lineedit.setReadOnly(true);
-	CONNECT(&lineedit, enterPressedNotifier, this, &FileBrowser::handleKeyEvent);
-	CONNECT(&listbox, selectionNotifier,
-	        this, &FileBrowser::listSelectionChanged);
+	// lineedit.setReadOnly(true);
+	CONNECT(
+	    &lineedit, enterPressedNotifier, this, &FileBrowser::handleKeyEvent);
+	CONNECT(
+	    &listbox, selectionNotifier, this, &FileBrowser::listSelectionChanged);
 	CONNECT(this, fileSelectNotifier, this, &FileBrowser::select);
 	CONNECT(eventHandler(), closeNotifier, this, &FileBrowser::cancel);
 
@@ -126,8 +127,8 @@ void FileBrowser::resize(std::size_t width, std::size_t height)
 	offset += brd;
 
 	listbox.move(brd, offset);
-	listbox.resize(std::max((int)width - 1 - 2*brd, 0),
-	               std::max((int)height - btn_h - 2*brd - offset, 0));
+	listbox.resize(std::max((int)width - 1 - 2 * brd, 0),
+	    std::max((int)height - btn_h - 2 * brd - offset, 0));
 
 	btn_def.move(brd, height - btn_h - brd);
 	btn_def.resize(btn_w, btn_h);
@@ -141,8 +142,9 @@ void FileBrowser::resize(std::size_t width, std::size_t height)
 
 void FileBrowser::repaintEvent(dggui::RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	dggui::Painter p(*this);
-	p.drawImageStretched(0,0, back, width(), height());
+	p.drawImageStretched(0, 0, back, width(), height());
 }
 
 void FileBrowser::listSelectionChanged()
@@ -199,15 +201,15 @@ void FileBrowser::changeDir()
 {
 	std::string value = listbox.selectedValue();
 
-//  if(!Directory::isDir(dir->path() + dir->seperator()))
-//  {
-//    return;
-//  }
+	//  if(!Directory::isDir(dir->path() + dir->seperator()))
+	//  {
+	//    return;
+	//  }
 
 	listbox.clear();
 
 	INFO(filebrowser, _("Changing path to '%s'\n"),
-	     (dir.path() + dir.seperator() + value).c_str());
+	    (dir.path() + dir.seperator() + value).c_str());
 
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
 	if(above_root && !value.empty())
@@ -227,10 +229,10 @@ void FileBrowser::changeDir()
 
 	if(!value.empty() && dir.fileExists(value))
 	{
-	  std::string file = dir.path() + dir.seperator() + value;
-	  DEBUG(filebrowser, _("Selecting file '%s'\n"), file.c_str());
-	  fileSelectNotifier(file);
-	  return;
+		std::string file = dir.path() + dir.seperator() + value;
+		DEBUG(filebrowser, _("Selecting file '%s'\n"), file.c_str());
+		fileSelectNotifier(file);
+		return;
 	}
 
 	std::vector<dggui::ListBoxBasic::Item> items;
@@ -254,7 +256,7 @@ void FileBrowser::changeDir()
 		if(!value.empty() && !dir.cd(value))
 		{
 			DEBUG(filebrowser, _("Error changing to '%s'\n"),
-			      (dir.path() + dir.seperator() + value).c_str());
+			    (dir.path() + dir.seperator() + value).c_str());
 			return;
 		}
 
@@ -266,7 +268,8 @@ void FileBrowser::changeDir()
 			entries = dir.entryList();
 		}
 
-		DEBUG(filebrowser, _("Setting path of lineedit to %s\n"), dir.path().c_str());
+		DEBUG(filebrowser, _("Setting path of lineedit to %s\n"),
+		    dir.path().c_str());
 		lineedit.setText(dir.path());
 
 		for(auto entry : entries)
@@ -291,4 +294,4 @@ bool FileBrowser::hasFilename() const
 	return has_filename;
 }
 
-} // GUI::
+} // namespace GUI

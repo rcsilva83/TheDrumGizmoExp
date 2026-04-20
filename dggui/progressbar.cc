@@ -29,8 +29,7 @@
 namespace dggui
 {
 
-ProgressBar::ProgressBar(Widget *parent)
-	: Widget(parent)
+ProgressBar::ProgressBar(Widget* parent) : Widget(parent)
 {
 }
 
@@ -67,6 +66,7 @@ void ProgressBar::setValue(std::size_t value)
 
 void ProgressBar::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	float progress = 0.0f;
@@ -98,7 +98,6 @@ void ProgressBar::repaintEvent(RepaintEvent* repaintEvent)
 	case ProgressBarState::Off:
 		return;
 	}
-
 }
 
-} // dggui::
+} // namespace dggui

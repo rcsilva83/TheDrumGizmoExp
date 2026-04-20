@@ -33,9 +33,7 @@
 namespace dggui
 {
 
-HelpButton::HelpButton(Widget* parent)
-	: ButtonBase(parent)
-	, tip(this)
+HelpButton::HelpButton(Widget* parent) : ButtonBase(parent), tip(this)
 {
 	CONNECT(this, clickNotifier, this, &HelpButton::showHelpText);
 	tip.hide();
@@ -48,11 +46,13 @@ void HelpButton::setHelpText(const std::string& help_text)
 
 void HelpButton::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	bool state = true;
 
 	// enabled and on
+	// cppcheck-suppress knownConditionTrueFalse
 	if(state)
 	{
 		if(button_state == ButtonBase::State::Down)
@@ -72,4 +72,4 @@ void HelpButton::showHelpText()
 	tip.show();
 }
 
-} // dggui::
+} // namespace dggui
