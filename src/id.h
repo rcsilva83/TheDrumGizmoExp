@@ -46,6 +46,9 @@ public:
 
 	ID(const ID& other) = default;
 
+	//! Conversion operator to underlying IDType.
+	//! \note Intentionally implicit to allow using IDs in places where
+	//! IDType is expected without explicit casting.
 	operator IDType() const
 	{
 		return id;

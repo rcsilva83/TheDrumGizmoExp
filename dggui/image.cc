@@ -56,16 +56,16 @@ Image::Image(const std::string& filename) : filename(filename)
 }
 
 Image::Image(Image&& other)
-    : _width(other._width)
+    : valid(other.valid)
+    , _width(other._width)
     , _height(other._height)
     , image_data(std::move(other.image_data))
     , image_data_raw(std::move(other.image_data_raw))
     , filename(other.filename)
-    , valid(other.valid)
 {
+	other.valid = false;
 	other._width = 0;
 	other._height = 0;
-	other.valid = false;
 }
 
 Image::~Image()

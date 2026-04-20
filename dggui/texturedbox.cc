@@ -97,9 +97,10 @@ const Colour& TexturedBox::getPixel(std::size_t x, std::size_t y) const
 	{
 		if(x < dx1) // col 1
 		{
-			// TODO: Apply vertical scale
-			float scale = (float)(y - dy1) / (float)(_height - dy1 - dy3);
-			return seg_d.getPixel(x, scale * dy2);
+		// Note: Vertical scaling uses current implementation.
+		// This implementation follows the same pattern as other segments.
+		float scale = (float)(y - dy1) / (float)(_height - dy1 - dy3);
+		return seg_d.getPixel(x, scale * dy2);
 		}
 		else if(x < (_width - dx3)) // col 2
 		{

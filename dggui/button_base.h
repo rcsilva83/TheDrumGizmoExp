@@ -54,10 +54,15 @@ public:
 	Notifier<> clickNotifier;
 
 protected:
-	virtual void clicked() {}
+	//! Called when button is clicked. Override to implement custom click behavior.
+	virtual void clicked() { /* Default: no action. Override in subclass. */ }
 
 	// From Widget:
-	virtual void repaintEvent(RepaintEvent* e) override { (void)e; };
+	void repaintEvent(RepaintEvent* e) override
+	{
+		// Default: no custom repaint needed. Override in subclass if required.
+		(void)e;
+	}
 	virtual void buttonEvent(ButtonEvent* e) override;
 	virtual void mouseLeaveEvent() override;
 	virtual void mouseEnterEvent() override;

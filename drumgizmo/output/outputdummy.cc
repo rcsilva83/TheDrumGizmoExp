@@ -57,6 +57,7 @@ void DummyOutputEngine::stop()
 
 void DummyOutputEngine::pre(size_t nsamples)
 {
+	// Dummy implementation: no pre-processing needed for dummy output
 	(void)nsamples;
 }
 

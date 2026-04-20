@@ -61,6 +61,7 @@ void DummyInputEngine::pre()
 
 void DummyInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 {
+	// Dummy implementation: no events generated
 	(void)pos;
 	(void)len;
 	(void)events;

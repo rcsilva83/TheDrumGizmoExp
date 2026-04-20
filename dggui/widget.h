@@ -90,13 +90,39 @@ public:
 	void removeChild(Widget* widget);
 	void reparent(Widget* parent);
 
-	virtual void repaintEvent(RepaintEvent* repaintEvent) { (void)repaintEvent; }
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) { (void)mouseMoveEvent; }
-	virtual void buttonEvent(ButtonEvent* buttonEvent) { (void)buttonEvent; }
-	virtual void scrollEvent(ScrollEvent* scrollEvent) { (void)scrollEvent; }
-	virtual void keyEvent(KeyEvent* keyEvent) { (void)keyEvent; }
-	virtual void mouseLeaveEvent() {}
-	virtual void mouseEnterEvent() {}
+	virtual void repaintEvent(RepaintEvent* repaintEvent)
+	{
+		// Override to implement custom rendering
+		(void)repaintEvent;
+	}
+	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent)
+	{
+		// Override to handle mouse movement
+		(void)mouseMoveEvent;
+	}
+	virtual void buttonEvent(ButtonEvent* buttonEvent)
+	{
+		// Override to handle mouse button events
+		(void)buttonEvent;
+	}
+	virtual void scrollEvent(ScrollEvent* scrollEvent)
+	{
+		// Override to handle scroll events
+		(void)scrollEvent;
+	}
+	virtual void keyEvent(KeyEvent* keyEvent)
+	{
+		// Override to handle keyboard events
+		(void)keyEvent;
+	}
+	virtual void mouseLeaveEvent()
+	{
+		// Override to handle mouse leaving the widget
+	}
+	virtual void mouseEnterEvent()
+	{
+		// Override to handle mouse entering the widget
+	}
 
 	virtual ImageCache& getImageCache();
 
