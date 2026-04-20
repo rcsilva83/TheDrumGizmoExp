@@ -474,6 +474,17 @@ dg_add_doctest_test(utf8test
 		DISABLE_HUGIN
 )
 
+dg_add_doctest_test(pixelbuffertest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/dggui/pixelbuffer.cc"
+		"${CMAKE_SOURCE_DIR}/dggui/colour.cc"
+		"${CMAKE_SOURCE_DIR}/test/pixelbuffertest.cc"
+	INCLUDE_DIRS
+		"${CMAKE_SOURCE_DIR}"
+	COMPILE_DEFINITIONS
+		DISABLE_HUGIN
+)
+
 if(TARGET dg_dggui)
 	dg_add_doctest_test(layouttest
 		SOURCES
@@ -485,6 +496,38 @@ if(TARGET dg_dggui)
 		LINK_LIBRARIES
 			dg_dggui
 			Threads::Threads
+	)
+
+	dg_add_doctest_test(imagetest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/dggui/image.cc"
+			"${CMAKE_SOURCE_DIR}/dggui/resource.cc"
+			"${CMAKE_SOURCE_DIR}/dggui/colour.cc"
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/imagetest.cc"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+			SndFile::sndfile
+	)
+
+	dg_add_doctest_test(widgettest
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/widgettest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+		DEPENDENCIES
+			dg_plugingui_resource_data
 	)
 endif()
 

@@ -36,25 +36,31 @@ gcovr --root . --filter 'dggui/' --exclude-throw-branches --branch --txt
 
 | Test file | Branches exercised |
 |-----------|-------------------|
-| `test/utf8test.cc` (extended) | 3-byte UTF-8 decode (unmapped path), 4-byte UTF-8 decode (unmapped path), explicit `\xc4\x87 -> "c"` mapping fallback, mixed ASCII/multibyte decoding, boundary tests for 2-byte range |
+| `test/utf8test.cc` (extended) | 3-byte UTF-8 decode (unmapped path), 4-byte UTF-8 decode (unmapped path), explicit `\xc4\87 -> "c"` mapping fallback, mixed ASCII/multibyte decoding, boundary tests for 2-byte range |
 | `test/layouttest.cc` (extended) | VBoxLayout spacing exceeding available space (zero-height branch), HBoxLayout spacing exceeding available space (zero-width branch), GridLayout with zero-sized parent, HBoxLayout with no items (early return) |
+| `test/pixelbuffertest.cc` (new) | PixelBuffer allocation/reallocation, PixelBufferAlpha clear/setPixel/pixel, addPixel alpha blending (full/partial/zero alpha), writeLine and blendLine with various alpha values, bounds checking, updateBuffer dirty rect calculation, has_last rect expansion |
+| `test/imagetest.cc` (new) | Image loading from memory buffer, move constructor/assignment, getPixel bounds checking, line access, hasAlpha detection |
+| `test/widgettest.cc` (new) | Widget construction, resize/move, visibility toggle, parent-child relationships, reparent, coordinate translation, find widget at position, Label text/alignment/colour, Button basics, Window management |
 
 **Untested branches remaining**
 
-These files require GUI rendering or display server (X11) and cannot be
-tested headlessly:
+These files require GUI rendering or display server (X11) and can now be
+tested using Xvfb (X Virtual Framebuffer) which is configured in the CI:
 
-| File | Reason |
-|------|--------|
-| `dggui/nativewindow_x11.cc` | Requires X11 display server |
-| `dggui/painter.cc` | Requires graphics context and rendering |
-| `dggui/listboxbasic.cc` | Requires GUI event loop |
-| `dggui/eventhandler.cc` | Requires native window and events |
-| `dggui/lineedit.cc` | Requires GUI input focus |
-| `dggui/tooltip.cc` | Requires window manager |
-| `dggui/textedit.cc` | Requires GUI event loop |
-| `dggui/widget.cc` | Most methods require GUI parent window |
-| `dggui/slider.cc` | Requires GUI rendering |
+| File | Reason | Can test with Xvfb |
+|------|--------|-------------------|
+| `dggui/nativewindow_x11.cc` | Requires X11 display server | ✅ Yes |
+| `dggui/painter.cc` | Requires graphics context and rendering | ✅ Yes |
+| `dggui/listboxbasic.cc` | Requires GUI event loop | ✅ Yes |
+| `dggui/eventhandler.cc` | Requires native window and events | ✅ Yes |
+| `dggui/lineedit.cc` | Requires GUI input focus | ✅ Yes |
+| `dggui/tooltip.cc` | Requires window manager | ✅ Yes |
+| `dggui/textedit.cc` | Requires GUI event loop | ✅ Yes |
+| `dggui/widget.cc` | Most methods require GUI parent window | ✅ Yes (tested) |
+| `dggui/slider.cc` | Requires GUI rendering | ✅ Yes |
+
+**Note:** The CI workflow now uses `xvfb-run` to execute tests, enabling all
+dggui tests that link against `dg_dggui` to run in the headless environment.
 
 ---
 
