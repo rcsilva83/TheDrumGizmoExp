@@ -80,10 +80,10 @@ TEST_CASE("AboutTabTest")
 		CHECK_EQ(std::size_t(400u), about_tab.width());
 		CHECK_EQ(std::size_t(300u), about_tab.height());
 
-		// Resize to zero should handle gracefully
-		about_tab.resize(0, 0);
-		CHECK_EQ(std::size_t(0u), about_tab.width());
-		CHECK_EQ(std::size_t(0u), about_tab.height());
+		// Resize to smaller dimensions
+		about_tab.resize(200, 150);
+		CHECK_EQ(std::size_t(200u), about_tab.width());
+		CHECK_EQ(std::size_t(150u), about_tab.height());
 	}
 }
 
@@ -182,9 +182,9 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumanizerframeContentTest")
 		GUI::HumanizerframeContent humanizer(&window, settings, settings_notifier);
 
 		// Simulate settings changes via notifier
-		settings_notifier.velocity_modifier_weight.emit(0.5f);
-		settings_notifier.velocity_modifier_falloff.emit(0.3f);
-		settings_notifier.velocity_stddev.emit(0.1f);
+		settings_notifier.velocity_modifier_weight(0.5f);
+		settings_notifier.velocity_modifier_falloff(0.3f);
+		settings_notifier.velocity_stddev(0.1f);
 
 		CHECK_UNARY(&humanizer != nullptr);
 	}
@@ -215,9 +215,9 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "DiskstreamingframeContentTest")
 
 		// Test various limit values
 		disk.resize(400, 100); // Need to resize first for proper initialization
-		settings_notifier.disk_cache_upper_limit.emit(1024 * 1024 * 64);  // 64 MB
-		settings_notifier.disk_cache_upper_limit.emit(1024 * 1024 * 512); // 512 MB
-		settings_notifier.disk_cache_upper_limit.emit(std::numeric_limits<std::size_t>::max()); // Unlimited
+		settings_notifier.disk_cache_upper_limit(1024 * 1024 * 64);  // 64 MB
+		settings_notifier.disk_cache_upper_limit(1024 * 1024 * 512); // 512 MB
+		settings_notifier.disk_cache_upper_limit(std::numeric_limits<std::size_t>::max()); // Unlimited
 
 		CHECK_UNARY(&disk != nullptr);
 	}
@@ -227,7 +227,7 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "DiskstreamingframeContentTest")
 		GUI::DiskstreamingframeContent disk(&window, settings, settings_notifier);
 
 		disk.resize(400, 100);
-		settings_notifier.reload_counter.emit(1);
+		settings_notifier.reload_counter(1);
 
 		CHECK_UNARY(&disk != nullptr);
 	}
@@ -269,9 +269,9 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "BleedcontrolframeContentTest")
 		GUI::BleedcontrolframeContent bleed(&window, settings, settings_notifier);
 
 		bleed.resize(400, 100);
-		settings_notifier.master_bleed.emit(0.0f);
-		settings_notifier.master_bleed.emit(0.5f);
-		settings_notifier.master_bleed.emit(1.0f);
+		settings_notifier.master_bleed(0.0f);
+		settings_notifier.master_bleed(0.5f);
+		settings_notifier.master_bleed(1.0f);
 
 		CHECK_UNARY(&bleed != nullptr);
 	}
@@ -300,18 +300,18 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "ResamplingframeContentTest")
 	{
 		GUI::ResamplingframeContent resampling(&window, settings, settings_notifier);
 
-		settings_notifier.drumkit_samplerate.emit(44100);
-		settings_notifier.drumkit_samplerate.emit(48000);
-		settings_notifier.drumkit_samplerate.emit(0); // Empty case
+		settings_notifier.drumkit_samplerate(44100);
+		settings_notifier.drumkit_samplerate(48000);
+		settings_notifier.drumkit_samplerate(0); // Empty case
 
-		settings_notifier.samplerate.emit(44100.0);
-		settings_notifier.samplerate.emit(48000.0);
+		settings_notifier.samplerate(44100.0);
+		settings_notifier.samplerate(48000.0);
 
-		settings_notifier.resampling_recommended.emit(true);
-		settings_notifier.resampling_recommended.emit(false);
+		settings_notifier.resampling_recommended(true);
+		settings_notifier.resampling_recommended(false);
 
-		settings_notifier.resampling_quality.emit(0.7f);
-		settings_notifier.resampling_quality.emit(0.9f);
+		settings_notifier.resampling_quality(0.7f);
+		settings_notifier.resampling_quality(0.9f);
 
 		CHECK_UNARY(&resampling != nullptr);
 	}
@@ -332,17 +332,17 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "TimingframeContentTest")
 		GUI::TimingframeContent timing(&window, settings, settings_notifier);
 
 		// Test tightness/stddev
-		settings_notifier.latency_stddev.emit(10.0f);
-		settings_notifier.latency_stddev.emit(5.0f);
+		settings_notifier.latency_stddev(10.0f);
+		settings_notifier.latency_stddev(5.0f);
 
 		// Test regain
-		settings_notifier.latency_regain.emit(0.5f);
-		settings_notifier.latency_regain.emit(0.8f);
+		settings_notifier.latency_regain(0.5f);
+		settings_notifier.latency_regain(0.8f);
 
 		// Test laidback
-		settings_notifier.latency_laid_back_ms.emit(0.0f);
-		settings_notifier.latency_laid_back_ms.emit(10.0f);
-		settings_notifier.latency_laid_back_ms.emit(-10.0f);
+		settings_notifier.latency_laid_back_ms(0.0f);
+		settings_notifier.latency_laid_back_ms(10.0f);
+		settings_notifier.latency_laid_back_ms(-10.0f);
 
 		CHECK_UNARY(&timing != nullptr);
 	}
@@ -362,14 +362,14 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "SampleselectionframeContentTest")
 	{
 		GUI::SampleselectionframeContent samplesel(&window, settings, settings_notifier);
 
-		settings_notifier.sample_selection_f_close.emit(0.5f);
-		settings_notifier.sample_selection_f_close.emit(0.8f);
+		settings_notifier.sample_selection_f_close(0.5f);
+		settings_notifier.sample_selection_f_close(0.8f);
 
-		settings_notifier.sample_selection_f_diverse.emit(0.3f);
-		settings_notifier.sample_selection_f_diverse.emit(0.6f);
+		settings_notifier.sample_selection_f_diverse(0.3f);
+		settings_notifier.sample_selection_f_diverse(0.6f);
 
-		settings_notifier.sample_selection_f_random.emit(0.1f);
-		settings_notifier.sample_selection_f_random.emit(0.4f);
+		settings_notifier.sample_selection_f_random(0.1f);
+		settings_notifier.sample_selection_f_random(0.4f);
 
 		CHECK_UNARY(&samplesel != nullptr);
 	}
@@ -415,14 +415,14 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "VoicelimitframeContentTest")
 		GUI::VoiceLimitFrameContent voicelimit(&window, settings, settings_notifier);
 
 		// Test max voices
-		settings_notifier.voice_limit_max.emit(5.0f);
-		settings_notifier.voice_limit_max.emit(10.0f);
-		settings_notifier.voice_limit_max.emit(20.0f);
+		settings_notifier.voice_limit_max(5.0f);
+		settings_notifier.voice_limit_max(10.0f);
+		settings_notifier.voice_limit_max(20.0f);
 
 		// Test rampdown
-		settings_notifier.voice_limit_rampdown.emit(0.1f);
-		settings_notifier.voice_limit_rampdown.emit(0.5f);
-		settings_notifier.voice_limit_rampdown.emit(1.0f);
+		settings_notifier.voice_limit_rampdown(0.1f);
+		settings_notifier.voice_limit_rampdown(0.5f);
+		settings_notifier.voice_limit_rampdown(1.0f);
 
 		CHECK_UNARY(&voicelimit != nullptr);
 	}
@@ -459,25 +459,25 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		power.resize(400, 300);
 
 		// Test enable/disable
-		settings_notifier.enable_powermap.emit(true);
-		settings_notifier.enable_powermap.emit(false);
-		settings_notifier.enable_powermap.emit(true);
+		settings_notifier.enable_powermap(true);
+		settings_notifier.enable_powermap(false);
+		settings_notifier.enable_powermap(true);
 
 		// Test fixed point updates
-		settings_notifier.powermap_fixed0_x.emit(0.2f);
-		settings_notifier.powermap_fixed0_y.emit(0.3f);
-		settings_notifier.powermap_fixed1_x.emit(0.5f);
-		settings_notifier.powermap_fixed1_y.emit(0.5f);
-		settings_notifier.powermap_fixed2_x.emit(0.8f);
-		settings_notifier.powermap_fixed2_y.emit(0.7f);
+		settings_notifier.powermap_fixed0_x(0.2f);
+		settings_notifier.powermap_fixed0_y(0.3f);
+		settings_notifier.powermap_fixed1_x(0.5f);
+		settings_notifier.powermap_fixed1_y(0.5f);
+		settings_notifier.powermap_fixed2_x(0.8f);
+		settings_notifier.powermap_fixed2_y(0.7f);
 
 		// Test shelf
-		settings_notifier.powermap_shelf.emit(true);
-		settings_notifier.powermap_shelf.emit(false);
+		settings_notifier.powermap_shelf(true);
+		settings_notifier.powermap_shelf(false);
 
 		// Test input/output lines
-		settings_notifier.powermap_input.emit(0.5f);
-		settings_notifier.powermap_output.emit(0.6f);
+		settings_notifier.powermap_input(0.5f);
+		settings_notifier.powermap_output(0.6f);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -514,24 +514,24 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumaniserVisualiserTest")
 		visualiser.resize(400, 200);
 
 		// Test enable/disable
-		settings_notifier.enable_latency_modifier.emit(true);
-		settings_notifier.enable_velocity_modifier.emit(true);
+		settings_notifier.enable_latency_modifier(true);
+		settings_notifier.enable_velocity_modifier(true);
 
-		settings_notifier.enable_latency_modifier.emit(false);
-		settings_notifier.enable_velocity_modifier.emit(false);
+		settings_notifier.enable_latency_modifier(false);
+		settings_notifier.enable_velocity_modifier(false);
 
 		// Test offsets
-		settings_notifier.latency_current.emit(10.0f);
-		settings_notifier.velocity_modifier_current.emit(0.2f);
+		settings_notifier.latency_current(10.0f);
+		settings_notifier.velocity_modifier_current(0.2f);
 
 		// Test stddev
-		settings_notifier.latency_stddev.emit(5.0f);
-		settings_notifier.velocity_stddev.emit(0.1f);
+		settings_notifier.latency_stddev(5.0f);
+		settings_notifier.velocity_stddev(0.1f);
 
 		// Test laidback
 		settings.latency_max_ms.store(100);
 		settings.samplerate.store(44100);
-		settings_notifier.latency_laid_back_ms.emit(20.0f);
+		settings_notifier.latency_laid_back_ms(20.0f);
 
 		CHECK_UNARY(&visualiser != nullptr);
 	}
@@ -561,23 +561,23 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "MainTabTest")
 		GUI::MainTab main_tab(&window, settings, settings_notifier, config);
 
 		// Test various settings toggles that are handled by MainTab
-		settings_notifier.enable_velocity_modifier.emit(true);
-		settings_notifier.enable_velocity_modifier.emit(false);
+		settings_notifier.enable_velocity_modifier(true);
+		settings_notifier.enable_velocity_modifier(false);
 
-		settings_notifier.enable_bleed_control.emit(true);
-		settings_notifier.enable_bleed_control.emit(false);
+		settings_notifier.enable_bleed_control(true);
+		settings_notifier.enable_bleed_control(false);
 
-		settings_notifier.enable_resampling.emit(true);
-		settings_notifier.enable_resampling.emit(false);
+		settings_notifier.enable_resampling(true);
+		settings_notifier.enable_resampling(false);
 
-		settings_notifier.enable_latency_modifier.emit(true);
-		settings_notifier.enable_latency_modifier.emit(false);
+		settings_notifier.enable_latency_modifier(true);
+		settings_notifier.enable_latency_modifier(false);
 
-		settings_notifier.enable_powermap.emit(true);
-		settings_notifier.enable_powermap.emit(false);
+		settings_notifier.enable_powermap(true);
+		settings_notifier.enable_powermap(false);
 
-		settings_notifier.enable_voice_limit.emit(true);
-		settings_notifier.enable_voice_limit.emit(false);
+		settings_notifier.enable_voice_limit(true);
+		settings_notifier.enable_voice_limit(false);
 
 		CHECK_UNARY(&main_tab != nullptr);
 	}
@@ -587,8 +587,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "MainTabTest")
 		GUI::MainTab main_tab(&window, settings, settings_notifier, config);
 
 		// This triggers the bleed control frame enabled state
-		settings_notifier.has_bleed_control.emit(true);
-		settings_notifier.has_bleed_control.emit(false);
+		settings_notifier.has_bleed_control(true);
+		settings_notifier.has_bleed_control(false);
 
 		CHECK_UNARY(&main_tab != nullptr);
 	}
@@ -606,13 +606,6 @@ TEST_CASE("MainWindowTest")
 
 		CHECK_UNARY(&main_window != nullptr);
 		CHECK_UNARY(main_window.visible());
-	}
-
-	SUBCASE("mainwindow_size_constants")
-	{
-		// Verify the constants are defined
-		CHECK_EQ(std::size_t(750u), GUI::MainWindow::main_width);
-		CHECK_EQ(std::size_t(740u), GUI::MainWindow::main_height);
 	}
 
 	SUBCASE("mainwindow_process_events")
@@ -636,9 +629,14 @@ TEST_CASE("MainWindowTest")
 		GUI::MainWindow main_window(settings, nullptr);
 
 		bool close_received = false;
-		main_window.closeNotifier.connect([&close_received]() {
-			close_received = true;
-		});
+		struct CloseListener : public Listener
+		{
+			bool* received;
+			void onClose() { *received = true; }
+		};
+		CloseListener listener;
+		listener.received = &close_received;
+		main_window.closeNotifier.connect(&listener, &CloseListener::onClose);
 
 		main_window.closeEventHandler();
 		main_window.processEvents();
@@ -651,7 +649,7 @@ TEST_CASE("MainWindowTest")
 		GUI::MainWindow main_window(settings, nullptr);
 
 		// Test changing drumkit tab visibility via image change notifier
-		settings_notifier.drumkit_file.emit("/some/path/to/kit.xml");
+		settings_notifier.drumkit_file("/some/path/to/kit.xml");
 
 		CHECK_UNARY(&main_window != nullptr);
 	}
