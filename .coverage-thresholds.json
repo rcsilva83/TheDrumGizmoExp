@@ -8,13 +8,13 @@
   "changed_file_min": 30,
   "_comment_changed_file": "Minimum line coverage required for any changed source file on pull requests (checked by scripts/check-pr-coverage.py).",
   "overall": {
-    "line_min": 53,
-    "note": "Baseline 53.5 % after PR#145 - warning fixes added non-exercised lines"
+    "line_min": 81,
+    "note": "Advanced to 81% on 2026-04-20 after test suite expansion (actual: 81.7%)"
   },
   "modules": {
     "src": {
-      "line_min": 72,
-      "note": "Baseline 74.0 % on commit 81e7f3e (2026-04-07)"
+      "line_min": 90,
+      "note": "Reached 90% target on 2026-04-20 (actual: 92.0%)"
     }
   }
 }

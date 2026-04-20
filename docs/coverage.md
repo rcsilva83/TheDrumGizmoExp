@@ -30,7 +30,7 @@ gcovr --root . --filter 'dggui/' --exclude-throw-branches --branch --txt
 
 | Metric   | Covered | Total | Coverage |
 | -------- | ------: | ----: | -------: |
-| Branches |   ~380  | ~1085 |    35.0% |
+| Branches |  2,009  | 3,233 |    62.1% |
 
 ### New tests added for dggui/ coverage
 
@@ -76,10 +76,32 @@ code.
 
 ---
 
-## Baseline (2026-04-20) — plugingui/ branch-coverage push
+## Baseline (2026-04-20) — Current Coverage Snapshot
+
+This section documents the current coverage measurements after the test suite
+has been expanded with new tests for plugingui/, dggui/, and drumgizmo/ modules.
+
+### Measurement command
+
+```sh
+gcovr --root . --filter '<module>/' --exclude-throw-branches --branch --txt
+```
+
+### Current coverage by module (2026-04-20)
+
+| Module        | Lines (cov/total) | Line % | Branch % | Notes |
+| ------------- | ----------------: | -----: | -------: | ----- |
+| `src/`        |      3,453 / 3,755 |  92.0% |    80.6% | Core engine coverage strong |
+| `dggui/`      |      2,264 / 3,743 |  60.5% |    62.1% | GUI framework improved |
+| `plugingui/`  |        987 / 1,423 |  69.4% |    62.7% | Plugin GUI now tested |
+| `plugin/`     |        328 / 396   |  82.8% |    94.2% | LV2 plugin well covered |
+| `drumgizmo/`  |        415 / 1,274 |  32.6% |    37.4% | CLI still needs work |
+| **Overall**   |    14,586 / 17,859 |  81.7% |    73.3% | All modules combined |
+
+### plugingui/ branch-coverage push
 
 This section documents the branch coverage improvement effort for the `plugingui/`
-module (Plugin GUI). Current target: raise from 0.8% to 90%.
+module (Plugin GUI). Target: raise from 0.8% to 90%.
 
 Measurement command:
 ```sh
@@ -90,7 +112,7 @@ gcovr --root . --filter 'plugingui/' --exclude-throw-branches --branch --txt
 
 | Metric   | Covered | Total | Coverage |
 | -------- | ------: | ----: | -------: |
-| Branches |  ~1,200 | ~1,330 |    90.2% |
+| Branches |    739  | 1,179 |    62.7% |
 
 ### New tests added for plugingui/ coverage
 
@@ -129,9 +151,9 @@ gcovr --root . --filter 'src/' --exclude-throw-branches --branch --txt
 
 | Metric   | Covered | Total | Coverage |
 | -------- | ------: | ----: | -------: |
-| Branches |   1,963 | 2,409 |    81.5% |
+| Branches |   2,437 | 3,025 |    80.6% |
 
-The remaining gap to 90% (≈205 branches) is dominated by dead-code paths
+The remaining gap to 90% (≈285 branches) is dominated by dead-code paths
 (`powerlist::getMasterChannel`, `AUTO_CALCULATE_POWER` ifdef),
 OS-level error branches in `sem.cc` (EINTR/ETIMEDOUT),
 and complex threading paths in `drumkitloader.cc` / `drumgizmo.cc` that
@@ -330,10 +352,10 @@ Branch-level coverage visibility is provided in three places:
 The values below match the current baseline (see table above) with a small
 buffer to tolerate natural measurement variation:
 
-| Scope    | Min line % | Note                                    |
-| -------- | ---------: | --------------------------------------- |
-| Overall  |        53% | Adjusted after PR#145 (warning fixes)   |
-| `src/`   |        72% | Baseline 74.0 % (commit 81e7f3e)        |
+| Scope    | Min line % | Note                                      |
+| -------- | ---------: | ----------------------------------------- |
+| Overall  |        81% | Advanced 2026-04-20 (actual: 81.7%)       |
+| `src/`   |        90% | At target 2026-04-20 (actual: 92.0%)      |
 
 ---
 
@@ -366,8 +388,8 @@ target. Steps marked **current** are the active thresholds.
 #### Overall coverage (34% → 90%, +2%/cycle)
 
 Cycle numbering is cumulative from the original baseline of 34% (commit a7f2c07,
-2026-03-24). Cycle 11 (56%) is the current enforced floor; earlier cycles are
-historical reference only.
+2026-03-24). Cycle 23 (80%) through cycle 24 (81%) represent the current
+enforced floor; earlier cycles are historical reference only.
 
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
@@ -382,7 +404,7 @@ historical reference only.
 |     8 |       50% |          |
 |     9 |       52% |          |
 |    10 |       54% |          |
-|    11 |       56% | **current** |
+|    11 |       56% |          |
 |    12 |       58% |          |
 |    13 |       60% |          |
 |    14 |       62% |          |
@@ -395,17 +417,18 @@ historical reference only.
 |    21 |       76% |          |
 |    22 |       78% |          |
 |    23 |       80% |          |
-|    24 |       82% |          |
-|    25 |       84% |          |
-|    26 |       86% |          |
-|    27 |       88% |          |
-|    28 |       90% | **target** |
+|    24 |       81% | **current** |
+|    25 |       83% |          |
+|    26 |       85% |          |
+|    27 |       87% |          |
+|    28 |       89% |          |
+|    29 |       90% | **target** |
 
 #### `src/` module (54% → 90%, +2%/cycle)
 
 Cycle numbering is cumulative from the original baseline of 54% (commit a7f2c07,
-2026-03-24). Cycle 9 (72%) is the current enforced floor; earlier cycles are
-historical reference only.
+2026-03-24). Cycle 18 (90%) is the current enforced floor and target; earlier
+cycles are historical reference only.
 
 | Cycle | Threshold |          |
 | ----: | --------: | -------- |
@@ -418,11 +441,16 @@ historical reference only.
 |     6 |       66% |          |
 |     7 |       68% |          |
 |     8 |       70% |          |
-|     9 |       72% | **current** |
+|     9 |       72% |          |
 |    10 |       74% |          |
 |    11 |       76% |          |
 |    12 |       78% |          |
 |    13 |       80% |          |
+|    14 |       82% |          |
+|    15 |       84% |          |
+|    16 |       86% |          |
+|    17 |       88% |          |
+|    18 |       90% | **current/target** |
 |    14 |       82% |          |
 |    15 |       84% |          |
 |    16 |       86% |          |

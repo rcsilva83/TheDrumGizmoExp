@@ -5,28 +5,28 @@ Prioritization is sorted by uncovered branch count (descending), then
 uncovered line count.
 
 - Source summary: `coverage-summary.json`
-- Generated at (UTC): `2026-04-07 03:14:20Z`
+- Generated at (UTC): `2026-04-20 22:08:25Z`
 - Excluded prefixes: `test/`
 
 | Rank | File | Uncovered branches | Branches (cov/total) | Branch % | Uncovered lines | Lines (cov/total) | Line % | Branch target | Line target |
 | ---: | ---- | -----------------: | --------------------: | -------: | --------------: | ----------------: | -----: | ------------: | ---------: |
-| 1 | `src/notifier.h` | 467 | 37 / 504 | 7.3% | 488 | 73 / 561 | 13.0% | 40% | 60% |
-| 2 | `drumgizmo/dgvalidator.cc` | 308 | 0 / 308 | 0.0% | 249 | 0 / 249 | 0.0% | 40% | 60% |
-| 3 | `drumgizmo/drumgizmoc.cc` | 239 | 192 / 431 | 44.5% | 219 | 155 / 374 | 41.4% | 65% | 65% |
-| 4 | `dggui/painter.cc` | 205 | 49 / 254 | 19.3% | 246 | 57 / 303 | 18.8% | 40% | 60% |
-| 5 | `dggui/nativewindow_x11.cc` | 189 | 0 / 189 | 0.0% | 319 | 0 / 319 | 0.0% | 40% | 60% |
-| 6 | `plugingui/drumkittab.cc` | 170 | 0 / 170 | 0.0% | 173 | 0 / 173 | 0.0% | 40% | 60% |
-| 7 | `dggui/listboxbasic.cc` | 152 | 0 / 152 | 0.0% | 177 | 0 / 177 | 0.0% | 40% | 60% |
-| 8 | `plugingui/maintab.cc` | 147 | 0 / 147 | 0.0% | 149 | 0 / 149 | 0.0% | 40% | 60% |
-| 9 | `plugingui/powerwidget.cc` | 143 | 0 / 143 | 0.0% | 166 | 0 / 166 | 0.0% | 40% | 60% |
-| 10 | `plugingui/filebrowser.cc` | 136 | 0 / 136 | 0.0% | 120 | 0 / 120 | 0.0% | 40% | 60% |
-| 11 | `src/settings.h` | 135 | 7 / 142 | 4.9% | 63 | 61 / 124 | 49.2% | 40% | 70% |
-| 12 | `dggui/eventhandler.cc` | 132 | 0 / 132 | 0.0% | 133 | 0 / 133 | 0.0% | 40% | 60% |
-| 13 | `src/directory.cc` | 130 | 63 / 193 | 32.6% | 100 | 79 / 179 | 44.1% | 55% | 65% |
-| 14 | `plugingui/drumkitframecontent.cc` | 110 | 0 / 110 | 0.0% | 145 | 0 / 145 | 0.0% | 40% | 60% |
-| 15 | `dggui/lineedit.cc` | 108 | 0 / 108 | 0.0% | 145 | 0 / 145 | 0.0% | 40% | 60% |
-| 16 | `dggui/tooltip.cc` | 97 | 0 / 97 | 0.0% | 89 | 0 / 89 | 0.0% | 40% | 60% |
-| 17 | `dggui/textedit.cc` | 93 | 0 / 93 | 0.0% | 91 | 0 / 91 | 0.0% | 40% | 60% |
-| 18 | `dggui/widget.cc` | 92 | 0 / 92 | 0.0% | 130 | 0 / 130 | 0.0% | 40% | 60% |
-| 19 | `plugingui/humaniservisualiser.cc` | 86 | 0 / 86 | 0.0% | 87 | 0 / 87 | 0.0% | 40% | 60% |
-| 20 | `dggui/slider.cc` | 85 | 0 / 85 | 0.0% | 104 | 0 / 104 | 0.0% | 40% | 60% |
+| 1 | `drumgizmo/dgvalidator.cc` | 300 | 0 / 300 | 0.0% | 246 | 0 / 246 | 0.0% | 40% | 60% |
+| 2 | `src/notifier.h` | 158 | 355 / 513 | 69.2% | 51 | 518 / 569 | 91.0% | 90% | 95% |
+| 3 | `dggui/painter.cc` | 147 | 107 / 254 | 42.1% | 156 | 145 / 301 | 48.2% | 65% | 70% |
+| 4 | `dggui/nativewindow_x11.cc` | 145 | 44 / 189 | 23.3% | 189 | 130 / 319 | 40.8% | 45% | 60% |
+| 5 | `dggui/listboxbasic.cc` | 135 | 17 / 152 | 11.2% | 135 | 39 / 174 | 22.4% | 40% | 60% |
+| 6 | `plugingui/drumkittab.cc` | 133 | 37 / 170 | 21.8% | 147 | 26 / 173 | 15.0% | 45% | 60% |
+| 7 | `dggui/eventhandler.cc` | 126 | 6 / 132 | 4.5% | 112 | 21 / 133 | 15.8% | 40% | 60% |
+| 8 | `plugingui/powerwidget.cc` | 104 | 39 / 143 | 27.3% | 117 | 61 / 178 | 34.3% | 50% | 60% |
+| 9 | `dggui/lineedit.cc` | 97 | 11 / 108 | 10.2% | 123 | 23 / 146 | 15.8% | 40% | 60% |
+| 10 | `plugingui/filebrowser.cc` | 79 | 57 / 136 | 41.9% | 55 | 65 / 120 | 54.2% | 65% | 75% |
+| 11 | `drumgizmo/output/alsa.cc` | 77 | 0 / 77 | 0.0% | 100 | 0 / 100 | 0.0% | 40% | 60% |
+| 12 | `src/dgxmlparser.cc` | 73 | 404 / 477 | 84.7% | 31 | 237 / 268 | 88.4% | 90% | 95% |
+| 13 | `plugingui/drumkitframecontent.cc` | 63 | 47 / 110 | 42.7% | 69 | 76 / 145 | 52.4% | 65% | 75% |
+| 14 | `drumgizmo/drumgizmoc.cc` | 62 | 369 / 431 | 85.6% | 32 | 342 / 374 | 91.4% | 90% | 95% |
+| 15 | `plugingui/humaniservisualiser.cc` | 51 | 35 / 86 | 40.7% | 27 | 60 / 87 | 69.0% | 60% | 90% |
+| 16 | `src/drumkitloader.cc` | 51 | 119 / 170 | 70.0% | 25 | 148 / 173 | 85.5% | 90% | 95% |
+| 17 | `dggui/combobox.cc` | 49 | 0 / 49 | 0.0% | 66 | 0 / 66 | 0.0% | 40% | 60% |
+| 18 | `drumgizmo/input/midifile.cc` | 43 | 0 / 43 | 0.0% | 77 | 0 / 77 | 0.0% | 40% | 60% |
+| 19 | `drumgizmo/input/alsamidi.cc` | 41 | 0 / 41 | 0.0% | 85 | 0 / 85 | 0.0% | 40% | 60% |
+| 20 | `dggui/textedit.cc` | 40 | 53 / 93 | 57.0% | 33 | 60 / 93 | 64.5% | 80% | 85% |
