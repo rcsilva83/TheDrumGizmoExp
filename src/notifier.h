@@ -73,6 +73,7 @@ class NotifierBase
 public:
 	virtual void disconnect(Listener* object)
 	{
+		(void)object;
 	}
 };
 

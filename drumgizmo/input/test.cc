@@ -45,6 +45,7 @@ TestInputEngine::~TestInputEngine()
 
 bool TestInputEngine::init(const Instruments& instruments)
 {
+	(void)instruments;
 	return true;
 }
 

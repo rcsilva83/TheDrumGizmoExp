@@ -50,7 +50,7 @@ public:
 	virtual void post(std::size_t nsamples) = 0;
 
 	//! Overload this method to use internal buffer directly.
-	virtual sample_t *getBuffer(int ch) const { return NULL; }
+	virtual sample_t *getBuffer(int ch) const { (void)ch; return NULL; }
 
 	//! Overload this method to force engine to use different buffer size.
 	virtual std::size_t getBufferSize() const { return 1024; }
@@ -59,5 +59,5 @@ public:
 
 	//! Overload this method to get notification of latency changes.
 	//! \param latency The new latency in samples.
-	virtual void onLatencyChange(std::size_t latency) {}
+	virtual void onLatencyChange(std::size_t latency) { (void)latency; }
 };

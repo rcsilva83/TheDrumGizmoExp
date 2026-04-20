@@ -306,10 +306,7 @@ repeat:
 	float scale = 1.0f;
 	for(; (n < end) && (t < (evt.buffer_size - evt.buffer_ptr)); ++n)
 	{
-		assert(n >= 0);
 		assert(n < sz);
-
-		assert(t >= 0);
 		assert(t < evt.buffer_size - evt.buffer_ptr);
 
 		if(evt.rampdownInProgress() && evt.rampdown_offset < (evt.t + t) &&

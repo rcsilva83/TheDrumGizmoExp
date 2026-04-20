@@ -3,7 +3,7 @@
  *            outputdummy.cc
  *
  *  Fr 22. Jan 08:15:04 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -36,11 +36,14 @@ DummyOutputEngine::~DummyOutputEngine()
 
 bool DummyOutputEngine::init(const Channels& data)
 {
+	(void)data;
 	return true;
 }
 
 void DummyOutputEngine::setParm(const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DummyOutputEngine::start()
@@ -54,14 +57,19 @@ void DummyOutputEngine::stop()
 
 void DummyOutputEngine::pre(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 void DummyOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 {
+	(void)ch;
+	(void)samples;
+	(void)nsamples;
 }
 
 void DummyOutputEngine::post(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 std::size_t DummyOutputEngine::getSamplerate() const

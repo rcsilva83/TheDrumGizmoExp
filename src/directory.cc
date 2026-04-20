@@ -332,6 +332,7 @@ std::string Directory::root(std::string path)
 		return path.substr(0, 2);
 	}
 #else
+	(void)path;
 	return SEP;
 #endif
 }

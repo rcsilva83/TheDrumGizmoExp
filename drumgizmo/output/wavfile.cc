@@ -3,7 +3,7 @@
  *            wavfile.cc
  *
  *  Mi 20. Jan 16:57:16 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -109,6 +109,7 @@ void WavfileOutputEngine::stop()
 
 void WavfileOutputEngine::pre(std::size_t nsamples)
 {
+	(void)nsamples;
 }
 
 void WavfileOutputEngine::run(int ch, sample_t* samples, std::size_t nsamples)

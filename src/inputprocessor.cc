@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 André Nusser
+ *  Copyright 2016 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -50,6 +50,7 @@ public:
 
 	bool filter(event_t& event, std::size_t pos) override
 	{
+		(void)pos;
 		original_velocity = event.velocity;
 		return true;
 	}
@@ -70,6 +71,7 @@ public:
 
 	bool filter(event_t& event, std::size_t pos) override
 	{
+		(void)pos;
 		settings.velocity_modifier_current.store(event.velocity / original_velocity);
 		return true;
 	}
@@ -312,6 +314,7 @@ bool InputProcessor::processChoke(event_t& event,
                                   std::size_t pos,
                                   double resample_ratio)
 {
+	(void)resample_ratio;
 	if(!kit.isValid())
 	{
 		return false;

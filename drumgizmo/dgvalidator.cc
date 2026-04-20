@@ -105,17 +105,6 @@ std::string version()
 	return output.str();
 }
 
-std::string copyright()
-{
-	std::ostringstream output;
-	output << "Copyright (C) 2008-2020 DrumGizmo team - DrumGizmo.org.\n";
-	output << "This is free software.  You may redistribute copies of it under the terms ";
-	output << "of\n";
-	output << "the GNU Lesser General Public License <http://www.gnu.org/licenses/gpl.html>.\n";
-	output << "There is NO WARRANTY, to the extent permitted by law.\n";
-	output << "\n";
-	return output.str();
-}
 
 std::string usage(const std::string& name, bool brief = false)
 {
@@ -154,7 +143,6 @@ bool pathIsFile(const std::string& path)
 int main(int argc, char* argv[])
 {
 	bool no_audio{false};
-	bool no_metadata{false};
 	bool pedantic{false};
 
 	std::string hugin_filter;
@@ -426,9 +414,9 @@ int main(int argc, char* argv[])
 							dggui::Colour colour(red, green, blue);
 
 							bool found{false};
-							for(int y = 0; y < image.height() && !found; ++y)
+							for(std::size_t y = 0; y < image.height() && !found; ++y)
 							{
-								for(int x = 0; x < image.width() && !found; ++x)
+								for(std::size_t x = 0; x < image.width() && !found; ++x)
 								{
 									if(image.getPixel(x, y) == colour)
 									{

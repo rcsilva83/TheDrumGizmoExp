@@ -44,6 +44,8 @@ public:
 	{
 	}
 
+	ID(const ID& other) = default;
+
 	operator IDType() const
 	{
 		return id;
