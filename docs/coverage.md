@@ -262,6 +262,11 @@ Any changed `.c`/`.cc`/`.cpp`/`.cxx` file in `src/`, `dggui/`, `plugingui/`,
 `plugin/`, or `drumgizmo/` must meet the `changed_file_min` floor (currently
 **30%**) or the CI job fails.
 
+**Exception:** GUI files in `dggui/` and `plugingui/` are excluded from the
+changed-file floor check because they require a display server (X11) and cannot
+be meaningfully unit tested in a headless environment. These files are still
+reported in the coverage summary but do not cause the check to fail.
+
 Branch-level coverage visibility is provided in three places:
 
 - GitHub Actions step summary (overall branch coverage and top uncovered files)
