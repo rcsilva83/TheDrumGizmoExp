@@ -61,9 +61,11 @@ Image::Image(Image&& other)
     , image_data(std::move(other.image_data))
     , image_data_raw(std::move(other.image_data_raw))
     , filename(other.filename)
+    , valid(other.valid)
 {
 	other._width = 0;
 	other._height = 0;
+	other.valid = false;
 }
 
 Image::~Image()

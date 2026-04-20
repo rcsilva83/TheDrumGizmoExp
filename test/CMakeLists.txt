@@ -509,6 +509,8 @@ if(TARGET dg_dggui)
 		INCLUDE_DIRS
 			"${CMAKE_SOURCE_DIR}"
 			"${DG_HUGIN_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			TEST_SOURCE_DIR="${CMAKE_SOURCE_DIR}/test"
 		LINK_LIBRARIES
 			dg_dggui
 			Threads::Threads
