@@ -29,21 +29,21 @@
 
 #include <settings.h>
 
-#include "plugingui/pluginconfig.h"
 #include "plugingui/abouttab.h"
-#include "plugingui/statusframecontent.h"
-#include "plugingui/humanizerframecontent.h"
-#include "plugingui/diskstreamingframecontent.h"
 #include "plugingui/bleedcontrolframecontent.h"
-#include "plugingui/resamplingframecontent.h"
-#include "plugingui/timingframecontent.h"
-#include "plugingui/sampleselectionframecontent.h"
-#include "plugingui/visualizerframecontent.h"
-#include "plugingui/voicelimitframecontent.h"
-#include "plugingui/powerwidget.h"
+#include "plugingui/diskstreamingframecontent.h"
 #include "plugingui/humaniservisualiser.h"
+#include "plugingui/humanizerframecontent.h"
 #include "plugingui/maintab.h"
 #include "plugingui/mainwindow.h"
+#include "plugingui/pluginconfig.h"
+#include "plugingui/powerwidget.h"
+#include "plugingui/resamplingframecontent.h"
+#include "plugingui/sampleselectionframecontent.h"
+#include "plugingui/statusframecontent.h"
+#include "plugingui/timingframecontent.h"
+#include "plugingui/visualizerframecontent.h"
+#include "plugingui/voicelimitframecontent.h"
 
 // Fixture that provides common test setup
 struct PluginGUIFixture
@@ -171,7 +171,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumanizerframeContentTest")
 {
 	SUBCASE("humanizerframe_construction")
 	{
-		GUI::HumanizerframeContent humanizer(&window, settings, settings_notifier);
+		GUI::HumanizerframeContent humanizer(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&humanizer != nullptr);
 		CHECK_UNARY(humanizer.visible());
@@ -179,7 +180,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumanizerframeContentTest")
 
 	SUBCASE("humanizerframe_setting_values")
 	{
-		GUI::HumanizerframeContent humanizer(&window, settings, settings_notifier);
+		GUI::HumanizerframeContent humanizer(
+		    &window, settings, settings_notifier);
 
 		// Simulate settings changes via notifier
 		settings_notifier.velocity_modifier_weight(0.5f);
@@ -194,7 +196,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "DiskstreamingframeContentTest")
 {
 	SUBCASE("diskstreamingframe_construction")
 	{
-		GUI::DiskstreamingframeContent disk(&window, settings, settings_notifier);
+		GUI::DiskstreamingframeContent disk(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&disk != nullptr);
 		CHECK_UNARY(disk.visible());
@@ -202,7 +205,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "DiskstreamingframeContentTest")
 
 	SUBCASE("diskstreamingframe_resize")
 	{
-		GUI::DiskstreamingframeContent disk(&window, settings, settings_notifier);
+		GUI::DiskstreamingframeContent disk(
+		    &window, settings, settings_notifier);
 
 		disk.resize(400, 100);
 		CHECK_EQ(std::size_t(400u), disk.width());
@@ -211,20 +215,23 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "DiskstreamingframeContentTest")
 
 	SUBCASE("diskstreamingframe_limit_settings")
 	{
-		GUI::DiskstreamingframeContent disk(&window, settings, settings_notifier);
+		GUI::DiskstreamingframeContent disk(
+		    &window, settings, settings_notifier);
 
 		// Test various limit values
 		disk.resize(400, 100); // Need to resize first for proper initialization
 		settings_notifier.disk_cache_upper_limit(1024 * 1024 * 64);  // 64 MB
 		settings_notifier.disk_cache_upper_limit(1024 * 1024 * 512); // 512 MB
-		settings_notifier.disk_cache_upper_limit(std::numeric_limits<std::size_t>::max()); // Unlimited
+		settings_notifier.disk_cache_upper_limit(
+		    std::numeric_limits<std::size_t>::max()); // Unlimited
 
 		CHECK_UNARY(&disk != nullptr);
 	}
 
 	SUBCASE("diskstreamingframe_reload_counter")
 	{
-		GUI::DiskstreamingframeContent disk(&window, settings, settings_notifier);
+		GUI::DiskstreamingframeContent disk(
+		    &window, settings, settings_notifier);
 
 		disk.resize(400, 100);
 		settings_notifier.reload_counter(1);
@@ -237,7 +244,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "BleedcontrolframeContentTest")
 {
 	SUBCASE("bleedcontrolframe_construction")
 	{
-		GUI::BleedcontrolframeContent bleed(&window, settings, settings_notifier);
+		GUI::BleedcontrolframeContent bleed(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&bleed != nullptr);
 		CHECK_UNARY(bleed.visible());
@@ -245,7 +253,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "BleedcontrolframeContentTest")
 
 	SUBCASE("bleedcontrolframe_resize")
 	{
-		GUI::BleedcontrolframeContent bleed(&window, settings, settings_notifier);
+		GUI::BleedcontrolframeContent bleed(
+		    &window, settings, settings_notifier);
 
 		bleed.resize(400, 100);
 		CHECK_EQ(std::size_t(400u), bleed.width());
@@ -254,7 +263,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "BleedcontrolframeContentTest")
 
 	SUBCASE("bleedcontrolframe_set_enabled")
 	{
-		GUI::BleedcontrolframeContent bleed(&window, settings, settings_notifier);
+		GUI::BleedcontrolframeContent bleed(
+		    &window, settings, settings_notifier);
 
 		bleed.resize(400, 100);
 		bleed.setEnabled(true);
@@ -266,7 +276,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "BleedcontrolframeContentTest")
 
 	SUBCASE("bleedcontrolframe_value_changes")
 	{
-		GUI::BleedcontrolframeContent bleed(&window, settings, settings_notifier);
+		GUI::BleedcontrolframeContent bleed(
+		    &window, settings, settings_notifier);
 
 		bleed.resize(400, 100);
 		settings_notifier.master_bleed(0.0f);
@@ -281,7 +292,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "ResamplingframeContentTest")
 {
 	SUBCASE("resamplingframe_construction")
 	{
-		GUI::ResamplingframeContent resampling(&window, settings, settings_notifier);
+		GUI::ResamplingframeContent resampling(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&resampling != nullptr);
 		CHECK_UNARY(resampling.visible());
@@ -289,7 +301,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "ResamplingframeContentTest")
 
 	SUBCASE("resamplingframe_resize")
 	{
-		GUI::ResamplingframeContent resampling(&window, settings, settings_notifier);
+		GUI::ResamplingframeContent resampling(
+		    &window, settings, settings_notifier);
 
 		resampling.resize(400, 150);
 		CHECK_EQ(std::size_t(400u), resampling.width());
@@ -298,7 +311,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "ResamplingframeContentTest")
 
 	SUBCASE("resamplingframe_settings_updates")
 	{
-		GUI::ResamplingframeContent resampling(&window, settings, settings_notifier);
+		GUI::ResamplingframeContent resampling(
+		    &window, settings, settings_notifier);
 
 		settings_notifier.drumkit_samplerate(44100);
 		settings_notifier.drumkit_samplerate(48000);
@@ -352,7 +366,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "SampleselectionframeContentTest")
 {
 	SUBCASE("sampleselectionframe_construction")
 	{
-		GUI::SampleselectionframeContent samplesel(&window, settings, settings_notifier);
+		GUI::SampleselectionframeContent samplesel(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&samplesel != nullptr);
 		CHECK_UNARY(samplesel.visible());
@@ -360,7 +375,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "SampleselectionframeContentTest")
 
 	SUBCASE("sampleselectionframe_settings_updates")
 	{
-		GUI::SampleselectionframeContent samplesel(&window, settings, settings_notifier);
+		GUI::SampleselectionframeContent samplesel(
+		    &window, settings, settings_notifier);
 
 		settings_notifier.sample_selection_f_close(0.5f);
 		settings_notifier.sample_selection_f_close(0.8f);
@@ -379,7 +395,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "VisualizerframeContentTest")
 {
 	SUBCASE("visualizerframe_construction")
 	{
-		GUI::VisualizerframeContent visualizer(&window, settings, settings_notifier);
+		GUI::VisualizerframeContent visualizer(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&visualizer != nullptr);
 		CHECK_UNARY(visualizer.visible());
@@ -387,7 +404,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "VisualizerframeContentTest")
 
 	SUBCASE("visualizerframe_resize")
 	{
-		GUI::VisualizerframeContent visualizer(&window, settings, settings_notifier);
+		GUI::VisualizerframeContent visualizer(
+		    &window, settings, settings_notifier);
 
 		visualizer.resize(400, 200);
 		CHECK_EQ(std::size_t(400u), visualizer.width());
@@ -404,7 +422,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "VoicelimitframeContentTest")
 {
 	SUBCASE("voicelimitframe_construction")
 	{
-		GUI::VoiceLimitFrameContent voicelimit(&window, settings, settings_notifier);
+		GUI::VoiceLimitFrameContent voicelimit(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&voicelimit != nullptr);
 		CHECK_UNARY(voicelimit.visible());
@@ -412,7 +431,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "VoicelimitframeContentTest")
 
 	SUBCASE("voicelimitframe_settings_updates")
 	{
-		GUI::VoiceLimitFrameContent voicelimit(&window, settings, settings_notifier);
+		GUI::VoiceLimitFrameContent voicelimit(
+		    &window, settings, settings_notifier);
 
 		// Test max voices
 		settings_notifier.voice_limit_max(5.0f);
@@ -487,7 +507,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumaniserVisualiserTest")
 {
 	SUBCASE("humaniservisualiser_construction")
 	{
-		GUI::HumaniserVisualiser visualiser(&window, settings, settings_notifier);
+		GUI::HumaniserVisualiser visualiser(
+		    &window, settings, settings_notifier);
 
 		CHECK_UNARY(&visualiser != nullptr);
 		CHECK_UNARY(visualiser.visible());
@@ -495,7 +516,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumaniserVisualiserTest")
 
 	SUBCASE("humaniservisualiser_resize")
 	{
-		GUI::HumaniserVisualiser visualiser(&window, settings, settings_notifier);
+		GUI::HumaniserVisualiser visualiser(
+		    &window, settings, settings_notifier);
 
 		visualiser.resize(400, 200);
 		CHECK_EQ(std::size_t(400u), visualiser.width());
@@ -509,7 +531,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "HumaniserVisualiserTest")
 
 	SUBCASE("humaniservisualiser_settings_updates")
 	{
-		GUI::HumaniserVisualiser visualiser(&window, settings, settings_notifier);
+		GUI::HumaniserVisualiser visualiser(
+		    &window, settings, settings_notifier);
 
 		visualiser.resize(400, 200);
 
@@ -632,7 +655,10 @@ TEST_CASE("MainWindowTest")
 		struct CloseListener : public Listener
 		{
 			bool* received;
-			void onClose() { *received = true; }
+			void onClose()
+			{
+				*received = true;
+			}
 		};
 		CloseListener listener;
 		listener.received = &close_received;
