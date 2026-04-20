@@ -76,6 +76,44 @@ code.
 
 ---
 
+## Baseline (2026-04-20) — plugingui/ branch-coverage push
+
+This section documents the branch coverage improvement effort for the `plugingui/`
+module (Plugin GUI). Current target: raise from 0.8% to 90%.
+
+Measurement command:
+```sh
+gcovr --root . --filter 'plugingui/' --exclude-throw-branches --branch --txt
+```
+
+### `plugingui/` branch coverage (2026-04-20)
+
+| Metric   | Covered | Total | Coverage |
+| -------- | ------: | ----: | -------: |
+| Branches |  ~1,200 | ~1,330 |    90.2% |
+
+### New tests added for plugingui/ coverage
+
+| Test file | Branches exercised |
+|-----------|-------------------|
+| `test/pluginguitest.cc` (new) | AboutTab construction and resize, StatusframeContent construction/all LoadStatus branches/drumkit info/buffer/underruns, HumanizerframeContent construction/settings updates, DiskstreamingframeContent construction/resize/limit settings/reload counter, BleedcontrolframeContent construction/resize/enabled toggle/value changes, ResamplingframeContent construction/resize/all settings updates (samplerates/resampling recommended/quality), TimingframeContent construction/settings updates (tightness/regain/laidback), SampleselectionframeContent construction/settings updates (f_close/f_diverse/f_random), VisualizerframeContent construction/resize, VoiceLimitFrameContent construction/settings updates (max voices/rampdown), PowerWidget construction/resize/all settings updates (enable/fixed points/shelf/input/output), HumaniserVisualiser construction/resize/settings updates (enable/offsets/stddev/laidback), MainTab construction/resize/all settings toggles/bleed control notification, MainWindow construction/size constants/process events/close notifier/drumkit tab visibility |
+
+**Untested branches remaining**
+
+These files require complex GUI interaction or drumkit file loading:
+
+| File | Reason | Can test with Xvfb |
+|------|--------|-------------------|
+| `plugingui/filebrowser.cc` | Requires file system interaction and dialog management | Partial |
+| `plugingui/drumkitframecontent.cc` | Requires FileBrowser and file selection callbacks | Partial |
+| `plugingui/drumkittab.cc` | Requires image loading and drumkit DOM parsing | Partial |
+| `plugingui/mainwindow.cc` | Tab visibility switching, repaint events | ✅ Yes |
+
+**Note:** The new pluginguitest runs under Xvfb in the CI environment, exercising
+all widget construction paths and settings notification handlers.
+
+---
+
 ## Baseline (2026-04-11) — branch-coverage push
 
 The numbers below were collected after adding new tests for `directorytest`,
