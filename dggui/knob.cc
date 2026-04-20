@@ -179,8 +179,8 @@ void Knob::repaintEvent(RepaintEvent* repaintEvent)
 	(void)repaintEvent;
 	int diameter = (width()>height()?height():width());
 	int radius = diameter / 2;
-	int center_x = width() / 2;
-	int center_y = height() / 2;
+	int center_x = static_cast<int>(width()) / 2;
+	int center_y = static_cast<int>(height()) / 2;
 
 	Painter p(*this);
 	p.clear();
