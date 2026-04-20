@@ -68,3 +68,4 @@ build-*/
 *.gcov
 coverage-*.json
 tmp-artifacts/
+Testing/
