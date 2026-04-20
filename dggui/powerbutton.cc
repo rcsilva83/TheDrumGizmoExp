@@ -86,4 +86,4 @@ void PowerButton::repaintEvent(RepaintEvent* repaintEvent)
 	}
 }
 
-} // dggui::
+} // namespace dggui

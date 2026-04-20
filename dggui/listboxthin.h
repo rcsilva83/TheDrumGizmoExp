@@ -31,23 +31,23 @@
 
 #include <notifier.h>
 
-#include "widget.h"
-#include "painter.h"
 #include "listboxbasic.h"
+#include "painter.h"
 #include "texturedbox.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class ListBoxThin
-	: public Widget
+class ListBoxThin : public Widget
 {
 public:
-	ListBoxThin(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	ListBoxThin(Widget* parent);
 	virtual ~ListBoxThin();
 
 	void addItem(std::string name, std::string value);
-	void addItems(std::vector<ListBoxBasic::Item> &items);
+	void addItems(std::vector<ListBoxBasic::Item>& items);
 
 	void clear();
 	bool selectItem(int index);
@@ -66,10 +66,10 @@ public:
 private:
 	ListBoxBasic basic;
 
-	TexturedBox box{getImageCache(), ":resources/thinlistbox.png",
-			0, 0, // atlas offset (x, y)
-			1, 1, 1, // dx1, dx2, dx3
-			1, 1, 1}; // dy1, dy2, dy3
+	TexturedBox box{getImageCache(), ":resources/thinlistbox.png", 0,
+	    0,        // atlas offset (x, y)
+	    1, 1, 1,  // dx1, dx2, dx3
+	    1, 1, 1}; // dy1, dy2, dy3
 };
 
-} // dggui::
+} // namespace dggui

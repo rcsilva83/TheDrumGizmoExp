@@ -39,12 +39,11 @@
 
 #include "cpp11fix.h"
 
-class VelocityStorer
-	: public InputFilter
+class VelocityStorer : public InputFilter
 {
 public:
 	VelocityStorer(float& original_velocity)
-		: original_velocity(original_velocity)
+	    : original_velocity(original_velocity)
 	{
 	}
 
@@ -59,20 +58,19 @@ private:
 	float& original_velocity;
 };
 
-class Reporter
-	: public InputFilter
+class Reporter : public InputFilter
 {
 public:
 	Reporter(Settings& settings, float& original_velocity)
-		: settings(settings)
-		, original_velocity(original_velocity)
+	    : settings(settings), original_velocity(original_velocity)
 	{
 	}
 
 	bool filter(event_t& event, std::size_t pos) override
 	{
 		(void)pos;
-		settings.velocity_modifier_current.store(event.velocity / original_velocity);
+		settings.velocity_modifier_current.store(
+		    event.velocity / original_velocity);
 		return true;
 	}
 
@@ -81,13 +79,9 @@ private:
 	float& original_velocity;
 };
 
-InputProcessor::InputProcessor(Settings& settings,
-                               DrumKit& kit,
-                               EventsDS& events_ds,
-                               Random& random)
-	: kit(kit)
-	, events_ds(events_ds)
-	, settings(settings)
+InputProcessor::InputProcessor(
+    Settings& settings, DrumKit& kit, EventsDS& events_ds, Random& random)
+    : kit(kit), events_ds(events_ds), settings(settings)
 {
 	// Build filter list
 	filters.emplace_back(std::make_unique<PowermapFilter>(settings));
@@ -95,14 +89,14 @@ InputProcessor::InputProcessor(Settings& settings,
 	filters.emplace_back(std::make_unique<StaminaFilter>(settings));
 	filters.emplace_back(std::make_unique<LatencyFilter>(settings, random));
 	filters.emplace_back(std::make_unique<VelocityFilter>(settings, random));
-	filters.emplace_back(std::make_unique<Reporter>(settings, original_velocity));
+	filters.emplace_back(
+	    std::make_unique<Reporter>(settings, original_velocity));
 }
 
-bool InputProcessor::process(std::vector<event_t>& events,
-                             std::size_t pos,
-                             double resample_ratio)
+bool InputProcessor::process(
+    std::vector<event_t>& events, std::size_t pos, double resample_ratio)
 {
-	for(auto& event: events)
+	for(auto& event : events)
 	{
 		if(event.type == EventType::OnSet)
 		{
@@ -142,8 +136,8 @@ std::size_t InputProcessor::getLatency() const
 }
 
 //! Applies choke with rampdown time in ms to event starting at offset.
-static void applyChoke(Settings& settings, SampleEvent& event,
-                       double length_ms, timepos_t offset)
+static void applyChoke(
+    Settings& settings, SampleEvent& event, double length_ms, timepos_t offset)
 {
 	std::size_t ramp_length = (length_ms / 1000.) * settings.samplerate.load();
 	event.rampdown_count = ramp_length;
@@ -152,9 +146,8 @@ static void applyChoke(Settings& settings, SampleEvent& event,
 }
 
 //! Applies choke group actions to active events based on the input event
-static void applyChokeGroup(Settings& settings, DrumKit& kit,
-                            Instrument& instr, event_t& event,
-                            EventsDS& events_ds)
+static void applyChokeGroup(Settings& settings, DrumKit& kit, Instrument& instr,
+    event_t& event, EventsDS& events_ds)
 {
 	std::size_t instrument_id = event.instrument;
 	if(instr.getGroup() == "")
@@ -173,8 +166,9 @@ static void applyChokeGroup(Settings& settings, DrumKit& kit,
 		for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 		{
 			if(event_sample.group == instr.getGroup() &&
-			   event_sample.instrument_id != instrument_id &&
-			   event_sample.rampdown_count == -1) // Only if not already ramping.
+			    event_sample.instrument_id != instrument_id &&
+			    event_sample.rampdown_count ==
+			        -1) // Only if not already ramping.
 			{
 				// Fixed group rampdown time of 68ms, independent of samplerate
 				applyChoke(settings, event_sample, 68, event.offset);
@@ -185,15 +179,15 @@ static void applyChokeGroup(Settings& settings, DrumKit& kit,
 
 //! Applies directed choke actions to active events based on the input event
 static void applyDirectedChoke(Settings& settings, DrumKit& kit,
-                               Instrument& instr, event_t& event,
-                               EventsDS& events_ds)
+    Instrument& instr, event_t& event, EventsDS& events_ds)
 {
 	for(const auto& choke : instr.getChokes())
 	{
 		// Add event to ramp down all existing events with the same groupname.
 		for(const auto& ch : kit.channels)
 		{
-			if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
+			if(ch.num >=
+			    NUM_CHANNELS) // kit may have more channels than the engine
 			{
 				continue;
 			}
@@ -201,19 +195,20 @@ static void applyDirectedChoke(Settings& settings, DrumKit& kit,
 			for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 			{
 				if(choke.instrument_id == event_sample.instrument_id &&
-				   event_sample.rampdown_count == -1) // Only if not already ramping.
+				    event_sample.rampdown_count ==
+				        -1) // Only if not already ramping.
 				{
 					// choke.choketime is in ms
-					applyChoke(settings, event_sample, choke.choketime, event.offset);
+					applyChoke(
+					    settings, event_sample, choke.choketime, event.offset);
 				}
 			}
 		}
-
 	}
 }
 
-bool InputProcessor::processOnset(event_t& event, std::size_t pos,
-                                  double resample_ratio)
+bool InputProcessor::processOnset(
+    event_t& event, std::size_t pos, double resample_ratio)
 {
 	if(!kit.isValid())
 	{
@@ -255,7 +250,7 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	auto const power_max = instr->getMaxPower();
 	auto const power_min = instr->getMinPower();
 	float const power_span = power_max - power_min;
-	float const instrument_level = power_min + event.velocity*power_span;
+	float const instrument_level = power_min + event.velocity * power_span;
 	const auto sample = instr->sample(instrument_level, event.offset + pos);
 
 	if(sample == nullptr)
@@ -266,15 +261,14 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 
 	if(settings.enable_voice_limit.load())
 	{
-		limitVoices(instrument_id,
-		            settings.voice_limit_max.load(),
-		            settings.voice_limit_rampdown.load());
+		limitVoices(instrument_id, settings.voice_limit_max.load(),
+		    settings.voice_limit_rampdown.load());
 	}
 
-	//Given that audio files could be invalid, maybe we must add the new
-	//group just before adding the first new sample...
+	// Given that audio files could be invalid, maybe we must add the new
+	// group just before adding the first new sample...
 	bool new_group_added = false;
-	for(Channel& ch: kit.channels)
+	for(Channel& ch : kit.channels)
 	{
 		if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
 		{
@@ -284,20 +278,19 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 		const auto af = sample->getAudioFile(ch);
 		if(af == nullptr || !af->isValid())
 		{
-			//DEBUG(inputprocessor, "Missing AudioFile.\n");
+			// DEBUG(inputprocessor, "Missing AudioFile.\n");
 		}
 		else
 		{
-			//DEBUG(inputprocessor, "Adding event %d.\n", event.offset);
+			// DEBUG(inputprocessor, "Adding event %d.\n", event.offset);
 			if(!new_group_added)
 			{
-				new_group_added=true;
+				new_group_added = true;
 				events_ds.startAddingNewGroup(instrument_id);
 			}
 
-			auto& event_sample =
-				events_ds.emplace<SampleEvent>(ch.num, ch.num, 1.0, af,
-				                               instr->getGroup(), instrument_id);
+			auto& event_sample = events_ds.emplace<SampleEvent>(
+			    ch.num, ch.num, 1.0, af, instr->getGroup(), instrument_id);
 
 			event_sample.offset = (event.offset + pos) * resample_ratio;
 			if(settings.normalized_samples.load() && sample->getNormalized())
@@ -310,9 +303,8 @@ bool InputProcessor::processOnset(event_t& event, std::size_t pos,
 	return true;
 }
 
-bool InputProcessor::processChoke(event_t& event,
-                                  std::size_t pos,
-                                  double resample_ratio)
+bool InputProcessor::processChoke(
+    event_t& event, std::size_t pos, double resample_ratio)
 {
 	(void)resample_ratio;
 	if(!kit.isValid())
@@ -356,7 +348,8 @@ bool InputProcessor::processChoke(event_t& event,
 		for(auto& event_sample : events_ds.iterateOver<SampleEvent>(ch.num))
 		{
 			if(event_sample.instrument_id == instrument_id &&
-			   event_sample.rampdown_count == -1) // Only if not already ramping.
+			    event_sample.rampdown_count ==
+			        -1) // Only if not already ramping.
 			{
 				// Fixed group rampdown time of 68ms, independent of samplerate
 				applyChoke(settings, event_sample, 450, event.offset);
@@ -378,9 +371,10 @@ bool InputProcessor::processStop(event_t& event)
 	{
 		// Count the number of active events.
 		int num_active_events = 0;
-		for(auto& ch: kit.channels)
+		for(auto& ch : kit.channels)
 		{
-			if(ch.num >= NUM_CHANNELS) // kit may have more channels than the engine
+			if(ch.num >=
+			    NUM_CHANNELS) // kit may have more channels than the engine
 			{
 				continue;
 			}
@@ -398,58 +392,53 @@ bool InputProcessor::processStop(event_t& event)
 	return true;
 }
 
-void InputProcessor::limitVoices(std::size_t instrument_id,
-                                 std::size_t max_voices,
-                                 float rampdown_time)
+void InputProcessor::limitVoices(
+    std::size_t instrument_id, std::size_t max_voices, float rampdown_time)
 {
-	const auto& group_ids=events_ds.getSampleEventGroupIDsOf(instrument_id);
+	const auto& group_ids = events_ds.getSampleEventGroupIDsOf(instrument_id);
 
 	if(group_ids.size() <= max_voices)
 	{
 		return;
 	}
 
-	//Filter out ramping events...
-	auto filter_ramping_predicate =
-		[this](EventGroupID group_id) -> bool
+	// Filter out ramping events...
+	auto filter_ramping_predicate = [this](EventGroupID group_id) -> bool
+	{
+		const auto& event_ids = events_ds.getEventIDsOf(group_id);
+		// TODO: This should not happen.
+		if(!event_ids.size())
 		{
-			const auto& event_ids=events_ds.getEventIDsOf(group_id);
-			//TODO: This should not happen.
-			if(!event_ids.size())
-			{
-				return false;
-			}
+			return false;
+		}
 
-			const auto&	sample=events_ds.get<SampleEvent>(event_ids[0]);
-			return !sample.rampdownInProgress();
-		};
+		const auto& sample = events_ds.get<SampleEvent>(event_ids[0]);
+		return !sample.rampdownInProgress();
+	};
 
 	EventGroupIDs non_ramping;
-	std::copy_if(std::begin(group_ids),
-	             std::end(group_ids),
-	             std::back_inserter(non_ramping), filter_ramping_predicate);
+	std::copy_if(std::begin(group_ids), std::end(group_ids),
+	    std::back_inserter(non_ramping), filter_ramping_predicate);
 
 	if(!non_ramping.size())
 	{
 		return;
 	}
 
-	//Let us get the eldest...
-	//TODO: where is the playhead? Should we add it to the offset?
-	auto compare_event_offsets =
-		[this](EventGroupID a, EventGroupID b)
-		{
-			const auto& event_ids_a=events_ds.getEventIDsOf(a);
-			const auto& event_ids_b=events_ds.getEventIDsOf(b);
+	// Let us get the eldest...
+	// TODO: where is the playhead? Should we add it to the offset?
+	auto compare_event_offsets = [this](EventGroupID a, EventGroupID b)
+	{
+		const auto& event_ids_a = events_ds.getEventIDsOf(a);
+		const auto& event_ids_b = events_ds.getEventIDsOf(b);
 
-			const auto&	sample_a=events_ds.get<SampleEvent>(event_ids_a[0]);
-			const auto& sample_b=events_ds.get<SampleEvent>(event_ids_b[0]);
-			return sample_a.offset < sample_b.offset;
-		};
+		const auto& sample_a = events_ds.get<SampleEvent>(event_ids_a[0]);
+		const auto& sample_b = events_ds.get<SampleEvent>(event_ids_b[0]);
+		return sample_a.offset < sample_b.offset;
+	};
 
-	auto it = std::min_element(std::begin(non_ramping),
-	                           std::end(non_ramping),
-	                           compare_event_offsets);
+	auto it = std::min_element(
+	    std::begin(non_ramping), std::end(non_ramping), compare_event_offsets);
 	if(it == std::end(non_ramping))
 	{
 		return;
@@ -458,7 +447,7 @@ void InputProcessor::limitVoices(std::size_t instrument_id,
 	const auto& event_ids = events_ds.getEventIDsOf(*it);
 	for(const auto& event_id : event_ids)
 	{
-		auto& sample=events_ds.get<SampleEvent>(event_id);
+		auto& sample = events_ds.get<SampleEvent>(event_id);
 		applyChoke(settings, sample, rampdown_time, sample.offset);
 	}
 }

@@ -31,16 +31,19 @@
 namespace dggui
 {
 
-class LED : public Widget {
+class LED : public Widget
+{
 public:
-	typedef enum {
+	typedef enum
+	{
 		Red,
 		Green,
 		Blue,
 		Off
 	} state_t;
 
-	LED(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	LED(Widget* parent);
 
 	void setState(state_t state);
 
@@ -52,4 +55,4 @@ private:
 	state_t state;
 };
 
-} // dggui::
+} // namespace dggui

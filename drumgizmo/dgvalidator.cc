@@ -24,25 +24,25 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
+#include <climits>
 #include <dgxmlparser.h>
-#include <path.h>
 #include <domloader.h>
+#include <drumkit.h>
+#include <getoptpp.hpp>
+#include <hugin.hpp>
+#include <iostream>
+#include <path.h>
 #include <random.h>
 #include <settings.h>
-#include <drumkit.h>
-#include <iostream>
-#include <string>
-#include <hugin.hpp>
-#include <getoptpp.hpp>
 #include <sstream>
-#include <climits>
+#include <string>
 
 #include <config.h>
 #include <platform.h>
 
 #if DG_PLATFORM != DG_PLATFORM_WINDOWS
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif
 
@@ -105,20 +105,18 @@ std::string version()
 	return output.str();
 }
 
-
 std::string usage(const std::string& name, bool brief = false)
 {
 	std::ostringstream output;
-	output <<
-		"Usage: " << name << " [options] <drumkitfile>\n";
+	output << "Usage: " << name << " [options] <drumkitfile>\n";
 	if(!brief)
 	{
-		output <<
-			"\n"
-			"Validates the xml and semantics of the drumkit file and prints any found"
-			" errors to the console.\n"
-			"Returns 0 on success or 1 if errors were found.\n"
-			"\n";
+		output << "\n"
+		          "Validates the xml and semantics of the drumkit file and "
+		          "prints any found"
+		          " errors to the console.\n"
+		          "Returns 0 on success or 1 if errors were found.\n"
+		          "\n";
 	}
 	return output.str();
 }
@@ -138,7 +136,7 @@ bool pathIsFile(const std::string& path)
 #endif
 }
 
-}
+} // namespace
 
 int main(int argc, char* argv[])
 {
@@ -154,74 +152,67 @@ int main(int argc, char* argv[])
 	dg::Options opt;
 
 	opt.add("no-audio", no_argument, 'n',
-	        "Skip checking audio file existence and samplerate.",
-	        [&]()
-	        {
-		        no_audio = true;
-		        return 0;
-	        });
+	    "Skip checking audio file existence and samplerate.",
+	    [&]()
+	    {
+		    no_audio = true;
+		    return 0;
+	    });
 
-	opt.add("pedantic", no_argument, 'p',
-	        "Treat even warnings as errors.",
-	        [&]()
-	        {
-		        pedantic = true;
-		        return 0;
-	        });
+	opt.add("pedantic", no_argument, 'p', "Treat even warnings as errors.",
+	    [&]()
+	    {
+		    pedantic = true;
+		    return 0;
+	    });
 
 	opt.add("verbose", no_argument, 'v',
-	        "Print more info during validation. Can be added multiple times to"
-	        " increase output verbosity.",
-	        [&]()
-	        {
-		        ++verbosity;
-		        return 0;
-	        });
+	    "Print more info during validation. Can be added multiple times to"
+	    " increase output verbosity.",
+	    [&]()
+	    {
+		    ++verbosity;
+		    return 0;
+	    });
 
 	opt.add("quiet", no_argument, 'q',
-	        "Don't print any output, even on errors.",
-	        [&]()
-	        {
-		        verbosity = 0;
-		        return 0;
-	        });
+	    "Don't print any output, even on errors.",
+	    [&]()
+	    {
+		    verbosity = 0;
+		    return 0;
+	    });
 
-	opt.add("version", no_argument, 'V',
-	        "Print version and exit.",
-	        [&]()
-	        {
-		        std::cout << version();
-		        exit(0);
-		        return 0;
-	        });
+	opt.add("version", no_argument, 'V', "Print version and exit.",
+	    [&]()
+	    {
+		    std::cout << version();
+		    exit(0);
+		    return 0;
+	    });
 
-	opt.add("help", no_argument, 'h',
-	        "Print this message and exit.",
-	        [&]()
-	        {
-		        std::cout << usage(argv[0]);
-		        std::cout << "Options:\n";
-		        opt.help();
-		        exit(0);
-		        return 0;
-	        });
+	opt.add("help", no_argument, 'h', "Print this message and exit.",
+	    [&]()
+	    {
+		    std::cout << usage(argv[0]);
+		    std::cout << "Options:\n";
+		    opt.help();
+		    exit(0);
+		    return 0;
+	    });
 
 #ifndef DISABLE_HUGIN
 	opt.add("debug", required_argument, 'D',
-	        "Enable debug messages on 'ddd' see hugin documentation for details.",
-	        [&]()
-	        {
-		        hugin_flags |= HUG_FLAG_USE_FILTER;
-		        hugin_filter = optarg;
-		        return 0;
-	        });
+	    "Enable debug messages on 'ddd' see hugin documentation for details.",
+	    [&]()
+	    {
+		    hugin_flags |= HUG_FLAG_USE_FILTER;
+		    hugin_filter = optarg;
+		    return 0;
+	    });
 #else
-		opt.add("debug", required_argument, 'D',
-	        "Not compiled with hugin support - ignored",
-	        [&]()
-	        {
-		        return 0;
-	        });
+	opt.add("debug", required_argument, 'D',
+	    "Not compiled with hugin support - ignored", [&]() { return 0; });
 
 #endif /*DISABLE_HUGIN*/
 
@@ -237,8 +228,8 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	hug_status_t status = hug_init(hugin_flags, HUG_OPTION_FILTER,
-	                               hugin_filter.data(), HUG_OPTION_END);
+	hug_status_t status = hug_init(
+	    hugin_flags, HUG_OPTION_FILTER, hugin_filter.data(), HUG_OPTION_END);
 	if(status != HUG_STATUS_OK)
 	{
 		std::cerr << "Error: " << status << std::endl;
@@ -254,7 +245,7 @@ int main(int argc, char* argv[])
 	if(!ret)
 	{
 		WARN(drumkitloader, "Drumkit file parser error: '%s'",
-		     edited_filename.data());
+		    edited_filename.data());
 	}
 
 	parseerror |= !ret;
@@ -262,12 +253,13 @@ int main(int argc, char* argv[])
 	for(const auto& ref : drumkitdom.instruments)
 	{
 		instrumentdoms.emplace_back();
-		bool ret = parseInstrumentFile(path + "/" + ref.file, instrumentdoms.back(),
-		                               logger);
+		// cppcheck-suppress shadowVariable
+		bool ret = parseInstrumentFile(
+		    path + "/" + ref.file, instrumentdoms.back(), logger);
 		if(!ret)
 		{
 			WARN(drumkitloader, "Instrument file parser error: '%s'",
-			     edited_filename.data());
+			    edited_filename.data());
 		}
 
 		parseerror |= !ret;
@@ -301,18 +293,19 @@ int main(int argc, char* argv[])
 	if(no_audio == false)
 	{
 		// Verify all referred audiofiles
-		for(const auto& instrument: kit.instruments)
+		for(const auto& instrument : kit.instruments)
 		{
-			for(auto& audiofile: instrument->audiofiles)
+			for(auto& audiofile : instrument->audiofiles)
 			{
 				audiofile->load(logger, 1);
 				if(!audiofile->isLoaded())
 				{
 					WARN(drumkitloader, "Instrument file load error: '%s'",
-					     audiofile->filename.data());
-					logger(LogLevel::Error, "Error loading audio file '" +
-					       audiofile->filename + "' in the '" + instrument->getName() +
-					       "' instrument");
+					    audiofile->filename.data());
+					logger(LogLevel::Error,
+					    "Error loading audio file '" + audiofile->filename +
+					        "' in the '" + instrument->getName() +
+					        "' instrument");
 					parseerror = true;
 				}
 			}
@@ -323,10 +316,11 @@ int main(int argc, char* argv[])
 	// Check drumkit images
 	{
 		if(!drumkitdom.metadata.image_map.empty() &&
-		   drumkitdom.metadata.image.empty())
+		    drumkitdom.metadata.image.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Found drumkit image_map but no image,"
-			       " so image_map will not be usable.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Found drumkit image_map but no image,"
+			    " so image_map will not be usable.");
 			if(pedantic)
 			{
 				image_error = true;
@@ -341,8 +335,8 @@ int main(int argc, char* argv[])
 			logger(LogLevel::Info, "Found drumkit image '" + image + "'");
 			if(!pathIsFile(image))
 			{
-				logger(LogLevel::Error, "Drumkit image file does not exist: '"
-				       + image + "'");
+				logger(LogLevel::Error,
+				    "Drumkit image file does not exist: '" + image + "'");
 				image_error = true;
 			}
 			else
@@ -351,16 +345,18 @@ int main(int argc, char* argv[])
 				dggui::Image img(image);
 				if(!img.isValid())
 				{
-					logger(LogLevel::Error, "Drumkit image, '" + image +
-					       "', could not be loaded. Not a valid PNG image?");
+					logger(LogLevel::Error,
+					    "Drumkit image, '" + image +
+					        "', could not be loaded. Not a valid PNG image?");
 					image_error = true;
 				}
 				else
 				{
-					image_size = { img.width(), img.height() };
-					logger(LogLevel::Info, "Loaded image in resolution " +
-					       std::to_string(image_size.first) + " x " +
-					       std::to_string(image_size.second));
+					image_size = {img.width(), img.height()};
+					logger(LogLevel::Info,
+					    "Loaded image in resolution " +
+					        std::to_string(image_size.first) + " x " +
+					        std::to_string(image_size.second));
 				}
 			}
 		}
@@ -370,11 +366,13 @@ int main(int argc, char* argv[])
 		{
 			// Check if the image_map file exists
 			auto image_map = path + "/" + drumkitdom.metadata.image_map;
-			logger(LogLevel::Info, "Found drumkit image_map '" + image_map + "'");
+			logger(
+			    LogLevel::Info, "Found drumkit image_map '" + image_map + "'");
 			if(!pathIsFile(image_map))
 			{
-				logger(LogLevel::Error, "Drumkit image map file does not exist: '"
-				       + image_map + "'");
+				logger(LogLevel::Error,
+				    "Drumkit image map file does not exist: '" + image_map +
+				        "'");
 				image_error = true;
 			}
 			else
@@ -383,40 +381,47 @@ int main(int argc, char* argv[])
 				dggui::Image image(image_map);
 				if(!image.isValid())
 				{
-					logger(LogLevel::Error, "Drumkit image_map, '" + image_map +
-					       "', could not be loaded. Not a valid PNG image?");
+					logger(LogLevel::Error,
+					    "Drumkit image_map, '" + image_map +
+					        "', could not be loaded. Not a valid PNG image?");
 					image_error = true;
 				}
 				else
 				{
-					image_map_size = { image.width(), image.height() };
-					logger(LogLevel::Info, "Loaded image_map in resolution " +
-					       std::to_string(image_map_size.first) + " x " +
-					       std::to_string(image_map_size.second));
+					image_map_size = {image.width(), image.height()};
+					logger(LogLevel::Info,
+					    "Loaded image_map in resolution " +
+					        std::to_string(image_map_size.first) + " x " +
+					        std::to_string(image_map_size.second));
 
-					// Check if the click map colours can be found in the image_map image.
+					// Check if the click map colours can be found in the
+					// image_map image.
 					for(const auto& clickmap : drumkitdom.metadata.clickmaps)
 					{
 						if(clickmap.colour.size() != 6)
 						{
 							logger(LogLevel::Error,
-							       "Clickmap colour field not the right length (should be 6).");
+							    "Clickmap colour field not the right length "
+							    "(should be 6).");
 							image_error = true;
 							continue;
 						}
 
 						try
 						{
-							auto hex_colour = std::stoul(clickmap.colour, nullptr, 16);
-							float red   = (hex_colour >> 16 & 0xff) / 255.0f;
-							float green = (hex_colour >>  8 & 0xff) / 255.0f;
-							float blue  = (hex_colour >>  0 & 0xff) / 255.0f;
+							auto hex_colour =
+							    std::stoul(clickmap.colour, nullptr, 16);
+							float red = (hex_colour >> 16 & 0xff) / 255.0f;
+							float green = (hex_colour >> 8 & 0xff) / 255.0f;
+							float blue = (hex_colour >> 0 & 0xff) / 255.0f;
 							dggui::Colour colour(red, green, blue);
 
 							bool found{false};
-							for(std::size_t y = 0; y < image.height() && !found; ++y)
+							for(std::size_t y = 0; y < image.height() && !found;
+							    ++y)
 							{
-								for(std::size_t x = 0; x < image.width() && !found; ++x)
+								for(std::size_t x = 0;
+								    x < image.width() && !found; ++x)
 								{
 									if(image.getPixel(x, y) == colour)
 									{
@@ -428,8 +433,8 @@ int main(int argc, char* argv[])
 							if(!found)
 							{
 								logger(LogLevel::Error,
-								       "Clickmap colour '" + clickmap.colour +
-								       "' not found in image_map.");
+								    "Clickmap colour '" + clickmap.colour +
+								        "' not found in image_map.");
 								image_error = true;
 							}
 						}
@@ -437,14 +442,14 @@ int main(int argc, char* argv[])
 						{
 							// Not valid hex number
 							logger(LogLevel::Error,
-							       "Clickmap colour not a valid hex colour.");
+							    "Clickmap colour not a valid hex colour.");
 							image_error = true;
 							continue;
 						}
 
 						// Check if the click map instruments exist.
 						bool found{false};
-						for(const auto& instrument: kit.instruments)
+						for(const auto& instrument : kit.instruments)
 						{
 							if(instrument->getName() == clickmap.instrument)
 							{
@@ -454,11 +459,10 @@ int main(int argc, char* argv[])
 						if(!found)
 						{
 							logger(LogLevel::Error,
-							       "Clickmap instrument '" + clickmap.instrument +
-							       "' not found in drumkit.");
+							    "Clickmap instrument '" + clickmap.instrument +
+							        "' not found in drumkit.");
 							image_error = true;
 						}
-
 					}
 				}
 			}
@@ -468,10 +472,9 @@ int main(int argc, char* argv[])
 		if(image_size != image_map_size)
 		{
 			logger(LogLevel::Error,
-			       "Drumkit image and image_map does not have same resolution.");
+			    "Drumkit image and image_map does not have same resolution.");
 			image_error = true;
 		}
-
 	}
 
 	// Check sanity of metadata values
@@ -479,7 +482,8 @@ int main(int argc, char* argv[])
 	{
 		if(drumkitdom.metadata.version.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Missing version field.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Missing version field.");
 			if(pedantic)
 			{
 				metadata_error = true;
@@ -488,7 +492,8 @@ int main(int argc, char* argv[])
 
 		if(drumkitdom.metadata.title.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Missing title field.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Missing title field.");
 			if(pedantic)
 			{
 				metadata_error = true;
@@ -497,7 +502,8 @@ int main(int argc, char* argv[])
 
 		if(drumkitdom.metadata.license.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Missing license field.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Missing license field.");
 			if(pedantic)
 			{
 				metadata_error = true;
@@ -506,7 +512,8 @@ int main(int argc, char* argv[])
 
 		if(drumkitdom.metadata.author.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Missing author field.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Missing author field.");
 			if(pedantic)
 			{
 				metadata_error = true;
@@ -515,7 +522,8 @@ int main(int argc, char* argv[])
 
 		if(drumkitdom.metadata.email.empty())
 		{
-			logger(pedantic ? LogLevel::Error : LogLevel::Warning, "Missing email field.");
+			logger(pedantic ? LogLevel::Error : LogLevel::Warning,
+			    "Missing email field.");
 			if(pedantic)
 			{
 				metadata_error = true;
@@ -529,8 +537,8 @@ int main(int argc, char* argv[])
 			logger(LogLevel::Info, "Found drumkit logo field '" + image + "'");
 			if(!pathIsFile(image))
 			{
-				logger(LogLevel::Error, "Logo image file does not exist: '"
-				       + image + "'");
+				logger(LogLevel::Error,
+				    "Logo image file does not exist: '" + image + "'");
 				metadata_error = true;
 			}
 			else
@@ -539,8 +547,9 @@ int main(int argc, char* argv[])
 				dggui::Image img(image);
 				if(!img.isValid())
 				{
-					logger(LogLevel::Error, "Drumkit logo, '" + image +
-					       "', could not be loaded. Not a valid PNG image?");
+					logger(LogLevel::Error,
+					    "Drumkit logo, '" + image +
+					        "', could not be loaded. Not a valid PNG image?");
 					metadata_error = true;
 				}
 			}

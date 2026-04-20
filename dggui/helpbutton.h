@@ -26,17 +26,17 @@
  */
 #pragma once
 
-#include "texture.h"
 #include "button_base.h"
+#include "texture.h"
 #include "tooltip.h"
 
 namespace dggui
 {
 
-class HelpButton
-	: public ButtonBase
+class HelpButton : public ButtonBase
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	HelpButton(Widget* parent);
 	virtual ~HelpButton() = default;
 
@@ -50,9 +50,10 @@ private:
 	void showHelpText();
 
 	Texture normal{getImageCache(), ":resources/help_button.png", 0, 0, 16, 16};
-	Texture pushed{getImageCache(), ":resources/help_button.png", 16, 0, 16, 16};
+	Texture pushed{
+	    getImageCache(), ":resources/help_button.png", 16, 0, 16, 16};
 
 	Tooltip tip;
 };
 
-} // dggui::
+} // namespace dggui

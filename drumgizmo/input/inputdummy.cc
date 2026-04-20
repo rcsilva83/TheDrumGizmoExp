@@ -40,7 +40,8 @@ bool DummyInputEngine::init(const Instruments& instruments)
 	return true;
 }
 
-void DummyInputEngine::setParm(const std::string& parm, const std::string& value)
+void DummyInputEngine::setParm(
+    const std::string& parm, const std::string& value)
 {
 	(void)parm;
 	(void)value;

@@ -26,18 +26,18 @@
  */
 #include "listboxthin.h"
 
-#include "painter.h"
 #include "font.h"
+#include "painter.h"
 
 namespace dggui
 {
 
-ListBoxThin::ListBoxThin(Widget *parent)
-	: Widget(parent)
-	, selectionNotifier(basic.selectionNotifier)
-	, clickNotifier(basic.clickNotifier)
-	, valueChangedNotifier(basic.valueChangedNotifier)
-	, basic(this)
+ListBoxThin::ListBoxThin(Widget* parent)
+    : Widget(parent)
+    , selectionNotifier(basic.selectionNotifier)
+    , clickNotifier(basic.clickNotifier)
+    , valueChangedNotifier(basic.valueChangedNotifier)
+    , basic(this)
 {
 	basic.move(1, 1);
 }
@@ -51,7 +51,7 @@ void ListBoxThin::addItem(std::string name, std::string value)
 	basic.addItem(name, value);
 }
 
-void ListBoxThin::addItems(std::vector<ListBoxBasic::Item> &items)
+void ListBoxThin::addItems(std::vector<ListBoxBasic::Item>& items)
 {
 	basic.addItems(items);
 }
@@ -88,15 +88,14 @@ void ListBoxThin::repaintEvent(RepaintEvent* repaintEvent)
 		return;
 	}
 
-	box.setSize(w,h);
+	box.setSize(w, h);
 	p.drawImage(0, 0, box);
 }
 
 void ListBoxThin::resize(std::size_t height, std::size_t width)
 {
 	Widget::resize(width, height);
-	basic.resize(width - (1 + 1),
-	             height - (1 + 1));
+	basic.resize(width - (1 + 1), height - (1 + 1));
 }
 
-} // dggui::
+} // namespace dggui

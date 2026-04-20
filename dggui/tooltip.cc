@@ -26,17 +26,16 @@
  */
 #include "tooltip.h"
 
-#include "painter.h"
 #include "font.h"
+#include "painter.h"
 #include "window.h"
 #include <iostream>
 
 namespace dggui
 {
 
-Tooltip::Tooltip(Widget *parent)
-	: Widget(parent->window())
-	, activating_widget(parent)
+Tooltip::Tooltip(Widget* parent)
+    : Widget(parent->window()), activating_widget(parent)
 {
 	resize(32, 32);
 }
@@ -74,7 +73,8 @@ void Tooltip::repaintEvent(RepaintEvent* repaintEvent)
 
 	box.setSize(width(), height());
 	p.drawImage(0, 0, box);
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+	p.setColour(
+	    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 
 	int ypos = font.textHeight() + y_border;
 
@@ -96,6 +96,7 @@ void Tooltip::preprocessText()
 	std::vector<std::string> lines;
 
 	preprocessed_text.clear();
+	// cppcheck-suppress shadowVariable
 	std::string text = this->text;
 
 	// Handle tab characters
@@ -130,11 +131,11 @@ void Tooltip::preprocessText()
 
 	max_text_width = 0;
 	total_text_height = 0;
-	for(auto const& line: lines)
+	for(auto const& line : lines)
 	{
 		std::string valid;
 		std::string current;
-		for(auto c: line)
+		for(auto c : line)
 		{
 			current += c;
 			if(c == ' ')
@@ -161,7 +162,7 @@ void Tooltip::show()
 		preprocessText();
 	}
 
-	resize(max_text_width + 2*x_border, total_text_height + 2*y_border);
+	resize(max_text_width + 2 * x_border, total_text_height + 2 * y_border);
 
 	int x = activating_widget->translateToWindowX();
 	int y = activating_widget->translateToWindowY();
@@ -198,4 +199,4 @@ void Tooltip::buttonEvent(ButtonEvent* buttonEvent)
 	}
 }
 
-} // dggui::
+} // namespace dggui

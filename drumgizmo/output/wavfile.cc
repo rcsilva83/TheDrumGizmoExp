@@ -29,11 +29,7 @@
 #include "wavfile.h"
 
 WavfileOutputEngine::WavfileOutputEngine()
-	: AudioOutputEngine{}
-	, info{}
-	, channels{}
-	, file{"output"}
-	, latency{0}
+    : AudioOutputEngine{}, info{}, channels{}, file{"output"}, latency{0}
 {
 	info.samplerate = 44100;
 	info.channels = 1;
@@ -70,8 +66,8 @@ bool WavfileOutputEngine::init(const Channels& data)
 	return true;
 }
 
-void WavfileOutputEngine::setParm(const std::string& parm,
-                                  const std::string& value)
+void WavfileOutputEngine::setParm(
+    const std::string& parm, const std::string& value)
 {
 	if(parm == "file")
 	{

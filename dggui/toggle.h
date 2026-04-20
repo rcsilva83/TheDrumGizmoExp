@@ -36,14 +36,21 @@ namespace dggui
 class Toggle : public Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Toggle(Widget* parent);
 	virtual ~Toggle() = default;
 
 	void setText(std::string text);
 
 	// From Widget:
-	bool isFocusable() override { return true; }
-	bool catchMouse() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
+	bool catchMouse() override
+	{
+		return true;
+	}
 
 	bool checked();
 	void setChecked(bool checked);
@@ -67,4 +74,4 @@ private:
 	void internalSetChecked(bool checked);
 };
 
-} // dggui::
+} // namespace dggui

@@ -31,11 +31,11 @@
 #include "test.h"
 
 TestInputEngine::TestInputEngine()
-	: AudioInputEngine{}
-	, probability{0.1}
-	, instrument{-1}
-	, length{-1}
-	, sample_rate{44100.0}
+    : AudioInputEngine{}
+    , probability{0.1}
+    , instrument{-1}
+    , length{-1}
+    , sample_rate{44100.0}
 {
 }
 
@@ -91,10 +91,12 @@ void TestInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 
 	if((length != -1) && (pos > (size_t)(length * sample_rate)))
 	{
+		// cppcheck-suppress redundantAssignment
 		event.type = EventType::Stop;
 	}
 	else
 	{
+		// cppcheck-suppress redundantAssignment
 		event.type = EventType::OnSet;
 	}
 
@@ -107,7 +109,7 @@ void TestInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 		event.instrument = rand() % 32;
 	}
 
-	event.velocity = (float)rand()/(float)RAND_MAX;
+	event.velocity = (float)rand() / (float)RAND_MAX;
 	event.offset = len;
 }
 

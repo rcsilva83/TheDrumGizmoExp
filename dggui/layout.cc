@@ -33,8 +33,7 @@
 namespace dggui
 {
 
-LayoutItem::LayoutItem()
-	: parent(nullptr)
+LayoutItem::LayoutItem() : parent(nullptr)
 {
 }
 
@@ -109,8 +108,7 @@ void BoxLayout::setSpacing(size_t spacing)
 //
 
 VBoxLayout::VBoxLayout(LayoutItem* parent)
-	: BoxLayout(parent)
-	, align(HAlignment::center)
+    : BoxLayout(parent), align(HAlignment::center)
 {
 }
 
@@ -173,8 +171,7 @@ void VBoxLayout::setHAlignment(HAlignment alignment)
 //
 
 HBoxLayout::HBoxLayout(LayoutItem* parent)
-	: BoxLayout(parent)
-	, align(VAlignment::center)
+    : BoxLayout(parent), align(VAlignment::center)
 {
 }
 
@@ -246,10 +243,10 @@ void HBoxLayout::setVAlignment(VAlignment alignment)
 //
 
 GridLayout::GridLayout(LayoutItem* parent, std::size_t number_of_columns,
-                       std::size_t number_of_rows)
-	: BoxLayout(parent)
-	, number_of_columns(number_of_columns)
-	, number_of_rows(number_of_rows)
+    std::size_t number_of_rows)
+    : BoxLayout(parent)
+    , number_of_columns(number_of_columns)
+    , number_of_rows(number_of_rows)
 {
 }
 
@@ -301,10 +298,10 @@ int GridLayout::lastUsedRow(int column) const
 {
 	int last_row = -1;
 
-	for (auto const& grid_range : grid_ranges)
+	for(auto const& grid_range : grid_ranges)
 	{
 		auto const& range = grid_range.second;
-		if (column >= range.column_begin && column < range.column_end)
+		if(column >= range.column_begin && column < range.column_end)
 		{
 			last_row = std::max(last_row, range.row_end - 1);
 		}
@@ -317,17 +314,16 @@ int GridLayout::lastUsedColumn(int row) const
 {
 	int last_column = -1;
 
-	for (auto const& grid_range : grid_ranges)
+	for(auto const& grid_range : grid_ranges)
 	{
 		auto const& range = grid_range.second;
-		if (row >= range.row_begin && row < range.row_end)
+		if(row >= range.row_begin && row < range.row_end)
 		{
 			last_column = std::max(last_column, range.column_end - 1);
 		}
 	}
 
 	return last_column;
-
 }
 
 auto GridLayout::calculateCellSize() const -> CellSize
@@ -353,7 +349,7 @@ auto GridLayout::calculateCellSize() const -> CellSize
 }
 
 void GridLayout::moveAndResize(
-	LayoutItem& item, GridRange const& range, CellSize cell_size) const
+    LayoutItem& item, GridRange const& range, CellSize cell_size) const
 {
 	std::size_t x = range.column_begin * (cell_size.width + spacing);
 	std::size_t y = range.row_begin * (cell_size.height + spacing);
@@ -378,11 +374,13 @@ void GridLayout::moveAndResize(
 	}
 	else
 	{
-		auto x_new = (item.width() > width) ? x : x + (width - item.width()) / 2;
-		auto y_new = (item.height() > height) ? y : y + (height - item.height()) / 2;
+		auto x_new =
+		    (item.width() > width) ? x : x + (width - item.width()) / 2;
+		auto y_new =
+		    (item.height() > height) ? y : y + (height - item.height()) / 2;
 
 		item.move(x_new, y_new);
 	}
 }
 
-} // dggui::
+} // namespace dggui

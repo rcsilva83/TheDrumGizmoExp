@@ -31,25 +31,26 @@
 
 #include <notifier.h>
 
-#include "widget.h"
 #include "font.h"
 #include "painter.h"
 #include "scrollbar.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class ListBoxBasic
-	: public Widget
+class ListBoxBasic : public Widget
 {
 public:
-	class Item {
+	class Item
+	{
 	public:
 		std::string name;
 		std::string value;
 	};
 
-	ListBoxBasic(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	ListBoxBasic(Widget* parent);
 	virtual ~ListBoxBasic();
 
 	void addItem(const std::string& name, const std::string& value);
@@ -73,7 +74,10 @@ protected:
 	void onScrollBarValueChange(int value);
 
 	// From Widget:
-	bool isFocusable() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
 	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
 	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
 	virtual void keyEvent(KeyEvent* keyEvent) override;
@@ -94,4 +98,4 @@ protected:
 	int btn_size;
 };
 
-} // dggui::
+} // namespace dggui

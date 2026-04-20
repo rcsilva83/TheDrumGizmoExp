@@ -26,14 +26,13 @@
  */
 #pragma once
 
-#include "widget.h"
 #include "image.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class VerticalLine
-	: public Widget
+class VerticalLine : public Widget
 {
 public:
 	VerticalLine(Widget* parent);
@@ -47,4 +46,4 @@ private:
 	Image vline;
 };
 
-} // dggui::
+} // namespace dggui

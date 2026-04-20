@@ -39,8 +39,7 @@ static TabID getNextTabID()
 }
 
 TabButton::TabButton(Widget* parent, Widget* tab_widget)
-	: ButtonBase(parent)
-	, tab_widget(tab_widget)
+    : ButtonBase(parent), tab_widget(tab_widget)
 {
 	tab_id = getNextTabID();
 	CONNECT(this, clickNotifier, this, &TabButton::clickHandler);
@@ -66,7 +65,7 @@ std::size_t TabButton::getMinimalWidth() const
 std::size_t TabButton::getMinimalHeight() const
 {
 	std::size_t padding = 10;
-	auto font_height= font.textHeight(text);
+	auto font_height = font.textHeight(text);
 
 	return font_height + padding;
 }
@@ -75,10 +74,12 @@ void TabButton::setActive(bool active)
 {
 	this->active = active;
 
-	if (active) {
+	if(active)
+	{
 		draw_state = State::Down;
 	}
-	else {
+	else
+	{
 		draw_state = State::Up;
 	}
 
@@ -106,11 +107,13 @@ void TabButton::repaintEvent(RepaintEvent* e)
 		return;
 	}
 
-	if (draw_state == State::Up && !active) {
+	if(draw_state == State::Up && !active)
+	{
 		tab_passive.setSize(w - padLeft, h - padTop);
 		p.drawImage(padLeft, padTop, tab_passive);
 	}
-	else {
+	else
+	{
 		tab_active.setSize(w - padLeft, h - padTop);
 		p.drawImage(padLeft, padTop, tab_active);
 	}
@@ -130,4 +133,4 @@ void TabButton::clickHandler()
 	switchTabNotifier(tab_widget);
 }
 
-} // dggui::
+} // namespace dggui

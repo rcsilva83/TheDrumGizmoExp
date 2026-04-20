@@ -33,10 +33,10 @@
 namespace dggui
 {
 
-class Slider
-	: public Widget
+class Slider : public Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	Slider(Widget* parent);
 	virtual ~Slider() = default;
 
@@ -53,7 +53,15 @@ public:
 	void setValue(float new_value);
 	float value() const;
 
-	enum class Colour { Green, Red, Blue, Yellow, Purple, Grey };
+	enum class Colour
+	{
+		Green,
+		Red,
+		Blue,
+		Yellow,
+		Purple,
+		Grey
+	};
 	// Changes the colour of the inner bar
 	void setColour(Colour colour);
 	void setEnabled(bool enabled);
@@ -67,7 +75,8 @@ protected:
 	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) override;
 	virtual void scrollEvent(ScrollEvent* scrollEvent) override;
 
-	bool enabled = true;;
+	bool enabled = true;
+	;
 
 private:
 	enum class State
@@ -82,60 +91,60 @@ private:
 
 	State state;
 
-	TexturedBox bar{getImageCache(), ":resources/slider.png",
-		0, 0, // atlas offset (x, y)
-	    7, 1, 7, // dx1, dx2, dx3
-	    7, 1, 7 // dy1, dy2, dy3
+	TexturedBox bar{
+	    getImageCache(), ":resources/slider.png", 0, 0, // atlas offset (x, y)
+	    7, 1, 7,                                        // dx1, dx2, dx3
+	    7, 1, 7                                         // dy1, dy2, dy3
 	};
 	Texture button{
 	    getImageCache(), ":resources/slider.png", 15, 0, // atlas offset (x, y)
-	    15, 15                                 // width, height
+	    15, 15                                           // width, height
 	};
 
-	TexturedBox inner_bar_green{getImageCache(), ":resources/slider.png",
-		30, 0, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_green{
+	    getImageCache(), ":resources/slider.png", 30, 0, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_red{getImageCache(), ":resources/slider.png",
-		30, 5, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_red{
+	    getImageCache(), ":resources/slider.png", 30, 5, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_blue{getImageCache(), ":resources/slider.png",
-		30, 10, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_blue{
+	    getImageCache(), ":resources/slider.png", 30, 10, // atlas offset (x, y)
+	    2, 1, 2,                                          // dx1, dx2, dx3
+	    2, 1, 2                                           // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_yellow{getImageCache(), ":resources/slider.png",
-		35, 0, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_yellow{
+	    getImageCache(), ":resources/slider.png", 35, 0, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_purple{getImageCache(), ":resources/slider.png",
-		35, 5, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_purple{
+	    getImageCache(), ":resources/slider.png", 35, 5, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_grey{getImageCache(), ":resources/slider.png",
-		35, 10, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_grey{
+	    getImageCache(), ":resources/slider.png", 35, 10, // atlas offset (x, y)
+	    2, 1, 2,                                          // dx1, dx2, dx3
+	    2, 1, 2                                           // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_turquoise{getImageCache(), ":resources/slider.png",
-		40, 0, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_turquoise{
+	    getImageCache(), ":resources/slider.png", 40, 0, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_orange{getImageCache(), ":resources/slider.png",
-		40, 5, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_orange{
+	    getImageCache(), ":resources/slider.png", 40, 5, // atlas offset (x, y)
+	    2, 1, 2,                                         // dx1, dx2, dx3
+	    2, 1, 2                                          // dy1, dy2, dy3
 	};
-	TexturedBox inner_bar_light_grey{getImageCache(), ":resources/slider.png",
-		40, 10, // atlas offset (x, y)
-		2, 1, 2, // dx1, dx2, dx3
-		2, 1, 2 // dy1, dy2, dy3
+	TexturedBox inner_bar_light_grey{
+	    getImageCache(), ":resources/slider.png", 40, 10, // atlas offset (x, y)
+	    2, 1, 2,                                          // dx1, dx2, dx3
+	    2, 1, 2                                           // dy1, dy2, dy3
 	};
 
 	// This points to the inner_bar_* of the current color.
@@ -150,4 +159,4 @@ private:
 	void recomputeCurrentValue(float x);
 };
 
-} // dggui::
+} // namespace dggui

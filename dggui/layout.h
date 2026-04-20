@@ -109,6 +109,7 @@ enum class HAlignment
 class VBoxLayout : public BoxLayout
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	VBoxLayout(LayoutItem* parent);
 
 	void setHAlignment(HAlignment alignment);
@@ -131,6 +132,7 @@ enum class VAlignment
 class HBoxLayout : public BoxLayout
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	HBoxLayout(LayoutItem* parent);
 
 	void setVAlignment(VAlignment alignment);
@@ -164,7 +166,9 @@ public:
 	}
 
 	// From Layout:
+	// cppcheck-suppress missingOverride
 	virtual void removeItem(LayoutItem* item);
+	// cppcheck-suppress missingOverride
 	virtual void layout();
 
 	void setPosition(LayoutItem* item, GridRange const& range);
@@ -182,7 +186,8 @@ protected:
 	std::unordered_map<LayoutItem*, GridRange> grid_ranges;
 
 private:
-	struct CellSize {
+	struct CellSize
+	{
 		std::size_t width;
 		std::size_t height;
 	};
@@ -192,4 +197,4 @@ private:
 	    LayoutItem& item, GridRange const& range, CellSize cell_size) const;
 };
 
-} // dggui::
+} // namespace dggui

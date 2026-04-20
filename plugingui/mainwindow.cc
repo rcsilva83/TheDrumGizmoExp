@@ -38,15 +38,16 @@ namespace GUI
 {
 
 MainWindow::MainWindow(Settings& settings, void* native_window)
-	: dggui::Window(native_window)
-	, settings_notifier(settings)
-	, main_tab(this, settings, settings_notifier, config)
-	, drumkit_tab(this, settings, settings_notifier)
+    : dggui::Window(native_window)
+    , settings_notifier(settings)
+    , main_tab(this, settings, settings_notifier, config)
+    , drumkit_tab(this, settings, settings_notifier)
 {
 	config.load();
 
 	CONNECT(this, sizeChangeNotifier, this, &MainWindow::sizeChanged);
-	CONNECT(eventHandler(), closeNotifier, this, &MainWindow::closeEventHandler);
+	CONNECT(
+	    eventHandler(), closeNotifier, this, &MainWindow::closeEventHandler);
 
 	setCaption(std::string(_("DrumGizmo v")) + VERSION);
 
@@ -57,8 +58,8 @@ MainWindow::MainWindow(Settings& settings, void* native_window)
 	changeDrumkitTabVisibility(false); // Hide while no kit is loaded
 	tabs.addTab(_("About"), &about_tab);
 
-	CONNECT(&drumkit_tab, imageChangeNotifier,
-	        this, &MainWindow::changeDrumkitTabVisibility);
+	CONNECT(&drumkit_tab, imageChangeNotifier, this,
+	    &MainWindow::changeDrumkitTabVisibility);
 }
 
 MainWindow::~MainWindow()
@@ -103,8 +104,8 @@ void MainWindow::repaintEvent(dggui::RepaintEvent* repaintEvent)
 
 	// Sidebars
 	sidebar.setSize(16, height() - bar_height + 1);
-	painter.drawImage(0, bar_height-1, sidebar);
-	painter.drawImage(width() - 16, bar_height-1, sidebar);
+	painter.drawImage(0, bar_height - 1, sidebar);
+	painter.drawImage(width() - 16, bar_height - 1, sidebar);
 }
 
 void MainWindow::sizeChanged(std::size_t width, std::size_t height)
@@ -117,8 +118,8 @@ void MainWindow::changeDrumkitTabVisibility(bool visible)
 	// TODO: Check if the currently active tab is the drumkit tab and switch to
 	// the main tab if it is.
 
-	// TODO: Add disabled state to the TabButtons and make it disabled instead of
-	// hidden here.
+	// TODO: Add disabled state to the TabButtons and make it disabled instead
+	// of hidden here.
 	tabs.setVisible(drumkit_tab_id, visible);
 }
 
@@ -127,4 +128,4 @@ void MainWindow::closeEventHandler()
 	closing = true;
 }
 
-} // GUI::
+} // namespace GUI

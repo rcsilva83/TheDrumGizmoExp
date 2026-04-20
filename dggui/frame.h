@@ -3,7 +3,7 @@
  *            frame.h
  *
  *  Tue Feb  7 21:07:56 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 AndrÃ© Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -29,25 +29,37 @@
 #include <notifier.h>
 
 #include "font.h"
-#include "powerbutton.h"
 #include "helpbutton.h"
+#include "powerbutton.h"
 #include "widget.h"
 
 namespace dggui
 {
 
-class FrameWidget
-	: public Widget
+class FrameWidget : public Widget
 {
 public:
-	FrameWidget(Widget* parent, bool has_switch = false, bool has_help_text = false);
+	// cppcheck-suppress noExplicitConstructor
+	FrameWidget(
+	    Widget* parent, bool has_switch = false, bool has_help_text = false);
 	virtual ~FrameWidget() = default;
 
 	// From Widget:
-	virtual bool isFocusable() override { return false; }
-	virtual bool catchMouse() override { return false; }
+	// cppcheck-suppress uselessOverride
+	virtual bool isFocusable() override
+	{
+		return false;
+	}
+	// cppcheck-suppress uselessOverride
+	virtual bool catchMouse() override
+	{
+		return false;
+	}
 
-	bool isSwitchedOn() { return is_switched_on; }
+	bool isSwitchedOn()
+	{
+		return is_switched_on;
+	}
 
 	void setTitle(const std::string& title);
 	void setHelpText(const std::string& help_text);
@@ -57,7 +69,7 @@ public:
 	void setEnabled(bool enabled);
 
 	Notifier<bool> onSwitchChangeNotifier; // (bool on)
-	Notifier<bool> onEnabledChanged; // (bool enabled)
+	Notifier<bool> onEnabledChanged;       // (bool enabled)
 
 protected:
 	// From Widget:
@@ -112,4 +124,4 @@ private:
 	int content_height;
 };
 
-} // dggui::
+} // namespace dggui

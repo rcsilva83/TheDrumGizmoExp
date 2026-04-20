@@ -31,25 +31,26 @@
 
 #include <notifier.h>
 
-#include "widget.h"
+#include "font.h"
 #include "painter.h"
 #include "texturedbox.h"
-#include "font.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class Tooltip
-	: public Widget
+class Tooltip : public Widget
 {
 public:
-	Tooltip(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	Tooltip(Widget* parent);
 	virtual ~Tooltip();
 
 	void setText(const std::string& text);
 
 	// From Widget:
 	virtual void repaintEvent(RepaintEvent* repaint_event) override;
+	// cppcheck-suppress virtualCallInConstructor
 	virtual void resize(std::size_t height, std::size_t width) override;
 	virtual void mouseLeaveEvent() override;
 	virtual void show() override;
@@ -58,10 +59,10 @@ public:
 private:
 	void preprocessText();
 
-	TexturedBox box{getImageCache(), ":resources/thinlistbox.png",
-			0, 0, // atlas offset (x, y)
-			1, 1, 1, // dx1, dx2, dx3
-			1, 1, 1}; // dy1, dy2, dy3
+	TexturedBox box{getImageCache(), ":resources/thinlistbox.png", 0,
+	    0,        // atlas offset (x, y)
+	    1, 1, 1,  // dx1, dx2, dx3
+	    1, 1, 1}; // dy1, dy2, dy3
 	Font font;
 
 	static constexpr int x_border{10};
@@ -75,4 +76,4 @@ private:
 	Widget* activating_widget;
 };
 
-} // dggui::
+} // namespace dggui

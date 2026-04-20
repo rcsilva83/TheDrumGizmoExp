@@ -26,34 +26,39 @@
  */
 #pragma once
 
+#include <directory.h>
 #include <notifier.h>
 #include <platform.h>
-#include <directory.h>
 
-#include <dggui/dialog.h>
 #include <dggui/button.h>
-#include <dggui/listbox.h>
-#include <dggui/lineedit.h>
-#include <dggui/label.h>
+#include <dggui/dialog.h>
 #include <dggui/image.h>
+#include <dggui/label.h>
+#include <dggui/lineedit.h>
+#include <dggui/listbox.h>
 
 namespace GUI
 {
 
-class FileBrowser
-	: public dggui::Dialog
+class FileBrowser : public dggui::Dialog
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	FileBrowser(dggui::Widget* parent);
 
 	void setPath(const std::string& path);
 
-	Notifier<const std::string&> fileSelectNotifier; // (const std::string& path)
+	Notifier<const std::string&>
+	    fileSelectNotifier; // (const std::string& path)
 	Notifier<> fileSelectCancelNotifier;
-	Notifier<const std::string&> defaultPathChangedNotifier; // (const std::string& path)
+	Notifier<const std::string&>
+	    defaultPathChangedNotifier; // (const std::string& path)
 
 	// From Widget:
-	bool isFocusable() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
 	virtual void repaintEvent(dggui::RepaintEvent* repaintEvent) override;
 	virtual void resize(std::size_t width, std::size_t height) override;
 
@@ -96,4 +101,4 @@ private:
 	std::string filename;
 };
 
-} // GUI::
+} // namespace GUI

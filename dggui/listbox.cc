@@ -26,18 +26,18 @@
  */
 #include "listbox.h"
 
-#include "painter.h"
 #include "font.h"
+#include "painter.h"
 
 namespace dggui
 {
 
-ListBox::ListBox(Widget *parent)
-	: Widget(parent)
-	, selectionNotifier(basic.selectionNotifier)
-	, clickNotifier(basic.clickNotifier)
-	, valueChangedNotifier(basic.valueChangedNotifier)
-	, basic(this)
+ListBox::ListBox(Widget* parent)
+    : Widget(parent)
+    , selectionNotifier(basic.selectionNotifier)
+    , clickNotifier(basic.clickNotifier)
+    , valueChangedNotifier(basic.valueChangedNotifier)
+    , basic(this)
 {
 	basic.move(7, 7);
 }
@@ -46,12 +46,14 @@ ListBox::~ListBox()
 {
 }
 
+// cppcheck-suppress passedByValue
 void ListBox::addItem(std::string name, std::string value)
 {
 	basic.addItem(name, value);
 }
 
-void ListBox::addItems(std::vector<ListBoxBasic::Item> &items)
+// cppcheck-suppress constParameterReference
+void ListBox::addItems(std::vector<ListBoxBasic::Item>& items)
 {
 	basic.addItems(items);
 }
@@ -100,8 +102,7 @@ void ListBox::repaintEvent(RepaintEvent* repaintEvent)
 void ListBox::resize(std::size_t width, std::size_t height)
 {
 	Widget::resize(width, height);
-	basic.resize(width - (7 + 7),
-	             height - (7 + 7));
+	basic.resize(width - (7 + 7), height - (7 + 7));
 }
 
-} // dggui::
+} // namespace dggui

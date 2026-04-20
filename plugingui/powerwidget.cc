@@ -26,31 +26,31 @@
  */
 #include "powerwidget.h"
 
-#include <dggui/painter.h>
 #include <dggui/colour.h>
+#include <dggui/painter.h>
 
 #include <notifier.h>
-#include <settings.h>
 #include <powermap.h>
+#include <settings.h>
 
-#include <hugin.hpp>
 #include <cmath>
+#include <hugin.hpp>
 
 #include <translation.h>
 
 namespace GUI
 {
 
-PowerWidget::PowerWidget(dggui::Widget* parent,
-                         Settings& settings,
-                         SettingsNotifier& settings_notifier)
-	: dggui::Widget(parent)
-	, canvas(this, settings, settings_notifier)
-	, settings(settings)
+PowerWidget::PowerWidget(dggui::Widget* parent, Settings& settings,
+    SettingsNotifier& settings_notifier)
+    : dggui::Widget(parent)
+    , canvas(this, settings, settings_notifier)
+    , settings(settings)
 {
 	canvas.move(7, 7);
 
-	CONNECT(&shelf_checkbox, stateChangedNotifier, this, &PowerWidget::chk_shelf);
+	CONNECT(
+	    &shelf_checkbox, stateChangedNotifier, this, &PowerWidget::chk_shelf);
 
 	shelf_label.setText(_("Shelf"));
 	shelf_label.setAlignment(dggui::TextAlignment::center);
@@ -58,7 +58,7 @@ PowerWidget::PowerWidget(dggui::Widget* parent,
 	shelf_checkbox.resize(59, 40);
 
 	CONNECT(&settings_notifier, powermap_shelf, &shelf_checkbox,
-	        &dggui::CheckBox::setChecked);
+	    &dggui::CheckBox::setChecked);
 }
 
 void PowerWidget::chk_shelf(bool v)
@@ -66,7 +66,7 @@ void PowerWidget::chk_shelf(bool v)
 	settings.powermap_shelf.store(v);
 }
 
-void PowerWidget::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::repaintEvent(dggui::RepaintEvent* repaintEvent)
 {
 	(void)repaintEvent;
 	dggui::Painter p(*this);
@@ -84,42 +84,41 @@ void PowerWidget::resize(std::size_t width, std::size_t height)
 	}
 	canvas.resize(width - 14 - 59 - 64, height - 14);
 
-	shelf_label.move(width - 59 + 5 - 32 , 0);
+	shelf_label.move(width - 59 + 5 - 32, 0);
 	shelf_checkbox.move(width - 59 + 5 - 32, 16);
 }
 
-PowerWidget::Canvas::Canvas(dggui::Widget* parent,
-                            Settings& settings,
-                            SettingsNotifier& settings_notifier)
-	: dggui::Widget(parent)
-	, settings_notifier(settings_notifier)
-	, settings(settings)
+PowerWidget::Canvas::Canvas(dggui::Widget* parent, Settings& settings,
+    SettingsNotifier& settings_notifier)
+    : dggui::Widget(parent)
+    , settings_notifier(settings_notifier)
+    , settings(settings)
 {
-	CONNECT(this, settings_notifier.enable_powermap,
-	        this, &PowerWidget::Canvas::parameterChangedBool);
-	CONNECT(this, settings_notifier.powermap_fixed0_x,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_fixed0_y,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_fixed1_x,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_fixed1_y,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_fixed2_x,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_fixed2_y,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_shelf,
-	        this, &PowerWidget::Canvas::parameterChangedBool);
-	CONNECT(this, settings_notifier.powermap_input,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
-	CONNECT(this, settings_notifier.powermap_output,
-	        this, &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.enable_powermap, this,
+	    &PowerWidget::Canvas::parameterChangedBool);
+	CONNECT(this, settings_notifier.powermap_fixed0_x, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_fixed0_y, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_fixed1_x, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_fixed1_y, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_fixed2_x, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_fixed2_y, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_shelf, this,
+	    &PowerWidget::Canvas::parameterChangedBool);
+	CONNECT(this, settings_notifier.powermap_input, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
+	CONNECT(this, settings_notifier.powermap_output, this,
+	    &PowerWidget::Canvas::parameterChangedFloat);
 
 	parameterChangedFloat(0);
 }
 
-void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
+void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent* repaintEvent)
 {
 	(void)repaintEvent;
 	if(width() < 1 || height() < 1)
@@ -146,6 +145,7 @@ void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 		p.drawLine(x0, y0 + height0, x0 + width0, y0);
 	}
 
+	// cppcheck-suppress duplicateCondition
 	if(enabled)
 	{
 		// enabled green
@@ -164,15 +164,17 @@ void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 		int y = power_map.map((float)x / width0) * height0;
 		if(x > 0)
 		{
-			p.drawLine(x0 + old.first, y0 + old.second, x0 + x, y0 + height0 - y);
+			p.drawLine(
+			    x0 + old.first, y0 + old.second, x0 + x, y0 + height0 - y);
 		}
-		old = { x, height0 - y };
+		old = {x, height0 - y};
 	}
 
 	int x = width0;
 	int y = power_map.map((float)x / width0) * height0;
 	p.drawLine(x0 + old.first, y0 + old.second, x0 + x, y0 + height0 - y);
-	old = { x, height0 - y };
+	// cppcheck-suppress unreadVariable
+	old = {x, height0 - y};
 
 	if(!enabled)
 	{
@@ -182,38 +184,51 @@ void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 	}
 
 	// draw the input/output of the last hit
-	if(settings.powermap_input.load() != -1 && settings.powermap_output.load() != -1)
+	if(settings.powermap_input.load() != -1 &&
+	    settings.powermap_output.load() != -1)
 	{
 		p.setColour(dggui::Colour(.8f, 0.0f, .2f, .5f));
-		p.drawLine(x0 + settings.powermap_input.load()*width0, y0 + height0,
-				   x0 + settings.powermap_input.load()*width0, y0);
-		p.drawLine(x0, y0 + height0 - settings.powermap_output.load()*height0,
-				   x0 + width0, y0 + height0 - settings.powermap_output.load()*height0);
+		p.drawLine(x0 + settings.powermap_input.load() * width0, y0 + height0,
+		    x0 + settings.powermap_input.load() * width0, y0);
+		p.drawLine(x0, y0 + height0 - settings.powermap_output.load() * height0,
+		    x0 + width0,
+		    y0 + height0 - settings.powermap_output.load() * height0);
 	}
 
 	// draw the fixed nodes of the spline
 	float rad = radius * width();
 	p.setColour(dggui::Colour{0.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed0_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed0_y.load() * height0), rad);
+	p.drawFilledCircle(
+	    x0 + std::round(settings.powermap_fixed0_x.load() * width0),
+	    y0 + height0 - std::round(settings.powermap_fixed0_y.load() * height0),
+	    rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed0().in * width0),
-	             y0 + height0 - std::round(power_map.getFixed0().out * height0), rad + 1);
+	    y0 + height0 - std::round(power_map.getFixed0().out * height0),
+	    rad + 1);
 
 	p.setColour(dggui::Colour{1.0f, 1.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed1_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed1_y.load() * height0), rad);
+	p.drawFilledCircle(
+	    x0 + std::round(settings.powermap_fixed1_x.load() * width0),
+	    y0 + height0 - std::round(settings.powermap_fixed1_y.load() * height0),
+	    rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed1().in * width0),
-	             y0 + height0 - std::round(power_map.getFixed1().out * height0), rad + 1);
+	    y0 + height0 - std::round(power_map.getFixed1().out * height0),
+	    rad + 1);
 
 	p.setColour(dggui::Colour{1.0f, 0.0f, 0.0f, 0.7f});
-	p.drawFilledCircle(x0 + std::round(settings.powermap_fixed2_x.load() * width0),
-	                   y0 + height0 - std::round(settings.powermap_fixed2_y.load() * height0), rad);
+	p.drawFilledCircle(
+	    x0 + std::round(settings.powermap_fixed2_x.load() * width0),
+	    y0 + height0 - std::round(settings.powermap_fixed2_y.load() * height0),
+	    rad);
 	p.drawCircle(x0 + std::round(power_map.getFixed2().in * width0),
-	             y0 + height0 - std::round(power_map.getFixed2().out * height0), rad + 1);
+	    y0 + height0 - std::round(power_map.getFixed2().out * height0),
+	    rad + 1);
 
 	p.setColour(dggui::Colour(1.0f, 1.0f, 1.0f, 0.2f));
-	p.drawText(width() / 2 - (font.textWidth(_("in")) / 2), height() - 8, font, _("in"));
-	p.drawText(8, height() / 2 - (font.textWidth(_("out")) / 2), font, _("out"), false, true);
+	p.drawText(width() / 2 - (font.textWidth(_("in")) / 2), height() - 8, font,
+	    _("in"));
+	p.drawText(8, height() / 2 - (font.textWidth(_("out")) / 2), font, _("out"),
+	    false, true);
 }
 
 void PowerWidget::Canvas::buttonEvent(dggui::ButtonEvent* buttonEvent)
@@ -236,19 +251,19 @@ void PowerWidget::Canvas::buttonEvent(dggui::ButtonEvent* buttonEvent)
 		break;
 	case dggui::Direction::down:
 		if(std::abs(mx0 - settings.powermap_fixed0_x.load()) < radius_x &&
-		   std::abs(my0 - settings.powermap_fixed0_y.load()) < radius_y)
+		    std::abs(my0 - settings.powermap_fixed0_y.load()) < radius_y)
 		{
 			in_point = 0;
 		}
 
 		if(std::abs(mx0 - settings.powermap_fixed1_x.load()) < radius_x &&
-		   std::abs(my0 - settings.powermap_fixed1_y.load()) < radius_y)
+		    std::abs(my0 - settings.powermap_fixed1_y.load()) < radius_y)
 		{
 			in_point = 1;
 		}
 
 		if(std::abs(mx0 - settings.powermap_fixed2_x.load()) < radius_x &&
-		   std::abs(my0 - settings.powermap_fixed2_y.load()) < radius_y)
+		    std::abs(my0 - settings.powermap_fixed2_y.load()) < radius_y)
 		{
 			in_point = 2;
 		}
@@ -262,7 +277,7 @@ float clamp(float val, float min, float max)
 {
 	return std::max(min, std::min(max, val));
 }
-}
+} // namespace
 
 void PowerWidget::Canvas::mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent)
 {
@@ -294,40 +309,36 @@ void PowerWidget::Canvas::mouseMoveEvent(dggui::MouseMoveEvent* mouseMoveEvent)
 	default:
 		break;
 	}
-/*
-	switch(in_point)
-	{
-	case 0:
-		settings.fixed0_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed0_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
-		redraw();
-		break;
-	case 1:
-		settings.fixed1_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed1_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
-		redraw();
-		break;
-	case 2:
-		settings.fixed2_x.store(clamp((float)mouseMoveEvent->x / width()));
-		settings.fixed2_y.store(1.0f - clamp((float)mouseMoveEvent->y / height()));
-		redraw();
-		break;
-	default:
-		break;
-	}
-*/
+	/*
+	    switch(in_point)
+	    {
+	    case 0:
+	        settings.fixed0_x.store(clamp((float)mouseMoveEvent->x / width()));
+	        settings.fixed0_y.store(1.0f - clamp((float)mouseMoveEvent->y /
+	   height())); redraw(); break; case 1:
+	        settings.fixed1_x.store(clamp((float)mouseMoveEvent->x / width()));
+	        settings.fixed1_y.store(1.0f - clamp((float)mouseMoveEvent->y /
+	   height())); redraw(); break; case 2:
+	        settings.fixed2_x.store(clamp((float)mouseMoveEvent->x / width()));
+	        settings.fixed2_y.store(1.0f - clamp((float)mouseMoveEvent->y /
+	   height())); redraw(); break; default: break;
+	    }
+	*/
 }
 
 void PowerWidget::Canvas::mouseLeaveEvent()
 {
-	//in_point = -1;
+	// in_point = -1;
 }
 
 void PowerWidget::Canvas::parameterChangedFloat(float)
 {
-	power_map.setFixed0({settings.powermap_fixed0_x.load(), settings.powermap_fixed0_y.load()});
-	power_map.setFixed1({settings.powermap_fixed1_x.load(), settings.powermap_fixed1_y.load()});
-	power_map.setFixed2({settings.powermap_fixed2_x.load(), settings.powermap_fixed2_y.load()});
+	power_map.setFixed0(
+	    {settings.powermap_fixed0_x.load(), settings.powermap_fixed0_y.load()});
+	power_map.setFixed1(
+	    {settings.powermap_fixed1_x.load(), settings.powermap_fixed1_y.load()});
+	power_map.setFixed2(
+	    {settings.powermap_fixed2_x.load(), settings.powermap_fixed2_y.load()});
 	power_map.setShelf(settings.powermap_shelf.load());
 	enabled = settings.enable_powermap.load();
 	redraw();
@@ -338,4 +349,4 @@ void PowerWidget::Canvas::parameterChangedBool(bool)
 	parameterChangedFloat(0);
 }
 
-} // ::GUI
+} // namespace GUI

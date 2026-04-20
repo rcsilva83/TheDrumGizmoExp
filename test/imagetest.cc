@@ -49,7 +49,8 @@ static std::vector<char> loadFile(const std::string& path)
 TEST_CASE("ImageTest")
 {
 	// Path to test image
-	const std::string test_image_path = TEST_SOURCE_DIR "/uitests/benchmarktest_resources/image_no_alpha.png";
+	const std::string test_image_path =
+	    TEST_SOURCE_DIR "/uitests/benchmarktest_resources/image_no_alpha.png";
 
 	SUBCASE("constructor_from_file_valid_png")
 	{
@@ -104,7 +105,8 @@ TEST_CASE("ImageTest")
 		std::size_t h = img1.height();
 
 		// Create a second image with different data
-		const std::string test_image_path2 = TEST_SOURCE_DIR "/uitests/benchmarktest_resources/image_full_alpha.png";
+		const std::string test_image_path2 = TEST_SOURCE_DIR
+		    "/uitests/benchmarktest_resources/image_full_alpha.png";
 		auto data2 = loadFile(test_image_path2);
 		REQUIRE_UNARY(!data2.empty());
 		dggui::Image img2(data2.data(), data2.size());
@@ -157,7 +159,8 @@ TEST_CASE("ImageTest")
 		}
 
 		// Image with alpha
-		const std::string alpha_image_path = TEST_SOURCE_DIR "/uitests/benchmarktest_resources/image_full_alpha.png";
+		const std::string alpha_image_path = TEST_SOURCE_DIR
+		    "/uitests/benchmarktest_resources/image_full_alpha.png";
 		auto data_alpha = loadFile(alpha_image_path);
 		if(!data_alpha.empty())
 		{

@@ -40,7 +40,8 @@ bool DummyOutputEngine::init(const Channels& data)
 	return true;
 }
 
-void DummyOutputEngine::setParm(const std::string& parm, const std::string& value)
+void DummyOutputEngine::setParm(
+    const std::string& parm, const std::string& value)
 {
 	(void)parm;
 	(void)value;

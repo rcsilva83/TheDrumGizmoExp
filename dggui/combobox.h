@@ -29,19 +29,19 @@
 #include <string.h>
 #include <vector>
 
-#include "widget.h"
 #include "font.h"
 #include "listboxthin.h"
 #include "painter.h"
 #include "texturedbox.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class ComboBox
-	: public Widget
+class ComboBox : public Widget
 {
 public:
+	// cppcheck-suppress noExplicitConstructor
 	ComboBox(Widget* parent);
 	virtual ~ComboBox();
 
@@ -53,19 +53,23 @@ public:
 	std::string selectedValue();
 
 	// From Widget:
-	bool isFocusable() override { return true; }
+	bool isFocusable() override
+	{
+		return true;
+	}
 	virtual void repaintEvent(RepaintEvent* repaintEvent) override;
 	virtual void buttonEvent(ButtonEvent* buttonEvent) override;
+	// cppcheck-suppress uselessOverride
 	virtual void scrollEvent(ScrollEvent* scrollEvent) override;
 	virtual void keyEvent(KeyEvent* keyEvent) override;
 
 	Notifier<std::string, std::string> valueChangedNotifier;
 
 private:
-	TexturedBox box{getImageCache(), ":resources/widget.png",
-			0, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			7, 63, 7}; // dy1, dy2, dy3
+	TexturedBox box{getImageCache(), ":resources/widget.png", 0,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    7, 63, 7}; // dy1, dy2, dy3
 
 	void listboxSelectHandler();
 
@@ -73,4 +77,4 @@ private:
 	ListBoxThin listbox;
 };
 
-} // dggui::
+} // namespace dggui

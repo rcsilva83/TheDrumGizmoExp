@@ -26,29 +26,29 @@
  */
 #include "drumgizmo.h"
 
+#include <cassert>
 #include <cmath>
 #include <cstdio>
-#include <cassert>
 #include <cstring>
 #include <mutex>
 
-#include <event.h>
 #include <audiotypes.h>
 #include <config.h>
+#include <event.h>
 
 #include <hugin.hpp>
 
 #include "audioinputenginemidi.h"
 
-DrumGizmo::DrumGizmo(Settings& settings,
-                     AudioOutputEngine& o, AudioInputEngine& i)
-	: loader(settings, kit, i, rand, audio_cache)
-	, oe(o)
-	, ie(i)
-	, audio_cache(settings)
-	, input_processor(settings, kit, events_ds, rand)
-	, settings(settings)
-	, settings_getter(settings)
+DrumGizmo::DrumGizmo(
+    Settings& settings, AudioOutputEngine& o, AudioInputEngine& i)
+    : loader(settings, kit, i, rand, audio_cache)
+    , oe(o)
+    , ie(i)
+    , audio_cache(settings)
+    , input_processor(settings, kit, events_ds, rand)
+    , settings(settings)
+    , settings_getter(settings)
 {
 	audio_cache.init(10000); // start thread
 	events.reserve(1000);
@@ -117,7 +117,7 @@ void DrumGizmo::setRandomSeed(unsigned int seed)
 	rand.setSeed(seed);
 }
 
-bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
+bool DrumGizmo::run(size_t pos, sample_t* samples, size_t nsamples)
 {
 	if(settings_getter.drumkit_file.hasChanged())
 	{
@@ -131,13 +131,15 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 	}
 
 	{
-		auto sample_rate_changed = settings_getter.drumkit_samplerate.hasChanged();
-		auto resampling_quality_changed = settings_getter.resampling_quality.hasChanged();
+		auto sample_rate_changed =
+		    settings_getter.drumkit_samplerate.hasChanged();
+		auto resampling_quality_changed =
+		    settings_getter.resampling_quality.hasChanged();
 		if(sample_rate_changed || resampling_quality_changed)
 		{
 			settings_getter.drumkit_samplerate.getValue(); // stage new value
 			setSamplerate(settings.samplerate.load(),
-			              settings_getter.resampling_quality.getValue());
+			    settings_getter.resampling_quality.getValue());
 		}
 	}
 
@@ -167,9 +169,9 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 		auto velocity = settings.audition_velocity.load();
 
 		std::size_t instrument_index = 0;
-		for (std::size_t i = 0; i < kit.instruments.size(); ++i)
+		for(std::size_t i = 0; i < kit.instruments.size(); ++i)
 		{
-			if (instrument_name == kit.instruments[i]->getName())
+			if(instrument_name == kit.instruments[i]->getName())
 			{
 				instrument_index = i;
 			}
@@ -179,7 +181,7 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 	}
 
 	bool active_events_left =
-		input_processor.process(events, pos, resample_ratio);
+	    input_processor.process(events, pos, resample_ratio);
 
 	if(!active_events_left)
 	{
@@ -202,7 +204,7 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 				break;
 			}
 
-			sample_t *buf = samples;
+			sample_t* buf = samples;
 			bool internal = false;
 			if(oe.getBuffer(c))
 			{
@@ -234,7 +236,7 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 				break;
 			}
 
-			sample_t *buf = samples;
+			sample_t* buf = samples;
 			bool internal = false;
 			if(oe.getBuffer(c))
 			{
@@ -251,11 +253,12 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 				zita[c].process();
 			}
 
-			std::memset(resampler_input_buffer[c].get(), 0, MAX_RESAMPLER_BUFFER_SIZE);
+			std::memset(
+			    resampler_input_buffer[c].get(), 0, MAX_RESAMPLER_BUFFER_SIZE);
 
 			zita[c].set_inp_data(resampler_input_buffer[c].get());
-			std::size_t sample_count =
-				std::ceil((nsamples - (nsamples - zita[c].get_out_count())) * ratio);
+			std::size_t sample_count = std::ceil(
+			    (nsamples - (nsamples - zita[c].get_out_count())) * ratio);
 			getSamples(c, kitpos, zita[c].get_inp_data(), sample_count);
 
 			zita[c].set_inp_count(sample_count);
@@ -270,12 +273,14 @@ bool DrumGizmo::run(size_t pos, sample_t *samples, size_t nsamples)
 	ie.post();
 	oe.post(nsamples);
 
+	// cppcheck-suppress uselessAssignmentArg
 	pos += nsamples;
 
 	return true;
 }
 
-void DrumGizmo::renderSampleEvent(SampleEvent& evt, int pos, sample_t *s, std::size_t sz)
+void DrumGizmo::renderSampleEvent(
+    SampleEvent& evt, int pos, sample_t* s, std::size_t sz)
 {
 	size_t n = 0; // default start point is 0.
 
@@ -310,11 +315,12 @@ repeat:
 		assert(t < evt.buffer_size - evt.buffer_ptr);
 
 		if(evt.rampdownInProgress() && evt.rampdown_offset < (evt.t + t) &&
-		   evt.rampdown_count > 0)
+		    evt.rampdown_count > 0)
 		{
 			if(evt.ramp_length > 0)
 			{
-				scale = std::min((float)evt.rampdown_count / evt.ramp_length, 1.f);
+				scale =
+				    std::min((float)evt.rampdown_count / evt.ramp_length, 1.f);
 			}
 			else
 			{
@@ -328,12 +334,12 @@ repeat:
 	}
 
 	// Add internal buffer counter to "global" event counter.
-	evt.t += t;//evt.buffer_size;
+	evt.t += t; // evt.buffer_size;
 	evt.buffer_ptr += t;
 
 	if(n != sz && evt.t < evt.sample_size)
 	{
-		evt.buffer_size = sz - n;// Hint new size
+		evt.buffer_size = sz - n; // Hint new size
 
 		// More samples needed for current buffer
 		evt.buffer = audio_cache.next(evt.cache_id, evt.buffer_size);
@@ -348,7 +354,8 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 {
 	assert(ch < NUM_CHANNELS);
 
-	// Store local values of settings to ensure they don't change intra-iteration
+	// Store local values of settings to ensure they don't change
+	// intra-iteration
 	const auto enable_bleed_control = settings.enable_bleed_control.load();
 	const auto master_bleed = settings.master_bleed.load();
 
@@ -375,10 +382,10 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 		if(sample_event.cache_id == CACHE_NOID)
 		{
 			size_t initial_chunksize = (pos + sz) - sample_event.offset;
-			sample_event.buffer = audio_cache.open(af, initial_chunksize,
-										  af.filechannel, sample_event.cache_id);
+			sample_event.buffer = audio_cache.open(
+			    af, initial_chunksize, af.filechannel, sample_event.cache_id);
 			if((af.mainState() == main_state_t::is_not_main) &&
-			   enable_bleed_control)
+			    enable_bleed_control)
 			{
 				sample_event.scale *= master_bleed;
 			}
@@ -388,20 +395,24 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 		}
 
 		{
-			// TODO: We should make all audiofiles reference counted and get rid of this lock.
+			// TODO: We should make all audiofiles reference counted and get rid
+			// of this lock.
 			std::lock_guard<std::mutex> guard(af.mutex);
 
 			renderSampleEvent(sample_event, pos, s, sz);
 
-			if((sample_event.t >= sample_event.sample_size) || (sample_event.rampdown_count == 0))
+			if((sample_event.t >= sample_event.sample_size) ||
+			    (sample_event.rampdown_count == 0))
 			{
 				removeevent = true;
 			}
 
-			if(sample_event.buffer_ptr >= sample_event.buffer_size && !removeevent)
+			if(sample_event.buffer_ptr >= sample_event.buffer_size &&
+			    !removeevent)
 			{
 				sample_event.buffer_size = sz;
-				sample_event.buffer = audio_cache.next(sample_event.cache_id, sample_event.buffer_size);
+				sample_event.buffer = audio_cache.next(
+				    sample_event.cache_id, sample_event.buffer_size);
 				sample_event.buffer_ptr = 0;
 			}
 
@@ -413,7 +424,8 @@ void DrumGizmo::getSamples(int ch, int pos, sample_t* s, size_t sz)
 
 		if(removeevent)
 		{
-			to_remove.push_back(sample_event.id); // don't delete until we are out of the loop.
+			to_remove.push_back(
+			    sample_event.id); // don't delete until we are out of the loop.
 		}
 	}
 
@@ -475,7 +487,7 @@ void DrumGizmo::setSamplerate(float samplerate, float resampling_quality)
 		zita[c].setup(input_fs, output_fs, nchan, hlen);
 
 		// Prefill
-		auto null_size = zita[c].inpsize() - 1;// / 2 - 1;
+		auto null_size = zita[c].inpsize() - 1; // / 2 - 1;
 		zita[c].set_inp_data(nullptr);
 		zita[c].set_inp_count(null_size);
 

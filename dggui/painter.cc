@@ -26,21 +26,21 @@
  */
 #include "painter.h"
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 
-#include "pixelbuffer.h"
-#include "font.h"
-#include "drawable.h"
-#include "image.h"
 #include "canvas.h"
+#include "drawable.h"
+#include "font.h"
+#include "image.h"
+#include "pixelbuffer.h"
 
 namespace dggui
 {
 
-Painter::Painter(Canvas& canvas)
-	: pixbuf(canvas.getPixelBuffer())
+Painter::Painter(Canvas& canvas) : pixbuf(canvas.getPixelBuffer())
 {
+	// cppcheck-suppress useInitializationList
 	colour = Colour(0.0f, 0.0f, 0.0f, 0.5f);
 }
 
@@ -53,13 +53,11 @@ void Painter::setColour(const Colour& colour)
 	this->colour = colour;
 }
 
-static void plot(PixelBufferAlpha& pixbuf, const Colour& colour,
-                 int x, int y, double c)
+static void plot(
+    PixelBufferAlpha& pixbuf, const Colour& colour, int x, int y, double c)
 {
-	if((x >= (int)pixbuf.width) ||
-	   (y >= (int)pixbuf.height) ||
-	   (x < 0) ||
-	   (y < 0))
+	if((x >= (int)pixbuf.width) || (y >= (int)pixbuf.height) || (x < 0) ||
+	    (y < 0))
 	{
 		return;
 	}
@@ -75,7 +73,7 @@ static void plot(PixelBufferAlpha& pixbuf, const Colour& colour,
 
 static inline double fpart(double x)
 {
-	return x - std::floor(x);// fractional part of x
+	return x - std::floor(x); // fractional part of x
 }
 
 static inline double rfpart(double x)
@@ -106,7 +104,7 @@ void Painter::drawLine(int x0, int y0, int x1, int y1)
 	double xend = std::round(x0);
 	double yend = y0 + gradient * (xend - x0);
 
-	double xpxl1 = xend;   // this will be used in the main loop
+	double xpxl1 = xend; // this will be used in the main loop
 	double ypxl1 = std::floor(yend);
 
 	if(steep)
@@ -141,13 +139,13 @@ void Painter::drawLine(int x0, int y0, int x1, int y1)
 	{
 		if(steep)
 		{
-			plot(pixbuf, colour, std::floor(intery)  , x, rfpart(intery));
-			plot(pixbuf, colour, std::floor(intery)+1, x,  fpart(intery));
+			plot(pixbuf, colour, std::floor(intery), x, rfpart(intery));
+			plot(pixbuf, colour, std::floor(intery) + 1, x, fpart(intery));
 		}
 		else
 		{
-			plot(pixbuf, colour, x, std::floor(intery),  rfpart(intery));
-			plot(pixbuf, colour, x, std::floor(intery)+1, fpart(intery));
+			plot(pixbuf, colour, x, std::floor(intery), rfpart(intery));
+			plot(pixbuf, colour, x, std::floor(intery) + 1, fpart(intery));
 		}
 		intery += gradient;
 	}
@@ -175,13 +173,15 @@ void Painter::clear()
 }
 
 void Painter::drawText(int x0, int y0, const Font& font,
-                       const std::string& text, bool nocolour, bool rotate)
+    const std::string& text, bool nocolour, bool rotate)
 {
 	PixelBufferAlpha* textbuf = font.render(text);
 
 	if(!rotate)
 	{
-		y0 -= textbuf->height; // The y0 offset (baseline) is the bottom of the text.
+		y0 -=
+		    textbuf
+		        ->height; // The y0 offset (baseline) is the bottom of the text.
 	}
 
 	// If the text offset is outside the buffer; skip it.
@@ -227,12 +227,14 @@ void Painter::drawText(int x0, int y0, const Font& font,
 	}
 	else if(rotate)
 	{
+		// cppcheck-suppress shadowVariable
 		int renderWidth = textbuf->height;
 		if(renderWidth > (int)(pixbuf.width - x0))
 		{
 			renderWidth = pixbuf.width - x0;
 		}
 
+		// cppcheck-suppress shadowVariable
 		int renderHeight = textbuf->width;
 		if(renderHeight > ((int)pixbuf.height - y0))
 		{
@@ -255,8 +257,8 @@ void Painter::drawText(int x0, int y0, const Font& font,
 				assert(x + x0 < (int)pixbuf.width);
 				assert(y + y0 < (int)pixbuf.height);
 
-				Colour col(colour.red(), colour.green(),
-				           colour.blue(), (int)(colour.alpha() * c.alpha()) / 255);
+				Colour col(colour.red(), colour.green(), colour.blue(),
+				    (int)(colour.alpha() * c.alpha()) / 255);
 				pixbuf.addPixel(x + x0, y + y0, col);
 			}
 		}
@@ -279,8 +281,8 @@ void Painter::drawText(int x0, int y0, const Font& font,
 				assert(x + x0 < (int)pixbuf.width);
 				assert(y + y0 < (int)pixbuf.height);
 
-				Colour col(colour.red(), colour.green(),
-				           colour.blue(), (int)(colour.alpha() * c.alpha()) / 255);
+				Colour col(colour.red(), colour.green(), colour.blue(),
+				    (int)(colour.alpha() * c.alpha()) / 255);
 				pixbuf.addPixel(x + x0, y + y0, col);
 			}
 		}
@@ -291,13 +293,14 @@ void Painter::drawText(int x0, int y0, const Font& font,
 
 void Painter::drawPoint(int x, int y)
 {
-	if(x >= 0 && y >= 0 && (std::size_t)x < pixbuf.width && (std::size_t)y < pixbuf.height)
+	if(x >= 0 && y >= 0 && (std::size_t)x < pixbuf.width &&
+	    (std::size_t)y < pixbuf.height)
 	{
 		pixbuf.setPixel(x, y, colour);
 	}
 }
 
-static void plot4points(Painter *p, int cx, int cy, int x, int y)
+static void plot4points(Painter* p, int cx, int cy, int x, int y)
 {
 	p->drawPoint(cx + x, cy + y);
 	if(x != 0)
@@ -344,7 +347,7 @@ void Painter::drawCircle(int cx, int cy, double radius)
 	}
 }
 
-static void plot4lines(Painter *p, int cx, int cy, int x, int y)
+static void plot4lines(Painter* p, int cx, int cy, int x, int y)
 {
 	p->drawLine(cx + x, cy + y, cx - x, cy + y);
 	if(x != 0)
@@ -418,7 +421,8 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 		{
 			for(std::size_t y = -1 * std::min(0, y0); y < (std::size_t)fh; ++y)
 			{
-				for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw; ++x)
+				for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw;
+				    ++x)
 				{
 					assert(x < image.width());
 					assert(y < image.height());
@@ -437,7 +441,7 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 			for(std::size_t y = -1 * std::min(0, y0); y < (std::size_t)fh; ++y)
 			{
 				pixbuf.blendLine(x_offset + x0, y + y0, image.line(y, x_offset),
-				                 std::min((int)image.width(), fw - (int)x_offset));
+				    std::min((int)image.width(), fw - (int)x_offset));
 			}
 		}
 	}
@@ -447,14 +451,13 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 		for(std::size_t y = -1 * std::min(0, y0); y < (std::size_t)fh; ++y)
 		{
 			pixbuf.writeLine(x_offset + x0, y + y0, image.line(y, x_offset),
-			                 std::min((int)image.width(), fw - (int)x_offset));
+			    std::min((int)image.width(), fw - (int)x_offset));
 		}
 	}
 }
 
-void Painter::drawRestrictedImage(int x0, int y0,
-                                  const Colour& restriction_colour,
-                                  const Drawable& image)
+void Painter::drawRestrictedImage(
+    int x0, int y0, const Colour& restriction_colour, const Drawable& image)
 {
 	int fw = image.width();
 	int fh = image.height();
@@ -494,8 +497,8 @@ void Painter::drawRestrictedImage(int x0, int y0,
 	}
 }
 
-void Painter::drawImageStretched(int x0, int y0, const Drawable& image,
-                                 int width, int height)
+void Painter::drawImageStretched(
+    int x0, int y0, const Drawable& image, int width, int height)
 {
 	float fw = image.width();
 	float fh = image.height();
@@ -543,8 +546,8 @@ void Painter::drawBox(int x, int y, const Box& box, int width, int height)
 	}
 
 	drawImageStretched(dx, dy, *box.top,
-	                   width - box.topRight->width() - box.topLeft->width(),
-	                   box.top->height());
+	    width - box.topRight->width() - box.topLeft->width(),
+	    box.top->height());
 
 	dx = x + width - box.topRight->width();
 	if((dx < 0) || (dy < 0))
@@ -563,8 +566,8 @@ void Painter::drawBox(int x, int y, const Box& box, int width, int height)
 	}
 
 	drawImageStretched(dx, dy, *box.center,
-	                   width - box.left->width() - box.right->width(),
-	                   height - box.topLeft->height() - box.bottomLeft->height());
+	    width - box.left->width() - box.right->width(),
+	    height - box.topLeft->height() - box.bottomLeft->height());
 
 	// Mid:
 	dx = x;
@@ -575,7 +578,7 @@ void Painter::drawBox(int x, int y, const Box& box, int width, int height)
 	}
 
 	drawImageStretched(dx, dy, *box.left, box.left->width(),
-	                   height - box.topLeft->height() - box.bottomLeft->height());
+	    height - box.topLeft->height() - box.bottomLeft->height());
 
 	dx = x + width - box.right->width();
 	dy = y + box.topRight->height();
@@ -584,9 +587,8 @@ void Painter::drawBox(int x, int y, const Box& box, int width, int height)
 		return;
 	}
 
-	drawImageStretched(dx, dy, *box.right,
-	                   box.right->width(),
-	                   height - box.topRight->height() - box.bottomRight->height());
+	drawImageStretched(dx, dy, *box.right, box.right->width(),
+	    height - box.topRight->height() - box.bottomRight->height());
 
 	// Bottom:
 	dx = x;
@@ -605,8 +607,8 @@ void Painter::drawBox(int x, int y, const Box& box, int width, int height)
 	}
 
 	drawImageStretched(dx, dy, *box.bottom,
-	                   width - box.bottomRight->width() - box.bottomLeft->width(),
-	                   box.bottom->height());
+	    width - box.bottomRight->width() - box.bottomLeft->width(),
+	    box.bottom->height());
 
 	dx = x + width - box.bottomRight->width();
 	if((dx < 0) || (dy < 0))
@@ -627,10 +629,10 @@ void Painter::drawBar(int x, int y, const Bar& bar, int width, int height)
 	drawImageStretched(x, y, *bar.left, bar.left->width(), height);
 
 	drawImageStretched(x + bar.left->width(), y, *bar.center,
-	                   width - bar.left->width() - bar.right->width(), height);
+	    width - bar.left->width() - bar.right->width(), height);
 
 	drawImageStretched(x + width - bar.left->width(), y, *bar.right,
-	                   bar.right->width(), height);
+	    bar.right->width(), height);
 }
 
-} // dggui::
+} // namespace dggui

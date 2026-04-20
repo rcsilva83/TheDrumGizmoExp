@@ -26,21 +26,19 @@
  */
 #include "listboxbasic.h"
 
-#include "painter.h"
 #include "font.h"
+#include "painter.h"
 
 namespace dggui
 {
 
-ListBoxBasic::ListBoxBasic(Widget *parent)
-	: Widget(parent)
-	, scroll(this)
+ListBoxBasic::ListBoxBasic(Widget* parent) : Widget(parent), scroll(this)
 {
-	scroll.move(0,0);
+	scroll.move(0, 0);
 	scroll.resize(16, 100);
 
-	CONNECT(&scroll, valueChangeNotifier,
-	        this, &ListBoxBasic::onScrollBarValueChange);
+	CONNECT(&scroll, valueChangeNotifier, this,
+	    &ListBoxBasic::onScrollBarValueChange);
 
 	padding = 4;
 	btn_size = 18;
@@ -65,6 +63,7 @@ void ListBoxBasic::setSelection(int index)
 
 void ListBoxBasic::addItem(const std::string& name, const std::string& value)
 {
+	// cppcheck-suppress shadowVariable
 	std::vector<ListBoxBasic::Item> items;
 	ListBoxBasic::Item item;
 	item.name = name;
@@ -82,7 +81,7 @@ void ListBoxBasic::addItems(const std::vector<ListBoxBasic::Item>& newItems)
 
 	if(selected == -1)
 	{
-		//setSelection((int)items.size() - 1);
+		// setSelection((int)items.size() - 1);
 		setSelection(0);
 	}
 	redraw();
@@ -156,7 +155,8 @@ void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
 
 	p.drawImageStretched(0, 0, bg_img, w, h);
 
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+	p.setColour(
+	    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 
 	int yoffset = padding / 2;
 	int skip = scroll.value();
@@ -167,22 +167,20 @@ void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
 		auto& item = items[idx];
 		if(idx == selected)
 		{
-			p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 0.5f));
-			p.drawFilledRectangle(0,
-			                      yoffset - (padding / 2),
-			                      width() - 1,
-			                      yoffset + (font.textHeight() + 1));
+			p.setColour(Colour(
+			    183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 0.5f));
+			p.drawFilledRectangle(0, yoffset - (padding / 2), width() - 1,
+			    yoffset + (font.textHeight() + 1));
 		}
 
 		if(idx == marked)
 		{
-			p.drawRectangle(0,
-			                yoffset - (padding / 2),
-			                width() - 1,
-			                yoffset + (font.textHeight() + 1));
+			p.drawRectangle(0, yoffset - (padding / 2), width() - 1,
+			    yoffset + (font.textHeight() + 1));
 		}
 
-		p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+		p.setColour(
+		    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 
 		p.drawText(2, yoffset + font.textHeight(), font, item.name);
 		yoffset += font.textHeight() + padding;
@@ -205,7 +203,8 @@ void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
 		return;
 	}
 
-	switch(keyEvent->keycode) {
+	switch(keyEvent->keycode)
+	{
 	case Key::up:
 		if(marked == 0)
 		{
@@ -221,23 +220,23 @@ void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
 		break;
 
 	case Key::down:
+	{
+		// Number of items that can be displayed at a time.
+		int numitems = height() / (font.textHeight() + padding);
+
+		if(marked == ((int)items.size() - 1))
 		{
-			// Number of items that can be displayed at a time.
-			int numitems = height() / (font.textHeight() + padding);
-
-			if(marked == ((int)items.size() - 1))
-			{
-				return;
-			}
-
-			marked++;
-
-			if(marked > (scroll.value() + numitems - 1))
-			{
-				scroll.setValue(marked - numitems + 1);
-			}
+			return;
 		}
-		break;
+
+		marked++;
+
+		if(marked > (scroll.value() + numitems - 1))
+		{
+			scroll.setValue(marked - numitems + 1);
+		}
+	}
+	break;
 
 	case Key::home:
 		marked = 0;
@@ -248,23 +247,23 @@ void ListBoxBasic::keyEvent(KeyEvent* keyEvent)
 		break;
 
 	case Key::end:
-		{
-			// Number of items that can be displayed at a time.
-			int numitems = height() / (font.textHeight() + padding);
+	{
+		// Number of items that can be displayed at a time.
+		int numitems = height() / (font.textHeight() + padding);
 
-			marked = (int)items.size() - 1;
-			if(marked > (scroll.value() + numitems - 1))
-			{
-				scroll.setValue(marked - numitems + 1);
-			}
+		marked = (int)items.size() - 1;
+		if(marked > (scroll.value() + numitems - 1))
+		{
+			scroll.setValue(marked - numitems + 1);
 		}
-		break;
+	}
+	break;
 
 	case Key::character:
 		if(keyEvent->text == " ")
 		{
 			setSelection(marked);
-			//selectionNotifier();
+			// selectionNotifier();
 		}
 		break;
 
@@ -289,7 +288,7 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 	}
 
 	if((buttonEvent->x > ((int)width() - btn_size)) &&
-	   (buttonEvent->y < ((int)width() - 1)))
+	    (buttonEvent->y < ((int)width() - 1)))
 	{
 		if(buttonEvent->y > 0 && buttonEvent->y < btn_size)
 		{
@@ -302,7 +301,7 @@ void ListBoxBasic::buttonEvent(ButtonEvent* buttonEvent)
 		}
 
 		if(buttonEvent->y > ((int)height() - btn_size) &&
-		   buttonEvent->y < ((int)height() - 1))
+		    buttonEvent->y < ((int)height() - 1))
 		{
 			if(buttonEvent->direction == Direction::up)
 			{
@@ -362,4 +361,4 @@ void ListBoxBasic::resize(std::size_t width, std::size_t height)
 	scroll.resize(scroll.width(), height);
 }
 
-} // dggui::
+} // namespace dggui

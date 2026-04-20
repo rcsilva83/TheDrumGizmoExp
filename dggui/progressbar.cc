@@ -29,8 +29,7 @@
 namespace dggui
 {
 
-ProgressBar::ProgressBar(Widget *parent)
-	: Widget(parent)
+ProgressBar::ProgressBar(Widget* parent) : Widget(parent)
 {
 }
 
@@ -99,7 +98,6 @@ void ProgressBar::repaintEvent(RepaintEvent* repaintEvent)
 	case ProgressBarState::Off:
 		return;
 	}
-
 }
 
-} // dggui::
+} // namespace dggui

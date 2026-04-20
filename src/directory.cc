@@ -26,13 +26,13 @@
  */
 #include "directory.h"
 
+#include <algorithm>
 #include <dirent.h>
 #include <stdio.h>
-#include <string>
-#include <algorithm>
-#include <vector>
 #include <string.h>
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 #include <platform.h>
 
@@ -68,7 +68,7 @@ std::string Directory::seperator()
 
 void Directory::setPath(std::string path)
 {
-	//DEBUG(directory, "Setting path to '%s'\n", path.c_str());
+	// DEBUG(directory, "Setting path to '%s'\n", path.c_str());
 	this->_path = cleanPath(path);
 	refresh();
 }
@@ -86,15 +86,16 @@ void Directory::refresh()
 
 bool Directory::cd(std::string dir)
 {
-	//TODO: Should this return true or false?
+	// TODO: Should this return true or false?
 	if(dir.empty() || dir == ".")
 	{
 		return true;
 	}
 
-	//DEBUG(directory, "Changing to '%s'\n", dir.c_str());
+	// DEBUG(directory, "Changing to '%s'\n", dir.c_str());
 	if(exists(_path + SEP + dir))
 	{
+		// cppcheck-suppress shadowFunction
 		std::string path = _path + SEP + dir;
 		setPath(path);
 		refresh();
@@ -124,6 +125,7 @@ Directory::EntryList Directory::entryList()
 #define MAX_FILE_LENGTH 1024
 std::string Directory::cwd()
 {
+	// cppcheck-suppress shadowFunction
 	char path[MAX_FILE_LENGTH];
 	char* c = getcwd(path, MAX_FILE_LENGTH);
 
@@ -139,27 +141,28 @@ std::string Directory::cwd()
 
 std::string Directory::cleanPath(std::string path)
 {
-	//DEBUG(directory, "Cleaning path '%s'\n", path.c_str());
+	// DEBUG(directory, "Cleaning path '%s'\n", path.c_str());
 	Directory::Path pathlst = parsePath(path);
 	return Directory::pathToStr(pathlst);
 }
 
-Directory::EntryList Directory::listFiles(std::string path, unsigned char filter)
+Directory::EntryList Directory::listFiles(
+    std::string path, unsigned char filter)
 {
 	DEBUG(directory, "Listing files in '%s'\n", path.c_str());
 
 	Directory::EntryList entries;
-	DIR *dir = opendir(path.c_str());
+	DIR* dir = opendir(path.c_str());
 	if(!dir)
 	{
-		//DEBUG(directory, "Couldn't open directory '%s\n", path.c_str());
+		// DEBUG(directory, "Couldn't open directory '%s\n", path.c_str());
 		return entries;
 	}
 
 	std::vector<std::string> directories;
 	std::vector<std::string> files;
 
-	struct dirent *entry;
+	struct dirent* entry;
 	while((entry = readdir(dir)) != nullptr)
 	{
 		std::string name = entry->d_name;
@@ -205,22 +208,21 @@ Directory::EntryList Directory::listFiles(std::string path, unsigned char filter
 			}
 
 			if(name.substr(name.length() - drumkit_suffix_length,
-			               drumkit_suffix_length) != DRUMKIT_SUFFIX)
+			       drumkit_suffix_length) != DRUMKIT_SUFFIX)
 			{
 				continue;
 			}
 
-
-			//if(!(entryinfo && filter)) {
+			// if(!(entryinfo && filter)) {
 			files.push_back(entry->d_name);
 			//}
 		}
 	}
 
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
-	//DEBUG(directory, "Root is %s\n", Directory::root(path).c_str());
-	//DEBUG(directory, "Current path %s is root? %d", path.c_str(),
-	//      Directory::isRoot(path));
+	// DEBUG(directory, "Root is %s\n", Directory::root(path).c_str());
+	// DEBUG(directory, "Current path %s is root? %d", path.c_str(),
+	//       Directory::isRoot(path));
 	if(Directory::isRoot(path))
 	{
 		entries.push_back("..");
@@ -254,7 +256,6 @@ Directory::EntryList Directory::listFiles(std::string path, unsigned char filter
 		}
 	}
 
-
 	for(auto directory : directories)
 	{
 		entries.push_back(directory);
@@ -274,7 +275,8 @@ bool Directory::isRoot(std::string path)
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
 	std::transform(path.begin(), path.end(), path.begin(), ::tolower);
 	std::string root_str = Directory::root(path);
-	std::transform(root_str.begin(), root_str.end(), root_str.begin(), ::tolower);
+	std::transform(
+	    root_str.begin(), root_str.end(), root_str.begin(), ::tolower);
 
 	// TODO: This is not a correct root calculation, but works with partitions
 	if(path.size() == 2)
@@ -290,7 +292,7 @@ bool Directory::isRoot(std::string path)
 	}
 	else
 	{
-		if (path.size() == 3)
+		if(path.size() == 3)
 		{
 			if(path == root_str + SEP)
 			{
@@ -366,17 +368,17 @@ bool Directory::isDir()
 
 bool Directory::isDir(std::string path)
 {
-	//DEBUG(directory, "Is '%s' a directory?\n", path.c_str());
+	// DEBUG(directory, "Is '%s' a directory?\n", path.c_str());
 	struct stat st;
 	if(stat(path.c_str(), &st) == 0)
 	{
 		if((st.st_mode & S_IFDIR) != 0)
 		{
-			//DEBUG(directory, "\t...yes!\n");
+			// DEBUG(directory, "\t...yes!\n");
 			return true;
 		}
 	}
-	//DEBUG(directory, "\t...no!\n");
+	// DEBUG(directory, "\t...no!\n");
 	return false;
 }
 
@@ -400,11 +402,11 @@ bool Directory::exists(std::string path)
 
 bool Directory::isHidden(std::string path)
 {
-	//DEBUG(directory, "Is '%s' hidden?\n", path.c_str());
+	// DEBUG(directory, "Is '%s' hidden?\n", path.c_str());
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
 	// We dont want to filter out '..' pointing to root of a partition
 	unsigned pos = path.find_last_of("/\\");
-	std::string entry = path.substr(pos+1);
+	std::string entry = path.substr(pos + 1);
 	if(entry == "..")
 	{
 		return false;
@@ -413,35 +415,33 @@ bool Directory::isHidden(std::string path)
 	DWORD fattribs = GetFileAttributes(path.c_str());
 	if(fattribs & FILE_ATTRIBUTE_HIDDEN)
 	{
-		//DEBUG(directory, "\t...yes!\n");
+		// DEBUG(directory, "\t...yes!\n");
 		return true;
 	}
 	else
 	{
 		if(fattribs & FILE_ATTRIBUTE_SYSTEM)
 		{
-			//DEBUG(directory, "\t...yes!\n");
+			// DEBUG(directory, "\t...yes!\n");
 			return true;
 		}
 		else
 		{
-			//DEBUG(directory, "\t...no!\n");
+			// DEBUG(directory, "\t...no!\n");
 			return false;
 		}
 	}
 #else
 	unsigned pos = path.find_last_of("/\\");
-	std::string entry = path.substr(pos+1);
-	if(entry.size() > 1 &&
-	   entry.at(0) == '.' &&
-	   entry.at(1) != '.')
+	std::string entry = path.substr(pos + 1);
+	if(entry.size() > 1 && entry.at(0) == '.' && entry.at(1) != '.')
 	{
-		//DEBUG(directory, "\t...yes!\n");
+		// DEBUG(directory, "\t...yes!\n");
 		return true;
 	}
 	else
 	{
-		//DEBUG(directory, "\t...no!\n");
+		// DEBUG(directory, "\t...no!\n");
 		return false;
 	}
 #endif
@@ -449,9 +449,10 @@ bool Directory::isHidden(std::string path)
 
 Directory::Path Directory::parsePath(std::string path_str)
 {
-	//TODO: Handle "." input and propably other special cases
+	// TODO: Handle "." input and propably other special cases
 
-	//DEBUG(directory, "Parsing path '%s'", path_str.c_str());
+	// DEBUG(directory, "Parsing path '%s'", path_str.c_str());
+	// cppcheck-suppress shadowFunction
 	Directory::Path path;
 
 	std::string current_char;
@@ -514,12 +515,13 @@ Directory::Path Directory::parsePath(std::string path_str)
 std::string Directory::pathToStr(Directory::Path& path)
 {
 	std::string cleaned_path;
-	//DEBUG(directory, "Number of directories in path is %d\n", (int)path.size());
+	// DEBUG(directory, "Number of directories in path is %d\n",
+	// (int)path.size());
 
 	for(auto it = path.begin(); it != path.end(); ++it)
 	{
 		std::string dir = *it;
-		//DEBUG(directory, "\tDir '%s'\n", dir.c_str());
+		// DEBUG(directory, "\tDir '%s'\n", dir.c_str());
 #if DG_PLATFORM == DG_PLATFORM_WINDOWS
 		if(it != path.begin())
 		{
@@ -531,7 +533,7 @@ std::string Directory::pathToStr(Directory::Path& path)
 #endif
 	}
 
-	//DEBUG(directory, "Cleaned path '%s'\n", cleaned_path.c_str());
+	// DEBUG(directory, "Cleaned path '%s'\n", cleaned_path.c_str());
 
 	if(cleaned_path.empty())
 	{
@@ -558,6 +560,7 @@ std::string Directory::pathDirectory(std::string filepath)
 		return filepath;
 	}
 
+	// cppcheck-suppress shadowFunction
 	Directory::Path path = parsePath(filepath);
 	if(path.size() > 0)
 	{

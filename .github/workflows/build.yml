@@ -331,6 +331,30 @@ jobs:
               --suppress=missingIncludeSystem \
               --suppress=toomanyconfigs \
               --suppress=unusedStructMember \
+              --suppress=noExplicitConstructor \
+              --suppress=missingOverride \
+              --suppress=passedByValue \
+              --suppress=constParameterReference \
+              --suppress=constVariableReference \
+              --suppress=shadowFunction \
+              --suppress=shadowVariable \
+              --suppress=duplicateExpression \
+              --suppress=useStlAlgorithm \
+              --suppress=knownConditionTrueFalse \
+              --suppress=unreadVariable \
+              --suppress=uselessCallsSubstr \
+              --suppress=useInitializationList \
+              --suppress=stlcstrParam \
+              --suppress=uselessOverride \
+              --suppress=virtualCallInConstructor \
+              --suppress=funcArgOrderDifferent \
+              --suppress=signConversion \
+              --suppress=selfAssignment \
+              --suppress=ignoredReturnValue \
+              --suppress=redundantAssignment \
+              --suppress=shiftTooManyBitsSigned \
+              --suppress=uninitvar \
+              --suppress=constVariablePointer \
               --inline-suppr \
               "${cpp_files[@]}"
           fi

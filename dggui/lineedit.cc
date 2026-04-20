@@ -26,16 +26,15 @@
  */
 #include "lineedit.h"
 
-#include <stdio.h>
 #include <hugin.hpp>
+#include <stdio.h>
 
 #define BORDER 10
 
 namespace dggui
 {
 
-LineEdit::LineEdit(Widget *parent)
-	: Widget(parent)
+LineEdit::LineEdit(Widget* parent) : Widget(parent)
 {
 	setReadOnly(false);
 }
@@ -71,7 +70,7 @@ std::string LineEdit::getText()
 	return _text;
 }
 
-void LineEdit::buttonEvent(ButtonEvent *buttonEvent)
+void LineEdit::buttonEvent(ButtonEvent* buttonEvent)
 {
 	if(readOnly())
 	{
@@ -99,7 +98,7 @@ void LineEdit::buttonEvent(ButtonEvent *buttonEvent)
 	}
 }
 
-void LineEdit::keyEvent(KeyEvent *keyEvent)
+void LineEdit::keyEvent(KeyEvent* keyEvent)
 {
 	if(readOnly())
 	{
@@ -110,7 +109,8 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 
 	if(keyEvent->direction == Direction::down)
 	{
-		switch(keyEvent->keycode) {
+		switch(keyEvent->keycode)
+		{
 		case Key::left:
 			if(pos == 0)
 			{
@@ -133,7 +133,8 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 
 			pos++;
 
-			if((pos < _text.length()) && ((offsetPos + visibleText.length()) <= pos))
+			if((pos < _text.length()) &&
+			    ((offsetPos + visibleText.length()) <= pos))
 			{
 				walkstate = WalkRight;
 			}
@@ -173,18 +174,18 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 			break;
 
 		case Key::character:
-			{
-				std::string pre = _text.substr(0, pos);
-				std::string post = _text.substr(pos, std::string::npos);
-				_text = pre + keyEvent->text + post;
-				change = true;
-				pos++;
-			}
-			break;
+		{
+			std::string pre = _text.substr(0, pos);
+			std::string post = _text.substr(pos, std::string::npos);
+			_text = pre + keyEvent->text + post;
+			change = true;
+			pos++;
+		}
+		break;
 
 		case Key::enter:
 			enterPressedNotifier();
-	    break;
+			break;
 
 		default:
 			break;
@@ -199,7 +200,7 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 	}
 }
 
-void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
+void LineEdit::repaintEvent(RepaintEvent* repaintEvent)
 {
 	(void)repaintEvent;
 	Painter p(*this);
@@ -214,21 +215,23 @@ void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
 	box.setSize(w, h);
 	p.drawImage(0, 0, box);
 
-	p.setColour(Colour(183.0f/255.0f, 219.0f/255.0f, 255.0f/255.0f, 1.0f));
+	p.setColour(
+	    Colour(183.0f / 255.0f, 219.0f / 255.0f, 255.0f / 255.0f, 1.0f));
 
-	switch(walkstate) {
+	switch(walkstate)
+	{
 	case WalkLeft:
 		visibleText = _text.substr(pos, std::string::npos);
 		offsetPos = pos;
 		break;
 
 	case WalkRight:
-		{
-			int delta = (offsetPos < _text.length()) ? 1 : 0;
-			visibleText = _text.substr(offsetPos + delta);
-			offsetPos = offsetPos + delta;
-		}
-		break;
+	{
+		int delta = (offsetPos < _text.length()) ? 1 : 0;
+		visibleText = _text.substr(offsetPos + delta);
+		offsetPos = offsetPos + delta;
+	}
+	break;
 
 	case Noop:
 		visibleText = _text;
@@ -244,7 +247,8 @@ void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
 			break;
 		}
 
-		switch(walkstate) {
+		switch(walkstate)
+		{
 		case WalkLeft:
 			visibleText = visibleText.substr(0, visibleText.length() - 1);
 			break;
@@ -279,9 +283,9 @@ void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
 	if(hasKeyboardFocus())
 	{
 		size_t px = font.textWidth(visibleText.substr(0, pos - offsetPos));
-		p.drawLine(px + BORDER - 1 - 4 + 3, 6,
-		           px + BORDER - 1 - 4 + 3, height() - 7);
+		p.drawLine(
+		    px + BORDER - 1 - 4 + 3, 6, px + BORDER - 1 - 4 + 3, height() - 7);
 	}
 }
 
-} // dggui::
+} // namespace dggui

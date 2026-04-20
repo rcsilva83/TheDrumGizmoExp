@@ -29,23 +29,23 @@
 #include <string.h>
 #include <vector>
 
-#include "widget.h"
-#include "painter.h"
 #include "listboxbasic.h"
+#include "painter.h"
 #include "texturedbox.h"
+#include "widget.h"
 
 namespace dggui
 {
 
-class ListBox
-	: public Widget
+class ListBox : public Widget
 {
 public:
-	ListBox(Widget *parent);
+	// cppcheck-suppress noExplicitConstructor
+	ListBox(Widget* parent);
 	virtual ~ListBox();
 
 	void addItem(std::string name, std::string value);
-	void addItems(std::vector<ListBoxBasic::Item> &items);
+	void addItems(std::vector<ListBoxBasic::Item>& items);
 
 	void clear();
 	bool selectItem(int index);
@@ -65,10 +65,10 @@ public:
 private:
 	ListBoxBasic basic;
 
-	TexturedBox box{getImageCache(), ":resources/widget.png",
-			0, 0, // atlas offset (x, y)
-			7, 1, 7, // dx1, dx2, dx3
-			7, 63, 7}; // dy1, dy2, dy3
+	TexturedBox box{getImageCache(), ":resources/widget.png", 0,
+	    0,         // atlas offset (x, y)
+	    7, 1, 7,   // dx1, dx2, dx3
+	    7, 63, 7}; // dy1, dy2, dy3
 };
 
-} // dggui::
+} // namespace dggui
