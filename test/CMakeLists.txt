@@ -546,6 +546,25 @@ if(TARGET dg_plugingui)
 			dg_core
 			Threads::Threads
 	)
+
+	if(DG_PLUGINGUI_RESOURCE_DATA)
+		set_source_files_properties("${DG_PLUGINGUI_RESOURCE_DATA}" PROPERTIES GENERATED TRUE)
+		dg_add_doctest_test(pluginguitest
+			SOURCES
+				"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+				"${CMAKE_SOURCE_DIR}/test/pluginguitest.cc"
+				"${DG_PLUGINGUI_RESOURCE_DATA}"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_plugingui
+				dg_core
+				Threads::Threads
+			DEPENDENCIES
+				dg_plugingui_resource_data
+		)
+	endif()
 endif()
 
 if(DG_ENABLE_CLI)
