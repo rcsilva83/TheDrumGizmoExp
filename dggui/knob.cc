@@ -176,6 +176,7 @@ void Knob::buttonEvent(ButtonEvent* buttonEvent)
 
 void Knob::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	int diameter = (width()>height()?height():width());
 	int radius = diameter / 2;
 	int center_x = width() / 2;

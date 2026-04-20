@@ -201,6 +201,7 @@ void LineEdit::keyEvent(KeyEvent *keyEvent)
 
 void LineEdit::repaintEvent(RepaintEvent *repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int w = width();

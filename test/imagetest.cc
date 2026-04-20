@@ -76,6 +76,7 @@ TEST_CASE("ImageTest")
 		CHECK_EQ(std::size_t(1u), img.height());
 		
 		const dggui::Colour& pixel = img.getPixel(0, 0);
+		(void)pixel;
 		// Note: The actual decoded color may vary based on PNG encoding
 		// Just verify we got some data
 		CHECK_UNARY(img.width() > 0);

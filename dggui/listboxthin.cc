@@ -78,6 +78,7 @@ std::string ListBoxThin::selectedValue()
 
 void ListBoxThin::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int w = width();

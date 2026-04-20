@@ -79,6 +79,8 @@ void Layout::removeItem(LayoutItem* item)
 
 void Layout::sizeChanged(int width, int height)
 {
+	(void)width;
+	(void)height;
 	layout();
 }
 

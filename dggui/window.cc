@@ -218,6 +218,8 @@ std::size_t Window::translateToWindowY()
 //! been received. Do not call this directly.
 void Window::resized(std::size_t width, std::size_t height)
 {
+	(void)width;
+	(void)height;
 	auto size = native->getSize();
 	if((wpixbuf.width != size.first) ||
 	   (wpixbuf.height != size.second))

@@ -78,7 +78,7 @@ Grid<T>::Grid(Index width, Index height, T value)
 template <typename T>
 bool Grid<T>::is_valid(Index x, Index y) const
 {
-	return x >= 0 && x < _width && y >= 0 && y < _height;
+	return x < _width && y < _height;
 }
 
 template <typename T>

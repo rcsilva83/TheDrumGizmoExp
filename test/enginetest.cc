@@ -42,6 +42,7 @@ class AudioOutputEngineDummy : public AudioOutputEngine
 public:
 	bool init(const Channels& channels) override
 	{
+		(void)channels;
 		return true;
 	}
 
@@ -122,6 +123,7 @@ class AudioInputEngineDummy : public AudioInputEngine
 public:
 	bool init(const Instruments& instruments) override
 	{
+		(void)instruments;
 		return true;
 	}
 
@@ -1894,7 +1896,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			std::string content = ss.str();
 			in.close();
 
-			for(const std::string& fname : {"instr1.xml", "instr2.xml"})
+			for(const std::string fname : {"instr1.xml", "instr2.xml"})
 			{
 				const std::string from = "file=\"" + fname + "\">";
 				const std::string to =

@@ -420,14 +420,10 @@ void Painter::drawImage(int x0, int y0, const Drawable& image)
 			{
 				for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw; ++x)
 				{
-					assert(x >= 0);
-					assert(y >= 0);
 					assert(x < image.width());
 					assert(y < image.height());
 					auto& c = image.getPixel(x, y);
 
-					assert(x0 + x >= 0);
-					assert(y0 + y >= 0);
 					assert(x0 + x < pixbuf.width);
 					assert(y0 + y < pixbuf.height);
 
@@ -483,14 +479,10 @@ void Painter::drawRestrictedImage(int x0, int y0,
 	{
 		for(std::size_t x = -1 * std::min(0, x0); x < (std::size_t)fw; ++x)
 		{
-			assert(x >= 0);
-			assert(y >= 0);
 			assert(x < image.width());
 			assert(y < image.height());
 			auto& c = image.getPixel(x, y);
 
-			assert(x0 + x >= 0);
-			assert(y0 + y >= 0);
 			assert(x0 + x < pixbuf.width);
 			assert(y0 + y < pixbuf.height);
 

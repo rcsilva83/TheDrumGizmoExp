@@ -137,11 +137,13 @@ void ListBoxBasic::clearSelectedValue()
 
 void ListBoxBasic::onScrollBarValueChange(int value)
 {
+	(void)value;
 	redraw();
 }
 
 void ListBoxBasic::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int w = width();

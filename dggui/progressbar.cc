@@ -67,6 +67,7 @@ void ProgressBar::setValue(std::size_t value)
 
 void ProgressBar::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	float progress = 0.0f;

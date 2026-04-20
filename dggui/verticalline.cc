@@ -39,6 +39,7 @@ VerticalLine::VerticalLine(Widget *parent)
 
 void VerticalLine::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(height() < 2)
 	{
 		return;

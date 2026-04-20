@@ -92,6 +92,7 @@ TabID TabButton::getID() const
 
 void TabButton::repaintEvent(RepaintEvent* e)
 {
+	(void)e;
 	Painter p(*this);
 
 	int padTop = 3;

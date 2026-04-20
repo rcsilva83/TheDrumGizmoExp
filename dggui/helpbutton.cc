@@ -48,6 +48,7 @@ void HelpButton::setHelpText(const std::string& help_text)
 
 void HelpButton::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	bool state = true;

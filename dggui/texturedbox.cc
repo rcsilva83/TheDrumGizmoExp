@@ -135,6 +135,8 @@ const Colour& TexturedBox::getPixel(std::size_t x, std::size_t y) const
 
 const std::uint8_t* TexturedBox::line(std::size_t y, std::size_t x_offset) const
 {
+	(void)y;
+	(void)x_offset;
 	// TODO: Gather line into temporary buffer?
 	return nullptr;
 }

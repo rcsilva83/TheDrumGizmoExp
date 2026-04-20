@@ -90,11 +90,11 @@ public:
 	void removeChild(Widget* widget);
 	void reparent(Widget* parent);
 
-	virtual void repaintEvent(RepaintEvent* repaintEvent) {}
-	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) {}
-	virtual void buttonEvent(ButtonEvent* buttonEvent) {}
-	virtual void scrollEvent(ScrollEvent* scrollEvent) {}
-	virtual void keyEvent(KeyEvent* keyEvent) {}
+	virtual void repaintEvent(RepaintEvent* repaintEvent) { (void)repaintEvent; }
+	virtual void mouseMoveEvent(MouseMoveEvent* mouseMoveEvent) { (void)mouseMoveEvent; }
+	virtual void buttonEvent(ButtonEvent* buttonEvent) { (void)buttonEvent; }
+	virtual void scrollEvent(ScrollEvent* scrollEvent) { (void)scrollEvent; }
+	virtual void keyEvent(KeyEvent* keyEvent) { (void)keyEvent; }
 	virtual void mouseLeaveEvent() {}
 	virtual void mouseEnterEvent() {}
 

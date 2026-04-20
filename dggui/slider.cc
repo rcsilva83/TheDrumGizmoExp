@@ -107,6 +107,7 @@ void Slider::setEnabled(bool enabled)
 
 void Slider::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	auto inner_offset = (current_value / maximum) * getControlWidth();

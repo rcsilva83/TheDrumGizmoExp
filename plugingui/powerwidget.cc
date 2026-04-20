@@ -68,6 +68,7 @@ void PowerWidget::chk_shelf(bool v)
 
 void PowerWidget::repaintEvent(dggui::RepaintEvent *repaintEvent)
 {
+	(void)repaintEvent;
 	dggui::Painter p(*this);
 	box.setSize(width() - 59 - 64, height());
 	p.drawImage(0, 0, box);
@@ -120,6 +121,7 @@ PowerWidget::Canvas::Canvas(dggui::Widget* parent,
 
 void PowerWidget::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 {
+	(void)repaintEvent;
 	if(width() < 1 || height() < 1)
 	{
 		return;

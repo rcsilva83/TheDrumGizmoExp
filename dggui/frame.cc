@@ -3,7 +3,7 @@
  *            frame.cc
  *
  *  Tue Feb  7 21:07:56 CET 2017
- *  Copyright 2017 André Nusser
+ *  Copyright 2017 Andrï¿½ Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
@@ -62,6 +62,7 @@ FrameWidget::FrameWidget(Widget* parent, bool has_switch, bool has_help_text)
 
 void FrameWidget::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int center_x = width() / 2;

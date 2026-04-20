@@ -263,7 +263,7 @@ TEST_CASE("LabelWidgetTest")
 	{
 		dggui::Label label(&window);
 		
-		label.setColour(dggui::Colour(255, 0, 0, 255));
+		label.setColour(dggui::Colour(std::uint8_t(255), std::uint8_t(0), std::uint8_t(0), std::uint8_t(255)));
 		label.resetColour();
 		
 		// Colour operations should work

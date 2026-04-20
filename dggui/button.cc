@@ -45,6 +45,7 @@ Button::~Button()
 
 void Button::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 	p.clear();
 

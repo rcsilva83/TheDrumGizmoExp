@@ -151,6 +151,7 @@ void TextEdit::preprocessText()
 
 void TextEdit::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(needs_preprocessing)
 	{
 		preprocessText();

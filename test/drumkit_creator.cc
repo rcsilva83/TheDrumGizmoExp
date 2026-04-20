@@ -257,6 +257,7 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 
 bool DrumkitCreator::is_valid(const DrumkitData& data) const
 {
+	(void)data;
 	// TODO Check the consistency of the data.
 	return true;
 }

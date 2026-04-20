@@ -97,6 +97,7 @@ static void drawArrow(Painter &p, int x, int y, int w, int h)
 
 void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	std::string _text = selectedName();
@@ -131,6 +132,7 @@ void ComboBox::repaintEvent(RepaintEvent* repaintEvent)
 
 void ComboBox::scrollEvent(ScrollEvent* scrollEvent)
 {
+	(void)scrollEvent;
 	/*
 	scroll_offset += e->delta;
 	if(scroll_offset < 0)

@@ -59,6 +59,7 @@ void Tooltip::resize(std::size_t width, std::size_t height)
 
 void Tooltip::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(needs_preprocessing)
 	{
 		preprocessText();

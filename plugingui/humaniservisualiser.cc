@@ -47,6 +47,7 @@ HumaniserVisualiser::HumaniserVisualiser(dggui::Widget* parent,
 
 void HumaniserVisualiser::repaintEvent(dggui::RepaintEvent *repaintEvent)
 {
+	(void)repaintEvent;
 	dggui::Painter p(*this);
 
 	box.setSize(width(), height());
@@ -92,6 +93,7 @@ HumaniserVisualiser::Canvas::Canvas(dggui::Widget* parent,
 
 void HumaniserVisualiser::Canvas::repaintEvent(dggui::RepaintEvent *repaintEvent)
 {
+	(void)repaintEvent;
 	if(width() < 1 || height() < 1)
 	{
 		return;

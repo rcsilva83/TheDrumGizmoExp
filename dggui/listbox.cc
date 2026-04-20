@@ -83,6 +83,7 @@ void ListBox::clearSelectedValue()
 
 void ListBox::repaintEvent(RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	Painter p(*this);
 
 	int w = width();

@@ -83,6 +83,7 @@ bool MainWindow::processEvents()
 
 void MainWindow::repaintEvent(dggui::RepaintEvent* repaintEvent)
 {
+	(void)repaintEvent;
 	if(!visible())
 	{
 		return;

@@ -152,6 +152,10 @@ const Sample* SampleSelection::get(level_t level, std::size_t pos)
 	while (up_value_lb <= value_opt || down_value_lb <= value_opt);
 
 	DEBUG(rand, "Chose sample with index: %d, value: %f, power %f, random: %f, close: %f, diverse: %f, count: %d", (int)index_opt, value_opt, power_opt, random_opt, close_opt, diverse_opt, (int)count);
+	(void)power_opt;
+	(void)random_opt;
+	(void)close_opt;
+	(void)diverse_opt;
 
 	last[index_opt] = pos;
 	return samples[index_opt].sample;
