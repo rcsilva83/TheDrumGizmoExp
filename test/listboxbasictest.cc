@@ -25,15 +25,14 @@
  */
 #include <doctest/doctest.h>
 
+#include <dggui/guievent.h>
 #include <dggui/listboxbasic.h>
 #include <dggui/window.h>
-#include <dggui/guievent.h>
 
 using namespace dggui;
 
 //! Listener class for testing notifiers
-class ListBoxNotifierListener
-	: public Listener
+class ListBoxNotifierListener : public Listener
 {
 public:
 	int selectionCount{0};
@@ -64,12 +63,10 @@ public:
 };
 
 //! Test helper class that exposes protected methods for testing
-class TestListBoxBasic
-	: public ListBoxBasic
+class TestListBoxBasic : public ListBoxBasic
 {
 public:
-	TestListBoxBasic(Widget* parent)
-		: ListBoxBasic(parent)
+	TestListBoxBasic(Widget* parent) : ListBoxBasic(parent)
 	{
 	}
 
@@ -151,8 +148,8 @@ TEST_CASE("ListBoxBasicAddItemTest")
 		listbox.resize(200, 200);
 
 		ListBoxNotifierListener listener;
-		listbox.valueChangedNotifier.connect(&listener,
-		                                     &ListBoxNotifierListener::onValueChange);
+		listbox.valueChangedNotifier.connect(
+		    &listener, &ListBoxNotifierListener::onValueChange);
 
 		listbox.addItem("Item1", "Value1");
 
@@ -451,8 +448,8 @@ TEST_CASE("ListBoxBasicKeyEventTest")
 		listbox.addItem("Item2", "Value2");
 
 		ListBoxNotifierListener listener;
-		listbox.selectionNotifier.connect(&listener,
-		                                  &ListBoxNotifierListener::onSelection);
+		listbox.selectionNotifier.connect(
+		    &listener, &ListBoxNotifierListener::onSelection);
 
 		// Move to Item2
 		KeyEvent event;
@@ -497,7 +494,7 @@ TEST_CASE("ListBoxBasicKeyEventTest")
 		listbox.addItem("Item2", "Value2");
 
 		KeyEvent event;
-		event.direction = Direction::up;  // Key up direction, not down
+		event.direction = Direction::up; // Key up direction, not down
 		event.keycode = Key::down;
 		listbox.testKeyEvent(&event);
 
@@ -519,13 +516,13 @@ TEST_CASE("ListBoxBasicButtonEventTest")
 		listbox.addItem("Item2", "Value2");
 
 		ListBoxNotifierListener listener;
-		listbox.clickNotifier.connect(&listener,
-		                              &ListBoxNotifierListener::onClick);
+		listbox.clickNotifier.connect(
+		    &listener, &ListBoxNotifierListener::onClick);
 
 		// Click on Item2 (at position 5, which is in the item area)
 		ButtonEvent event;
 		event.x = 5;
-		event.y = 30;  // Second item area
+		event.y = 30; // Second item area
 		event.direction = Direction::up;
 		event.button = MouseButton::left;
 		event.doubleClick = false;
@@ -566,8 +563,8 @@ TEST_CASE("ListBoxBasicButtonEventTest")
 		listbox.addItem("Item2", "Value2");
 
 		ListBoxNotifierListener listener;
-		listbox.selectionNotifier.connect(&listener,
-		                                  &ListBoxNotifierListener::onSelection);
+		listbox.selectionNotifier.connect(
+		    &listener, &ListBoxNotifierListener::onSelection);
 
 		ButtonEvent event;
 		event.x = 5;
@@ -595,8 +592,8 @@ TEST_CASE("ListBoxBasicScrollEventTest")
 		// Add many items to enable scrolling
 		for(int i = 0; i < 20; ++i)
 		{
-			listbox.addItem("Item" + std::to_string(i),
-			                "Value" + std::to_string(i));
+			listbox.addItem(
+			    "Item" + std::to_string(i), "Value" + std::to_string(i));
 		}
 
 		ScrollEvent event;
@@ -622,8 +619,8 @@ TEST_CASE("ListBoxBasicNotifierTest")
 		listbox.resize(200, 200);
 
 		ListBoxNotifierListener listener;
-		listbox.valueChangedNotifier.connect(&listener,
-		                                     &ListBoxNotifierListener::onValueChange);
+		listbox.valueChangedNotifier.connect(
+		    &listener, &ListBoxNotifierListener::onValueChange);
 
 		listbox.addItem("Item1", "Value1");
 		listbox.addItem("Item2", "Value2");
