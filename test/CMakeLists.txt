@@ -585,6 +585,24 @@ if(DG_ENABLE_CLI)
 	)
 endif()
 
+if(DG_ENABLE_CLI AND DG_ENABLE_DGVALIDATOR)
+	dg_add_doctest_test(dgvalidatortest
+		SOURCES
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
+			"${CMAKE_SOURCE_DIR}/test/dgvalidatortest.cc"
+		INCLUDE_DIRS
+			"${DG_HUGIN_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			DGVALIDATOR_BIN="$<TARGET_FILE:dgvalidator>"
+		LINK_LIBRARIES
+			SndFile::sndfile
+		DEPENDENCIES
+			dgvalidator
+	)
+endif()
+
 if(DG_ENABLE_LV2)
 	dg_add_doctest_test(lv2test
 		SOURCES
