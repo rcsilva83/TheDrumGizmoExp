@@ -33,6 +33,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            cmake \
+            ninja-build \
+            g++ \
+            gettext \
+            libx11-dev \
+            libxext-dev \
+            libglib2.0-dev \
+            libjack-jackd2-dev \
+            libasound2-dev \
+            lv2-dev \
+            liblilv-dev \
+            libssl-dev \
+            xvfb
+
       - name: Run opencode
         uses: anomalyco/opencode/github@latest
         env:
