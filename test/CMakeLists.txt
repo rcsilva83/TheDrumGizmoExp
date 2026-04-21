@@ -532,6 +532,21 @@ if(TARGET dg_dggui)
 			dg_plugingui_resource_data
 	)
 
+	dg_add_doctest_test(eventhandler
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/eventhandlertest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+		DEPENDENCIES
+			dg_plugingui_resource_data
+	)
+
 	# NativeWindowX11 tests - only when X11 backend is actually selected and available
 	if(DG_SELECTED_GUI_BACKEND STREQUAL "x11" AND TARGET PkgConfig::X11 AND TARGET PkgConfig::XEXT)
 		dg_add_doctest_test(nativewindow_x11
