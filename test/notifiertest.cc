@@ -323,10 +323,8 @@ TEST_CASE("NotifierTest")
 		notifier("hello");
 		notifier("world");
 
-		CHECK_EQ(2u, probe.received.size());
-		// cppcheck-suppress containerOutOfBounds
+		REQUIRE_EQ(2u, probe.received.size());
 		CHECK_EQ("hello", probe.received[0]);
-		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("world", probe.received[1]);
 	}
 
@@ -340,18 +338,14 @@ TEST_CASE("NotifierTest")
 		notifier(1, 2.5, "first");
 		notifier(3, 4.0, "second");
 
-		CHECK_EQ(2u, probe.ints.size());
-		// cppcheck-suppress containerOutOfBounds
+		REQUIRE_EQ(2u, probe.ints.size());
 		CHECK_EQ(1, probe.ints[0]);
-		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(3, probe.ints[1]);
-		// cppcheck-suppress containerOutOfBounds
+		REQUIRE_EQ(2u, probe.doubles.size());
 		CHECK_EQ(2.5, probe.doubles[0]);
-		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(4.0, probe.doubles[1]);
-		// cppcheck-suppress containerOutOfBounds
+		REQUIRE_EQ(2u, probe.strings.size());
 		CHECK_EQ("first", probe.strings[0]);
-		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ("second", probe.strings[1]);
 	}
 
@@ -368,7 +362,9 @@ TEST_CASE("NotifierTest")
 
 	SUBCASE("listener_unregister_notifier_directly")
 	{
-		// Test direct call to Listener::unregisterNotifier.
+		// Test that Listener::unregisterNotifier() properly removes the
+		// notifier from the listener's internal tracking without breaking
+		// subsequent disconnect or causing crashes.
 		Notifier<> notifier;
 		std::vector<Probe*> triggers;
 		Probe probe(triggers);
@@ -378,10 +374,17 @@ TEST_CASE("NotifierTest")
 		CHECK_EQ(1u, triggers.size());
 		triggers.clear();
 
-		// Manually unregister - this simulates what Notifier dtor does
+		// Manually unregister - this simulates what Notifier dtor does.
+		// This should remove the notifier from listener's tracking without
+		// affecting the actual slot connection.
 		probe.unregisterNotifier(&notifier);
 
-		// After unregister, the notifier should no longer call the probe
+		// The slot should still be connected and receive notifications
+		notifier();
+		CHECK_EQ(1u, triggers.size());
+		triggers.clear();
+
+		// Explicit disconnect is still required to remove the slot
 		notifier.disconnect(&probe);
 		notifier();
 		CHECK_EQ(0u, triggers.size());
