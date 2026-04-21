@@ -25,8 +25,8 @@
  */
 #include <doctest/doctest.h>
 
-#include <filebrowser.h>
 #include <dggui/window.h>
+#include <filebrowser.h>
 
 #ifndef _WIN32
 #include <fcntl.h>
@@ -200,7 +200,8 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 	}
 }
 
-TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserDirectoryNavigationTest")
+TEST_CASE_FIXTURE(
+    FileBrowserTempDirFixture, "FileBrowserDirectoryNavigationTest")
 {
 	dggui::Window window;
 	window.resize(400, 300);
@@ -293,8 +294,8 @@ TEST_CASE("FileBrowserResizeTest")
 		// (avoiding zero dimensions due to widget assertions)
 		browser.resize(100, 100);
 
-		// In headless mode, actual dimensions may differ due to windowing system
-		// Just verify no crash occurred
+		// In headless mode, actual dimensions may differ due to windowing
+		// system Just verify no crash occurred
 		CHECK_UNARY(true);
 	}
 
