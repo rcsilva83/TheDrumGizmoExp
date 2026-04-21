@@ -25,30 +25,29 @@
  */
 #include <doctest/doctest.h>
 
-#include <dggui/window.h>
 #include <dggui/image.h>
+#include <dggui/window.h>
 
 #include <settings.h>
 
 #include "plugingui/drumkittab.h"
 
+#include <cstdio>
 #include <fstream>
 #include <sstream>
-#include <cstdio>
 #include <vector>
 
 // Helper to create a minimal PNG file (1x1 pixel, RGBA)
 static std::vector<char> createMinimalPNG()
 {
 	// Minimal 1x1 RGBA PNG
-	const unsigned char png_data[] = {
-		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
-		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-		0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
-		0x0d, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
-		0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05, 0xfe, 0xd4, 0x32, 0x00, 0x00,
-		0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
-	};
+	const unsigned char png_data[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a,
+	    0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00,
+	    0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15,
+	    0xc4, 0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7,
+	    0x63, 0xf8, 0xcf, 0xc0, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05,
+	    0xfe, 0xd4, 0x32, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
+	    0x42, 0x60, 0x82};
 	return std::vector<char>(png_data, png_data + sizeof(png_data));
 }
 
@@ -58,19 +57,17 @@ static std::vector<char> createMapPNG()
 {
 	// Use a test image from the existing test resources
 	// We'll create a simple file-based approach
-	const unsigned char png_data[] = {
-		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
-		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x0a,
-		0x08, 0x06, 0x00, 0x00, 0x00, 0x8d, 0x32, 0xcf, 0xbd, 0x00, 0x00, 0x00,
-		0x3d, 0x49, 0x44, 0x41, 0x54, 0x28, 0xcf, 0x63, 0xf8, 0x0f, 0x04, 0xfc,
-		0x67, 0x20, 0x04, 0x98, 0x18, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18,
-		0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18,
-		0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18,
-		0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18,
-		0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x00, 0x62,
-		0xdb, 0x0e, 0xf9, 0x51, 0xa7, 0xc2, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x49,
-		0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
-	};
+	const unsigned char png_data[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a,
+	    0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00,
+	    0x0a, 0x00, 0x00, 0x00, 0x0a, 0x08, 0x06, 0x00, 0x00, 0x00, 0x8d, 0x32,
+	    0xcf, 0xbd, 0x00, 0x00, 0x00, 0x3d, 0x49, 0x44, 0x41, 0x54, 0x28, 0xcf,
+	    0x63, 0xf8, 0x0f, 0x04, 0xfc, 0x67, 0x20, 0x04, 0x98, 0x18, 0x18, 0x18,
+	    0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18,
+	    0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18,
+	    0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18,
+	    0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18, 0x18, 0x19, 0x18, 0x18,
+	    0x18, 0x19, 0x18, 0x00, 0x62, 0xdb, 0x0e, 0xf9, 0x51, 0xa7, 0xc2, 0xe0,
+	    0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82};
 	return std::vector<char>(png_data, png_data + sizeof(png_data));
 }
 
@@ -116,7 +113,8 @@ struct DrumkitTabTestFixture
 		if(file.is_open())
 		{
 			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			file << "<drumkit name=\"TestKit\" version=\"2.0\" description=\"Test drumkit\">\n";
+			file << "<drumkit name=\"TestKit\" version=\"2.0\" "
+			        "description=\"Test drumkit\">\n";
 			file << "  <metadata>\n";
 			file << "    <version>1.0</version>\n";
 			file << "    <title>Test Kit</title>\n";
@@ -126,13 +124,17 @@ struct DrumkitTabTestFixture
 			if(with_clickmap)
 			{
 				// Black color (000000) = Snare
-				file << "      <clickmap instrument=\"Snare\" colour=\"000000\"/>\n";
+				file << "      <clickmap instrument=\"Snare\" "
+				        "colour=\"000000\"/>\n";
 				// Red color (FF0F37) = KdrumL
-				file << "      <clickmap instrument=\"KdrumL\" colour=\"FF0F37\"/>\n";
+				file << "      <clickmap instrument=\"KdrumL\" "
+				        "colour=\"FF0F37\"/>\n";
 				// Invalid color (too short)
-				file << "      <clickmap instrument=\"Invalid\" colour=\"FFF\"/>\n";
+				file << "      <clickmap instrument=\"Invalid\" "
+				        "colour=\"FFF\"/>\n";
 				// Invalid color (not hex)
-				file << "      <clickmap instrument=\"BadHex\" colour=\"GGGGGG\"/>\n";
+				file << "      <clickmap instrument=\"BadHex\" "
+				        "colour=\"GGGGGG\"/>\n";
 			}
 			file << "    </image>\n";
 			file << "  </metadata>\n";
@@ -158,7 +160,8 @@ struct DrumkitTabTestFixture
 		if(file.is_open())
 		{
 			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			file << "<drumkit name=\"TestKit\" version=\"2.0\" description=\"Test drumkit\">\n";
+			file << "<drumkit name=\"TestKit\" version=\"2.0\" "
+			        "description=\"Test drumkit\">\n";
 			file << "  <channels>\n";
 			file << "    <channel name=\"ch0\"/>\n";
 			file << "  </channels>\n";
@@ -245,7 +248,8 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_init")
 		};
 		ImageListener listener;
 		listener.valid = &image_valid;
-		drumkit_tab.imageChangeNotifier.connect(&listener, &ImageListener::onImageChange);
+		drumkit_tab.imageChangeNotifier.connect(
+		    &listener, &ImageListener::onImageChange);
 
 		drumkit_tab.init("test_drumkit_image.png", "test_drumkit_map.png");
 
@@ -276,7 +280,7 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_buttonEvent")
 		drumkit_tab.init("test_drumkit_image.png", "test_drumkit_map.png");
 		drumkit_tab.resize(400, 300);
 
-			// Create button event
+		// Create button event
 		dggui::ButtonEvent event;
 		event.button = dggui::MouseButton::left;
 		event.direction = dggui::Direction::down;
@@ -393,7 +397,7 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_scrollEvent")
 		drumkit_tab.resize(400, 300);
 
 		dggui::ScrollEvent event;
-		event.delta = 10;  // Positive delta = scroll up
+		event.delta = 10; // Positive delta = scroll up
 		event.x = 200;
 		event.y = 150;
 
@@ -412,7 +416,7 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_scrollEvent")
 		drumkit_tab.resize(400, 300);
 
 		dggui::ScrollEvent event;
-		event.delta = -10;  // Negative delta = scroll down
+		event.delta = -10; // Negative delta = scroll down
 		event.x = 200;
 		event.y = 150;
 
@@ -611,7 +615,8 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_drumkitFileChanged")
 		};
 		ImageListener listener;
 		listener.valid = &image_valid;
-		drumkit_tab.imageChangeNotifier.connect(&listener, &ImageListener::onImageChange);
+		drumkit_tab.imageChangeNotifier.connect(
+		    &listener, &ImageListener::onImageChange);
 
 		settings_notifier.drumkit_file(xml_file);
 
@@ -654,14 +659,17 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_clickmap_parsing")
 		if(file.is_open())
 		{
 			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			file << "<drumkit name=\"TestKit\" version=\"2.0\" description=\"Test drumkit\">\n";
+			file << "<drumkit name=\"TestKit\" version=\"2.0\" "
+			        "description=\"Test drumkit\">\n";
 			file << "  <metadata>\n";
 			file << "    <image map=\"test_drumkit_map.png\">\n";
 			file << "      test_drumkit_image.png\n";
 			// Valid 6-character hex colors
-			file << "      <clickmap instrument=\"Snare\" colour=\"000000\"/>\n";
+			file
+			    << "      <clickmap instrument=\"Snare\" colour=\"000000\"/>\n";
 			file << "      <clickmap instrument=\"Kick\" colour=\"FF0000\"/>\n";
-			file << "      <clickmap instrument=\"Hihat\" colour=\"00FF00\"/>\n";
+			file
+			    << "      <clickmap instrument=\"Hihat\" colour=\"00FF00\"/>\n";
 			file << "      <clickmap instrument=\"Tom\" colour=\"0000FF\"/>\n";
 			file << "    </image>\n";
 			file << "  </metadata>\n";
@@ -693,7 +701,8 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_clickmap_parsing")
 		if(file.is_open())
 		{
 			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			file << "<drumkit name=\"TestKit\" version=\"2.0\" description=\"Test drumkit\">\n";
+			file << "<drumkit name=\"TestKit\" version=\"2.0\" "
+			        "description=\"Test drumkit\">\n";
 			file << "  <metadata>\n";
 			file << "    <image map=\"test_drumkit_map.png\">\n";
 			file << "      test_drumkit_image.png\n";
@@ -733,7 +742,8 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_clickmap_parsing")
 		if(file.is_open())
 		{
 			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			file << "<drumkit name=\"TestKit\" version=\"2.0\" description=\"Test drumkit\">\n";
+			file << "<drumkit name=\"TestKit\" version=\"2.0\" "
+			        "description=\"Test drumkit\">\n";
 			file << "  <metadata>\n";
 			file << "    <image map=\"test_drumkit_map.png\">\n";
 			file << "      test_drumkit_image.png\n";
