@@ -76,7 +76,7 @@ Available test targets: `resource`, `enginetest`, `paintertest`, `configfile`,
 `randomtest`, `atomictest`, `syncedsettingstest`, `imagecachetest`,
 `semaphoretest`, `drumkitcreatortest`, `bytesizeparsertest`, `notifiertest`,
 `dgxmlparsertest`, `domloadertest`, `configparsertest`, `midimapparsertest`,
-`eventsdstest`, `powermaptest`, `midimappertest`.
+`eventsdstest`, `powermaptest`, `midimappertest`, `nativewindow_x11`.
 
 ### Formatting
 ```sh
