@@ -546,6 +546,23 @@ if(TARGET dg_dggui)
 		DEPENDENCIES
 			dg_plugingui_resource_data
 	)
+
+	# NativeWindowX11 tests - only when X11 backend is actually selected and available
+	if(DG_SELECTED_GUI_BACKEND STREQUAL "x11" AND TARGET PkgConfig::X11 AND TARGET PkgConfig::XEXT)
+		dg_add_doctest_test(nativewindow_x11
+			SOURCES
+				"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+				"${CMAKE_SOURCE_DIR}/test/nativewindow_x11_test.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_dggui
+				Threads::Threads
+				PkgConfig::X11
+				PkgConfig::XEXT
+		)
+	endif()
 endif()
 
 if(TARGET dg_plugingui)
@@ -597,6 +614,24 @@ if(DG_ENABLE_CLI)
 			SndFile::sndfile
 		DEPENDENCIES
 			drumgizmo
+	)
+endif()
+
+if(DG_ENABLE_CLI AND DG_ENABLE_DGVALIDATOR)
+	dg_add_doctest_test(dgvalidatortest
+		SOURCES
+			"${CMAKE_SOURCE_DIR}/src/random.cc"
+			"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
+			"${CMAKE_SOURCE_DIR}/test/dgvalidatortest.cc"
+		INCLUDE_DIRS
+			"${DG_HUGIN_SOURCE_DIR}"
+		COMPILE_DEFINITIONS
+			DGVALIDATOR_BIN="$<TARGET_FILE:dgvalidator>"
+		LINK_LIBRARIES
+			SndFile::sndfile
+		DEPENDENCIES
+			dgvalidator
 	)
 endif()
 
