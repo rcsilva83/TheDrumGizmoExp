@@ -54,8 +54,7 @@ public:
 class TestLineEdit : public LineEdit
 {
 public:
-	TestLineEdit(Widget* parent)
-	    : LineEdit(parent)
+	TestLineEdit(Widget* parent) : LineEdit(parent)
 	{
 	}
 
