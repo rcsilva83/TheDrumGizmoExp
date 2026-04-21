@@ -513,7 +513,6 @@ TEST_CASE("PainterTest")
 		{ // Very small circle (radius 1)
 			painter.clear();
 			painter.drawCircle(50, 50, 1.0);
-			auto& pixbuf = canvas.getPixelBuffer();
 			// Should at least draw the center point
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
@@ -521,14 +520,12 @@ TEST_CASE("PainterTest")
 		{ // Circle with fractional radius
 			painter.clear();
 			painter.drawCircle(50, 50, 5.5);
-			auto& pixbuf = canvas.getPixelBuffer();
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
 
 		{ // Circle at edge of canvas
 			painter.clear();
 			painter.drawCircle(10, 10, 15.0);
-			auto& pixbuf = canvas.getPixelBuffer();
 			// Should draw partial circle without crashing
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
@@ -564,7 +561,6 @@ TEST_CASE("PainterTest")
 		{ // Filled circle at edge
 			painter.clear();
 			painter.drawFilledCircle(10, 10, 15);
-			auto& pixbuf = canvas.getPixelBuffer();
 			// Should draw partial filled circle without crashing
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}
@@ -624,9 +620,10 @@ TEST_CASE("PainterTest")
 		    std::uint8_t(255));
 		painter.drawRestrictedImage(0, 0, restriction, image);
 
-		// Since our image doesn't have pure black pixels (they have x,y coords),
-		// nothing should be drawn
-		CHECK_UNARY(!hasAnyDrawnPixels(canvas));
+		// Pixel at (0,0) in TestImage has colour (0, 0, 0, 255) which is black,
+		// so it matches the restriction and should be drawn
+		auto& pixbuf = canvas.getPixelBuffer();
+		CHECK_EQ(TestColour(0, 0, 0, 255), TestColour(pixbuf.pixel(0, 0)));
 
 		// Now create an image with some black pixels and test again
 		TestImage image2(16, 16, false);
@@ -639,7 +636,6 @@ TEST_CASE("PainterTest")
 		painter.drawRestrictedImage(0, 0, restriction, image2);
 
 		// The black pixel should now be drawn
-		auto& pixbuf = canvas.getPixelBuffer();
 		CHECK_EQ(TestColour(0, 0, 0, 255), TestColour(pixbuf.pixel(0, 0)));
 
 		{ // Test with offset
@@ -838,7 +834,6 @@ TEST_CASE("PainterTest")
 		{ // Circle at exact boundary
 			painter.clear();
 			painter.drawCircle(5, 5, 5.0);
-			auto& pixbuf = canvas.getPixelBuffer();
 			// Should not crash and should draw something
 			CHECK_UNARY(hasAnyDrawnPixels(canvas));
 		}

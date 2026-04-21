@@ -83,6 +83,13 @@ static inline double rfpart(double x)
 
 void Painter::drawLine(int x0, int y0, int x1, int y1)
 {
+	// Handle single point (zero-length line)
+	if(x0 == x1 && y0 == y1)
+	{
+		drawPoint(x0, y0);
+		return;
+	}
+
 	bool steep = abs(y1 - y0) > abs(x1 - x0);
 
 	if(steep)
