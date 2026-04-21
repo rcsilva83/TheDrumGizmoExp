@@ -611,53 +611,56 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 
 		power.resize(400, 300);
 
-		// Initialize powermap with known values
-		settings.powermap_fixed0_x.store(0.05f);
-		settings.powermap_fixed0_y.store(0.05f);
-		settings.powermap_fixed1_x.store(0.5f);
-		settings.powermap_fixed1_y.store(0.5f);
-		settings.powermap_fixed2_x.store(0.95f);
-		settings.powermap_fixed2_y.store(0.95f);
+		// Initialize powermap with known positions for control points
+		// Canvas is at (7,7) with size 263x286, border=6
+		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
+		settings.powermap_fixed0_x.store(0.1f);  // ~31px from left of canvas + 6px border
+		settings.powermap_fixed0_y.store(0.1f);  // ~27px from bottom of canvas + 6px border
+		settings.powermap_fixed1_x.store(0.5f);  // ~132px from left
+		settings.powermap_fixed1_y.store(0.5f);  // ~143px from bottom
+		settings.powermap_fixed2_x.store(0.9f);  // ~232px from left
+		settings.powermap_fixed2_y.store(0.9f);  // ~253px from bottom
 		settings_notifier.enable_powermap(true);
 
-		// Create button events
+		// Access the canvas directly - PowerWidget doesn't override these handlers
+		// Canvas is at (7,7), so find it there
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Test button down on fixed0 (green point at lower-left)
+		// Canvas at (7,7), point at canvas x=6+25=31, y=286-6-27=253
+		// Window coords: 7+31=38, 7+253=260
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
-		button_down.doubleClick = false;
+		button_down.x = 38;
+		button_down.y = 260;
+		canvas->buttonEvent(&button_down);
 
+		// Drag to another position (canvas coords)
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 200;
+		canvas->mouseMoveEvent(&move_event);
+
+		// Release button
 		dggui::ButtonEvent button_up;
 		button_up.direction = dggui::Direction::up;
 		button_up.button = dggui::MouseButton::left;
-		button_up.doubleClick = false;
+		button_up.x = 100;
+		button_up.y = 200;
+		canvas->buttonEvent(&button_up);
 
-		// Test clicking on fixed0 control point (bottom-left area)
-		button_down.x = 35; // Approximate position for fixed0
-		button_down.y = 265;
-		power.buttonEvent(&button_down);
+		// Test button down on fixed1 (yellow point, center)
+		button_down.x = 139;  // 7 + 6 + 126
+		button_down.y = 150;  // 7 + 143
+		canvas->buttonEvent(&button_down);
+		CHECK_UNARY(&power != nullptr);
 
-		button_up.x = 35;
-		button_up.y = 265;
-		power.buttonEvent(&button_up);
-
-		// Test clicking on fixed1 control point (center area)
-		button_down.x = 200;
-		button_down.y = 150;
-		power.buttonEvent(&button_down);
-
-		button_up.x = 200;
-		button_up.y = 150;
-		power.buttonEvent(&button_up);
-
-		// Test clicking on fixed2 control point (top-right area)
-		button_down.x = 365;
-		button_down.y = 35;
-		power.buttonEvent(&button_down);
-
-		button_up.x = 365;
-		button_up.y = 35;
-		power.buttonEvent(&button_up);
-
+		// Test button down on fixed2 (red point, upper-right)
+		button_down.x = 239;  // 7 + 6 + 226
+		button_down.y = 40;   // 7 + ~33
+		canvas->buttonEvent(&button_down);
 		CHECK_UNARY(&power != nullptr);
 	}
 
@@ -670,24 +673,28 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Initialize powermap
 		settings_notifier.enable_powermap(true);
 
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
 		button_down.doubleClick = false;
 
-		// Click outside any control point (far corner)
-		button_down.x = 50;
-		button_down.y = 50;
-		power.buttonEvent(&button_down);
+		// Click outside any control point (far corner of canvas)
+		button_down.x = 10;
+		button_down.y = 10;
+		canvas->buttonEvent(&button_down);
 
 		// Release button
 		dggui::ButtonEvent button_up;
 		button_up.direction = dggui::Direction::up;
 		button_up.button = dggui::MouseButton::left;
 		button_up.doubleClick = false;
-		button_up.x = 50;
-		button_up.y = 50;
-		power.buttonEvent(&button_up);
+		button_up.x = 10;
+		button_up.y = 10;
+		canvas->buttonEvent(&button_up);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -698,37 +705,47 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 
 		power.resize(400, 300);
 
-		// Initialize powermap
+		// Initialize powermap with known position for fixed0
+		// Canvas is at (7,7) with size 263x286, border=6
+		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
+		// fixed0 at (0.05, 0.05) -> canvas x=6+12.5=18.5, y=6+13=19 (near top-left of drawing area)
+		// Canvas y is inverted, so 0.05 Y means near the bottom of drawing area
+		// Drawing area y: height0 - 0.05*height0 = 274-13.7 = 260.3, +6 border = 266.3
 		settings.powermap_fixed0_x.store(0.05f);
 		settings.powermap_fixed0_y.store(0.05f);
 		settings_notifier.enable_powermap(true);
 
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		// First, simulate button down on fixed0
+		// Canvas coords: x ~ 6 + 0.05*251 = 18.55, y ~ 6 + 274 - 0.05*274 = 266.3
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
-		button_down.x = 35;
-		button_down.y = 265;
-		power.buttonEvent(&button_down);
+		button_down.x = 19;
+		button_down.y = 266;
+		canvas->buttonEvent(&button_down);
 
-		// Now simulate dragging
+		// Now simulate dragging to a new position
 		dggui::MouseMoveEvent move_event;
 		move_event.x = 100;
-		move_event.y = 200;
-		power.mouseMoveEvent(&move_event);
+		move_event.y = 150;
+		canvas->mouseMoveEvent(&move_event);
 
 		// Drag to another position
 		move_event.x = 150;
-		move_event.y = 150;
-		power.mouseMoveEvent(&move_event);
+		move_event.y = 100;
+		canvas->mouseMoveEvent(&move_event);
 
 		// Release button
 		dggui::ButtonEvent button_up;
 		button_up.direction = dggui::Direction::up;
 		button_up.button = dggui::MouseButton::left;
 		button_up.x = 150;
-		button_up.y = 150;
-		power.buttonEvent(&button_up);
+		button_up.y = 100;
+		canvas->buttonEvent(&button_up);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -740,16 +757,20 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		power.resize(400, 300);
 		settings_notifier.enable_powermap(true);
 
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		// Simulate mouse move without any button pressed
 		dggui::MouseMoveEvent move_event;
 		move_event.x = 100;
 		move_event.y = 100;
-		power.mouseMoveEvent(&move_event);
+		canvas->mouseMoveEvent(&move_event);
 
 		// Move to different position
-		move_event.x = 200;
-		move_event.y = 150;
-		power.mouseMoveEvent(&move_event);
+		move_event.x = 150;
+		move_event.y = 120;
+		canvas->mouseMoveEvent(&move_event);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -761,16 +782,20 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		power.resize(400, 300);
 		settings_notifier.enable_powermap(true);
 
-		// Simulate button down first
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Simulate button down first (on canvas, not parent)
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
-		button_down.x = 35;
-		button_down.y = 265;
-		power.buttonEvent(&button_down);
+		button_down.x = 50;
+		button_down.y = 100;
+		canvas->buttonEvent(&button_down);
 
 		// Simulate mouse leave
-		power.mouseLeaveEvent();
+		canvas->mouseLeaveEvent();
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -821,50 +846,61 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 
 		power.resize(400, 300);
 
-		// Initialize powermap
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Initialize powermap - place fixed1 at center of canvas
+		// Canvas: 263x286, border=6, width0=251, height0=274
+		// Center in canvas coords: x=6+125=131, y=6+137=143
+		// Fixed1 at normalized (0.5, 0.5) maps to these canvas coords
 		settings.powermap_fixed1_x.store(0.5f);
 		settings.powermap_fixed1_y.store(0.5f);
 		settings_notifier.enable_powermap(true);
 
-		// Simulate button down on fixed1
+		// Simulate button down on fixed1 (center point of canvas)
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
-		button_down.x = 200;
-		button_down.y = 150;
-		power.buttonEvent(&button_down);
+		button_down.x = 131; // 6 + 125
+		button_down.y = 143; // 6 + 137
+		canvas->buttonEvent(&button_down);
 
-		// Try to drag outside the widget (should be clamped)
+		// Store initial value before drag
+		float initial_x = settings.powermap_fixed1_x.load();
+		float initial_y = settings.powermap_fixed1_y.load();
+		CHECK_EQ(initial_x, doctest::Approx(0.5f));
+		CHECK_EQ(initial_y, doctest::Approx(0.5f));
+
+		// Try to drag outside the widget far left/bottom (should be clamped to 0)
+		// Y is inverted: my0 = (height - y - y0) / height0
+		// Large negative Y canvas coord -> large positive normalized value
+		// Large positive Y canvas coord -> small/negative normalized value
 		dggui::MouseMoveEvent move_event;
-		move_event.x = -100; // Outside left boundary
-		move_event.y = -100; // Outside top boundary
-		power.mouseMoveEvent(&move_event);
+		move_event.x = -1000; // Far outside left boundary -> mx0 negative -> clamped to 0
+		move_event.y = 5000;  // Far below canvas -> small my0 -> clamped to 0
+		canvas->mouseMoveEvent(&move_event);
 
-		// Verify values are clamped to valid range [0.0, 1.0]
-		// The clamping is implemented in PowerWidget::Canvas::mouseMoveEvent
-		CHECK_GE(settings.powermap_fixed1_x.load(), 0.0f);
-		CHECK_LE(settings.powermap_fixed1_x.load(), 1.0f);
-		CHECK_GE(settings.powermap_fixed1_y.load(), 0.0f);
-		CHECK_LE(settings.powermap_fixed1_y.load(), 1.0f);
+		// Verify values are clamped to 0.0 (minimum)
+		CHECK_EQ(settings.powermap_fixed1_x.load(), doctest::Approx(0.0f));
+		CHECK_EQ(settings.powermap_fixed1_y.load(), doctest::Approx(0.0f));
 
-		// Try to drag beyond right/bottom boundaries
-		move_event.x = 500; // Beyond right
-		move_event.y = 400; // Beyond bottom
-		power.mouseMoveEvent(&move_event);
+		// Try to drag beyond right/top boundaries (should be clamped to 1)
+		move_event.x = 5000; // Far beyond right -> mx0 > 1 -> clamped to 1
+		move_event.y = -1000; // Far above canvas -> my0 > 1 -> clamped to 1
+		canvas->mouseMoveEvent(&move_event);
 
-		// Verify values remain clamped after dragging beyond bounds
-		CHECK_GE(settings.powermap_fixed1_x.load(), 0.0f);
-		CHECK_LE(settings.powermap_fixed1_x.load(), 1.0f);
-		CHECK_GE(settings.powermap_fixed1_y.load(), 0.0f);
-		CHECK_LE(settings.powermap_fixed1_y.load(), 1.0f);
+		// Verify values are clamped to 1.0 (maximum)
+		CHECK_EQ(settings.powermap_fixed1_x.load(), doctest::Approx(1.0f));
+		CHECK_EQ(settings.powermap_fixed1_y.load(), doctest::Approx(1.0f));
 
-		// Release
+		// Release button
 		dggui::ButtonEvent button_up;
 		button_up.direction = dggui::Direction::up;
 		button_up.button = dggui::MouseButton::left;
-		button_up.x = 200;
-		button_up.y = 150;
-		power.buttonEvent(&button_up);
+		button_up.x = 131;
+		button_up.y = 143;
+		canvas->buttonEvent(&button_up);
 
 		CHECK_UNARY(&power != nullptr);
 	}
