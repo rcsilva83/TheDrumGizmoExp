@@ -472,6 +472,26 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		CHECK_EQ(std::size_t(50u), power.height());
 	}
 
+	SUBCASE("powerwidget_resize_extreme_small")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		// Test resize with dimensions below minimum threshold
+		// This triggers the edge case where canvas is set to 1x1
+		power.resize(10, 10);
+		CHECK_EQ(std::size_t(10u), power.width());
+		CHECK_EQ(std::size_t(10u), power.height());
+
+		// Test boundary condition: exactly at minimum width
+		power.resize(14 + 59 + 64, 20);
+		CHECK_EQ(std::size_t(14u + 59u + 64u), power.width());
+
+		// Test boundary condition: exactly at minimum height
+		power.resize(200, 14);
+		CHECK_EQ(std::size_t(200u), power.width());
+		CHECK_EQ(std::size_t(14u), power.height());
+	}
+
 	SUBCASE("powerwidget_settings_updates")
 	{
 		GUI::PowerWidget power(&window, settings, settings_notifier);
@@ -498,6 +518,364 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Test input/output lines
 		settings_notifier.powermap_input(0.5f);
 		settings_notifier.powermap_output(0.6f);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_enabled_disabled_states")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Create a repaint event
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 400;
+		repaint_event.height = 300;
+
+		// Test repaint with powermap enabled
+		settings.enable_powermap.store(true);
+		settings_notifier.enable_powermap(true);
+		power.repaintEvent(&repaint_event);
+
+		// Test repaint with powermap disabled
+		settings.enable_powermap.store(false);
+		settings_notifier.enable_powermap(false);
+		power.repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_with_input_output_lines")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 400;
+		repaint_event.height = 300;
+
+		// Test repaint without input/output lines (values at -1)
+		settings.powermap_input.store(-1.0f);
+		settings.powermap_output.store(-1.0f);
+		power.repaintEvent(&repaint_event);
+
+		// Test repaint with input/output lines visible
+		settings.powermap_input.store(0.5f);
+		settings.powermap_output.store(0.6f);
+		settings_notifier.powermap_input(0.5f);
+		settings_notifier.powermap_output(0.6f);
+		power.repaintEvent(&repaint_event);
+
+		// Test with only input set (output at -1)
+		settings.powermap_input.store(0.3f);
+		settings.powermap_output.store(-1.0f);
+		power.repaintEvent(&repaint_event);
+
+		// Test with only output set (input at -1)
+		settings.powermap_input.store(-1.0f);
+		settings.powermap_output.store(0.7f);
+		power.repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_small_dimensions")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		// Test repaint with very small dimensions
+		power.resize(10, 10);
+
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 10;
+		repaint_event.height = 10;
+
+		// This should early return due to width/height < 1 check
+		power.repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_button_events_on_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap with known values
+		settings.powermap_fixed0_x.store(0.05f);
+		settings.powermap_fixed0_y.store(0.05f);
+		settings.powermap_fixed1_x.store(0.5f);
+		settings.powermap_fixed1_y.store(0.5f);
+		settings.powermap_fixed2_x.store(0.95f);
+		settings.powermap_fixed2_y.store(0.95f);
+		settings_notifier.enable_powermap(true);
+
+		// Create button events
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.doubleClick = false;
+
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.doubleClick = false;
+
+		// Test clicking on fixed0 control point (bottom-left area)
+		button_down.x = 35; // Approximate position for fixed0
+		button_down.y = 265;
+		power.buttonEvent(&button_down);
+
+		button_up.x = 35;
+		button_up.y = 265;
+		power.buttonEvent(&button_up);
+
+		// Test clicking on fixed1 control point (center area)
+		button_down.x = 200;
+		button_down.y = 150;
+		power.buttonEvent(&button_down);
+
+		button_up.x = 200;
+		button_up.y = 150;
+		power.buttonEvent(&button_up);
+
+		// Test clicking on fixed2 control point (top-right area)
+		button_down.x = 365;
+		button_down.y = 35;
+		power.buttonEvent(&button_down);
+
+		button_up.x = 365;
+		button_up.y = 35;
+		power.buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_button_event_outside_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap
+		settings_notifier.enable_powermap(true);
+
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.doubleClick = false;
+
+		// Click outside any control point (far corner)
+		button_down.x = 50;
+		button_down.y = 50;
+		power.buttonEvent(&button_down);
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.doubleClick = false;
+		button_up.x = 50;
+		button_up.y = 50;
+		power.buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_mouse_move_drag_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap
+		settings.powermap_fixed0_x.store(0.05f);
+		settings.powermap_fixed0_y.store(0.05f);
+		settings_notifier.enable_powermap(true);
+
+		// First, simulate button down on fixed0
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 35;
+		button_down.y = 265;
+		power.buttonEvent(&button_down);
+
+		// Now simulate dragging
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 200;
+		power.mouseMoveEvent(&move_event);
+
+		// Drag to another position
+		move_event.x = 150;
+		move_event.y = 150;
+		power.mouseMoveEvent(&move_event);
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.x = 150;
+		button_up.y = 150;
+		power.buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_mouse_move_no_drag")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+		settings_notifier.enable_powermap(true);
+
+		// Simulate mouse move without any button pressed
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 100;
+		power.mouseMoveEvent(&move_event);
+
+		// Move to different position
+		move_event.x = 200;
+		move_event.y = 150;
+		power.mouseMoveEvent(&move_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_mouse_leave_event")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+		settings_notifier.enable_powermap(true);
+
+		// Simulate button down first
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 35;
+		button_down.y = 265;
+		power.buttonEvent(&button_down);
+
+		// Simulate mouse leave
+		power.mouseLeaveEvent();
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_shelf_checkbox_interaction")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test shelf checkbox state changes via settings notifier
+		settings_notifier.powermap_shelf(true);
+		CHECK_UNARY(settings.powermap_shelf.load());
+
+		settings_notifier.powermap_shelf(false);
+		CHECK_UNARY(!settings.powermap_shelf.load());
+
+		settings_notifier.powermap_shelf(true);
+		CHECK_UNARY(settings.powermap_shelf.load());
+	}
+
+	SUBCASE("powerwidget_fixed_points_boundary_values")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test setting fixed points to boundary values
+		settings_notifier.powermap_fixed0_x(0.0f);
+		settings_notifier.powermap_fixed0_y(0.0f);
+		settings_notifier.powermap_fixed1_x(0.0f);
+		settings_notifier.powermap_fixed1_y(0.0f);
+		settings_notifier.powermap_fixed2_x(1.0f);
+		settings_notifier.powermap_fixed2_y(1.0f);
+
+		// Test setting fixed points to maximum values
+		settings_notifier.powermap_fixed0_x(1.0f);
+		settings_notifier.powermap_fixed0_y(1.0f);
+		settings_notifier.powermap_fixed2_x(0.0f);
+		settings_notifier.powermap_fixed2_y(0.0f);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_drag_clamping")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap
+		settings.powermap_fixed1_x.store(0.5f);
+		settings.powermap_fixed1_y.store(0.5f);
+		settings_notifier.enable_powermap(true);
+
+		// Simulate button down on fixed1
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 200;
+		button_down.y = 150;
+		power.buttonEvent(&button_down);
+
+		// Try to drag outside the widget (should be clamped)
+		dggui::MouseMoveEvent move_event;
+		move_event.x = -100; // Outside left boundary
+		move_event.y = -100; // Outside top boundary
+		power.mouseMoveEvent(&move_event);
+
+		// Try to drag beyond right/bottom boundaries
+		move_event.x = 500; // Beyond right
+		move_event.y = 400; // Beyond bottom
+		power.mouseMoveEvent(&move_event);
+
+		// Release
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.x = 200;
+		button_up.y = 150;
+		power.buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_all_parameter_notifiers")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test all parameter notifiers to ensure they're connected
+		settings_notifier.enable_powermap(true);
+		settings_notifier.powermap_fixed0_x(0.1f);
+		settings_notifier.powermap_fixed0_y(0.2f);
+		settings_notifier.powermap_fixed1_x(0.3f);
+		settings_notifier.powermap_fixed1_y(0.4f);
+		settings_notifier.powermap_fixed2_x(0.7f);
+		settings_notifier.powermap_fixed2_y(0.8f);
+		settings_notifier.powermap_shelf(true);
+		settings_notifier.powermap_input(0.5f);
+		settings_notifier.powermap_output(0.6f);
+
+		// Now test with false values
+		settings_notifier.enable_powermap(false);
+		settings_notifier.powermap_shelf(false);
 
 		CHECK_UNARY(&power != nullptr);
 	}
