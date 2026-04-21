@@ -105,8 +105,8 @@ public:
 		{
 			for(std::uint8_t y = 0; y < _height; ++y)
 			{
-				image_data[x + _width * y] = dggui::Colour(
-				    std::uint8_t(x), std::uint8_t(y), std::uint8_t(0),
+				image_data[x + _width * y] = dggui::Colour(std::uint8_t(x),
+				    std::uint8_t(y), std::uint8_t(0),
 				    alpha ? std::uint8_t(128) : std::uint8_t(255));
 				image_data_raw[4 * (x + _width * y) + 0] = x;
 				image_data_raw[4 * (x + _width * y) + 1] = y;
@@ -132,7 +132,8 @@ public:
 	}
 
 	// Helper to fill raw data for testing alpha with line path
-	void fillRawData(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
+	void fillRawData(
+	    std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 	{
 		for(std::size_t i = 0; i < image_data_raw.size(); i += 4)
 		{
@@ -348,19 +349,22 @@ TEST_CASE("PainterTest")
 		{ // Draw a point inside bounds
 			painter.drawPoint(5, 5);
 			auto& pixbuf = canvas.getPixelBuffer();
-			CHECK_EQ(TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(5, 5)));
+			CHECK_EQ(
+			    TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(5, 5)));
 		}
 
 		{ // Draw at edge (0,0)
 			painter.drawPoint(0, 0);
 			auto& pixbuf = canvas.getPixelBuffer();
-			CHECK_EQ(TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(0, 0)));
+			CHECK_EQ(
+			    TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(0, 0)));
 		}
 
 		{ // Draw at opposite edge
 			painter.drawPoint(9, 9);
 			auto& pixbuf = canvas.getPixelBuffer();
-			CHECK_EQ(TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(9, 9)));
+			CHECK_EQ(
+			    TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(9, 9)));
 		}
 
 		{ // Draw outside bounds (should be clipped)
@@ -544,7 +548,8 @@ TEST_CASE("PainterTest")
 			auto& pixbuf = canvas.getPixelBuffer();
 
 			// Center should be filled
-			CHECK_EQ(TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(50, 50)));
+			CHECK_EQ(
+			    TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(50, 50)));
 
 			// Points on the edge should also be filled
 			CHECK_UNARY(pixbuf.pixel(50, 30).alpha() > 0);
@@ -555,7 +560,8 @@ TEST_CASE("PainterTest")
 			painter.clear();
 			painter.drawFilledCircle(50, 50, 5);
 			auto& pixbuf = canvas.getPixelBuffer();
-			CHECK_EQ(TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(50, 50)));
+			CHECK_EQ(
+			    TestColour(0, 255, 0, 255), TestColour(pixbuf.pixel(50, 50)));
 		}
 
 		{ // Filled circle at edge
@@ -616,8 +622,8 @@ TEST_CASE("PainterTest")
 		TestImage image(16, 16, false);
 
 		// Draw with restriction to only black pixels
-		dggui::Colour restriction(std::uint8_t(0), std::uint8_t(0), std::uint8_t(0),
-		    std::uint8_t(255));
+		dggui::Colour restriction(std::uint8_t(0), std::uint8_t(0),
+		    std::uint8_t(0), std::uint8_t(255));
 		painter.drawRestrictedImage(0, 0, restriction, image);
 
 		// Pixel at (0,0) in TestImage has colour (0, 0, 0, 255) which is black,
@@ -641,7 +647,8 @@ TEST_CASE("PainterTest")
 		{ // Test with offset
 			painter.clear();
 			painter.drawRestrictedImage(10, 10, restriction, image2);
-			CHECK_EQ(TestColour(0, 0, 0, 255), TestColour(pixbuf.pixel(10, 10)));
+			CHECK_EQ(
+			    TestColour(0, 0, 0, 255), TestColour(pixbuf.pixel(10, 10)));
 		}
 
 		{ // Test clipping with negative offset
@@ -744,12 +751,7 @@ TEST_CASE("PainterTest")
 		dggui::Painter painter(canvas);
 		dggui::Colour red(1.0f, 0.0f, 0.0f, 1.0f);
 
-		std::vector<Point> points = {
-		    {10, 10},
-		    {20, 20},
-		    {30, 30},
-		    {40, 40}
-		};
+		std::vector<Point> points = {{10, 10}, {20, 20}, {30, 30}, {40, 40}};
 
 		painter.draw(points.begin(), points.end(), 0, 0, red);
 
@@ -763,9 +765,9 @@ TEST_CASE("PainterTest")
 	SUBCASE("testDrawTextWithRotate")
 	{
 		dggui::Font font;
-		std::string text = "AB";
 
 		{ // Draw rotated text
+			std::string text = "AB";
 			std::size_t width = font.textWidth(text);
 			std::size_t height = font.textHeight(text);
 
