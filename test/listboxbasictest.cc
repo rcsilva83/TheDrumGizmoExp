@@ -25,8 +25,8 @@
  */
 #include <doctest/doctest.h>
 
-#include <dggui/listboxbasic.h>
 #include <dggui/guievent.h>
+#include <dggui/listboxbasic.h>
 #include <dggui/window.h>
 
 namespace dggui
@@ -36,8 +36,7 @@ namespace dggui
 class ListBoxBasicTestHelper : public ListBoxBasic
 {
 public:
-	ListBoxBasicTestHelper(Widget* parent)
-	    : ListBoxBasic(parent)
+	ListBoxBasicTestHelper(Widget* parent) : ListBoxBasic(parent)
 	{
 	}
 
@@ -720,7 +719,8 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::down;
-		event.direction = dggui::Direction::up; // Up direction should be ignored
+		event.direction =
+		    dggui::Direction::up; // Up direction should be ignored
 		listbox.testKeyEvent(&event);
 
 		// Value should not change on up direction
@@ -835,7 +835,8 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		// Add many items to enable scrolling
 		for(int i = 0; i < 50; ++i)
 		{
-			listbox.addItem("Item" + std::to_string(i), "Value" + std::to_string(i));
+			listbox.addItem(
+			    "Item" + std::to_string(i), "Value" + std::to_string(i));
 		}
 
 		dggui::ScrollEvent event;
