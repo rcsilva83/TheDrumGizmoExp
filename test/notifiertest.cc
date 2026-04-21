@@ -357,7 +357,7 @@ TEST_CASE("NotifierTest")
 		std::vector<Probe*> triggers;
 		Probe listener(triggers);
 		base.disconnect(&listener); // should not crash
-		CHECK_UNARY(true); // Test reaches here = no crash
+		CHECK_UNARY(true);          // Test reaches here = no crash
 	}
 
 	SUBCASE("listener_unregister_notifier_directly")
