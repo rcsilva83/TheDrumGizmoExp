@@ -840,3 +840,4 @@ TEST_CASE("PainterTest")
 		}
 	}
 }
+}

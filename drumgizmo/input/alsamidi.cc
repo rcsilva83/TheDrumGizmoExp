@@ -131,7 +131,7 @@ void AlsaMidiInputEngine::pre()
 {
 }
 
-void AlsaMidiInputEngine::run(size_t pos, size_t len,
+void AlsaMidiInputEngine::run(size_t /*pos*/, size_t /*len*/,
                               std::vector<event_t>& events)
 {
 	assert(events.empty());
