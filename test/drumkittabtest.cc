@@ -237,25 +237,28 @@ TEST_CASE_FIXTURE(DrumkitTabTestFixture, "DrumkitTab_init")
 		GUI::DrumkitTab drumkit_tab(&window, settings, settings_notifier);
 
 		// Connect to the imageChangeNotifier to verify it's called
+		bool image_change_notified = false;
 		bool image_valid = false;
 		struct ImageListener : public Listener
 		{
+			bool* notified;
 			bool* valid;
 			void onImageChange(bool is_valid)
 			{
+				*notified = true;
 				*valid = is_valid;
 			}
 		};
 		ImageListener listener;
+		listener.notified = &image_change_notified;
 		listener.valid = &image_valid;
 		drumkit_tab.imageChangeNotifier.connect(
 		    &listener, &ImageListener::onImageChange);
 
 		drumkit_tab.init("test_drumkit_image.png", "test_drumkit_map.png");
 
-		// The imageChangeNotifier should have been called with validity status
-		// The test PNG may or may not be valid, but notifier should fire
-		CHECK_UNARY(image_valid || !image_valid); // Notifier was called
+		// The imageChangeNotifier should have been called.
+		CHECK_UNARY(image_change_notified);
 	}
 
 	SUBCASE("init_with_invalid_image_file")
