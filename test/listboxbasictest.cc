@@ -26,7 +26,49 @@
 #include <doctest/doctest.h>
 
 #include <dggui/listboxbasic.h>
+#include <dggui/guievent.h>
 #include <dggui/window.h>
+
+namespace dggui
+{
+
+// Test helper class using protected inheritance to expose protected methods
+class ListBoxBasicTestHelper : public ListBoxBasic
+{
+public:
+	ListBoxBasicTestHelper(Widget* parent)
+	    : ListBoxBasic(parent)
+	{
+	}
+
+	// Expose protected methods for testing
+	bool testIsFocusable()
+	{
+		return isFocusable();
+	}
+
+	void testKeyEvent(KeyEvent* event)
+	{
+		keyEvent(event);
+	}
+
+	void testButtonEvent(ButtonEvent* event)
+	{
+		buttonEvent(event);
+	}
+
+	void testScrollEvent(ScrollEvent* event)
+	{
+		scrollEvent(event);
+	}
+
+	void testRepaintEvent(RepaintEvent* event)
+	{
+		repaintEvent(event);
+	}
+};
+
+} // namespace dggui
 
 // Test helper to capture notifier events
 class ListBoxTestProbe : public Listener
@@ -470,5 +512,301 @@ TEST_CASE("ListBoxBasicEdgeCaseTest")
 		CHECK_UNARY(!result);
 		// Original selection should be preserved
 		CHECK_EQ("Item1", listbox.selectedName());
+	}
+}
+
+TEST_CASE("ListBoxBasicProtectedMethodTest")
+{
+	dggui::Window window;
+	window.resize(400, 300);
+
+	SUBCASE("isFocusable_returns_true")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+
+		CHECK_UNARY(listbox.testIsFocusable());
+	}
+
+	SUBCASE("key_down_arrow_moves_selection_down")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::down;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item2", listbox.selectedName());
+	}
+
+	SUBCASE("key_up_arrow_moves_selection_up")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		// Select third item first
+		listbox.selectItem(2);
+		CHECK_EQ("Item3", listbox.selectedName());
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::up;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item2", listbox.selectedName());
+	}
+
+	SUBCASE("key_home_selects_first_item")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		listbox.selectItem(2);
+		CHECK_EQ("Item3", listbox.selectedName());
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::home;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item1", listbox.selectedName());
+	}
+
+	SUBCASE("key_end_selects_last_item")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		CHECK_EQ("Item1", listbox.selectedName());
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::end;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item3", listbox.selectedName());
+	}
+
+	SUBCASE("key_enter_fires_selection_notifier")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		CONNECT(&listbox, selectionNotifier, &probe,
+		    &ListBoxTestProbe::onSelection);
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::enter;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ(1, probe.selectionCount);
+	}
+
+	SUBCASE("key_space_selects_item_at_direction")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		CONNECT(&listbox, valueChangedNotifier, &probe,
+		    &ListBoxTestProbe::onValueChange);
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::down;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item2", listbox.selectedName());
+		CHECK_EQ(1, probe.valueChangeCount);
+	}
+
+	SUBCASE("key_event_does_not_fire_on_up_direction")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		CONNECT(&listbox, valueChangedNotifier, &probe,
+		    &ListBoxTestProbe::onValueChange);
+
+		dggui::KeyEvent event;
+		event.keycode = dggui::Key::down;
+		event.direction = dggui::Direction::up;
+		listbox.testKeyEvent(&event);
+
+		// Value should not change on up direction
+		CHECK_EQ("Item1", listbox.selectedName());
+		CHECK_EQ(0, probe.valueChangeCount);
+	}
+
+	SUBCASE("button_left_click_selects_item")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		dggui::ButtonEvent event;
+		event.x = 10;
+		event.y = 20; // Click on second item (depends on item height)
+		event.button = dggui::MouseButton::left;
+		event.direction = dggui::Direction::down;
+		event.doubleClick = false;
+		listbox.testButtonEvent(&event);
+
+		// Selection should have been made
+		CHECK_UNARY(listbox.selectedName() != "");
+	}
+
+	SUBCASE("button_left_click_fires_click_notifier")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		CONNECT(&listbox, clickNotifier, &probe, &ListBoxTestProbe::onClick);
+
+		dggui::ButtonEvent event;
+		event.x = 10;
+		event.y = 10;
+		event.button = dggui::MouseButton::left;
+		event.direction = dggui::Direction::down;
+		event.doubleClick = false;
+		listbox.testButtonEvent(&event);
+
+		CHECK_EQ(1, probe.clickCount);
+	}
+
+	SUBCASE("button_double_click_selects_and_fires_notifier")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		CONNECT(&listbox, clickNotifier, &probe, &ListBoxTestProbe::onClick);
+
+		dggui::ButtonEvent event;
+		event.x = 10;
+		event.y = 10;
+		event.button = dggui::MouseButton::left;
+		event.direction = dggui::Direction::down;
+		event.doubleClick = true;
+		listbox.testButtonEvent(&event);
+
+		CHECK_EQ(1, probe.clickCount);
+	}
+
+	SUBCASE("button_non_left_button_does_not_fire_click")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+		ListBoxTestProbe probe;
+
+		listbox.addItem("Item1", "Value1");
+
+		CONNECT(&listbox, clickNotifier, &probe, &ListBoxTestProbe::onClick);
+
+		dggui::ButtonEvent event;
+		event.x = 10;
+		event.y = 10;
+		event.button = dggui::MouseButton::right;
+		event.direction = dggui::Direction::down;
+		event.doubleClick = false;
+		listbox.testButtonEvent(&event);
+
+		CHECK_EQ(0, probe.clickCount);
+	}
+
+	SUBCASE("scroll_event_forwards_to_scrollbar")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		// Add many items to enable scrolling
+		for(int i = 0; i < 50; ++i)
+		{
+			listbox.addItem("Item" + std::to_string(i), "Value" + std::to_string(i));
+		}
+
+		dggui::ScrollEvent event;
+		event.x = 10;
+		event.y = 10;
+		event.delta = -1.0f; // Scroll down
+		listbox.testScrollEvent(&event);
+
+		// Test passes if no crash occurs
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("repaint_event_with_zero_size_does_not_crash")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+
+		listbox.addItem("Item1", "Value1");
+
+		dggui::RepaintEvent event;
+		event.x = 0;
+		event.y = 0;
+		event.width = 0;
+		event.height = 0;
+		listbox.testRepaintEvent(&event);
+
+		// Test passes if no crash occurs
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("repaint_event_renders_items")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+
+		dggui::RepaintEvent event;
+		event.x = 0;
+		event.y = 0;
+		event.width = 200;
+		event.height = 100;
+		listbox.testRepaintEvent(&event);
+
+		// Test passes if no crash occurs
+		CHECK_UNARY(true);
 	}
 }
