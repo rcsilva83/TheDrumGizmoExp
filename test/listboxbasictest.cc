@@ -749,8 +749,8 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		event.direction = dggui::Direction::up;
 		listbox.testButtonEvent(&event);
 
-		// Selection should have been made
-		CHECK_UNARY(listbox.selectedName() != "");
+		// Verify the clicked item (Item2) was selected, not Item1
+		CHECK_EQ("Item2", listbox.selectedName());
 	}
 
 	SUBCASE("button_left_click_fires_click_notifier_on_button_up")
