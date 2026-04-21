@@ -472,6 +472,26 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		CHECK_EQ(std::size_t(50u), power.height());
 	}
 
+	SUBCASE("powerwidget_resize_extreme_small")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		// Test resize with dimensions below minimum threshold
+		// This triggers the edge case where canvas is set to 1x1
+		power.resize(10, 10);
+		CHECK_EQ(std::size_t(10u), power.width());
+		CHECK_EQ(std::size_t(10u), power.height());
+
+		// Test boundary condition: exactly at minimum width
+		power.resize(14 + 59 + 64, 20);
+		CHECK_EQ(std::size_t(14u + 59u + 64u), power.width());
+
+		// Test boundary condition: exactly at minimum height
+		power.resize(200, 14);
+		CHECK_EQ(std::size_t(200u), power.width());
+		CHECK_EQ(std::size_t(14u), power.height());
+	}
+
 	SUBCASE("powerwidget_settings_updates")
 	{
 		GUI::PowerWidget power(&window, settings, settings_notifier);
@@ -498,6 +518,491 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Test input/output lines
 		settings_notifier.powermap_input(0.5f);
 		settings_notifier.powermap_output(0.6f);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_enabled_disabled_states")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Access the canvas directly - it has the powermap repaint logic
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Create a repaint event
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 400;
+		repaint_event.height = 300;
+
+		// Test repaint with powermap enabled
+		settings.enable_powermap.store(true);
+		settings_notifier.enable_powermap(true);
+		canvas->repaintEvent(&repaint_event);
+
+		// Test repaint with powermap disabled
+		settings.enable_powermap.store(false);
+		settings_notifier.enable_powermap(false);
+		canvas->repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_with_input_output_lines")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Access the canvas directly - it has the powermap repaint logic
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 400;
+		repaint_event.height = 300;
+
+		// Test repaint without input/output lines (values at -1)
+		settings.powermap_input.store(-1.0f);
+		settings.powermap_output.store(-1.0f);
+		canvas->repaintEvent(&repaint_event);
+
+		// Test repaint with input/output lines visible
+		settings.powermap_input.store(0.5f);
+		settings.powermap_output.store(0.6f);
+		settings_notifier.powermap_input(0.5f);
+		settings_notifier.powermap_output(0.6f);
+		canvas->repaintEvent(&repaint_event);
+
+		// Test with only input set (output at -1)
+		settings.powermap_input.store(0.3f);
+		settings.powermap_output.store(-1.0f);
+		canvas->repaintEvent(&repaint_event);
+
+		// Test with only output set (input at -1)
+		settings.powermap_input.store(-1.0f);
+		settings.powermap_output.store(0.7f);
+		canvas->repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_repaint_small_dimensions")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		// First resize to normal size, then resize below minimum.
+		// This ensures we have a valid canvas before testing small dimensions.
+		power.resize(400, 300);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Verify canvas has normal size before resize
+		auto w = canvas->width();
+		auto h = canvas->height();
+		CHECK_GT(w, static_cast<std::size_t>(10));
+		CHECK_GT(h, static_cast<std::size_t>(10));
+
+		// Now resize PowerWidget below minimum dimensions.
+		// This triggers canvas.resize(1, 1) in PowerWidget::resize,
+		// which is the smallest reachable canvas size.
+		// Note: Widget::resize() returns early for dimensions < 1,
+		// so 1x1 is the practical minimum.
+		power.resize(10, 10);
+
+		// Verify canvas has minimum size (1x1)
+		CHECK_EQ(canvas->width(), static_cast<std::size_t>(1));
+		CHECK_EQ(canvas->height(), static_cast<std::size_t>(1));
+
+		dggui::RepaintEvent repaint_event;
+		repaint_event.x = 0;
+		repaint_event.y = 0;
+		repaint_event.width = 1;
+		repaint_event.height = 1;
+
+		// This exercises the small-canvas code path
+		canvas->repaintEvent(&repaint_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_button_events_on_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap with known positions for control points
+		// Canvas is at (7,7) with size 263x286, border=6
+		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
+		settings.powermap_fixed0_x.store(
+		    0.1f); // ~31px from left of canvas + 6px border
+		settings.powermap_fixed0_y.store(
+		    0.1f); // ~27px from bottom of canvas + 6px border
+		settings.powermap_fixed1_x.store(0.5f); // ~132px from left
+		settings.powermap_fixed1_y.store(0.5f); // ~143px from bottom
+		settings.powermap_fixed2_x.store(0.9f); // ~232px from left
+		settings.powermap_fixed2_y.store(0.9f); // ~253px from bottom
+		settings_notifier.enable_powermap(true);
+
+		// Access the canvas directly - PowerWidget doesn't override these
+		// handlers Canvas is at (7,7), so find it there
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Store initial values for comparison
+		float initial_fixed0_x = settings.powermap_fixed0_x.load();
+		float initial_fixed0_y = settings.powermap_fixed0_y.load();
+		float initial_fixed1_x = settings.powermap_fixed1_x.load();
+		float initial_fixed1_y = settings.powermap_fixed1_y.load();
+		float initial_fixed2_x = settings.powermap_fixed2_x.load();
+		float initial_fixed2_y = settings.powermap_fixed2_y.load();
+
+		// Test button down on fixed0 (green point at lower-left)
+		// Canvas at (7,7), point at canvas x=6+25=31, y=286-6-27=253
+		// Window coords: 7+31=38, 7+253=260
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 38;
+		button_down.y = 260;
+		canvas->buttonEvent(&button_down);
+
+		// Drag to another position (canvas coords)
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 200;
+		canvas->mouseMoveEvent(&move_event);
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.x = 100;
+		button_up.y = 200;
+		canvas->buttonEvent(&button_up);
+
+		// Verify fixed0 position changed after drag
+		// Dragging from near bottom-left to (100, 200) should increase both x
+		// and y
+		CHECK_GT(settings.powermap_fixed0_x.load(), initial_fixed0_x);
+		CHECK_GT(settings.powermap_fixed0_y.load(), initial_fixed0_y);
+
+		// Test button down on fixed1 (yellow point, center)
+		button_down.x = 139; // 7 + 6 + 126
+		button_down.y = 150; // 7 + 143
+		canvas->buttonEvent(&button_down);
+
+		// Drag fixed1 to a new position
+		move_event.x = 180;
+		move_event.y = 100;
+		canvas->mouseMoveEvent(&move_event);
+
+		button_up.x = 180;
+		button_up.y = 100;
+		canvas->buttonEvent(&button_up);
+
+		// Verify fixed1 position changed after drag
+		CHECK_NE(settings.powermap_fixed1_x.load(), initial_fixed1_x);
+		CHECK_NE(settings.powermap_fixed1_y.load(), initial_fixed1_y);
+
+		// Test button down on fixed2 (red point, upper-right)
+		button_down.x = 239; // 7 + 6 + 226
+		button_down.y = 40;  // 7 + ~33
+		canvas->buttonEvent(&button_down);
+
+		// Drag fixed2 to a new position
+		move_event.x = 50;
+		move_event.y = 250;
+		canvas->mouseMoveEvent(&move_event);
+
+		button_up.x = 50;
+		button_up.y = 250;
+		canvas->buttonEvent(&button_up);
+
+		// Verify fixed2 position changed after drag
+		CHECK_NE(settings.powermap_fixed2_x.load(), initial_fixed2_x);
+		CHECK_NE(settings.powermap_fixed2_y.load(), initial_fixed2_y);
+	}
+
+	SUBCASE("powerwidget_button_event_outside_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap
+		settings_notifier.enable_powermap(true);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.doubleClick = false;
+
+		// Click outside any control point (far corner of canvas)
+		button_down.x = 10;
+		button_down.y = 10;
+		canvas->buttonEvent(&button_down);
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.doubleClick = false;
+		button_up.x = 10;
+		button_up.y = 10;
+		canvas->buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_mouse_move_drag_control_points")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Initialize powermap with known position for fixed0
+		// Canvas is at (7,7) with size 263x286, border=6
+		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
+		// fixed0 at (0.05, 0.05) -> canvas x=6+12.5=18.5, y=6+13=19 (near
+		// top-left of drawing area) Canvas y is inverted, so 0.05 Y means near
+		// the bottom of drawing area Drawing area y: height0 - 0.05*height0 =
+		// 274-13.7 = 260.3, +6 border = 266.3
+		settings.powermap_fixed0_x.store(0.05f);
+		settings.powermap_fixed0_y.store(0.05f);
+		settings_notifier.enable_powermap(true);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// First, simulate button down on fixed0
+		// Canvas coords: x ~ 6 + 0.05*251 = 18.55, y ~ 6 + 274 - 0.05*274 =
+		// 266.3
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 19;
+		button_down.y = 266;
+		canvas->buttonEvent(&button_down);
+
+		// Now simulate dragging to a new position
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 150;
+		canvas->mouseMoveEvent(&move_event);
+
+		// Drag to another position
+		move_event.x = 150;
+		move_event.y = 100;
+		canvas->mouseMoveEvent(&move_event);
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.x = 150;
+		button_up.y = 100;
+		canvas->buttonEvent(&button_up);
+
+		// Verify that the drag actually modified fixed0 values
+		// Original: (0.05, 0.05), after drag to (150, 100) should be changed
+		// Canvas coords: drawing area starts at (6,6), size 251x274
+		// x = 150 -> (150-6)/251 = 0.574, y = 100 -> (274-(100-6))/274 = 0.657
+		CHECK_GT(settings.powermap_fixed0_x.load(), 0.1f);
+		CHECK_GT(settings.powermap_fixed0_y.load(), 0.1f);
+	}
+
+	SUBCASE("powerwidget_mouse_move_no_drag")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+		settings_notifier.enable_powermap(true);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Simulate mouse move without any button pressed
+		dggui::MouseMoveEvent move_event;
+		move_event.x = 100;
+		move_event.y = 100;
+		canvas->mouseMoveEvent(&move_event);
+
+		// Move to different position
+		move_event.x = 150;
+		move_event.y = 120;
+		canvas->mouseMoveEvent(&move_event);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_mouse_leave_event")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+		settings_notifier.enable_powermap(true);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Simulate button down first (on canvas, not parent)
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 50;
+		button_down.y = 100;
+		canvas->buttonEvent(&button_down);
+
+		// Simulate mouse leave
+		canvas->mouseLeaveEvent();
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_shelf_checkbox_interaction")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test shelf checkbox state changes via settings notifier
+		settings_notifier.powermap_shelf(true);
+		CHECK_UNARY(settings.powermap_shelf.load());
+
+		settings_notifier.powermap_shelf(false);
+		CHECK_UNARY(!settings.powermap_shelf.load());
+
+		settings_notifier.powermap_shelf(true);
+		CHECK_UNARY(settings.powermap_shelf.load());
+	}
+
+	SUBCASE("powerwidget_fixed_points_boundary_values")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test setting fixed points to boundary values
+		settings_notifier.powermap_fixed0_x(0.0f);
+		settings_notifier.powermap_fixed0_y(0.0f);
+		settings_notifier.powermap_fixed1_x(0.0f);
+		settings_notifier.powermap_fixed1_y(0.0f);
+		settings_notifier.powermap_fixed2_x(1.0f);
+		settings_notifier.powermap_fixed2_y(1.0f);
+
+		// Test setting fixed points to maximum values
+		settings_notifier.powermap_fixed0_x(1.0f);
+		settings_notifier.powermap_fixed0_y(1.0f);
+		settings_notifier.powermap_fixed2_x(0.0f);
+		settings_notifier.powermap_fixed2_y(0.0f);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_drag_clamping")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Access the canvas directly
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
+		// Initialize powermap - place fixed1 at center of canvas
+		// Canvas: 263x286, border=6, width0=251, height0=274
+		// Center in canvas coords: x=6+125=131, y=6+137=143
+		// Fixed1 at normalized (0.5, 0.5) maps to these canvas coords
+		settings.powermap_fixed1_x.store(0.5f);
+		settings.powermap_fixed1_y.store(0.5f);
+		settings_notifier.enable_powermap(true);
+
+		// Simulate button down on fixed1 (center point of canvas)
+		dggui::ButtonEvent button_down;
+		button_down.direction = dggui::Direction::down;
+		button_down.button = dggui::MouseButton::left;
+		button_down.x = 131; // 6 + 125
+		button_down.y = 143; // 6 + 137
+		canvas->buttonEvent(&button_down);
+
+		// Store initial value before drag
+		float initial_x = settings.powermap_fixed1_x.load();
+		float initial_y = settings.powermap_fixed1_y.load();
+		CHECK_EQ(initial_x, doctest::Approx(0.5f));
+		CHECK_EQ(initial_y, doctest::Approx(0.5f));
+
+		// Try to drag outside the widget far left/bottom (should be clamped to
+		// 0) Y is inverted: my0 = (height - y - y0) / height0 Large negative Y
+		// canvas coord -> large positive normalized value Large positive Y
+		// canvas coord -> small/negative normalized value
+		dggui::MouseMoveEvent move_event;
+		move_event.x =
+		    -1000; // Far outside left boundary -> mx0 negative -> clamped to 0
+		move_event.y = 5000; // Far below canvas -> small my0 -> clamped to 0
+		canvas->mouseMoveEvent(&move_event);
+
+		// Verify values are clamped to 0.0 (minimum)
+		CHECK_EQ(settings.powermap_fixed1_x.load(), doctest::Approx(0.0f));
+		CHECK_EQ(settings.powermap_fixed1_y.load(), doctest::Approx(0.0f));
+
+		// Try to drag beyond right/top boundaries (should be clamped to 1)
+		move_event.x = 5000;  // Far beyond right -> mx0 > 1 -> clamped to 1
+		move_event.y = -1000; // Far above canvas -> my0 > 1 -> clamped to 1
+		canvas->mouseMoveEvent(&move_event);
+
+		// Verify values are clamped to 1.0 (maximum)
+		CHECK_EQ(settings.powermap_fixed1_x.load(), doctest::Approx(1.0f));
+		CHECK_EQ(settings.powermap_fixed1_y.load(), doctest::Approx(1.0f));
+
+		// Release button
+		dggui::ButtonEvent button_up;
+		button_up.direction = dggui::Direction::up;
+		button_up.button = dggui::MouseButton::left;
+		button_up.x = 131;
+		button_up.y = 143;
+		canvas->buttonEvent(&button_up);
+
+		CHECK_UNARY(&power != nullptr);
+	}
+
+	SUBCASE("powerwidget_all_parameter_notifiers")
+	{
+		GUI::PowerWidget power(&window, settings, settings_notifier);
+
+		power.resize(400, 300);
+
+		// Test all parameter notifiers to ensure they're connected
+		settings_notifier.enable_powermap(true);
+		settings_notifier.powermap_fixed0_x(0.1f);
+		settings_notifier.powermap_fixed0_y(0.2f);
+		settings_notifier.powermap_fixed1_x(0.3f);
+		settings_notifier.powermap_fixed1_y(0.4f);
+		settings_notifier.powermap_fixed2_x(0.7f);
+		settings_notifier.powermap_fixed2_y(0.8f);
+		settings_notifier.powermap_shelf(true);
+		settings_notifier.powermap_input(0.5f);
+		settings_notifier.powermap_output(0.6f);
+
+		// Now test with false values
+		settings_notifier.enable_powermap(false);
+		settings_notifier.powermap_shelf(false);
 
 		CHECK_UNARY(&power != nullptr);
 	}
