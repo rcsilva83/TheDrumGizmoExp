@@ -404,12 +404,20 @@ TEST_CASE("ListBoxBasicKeyEventTest")
 		listbox.addItem("Item2", "Value2");
 		listbox.addItem("Item3", "Value3");
 
-		listbox.selectItem(2);
-
+		// Move marked away from index 0 using Down key navigation
 		KeyEvent event;
 		event.direction = Direction::down;
-		event.keycode = Key::home;
+		event.keycode = Key::down;
+		listbox.testKeyEvent(&event); // marked moves to 1
+		listbox.testKeyEvent(&event); // marked moves to 2
 
+		// Select Item3 to establish a non-zero selection state
+		event.keycode = Key::enter;
+		listbox.testKeyEvent(&event);
+		CHECK_EQ(listbox.selectedName(), "Item3");
+
+		// Now test Home key brings marked back to first item
+		event.keycode = Key::home;
 		listbox.testKeyEvent(&event);
 
 		event.keycode = Key::enter;
@@ -496,6 +504,14 @@ TEST_CASE("ListBoxBasicKeyEventTest")
 		KeyEvent event;
 		event.direction = Direction::up; // Key up direction, not down
 		event.keycode = Key::down;
+		listbox.testKeyEvent(&event);
+
+		// Press Enter to commit any potential selection change
+		// If the direction guard is broken, marked would have moved to Item2
+		// and Enter would select it. If the guard works, selection stays at
+		// Item1.
+		event.direction = Direction::down;
+		event.keycode = Key::enter;
 		listbox.testKeyEvent(&event);
 
 		CHECK_EQ(listbox.selectedName(), "Item1");
