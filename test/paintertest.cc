@@ -148,7 +148,7 @@ public:
 // Returns true if the pixel buffer contains at least one non-transparent pixel.
 static bool hasAnyDrawnPixels(TestableCanvas& canvas)
 {
-	auto& pixbuf = canvas.getPixelBuffer();
+	const auto& pixbuf = canvas.getPixelBuffer();
 	for(std::size_t x = 0; x < pixbuf.width; ++x)
 	{
 		for(std::size_t y = 0; y < pixbuf.height; ++y)
