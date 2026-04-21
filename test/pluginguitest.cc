@@ -597,23 +597,38 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 	{
 		GUI::PowerWidget power(&window, settings, settings_notifier);
 
+		// First resize to normal size, then resize below minimum.
+		// This ensures we have a valid canvas before testing small dimensions.
 		power.resize(400, 300);
 
-		// Access the canvas directly - it has the small canvas guard
+		// Access the canvas directly
 		auto* canvas = power.find(10, 10);
 		REQUIRE_UNARY(canvas != nullptr);
 
-		// Test repaint with zero-sized canvas to trigger early return
-		// The guard in Canvas::repaintEvent checks: width() < 1 || height() < 1
-		canvas->resize(0, 0);
+		// Verify canvas has normal size before resize
+		auto w = canvas->width();
+		auto h = canvas->height();
+		CHECK_GT(w, static_cast<std::size_t>(10));
+		CHECK_GT(h, static_cast<std::size_t>(10));
+
+		// Now resize PowerWidget below minimum dimensions.
+		// This triggers canvas.resize(1, 1) in PowerWidget::resize,
+		// which is the smallest reachable canvas size.
+		// Note: Widget::resize() returns early for dimensions < 1,
+		// so 1x1 is the practical minimum.
+		power.resize(10, 10);
+
+		// Verify canvas has minimum size (1x1)
+		CHECK_EQ(canvas->width(), static_cast<std::size_t>(1));
+		CHECK_EQ(canvas->height(), static_cast<std::size_t>(1));
 
 		dggui::RepaintEvent repaint_event;
 		repaint_event.x = 0;
 		repaint_event.y = 0;
-		repaint_event.width = 0;
-		repaint_event.height = 0;
+		repaint_event.width = 1;
+		repaint_event.height = 1;
 
-		// This should early return due to width/height < 1 check
+		// This exercises the small-canvas code path
 		canvas->repaintEvent(&repaint_event);
 
 		CHECK_UNARY(&power != nullptr);
