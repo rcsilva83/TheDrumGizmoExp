@@ -350,8 +350,8 @@ TEST_CASE("EventHandlerResizeEventTest")
 		// Event should be in the mock queue before processing
 		CHECK_EQ(mockNative.mockEvents.size(), 1u);
 
-		// Just verify event was queued - actual processing triggers native calls
-		// which are tested at the integration level
+		// Just verify event was queued - actual processing triggers native
+		// calls which are tested at the integration level
 		CHECK_UNARY(true);
 	}
 }
