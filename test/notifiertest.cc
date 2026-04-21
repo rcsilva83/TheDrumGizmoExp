@@ -26,6 +26,7 @@
  */
 #include <doctest/doctest.h>
 
+#include <string>
 #include <vector>
 
 #include <notifier.h>
@@ -69,6 +70,36 @@ public:
 	std::vector<int> ints;
 	std::vector<float> floats;
 };
+
+class StringProbe : public Listener
+{
+public:
+	void slot(const std::string& str)
+	{
+		received.push_back(str);
+	}
+
+	std::vector<std::string> received;
+};
+
+class ThreeArgProbe : public Listener
+{
+public:
+	void slot(int a, double b, const std::string& c)
+	{
+		ints.push_back(a);
+		doubles.push_back(b);
+		strings.push_back(c);
+	}
+
+	std::vector<int> ints;
+	std::vector<double> doubles;
+	std::vector<std::string> strings;
+};
+
+// Note: Non-Listener objects cannot be connected to Notifiers because
+// the internal storage requires the object pointer to be a Listener*.
+// This is by design - all receivers must inherit from Listener.
 
 TEST_CASE("NotifierTest")
 {
@@ -210,6 +241,7 @@ TEST_CASE("NotifierTest")
 		notifier();
 		// Only foo1 must still receive the notification.
 		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&foo1, triggers[0]);
 	}
 
@@ -227,6 +259,7 @@ TEST_CASE("NotifierTest")
 
 		notifier();
 		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
 		CHECK_EQ(&connected, triggers[0]);
 	}
 
@@ -247,5 +280,185 @@ TEST_CASE("NotifierTest")
 		// The listener is still alive and must not crash or reference a
 		// dangling notifier when it is later destroyed.
 		CHECK_EQ(1u, triggers.size());
+	}
+
+	SUBCASE("connect_macro")
+	{
+		// The CONNECT macro is designed for notifiers that are class members.
+		// It expands (SRC)->SIG.connect(TAR, SLO) to connect a member notifier.
+		class WidgetWithNotifier
+		{
+		public:
+			Notifier<> signal;
+		};
+
+		WidgetWithNotifier widget;
+		std::vector<Probe*> triggers;
+		Probe probe(triggers);
+
+		CONNECT(&widget, signal, &probe, &Probe::slot);
+		widget.signal();
+
+		REQUIRE_EQ(1u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(&probe, triggers[0]);
+	}
+
+	SUBCASE("empty_notifier_no_crash")
+	{
+		// Calling an empty Notifier (with no slots) must not crash.
+		Notifier<> notifier;
+		// Should not crash even with no connections
+		notifier();
+		CHECK_UNARY(true); // Test reaches here = no crash
+	}
+
+	SUBCASE("notifier_with_string_argument")
+	{
+		// Notifier<std::string> forwards string arguments correctly.
+		Notifier<std::string> notifier;
+		StringProbe probe;
+		notifier.connect(&probe, &StringProbe::slot);
+
+		notifier("hello");
+		notifier("world");
+
+		REQUIRE_EQ(2u, probe.received.size());
+		CHECK_EQ("hello", probe.received[0]);
+		CHECK_EQ("world", probe.received[1]);
+	}
+
+	SUBCASE("notifier_with_three_arguments")
+	{
+		// Notifier with three different argument types.
+		Notifier<int, double, std::string> notifier;
+		ThreeArgProbe probe;
+		notifier.connect(&probe, &ThreeArgProbe::slot);
+
+		notifier(1, 2.5, "first");
+		notifier(3, 4.0, "second");
+
+		REQUIRE_EQ(2u, probe.ints.size());
+		CHECK_EQ(1, probe.ints[0]);
+		CHECK_EQ(3, probe.ints[1]);
+		REQUIRE_EQ(2u, probe.doubles.size());
+		CHECK_EQ(2.5, probe.doubles[0]);
+		CHECK_EQ(4.0, probe.doubles[1]);
+		REQUIRE_EQ(2u, probe.strings.size());
+		CHECK_EQ("first", probe.strings[0]);
+		CHECK_EQ("second", probe.strings[1]);
+	}
+
+	SUBCASE("notifierbase_default_disconnect")
+	{
+		// The base NotifierBase::disconnect should be callable (it is a
+		// no-op for the base class).
+		NotifierBase base;
+		std::vector<Probe*> triggers;
+		Probe listener(triggers);
+		base.disconnect(&listener); // should not crash
+		CHECK_UNARY(true);          // Test reaches here = no crash
+	}
+
+	SUBCASE("listener_unregister_notifier_directly")
+	{
+		// Test that Listener::unregisterNotifier() properly removes the
+		// notifier from the listener's internal tracking without breaking
+		// subsequent disconnect or causing crashes.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe probe(triggers);
+
+		notifier.connect(&probe, &Probe::slot);
+		notifier();
+		CHECK_EQ(1u, triggers.size());
+		triggers.clear();
+
+		// Manually unregister - this simulates what Notifier dtor does.
+		// This should remove the notifier from listener's tracking without
+		// affecting the actual slot connection.
+		probe.unregisterNotifier(&notifier);
+
+		// The slot should still be connected and receive notifications
+		notifier();
+		CHECK_EQ(1u, triggers.size());
+		triggers.clear();
+
+		// Explicit disconnect is still required to remove the slot
+		notifier.disconnect(&probe);
+		notifier();
+		CHECK_EQ(0u, triggers.size());
+	}
+
+	SUBCASE("multiple_notifiers_same_listener")
+	{
+		// A single Listener can be connected to multiple Notifiers.
+		Notifier<> notifier1;
+		Notifier<> notifier2;
+		std::vector<Probe*> triggers;
+		Probe probe(triggers);
+
+		notifier1.connect(&probe, &Probe::slot);
+		notifier2.connect(&probe, &Probe::slot);
+
+		notifier1();
+		CHECK_EQ(1u, triggers.size());
+
+		notifier2();
+		CHECK_EQ(2u, triggers.size());
+
+		// Disconnect from only one notifier
+		notifier1.disconnect(&probe);
+		notifier1();
+		CHECK_EQ(2u, triggers.size()); // no change
+
+		notifier2();
+		CHECK_EQ(3u, triggers.size());
+	}
+
+	SUBCASE("disconnect_first_of_multiple")
+	{
+		// Disconnect the first slot when multiple slots exist.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe foo1(triggers);
+		Probe foo2(triggers);
+		Probe foo3(triggers);
+
+		notifier.connect(&foo1, &Probe::slot);
+		notifier.connect(&foo2, &Probe::slot);
+		notifier.connect(&foo3, &Probe::slot);
+
+		notifier.disconnect(&foo1); // disconnect first
+
+		notifier();
+		REQUIRE_EQ(2u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(&foo2, triggers[0]);
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(&foo3, triggers[1]);
+	}
+
+	SUBCASE("disconnect_middle_of_multiple")
+	{
+		// Disconnect a middle slot when multiple slots exist.
+		Notifier<> notifier;
+		std::vector<Probe*> triggers;
+		Probe foo1(triggers);
+		Probe foo2(triggers);
+		Probe foo3(triggers);
+
+		notifier.connect(&foo1, &Probe::slot);
+		notifier.connect(&foo2, &Probe::slot);
+		notifier.connect(&foo3, &Probe::slot);
+
+		notifier.disconnect(&foo2); // disconnect middle
+
+		notifier();
+		REQUIRE_EQ(2u, triggers.size());
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(&foo1, triggers[0]);
+		// cppcheck-suppress containerOutOfBounds
+		CHECK_EQ(&foo3, triggers[1]);
 	}
 }
