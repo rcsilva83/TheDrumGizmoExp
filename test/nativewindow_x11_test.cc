@@ -25,9 +25,6 @@
  */
 #include <doctest/doctest.h>
 
-#include <cstdlib>
-#include <cstring>
-
 #include <X11/Xlib.h>
 
 #include "dggui/nativewindow_x11.h"
@@ -63,11 +60,17 @@ private:
 	bool hasDisplay{false};
 };
 
-// Helper to check if we're running in CI/headless environment
-static bool isHeadlessEnvironment()
+// Helper to check if X11 display is actually available
+// Uses XOpenDisplay to verify the display is usable, not just that DISPLAY env var is set
+static bool isX11Available()
 {
-	const char* display = std::getenv("DISPLAY");
-	return display == nullptr || std::strlen(display) == 0;
+	Display* display = XOpenDisplay(nullptr);
+	if(display)
+	{
+		XCloseDisplay(display);
+		return true;
+	}
+	return false;
 }
 
 TEST_CASE("NativeWindowX11 Basic Construction")
@@ -77,9 +80,9 @@ TEST_CASE("NativeWindowX11 Basic Construction")
 
 	SUBCASE("window_creation_without_native_parent")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
-			// Skip test in headless environment
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -94,8 +97,9 @@ TEST_CASE("NativeWindowX11 Basic Construction")
 
 	SUBCASE("window_with_fixed_size")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -107,8 +111,9 @@ TEST_CASE("NativeWindowX11 Basic Construction")
 
 	SUBCASE("window_caption_setting")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -124,8 +129,9 @@ TEST_CASE("NativeWindowX11 Size and Position Operations")
 {
 	SUBCASE("resize_operation")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -140,8 +146,9 @@ TEST_CASE("NativeWindowX11 Size and Position Operations")
 
 	SUBCASE("move_operation")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -154,8 +161,9 @@ TEST_CASE("NativeWindowX11 Size and Position Operations")
 
 	SUBCASE("get_native_size")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -172,8 +180,9 @@ TEST_CASE("NativeWindowX11 Visibility Operations")
 {
 	SUBCASE("show_and_hide")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -191,8 +200,9 @@ TEST_CASE("NativeWindowX11 Visibility Operations")
 
 	SUBCASE("always_on_top")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -210,8 +220,9 @@ TEST_CASE("NativeWindowX11 Coordinate Translation")
 {
 	SUBCASE("translate_to_screen")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -233,8 +244,9 @@ TEST_CASE("NativeWindowX11 Native Handle Access")
 {
 	SUBCASE("get_native_window_handle")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -251,8 +263,9 @@ TEST_CASE("NativeWindowX11 Pixel Buffer Integration")
 {
 	SUBCASE("pixel_buffer_initialized_with_window")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -267,8 +280,9 @@ TEST_CASE("NativeWindowX11 Pixel Buffer Integration")
 
 	SUBCASE("resize_updates_pixel_buffer")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -284,8 +298,9 @@ TEST_CASE("NativeWindowX11 Display Connection Handling")
 {
 	SUBCASE("multiple_windows_same_display")
 	{
-		if(isHeadlessEnvironment())
+		if(!isX11Available())
 		{
+			// Skip test when X11 display is not available
 			return;
 		}
 
@@ -453,8 +468,9 @@ TEST_CASE("NativeWindowX11 Event Handler Integration")
 // Integration test that exercises the full X11 window lifecycle
 TEST_CASE("NativeWindowX11 Full Lifecycle")
 {
-	if(isHeadlessEnvironment())
+	if(!isX11Available())
 	{
+		// Skip test when X11 display is not available
 		return;
 	}
 
