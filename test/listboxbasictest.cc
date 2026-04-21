@@ -527,8 +527,10 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		CHECK_UNARY(listbox.testIsFocusable());
 	}
 
-	SUBCASE("key_down_arrow_moves_selection_down")
+	SUBCASE("key_down_arrow_moves_marked_down")
 	{
+		// Key down only changes 'marked' (highlight), not 'selected'
+		// Selection changes only on space or enter keys
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
 
@@ -536,36 +538,58 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		listbox.addItem("Item2", "Value2");
 		listbox.addItem("Item3", "Value3");
 
+		// First press down to move marked to Item2
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::down;
 		event.direction = dggui::Direction::down;
 		listbox.testKeyEvent(&event);
 
-		CHECK_EQ("Item2", listbox.selectedName());
-	}
+		// Selection hasn't changed yet (only marked has)
+		CHECK_EQ("Item1", listbox.selectedName());
 
-	SUBCASE("key_up_arrow_moves_selection_up")
-	{
-		dggui::ListBoxBasicTestHelper listbox(&window);
-		listbox.resize(200, 100);
-
-		listbox.addItem("Item1", "Value1");
-		listbox.addItem("Item2", "Value2");
-		listbox.addItem("Item3", "Value3");
-
-		// Select third item first
-		listbox.selectItem(2);
-		CHECK_EQ("Item3", listbox.selectedName());
-
-		dggui::KeyEvent event;
-		event.keycode = dggui::Key::up;
-		event.direction = dggui::Direction::down;
+		// Now press space to select the marked item
+		event.keycode = dggui::Key::character;
+		event.text = " ";
 		listbox.testKeyEvent(&event);
 
+		// Now selection should have changed to Item2
 		CHECK_EQ("Item2", listbox.selectedName());
 	}
 
-	SUBCASE("key_home_selects_first_item")
+	SUBCASE("key_up_arrow_moves_marked_up")
+	{
+		dggui::ListBoxBasicTestHelper listbox(&window);
+		listbox.resize(200, 100);
+
+		listbox.addItem("Item1", "Value1");
+		listbox.addItem("Item2", "Value2");
+		listbox.addItem("Item3", "Value3");
+
+		dggui::KeyEvent event;
+
+		// First move marked to Item3 by pressing down twice
+		event.keycode = dggui::Key::down;
+		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event); // marked = 1
+		listbox.testKeyEvent(&event); // marked = 2
+
+		// Press up to move marked back to Item2
+		event.keycode = dggui::Key::up;
+		listbox.testKeyEvent(&event);
+
+		// Selection hasn't changed yet
+		CHECK_EQ("Item1", listbox.selectedName());
+
+		// Press space to select marked item
+		event.keycode = dggui::Key::character;
+		event.text = " ";
+		listbox.testKeyEvent(&event);
+
+		// Now selection should be Item2
+		CHECK_EQ("Item2", listbox.selectedName());
+	}
+
+	SUBCASE("key_home_moves_marked_to_first_item")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -577,15 +601,25 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		listbox.selectItem(2);
 		CHECK_EQ("Item3", listbox.selectedName());
 
+		// Press home to move marked to first item
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::home;
 		event.direction = dggui::Direction::down;
 		listbox.testKeyEvent(&event);
 
+		// Selection hasn't changed yet
+		CHECK_EQ("Item3", listbox.selectedName());
+
+		// Press space to select marked item
+		event.keycode = dggui::Key::character;
+		event.text = " ";
+		listbox.testKeyEvent(&event);
+
+		// Now selection should be Item1
 		CHECK_EQ("Item1", listbox.selectedName());
 	}
 
-	SUBCASE("key_end_selects_last_item")
+	SUBCASE("key_end_moves_marked_to_last_item")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -596,15 +630,25 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 
 		CHECK_EQ("Item1", listbox.selectedName());
 
+		// Press end to move marked to last item
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::end;
 		event.direction = dggui::Direction::down;
 		listbox.testKeyEvent(&event);
 
+		// Selection hasn't changed yet
+		CHECK_EQ("Item1", listbox.selectedName());
+
+		// Press space to select marked item
+		event.keycode = dggui::Key::character;
+		event.text = " ";
+		listbox.testKeyEvent(&event);
+
+		// Now selection should be Item3
 		CHECK_EQ("Item3", listbox.selectedName());
 	}
 
-	SUBCASE("key_enter_fires_selection_notifier")
+	SUBCASE("key_enter_fires_selection_notifier_and_selects_marked")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -616,15 +660,23 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		CONNECT(&listbox, selectionNotifier, &probe,
 		    &ListBoxTestProbe::onSelection);
 
+		// Move marked to Item2
 		dggui::KeyEvent event;
-		event.keycode = dggui::Key::enter;
+		event.keycode = dggui::Key::down;
 		event.direction = dggui::Direction::down;
 		listbox.testKeyEvent(&event);
 
+		CHECK_EQ("Item1", listbox.selectedName());
+
+		// Press enter to select marked item and fire notifier
+		event.keycode = dggui::Key::enter;
+		listbox.testKeyEvent(&event);
+
 		CHECK_EQ(1, probe.selectionCount);
+		CHECK_EQ("Item2", listbox.selectedName());
 	}
 
-	SUBCASE("key_space_selects_item_at_direction")
+	SUBCASE("key_space_selects_marked_item")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -637,9 +689,17 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		CONNECT(&listbox, valueChangedNotifier, &probe,
 		    &ListBoxTestProbe::onValueChange);
 
+		// Move marked to Item2
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::down;
 		event.direction = dggui::Direction::down;
+		listbox.testKeyEvent(&event);
+
+		CHECK_EQ("Item1", listbox.selectedName());
+
+		// Press space to select marked item
+		event.keycode = dggui::Key::character;
+		event.text = " ";
 		listbox.testKeyEvent(&event);
 
 		CHECK_EQ("Item2", listbox.selectedName());
@@ -660,7 +720,7 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 
 		dggui::KeyEvent event;
 		event.keycode = dggui::Key::down;
-		event.direction = dggui::Direction::up;
+		event.direction = dggui::Direction::up; // Up direction should be ignored
 		listbox.testKeyEvent(&event);
 
 		// Value should not change on up direction
@@ -668,7 +728,7 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		CHECK_EQ(0, probe.valueChangeCount);
 	}
 
-	SUBCASE("button_left_click_selects_item")
+	SUBCASE("button_left_click_selects_item_on_button_up")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -676,19 +736,24 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		listbox.addItem("Item1", "Value1");
 		listbox.addItem("Item2", "Value2");
 
+		// First send button down to set marked item
 		dggui::ButtonEvent event;
 		event.x = 10;
-		event.y = 20; // Click on second item (depends on item height)
+		event.y = 30; // Click on second item area
 		event.button = dggui::MouseButton::left;
 		event.direction = dggui::Direction::down;
 		event.doubleClick = false;
+		listbox.testButtonEvent(&event);
+
+		// Selection happens on button up
+		event.direction = dggui::Direction::up;
 		listbox.testButtonEvent(&event);
 
 		// Selection should have been made
 		CHECK_UNARY(listbox.selectedName() != "");
 	}
 
-	SUBCASE("button_left_click_fires_click_notifier")
+	SUBCASE("button_left_click_fires_click_notifier_on_button_up")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -699,6 +764,7 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 
 		CONNECT(&listbox, clickNotifier, &probe, &ListBoxTestProbe::onClick);
 
+		// First send button down
 		dggui::ButtonEvent event;
 		event.x = 10;
 		event.y = 10;
@@ -707,10 +773,17 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		event.doubleClick = false;
 		listbox.testButtonEvent(&event);
 
+		// clickNotifier fires on button up, not down
+		CHECK_EQ(0, probe.clickCount);
+
+		// Now send button up
+		event.direction = dggui::Direction::up;
+		listbox.testButtonEvent(&event);
+
 		CHECK_EQ(1, probe.clickCount);
 	}
 
-	SUBCASE("button_double_click_selects_and_fires_notifier")
+	SUBCASE("button_double_click_fires_selection_notifier")
 	{
 		dggui::ListBoxBasicTestHelper listbox(&window);
 		listbox.resize(200, 100);
@@ -719,7 +792,8 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		listbox.addItem("Item1", "Value1");
 		listbox.addItem("Item2", "Value2");
 
-		CONNECT(&listbox, clickNotifier, &probe, &ListBoxTestProbe::onClick);
+		CONNECT(&listbox, selectionNotifier, &probe,
+		    &ListBoxTestProbe::onSelection);
 
 		dggui::ButtonEvent event;
 		event.x = 10;
@@ -729,7 +803,7 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		event.doubleClick = true;
 		listbox.testButtonEvent(&event);
 
-		CHECK_EQ(1, probe.clickCount);
+		CHECK_EQ(1, probe.selectionCount);
 	}
 
 	SUBCASE("button_non_left_button_does_not_fire_click")
@@ -746,7 +820,7 @@ TEST_CASE("ListBoxBasicProtectedMethodTest")
 		event.x = 10;
 		event.y = 10;
 		event.button = dggui::MouseButton::right;
-		event.direction = dggui::Direction::down;
+		event.direction = dggui::Direction::up; // clickNotifier fires on up
 		event.doubleClick = false;
 		listbox.testButtonEvent(&event);
 
