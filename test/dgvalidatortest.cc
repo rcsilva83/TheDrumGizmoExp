@@ -33,6 +33,7 @@
 #include "scopedfile.h"
 
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -40,6 +41,7 @@
 
 #ifndef _WIN32
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 struct CommandResult
@@ -150,10 +152,17 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 
   SUBCASE("missingKitfileOnDiskReturnsError")
   {
-    auto result = runDgvalidator({"/tmp/dgvalidator-does-not-exist.xml"});
+    // Generate a unique non-existent path using process ID and timestamp
+    auto time_val = static_cast<long>(time(nullptr));
+    auto pid_val = static_cast<long>(getpid());
+    std::string nonexistent_path = "/tmp/dgvalidator-test-nonexistent-" +
+        std::to_string(pid_val) + "-" + std::to_string(time_val) + ".xml";
+    // Ensure file does not exist (in case of collision, though extremely unlikely)
+    (void)unlink(nonexistent_path.c_str());
+    auto result = runDgvalidator({nonexistent_path});
     CHECK_EQ(1, result.exit_code);
-    CHECK_NE(std::string::npos,
-        result.output.find("XML parse error in '/tmp/dgvalidator-does-not-exist.xml'"));
+    std::string expected_error = "XML parse error in '" + nonexistent_path + "'";
+    CHECK_NE(std::string::npos, result.output.find(expected_error));
   }
 
   SUBCASE("validKitWithNoAudioReturnsSuccess")
