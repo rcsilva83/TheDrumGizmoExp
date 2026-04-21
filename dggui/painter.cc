@@ -83,7 +83,8 @@ static inline double rfpart(double x)
 
 void Painter::drawLine(int x0, int y0, int x1, int y1)
 {
-	// Handle single point (zero-length line) - use addPixel for consistency with line blending
+	// Handle single point (zero-length line) - use addPixel for consistency
+	// with line blending
 	if(x0 == x1 && y0 == y1)
 	{
 		pixbuf.addPixel(x0, y0, colour);
