@@ -3,7 +3,7 @@
  *            jackaudio.cc
  *
  *  Fr 22. Jan 09:43:30 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -68,7 +68,7 @@ bool JackAudioOutputEngine::init(const Channels& data)
 	return true;
 }
 
-void JackAudioOutputEngine::setParm(const std::string& parm, const std::string& value)
+void JackAudioOutputEngine::setParm(const std::string&, const std::string&)
 {
 }
 
@@ -100,7 +100,7 @@ void JackAudioOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 	}
 }
 
-void JackAudioOutputEngine::post(size_t nsamples)
+void JackAudioOutputEngine::post(size_t)
 {
 	sema.wait();
 }
