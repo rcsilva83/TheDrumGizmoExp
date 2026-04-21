@@ -163,8 +163,14 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 		browser.setPath(base_path);
 
 		// Browser should have updated its internal state
-		// We can verify by checking that it doesn't crash and has no filename
+		// Verify by checking that subsequent file selection works
 		CHECK_UNARY(!browser.hasFilename());
+
+		// Trigger file selection - this verifies setPath properly initialized
+		// the browser's internal directory state
+		browser.fileSelectNotifier(base_path + "/test.xml");
+		CHECK_UNARY(browser.hasFilename());
+		CHECK_EQ(browser.getFilename(), base_path + "/test.xml");
 	}
 
 	SUBCASE("setPath_with_empty_string_uses_cwd")
@@ -173,8 +179,21 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 
 		browser.setPath("");
 
-		// Should fall back to cwd's directory (no crash = success)
+		// Should fall back to cwd's directory - verify by checking browser
+		// is functional (no crash and can handle file selection)
 		CHECK_UNARY(!browser.hasFilename());
+
+		// Create a test file in cwd to verify fallback works
+		std::string test_file = Directory::cwd() + "/test_cwd_fallback.tmp";
+		createEmptyFile(test_file);
+
+		// Verify the browser can select files from cwd
+		browser.fileSelectNotifier(test_file);
+		CHECK_UNARY(browser.hasFilename());
+		CHECK_EQ(browser.getFilename(), test_file);
+
+		// Cleanup
+		unlink(test_file.c_str());
 	}
 
 	SUBCASE("setPath_with_file_path_uses_directory")
@@ -184,8 +203,13 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 
 		browser.setPath(file_path);
 
-		// Should use the directory containing the file (no crash = success)
+		// Should use the directory containing the file
+		// Verify by selecting a different file from the same directory
 		CHECK_UNARY(!browser.hasFilename());
+
+		browser.fileSelectNotifier(base_path + "/drumkit.xml");
+		CHECK_UNARY(browser.hasFilename());
+		CHECK_EQ(browser.getFilename(), base_path + "/drumkit.xml");
 	}
 
 	SUBCASE("setPath_with_nonexistent_path_uses_cwd")
@@ -194,8 +218,20 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 
 		browser.setPath("/nonexistent/path/that/does/not/exist");
 
-		// Should fall back to cwd (no crash = success)
+		// Should fall back to cwd - verify browser is still functional
 		CHECK_UNARY(!browser.hasFilename());
+
+		// Verify the browser can still select files from cwd
+		std::string test_file =
+		    Directory::cwd() + "/test_nonexistent_fallback.tmp";
+		createEmptyFile(test_file);
+
+		browser.fileSelectNotifier(test_file);
+		CHECK_UNARY(browser.hasFilename());
+		CHECK_EQ(browser.getFilename(), test_file);
+
+		// Cleanup
+		unlink(test_file.c_str());
 	}
 }
 
@@ -240,9 +276,11 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserNotifierTest")
 		browser.defaultPathChangedNotifier.connect(
 		    &listener, &FileBrowserNotifierListener::onDefaultPathChanged);
 
-		// Trigger set default path via the notifier connection
-		// The setDefaultPath method is called when the button is clicked
-		// We can trigger it through the notifier itself
+		// NOTE: FileBrowser::setDefaultPath() is a private method that is
+		// called when the "Set as default" button is clicked. Since the button
+		// is private, we cannot directly trigger setDefaultPath() through the
+		// public API. This test validates the notifier dispatch mechanism
+		// itself by triggering the notifier directly.
 		browser.defaultPathChangedNotifier(base_path);
 
 		CHECK_EQ(listener.defaultPathChangedCount, 1);
