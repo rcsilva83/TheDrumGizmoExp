@@ -61,7 +61,8 @@ private:
 };
 
 // Helper to check if X11 display is actually available
-// Uses XOpenDisplay to verify the display is usable, not just that DISPLAY env var is set
+// Uses XOpenDisplay to verify the display is usable, not just that DISPLAY env
+// var is set
 static bool isX11Available()
 {
 	Display* display = XOpenDisplay(nullptr);
