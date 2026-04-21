@@ -531,6 +531,21 @@ if(TARGET dg_dggui)
 		DEPENDENCIES
 			dg_plugingui_resource_data
 	)
+
+	dg_add_doctest_test(listboxbasic
+		SOURCES
+			"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+			"${CMAKE_SOURCE_DIR}/test/listboxbasictest.cc"
+			"${DG_PLUGINGUI_RESOURCE_DATA}"
+		INCLUDE_DIRS
+			"${CMAKE_SOURCE_DIR}"
+			"${DG_HUGIN_SOURCE_DIR}"
+		LINK_LIBRARIES
+			dg_dggui
+			Threads::Threads
+		DEPENDENCIES
+			dg_plugingui_resource_data
+	)
 endif()
 
 if(TARGET dg_plugingui)
