@@ -528,6 +528,10 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 
 		power.resize(400, 300);
 
+		// Access the canvas directly - it has the powermap repaint logic
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		// Create a repaint event
 		dggui::RepaintEvent repaint_event;
 		repaint_event.x = 0;
@@ -538,12 +542,12 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Test repaint with powermap enabled
 		settings.enable_powermap.store(true);
 		settings_notifier.enable_powermap(true);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		// Test repaint with powermap disabled
 		settings.enable_powermap.store(false);
 		settings_notifier.enable_powermap(false);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -554,6 +558,10 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 
 		power.resize(400, 300);
 
+		// Access the canvas directly - it has the powermap repaint logic
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		dggui::RepaintEvent repaint_event;
 		repaint_event.x = 0;
 		repaint_event.y = 0;
@@ -563,24 +571,24 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Test repaint without input/output lines (values at -1)
 		settings.powermap_input.store(-1.0f);
 		settings.powermap_output.store(-1.0f);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		// Test repaint with input/output lines visible
 		settings.powermap_input.store(0.5f);
 		settings.powermap_output.store(0.6f);
 		settings_notifier.powermap_input(0.5f);
 		settings_notifier.powermap_output(0.6f);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		// Test with only input set (output at -1)
 		settings.powermap_input.store(0.3f);
 		settings.powermap_output.store(-1.0f);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		// Test with only output set (input at -1)
 		settings.powermap_input.store(-1.0f);
 		settings.powermap_output.store(0.7f);
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -589,9 +597,15 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 	{
 		GUI::PowerWidget power(&window, settings, settings_notifier);
 
+		power.resize(400, 300);
+
+		// Access the canvas directly - it has the small canvas guard
+		auto* canvas = power.find(10, 10);
+		REQUIRE_UNARY(canvas != nullptr);
+
 		// Test repaint with zero-sized canvas to trigger early return
-		// The guard in repaintEvent checks: width() < 1 || height() < 1
-		power.resize(0, 0);
+		// The guard in Canvas::repaintEvent checks: width() < 1 || height() < 1
+		canvas->resize(0, 0);
 
 		dggui::RepaintEvent repaint_event;
 		repaint_event.x = 0;
@@ -600,7 +614,7 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		repaint_event.height = 0;
 
 		// This should early return due to width/height < 1 check
-		power.repaintEvent(&repaint_event);
+		canvas->repaintEvent(&repaint_event);
 
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -751,7 +765,12 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		button_up.y = 100;
 		canvas->buttonEvent(&button_up);
 
-		CHECK_UNARY(&power != nullptr);
+		// Verify that the drag actually modified fixed0 values
+		// Original: (0.05, 0.05), after drag to (150, 100) should be changed
+		// Canvas coords: drawing area starts at (6,6), size 251x274
+		// x = 150 -> (150-6)/251 = 0.574, y = 100 -> (274-(100-6))/274 = 0.657
+		CHECK_GT(settings.powermap_fixed0_x.load(), 0.1f);
+		CHECK_GT(settings.powermap_fixed0_y.load(), 0.1f);
 	}
 
 	SUBCASE("powerwidget_mouse_move_no_drag")
