@@ -40,6 +40,7 @@ class JackProcess
 public:
 	virtual ~JackProcess() = default;
 	virtual void process(jack_nframes_t num_frames) = 0;
+	//! Default empty implementation - subclasses override if latency reporting is needed
 	virtual void jackLatencyCallback(jack_latency_callback_mode_t /*mode*/) {}
 };
 
