@@ -658,6 +658,14 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		auto* canvas = power.find(10, 10);
 		REQUIRE_UNARY(canvas != nullptr);
 
+		// Store initial values for comparison
+		float initial_fixed0_x = settings.powermap_fixed0_x.load();
+		float initial_fixed0_y = settings.powermap_fixed0_y.load();
+		float initial_fixed1_x = settings.powermap_fixed1_x.load();
+		float initial_fixed1_y = settings.powermap_fixed1_y.load();
+		float initial_fixed2_x = settings.powermap_fixed2_x.load();
+		float initial_fixed2_y = settings.powermap_fixed2_y.load();
+
 		// Test button down on fixed0 (green point at lower-left)
 		// Canvas at (7,7), point at canvas x=6+25=31, y=286-6-27=253
 		// Window coords: 7+31=38, 7+253=260
@@ -682,17 +690,47 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		button_up.y = 200;
 		canvas->buttonEvent(&button_up);
 
+		// Verify fixed0 position changed after drag
+		// Dragging from near bottom-left to (100, 200) should increase both x
+		// and y
+		CHECK_GT(settings.powermap_fixed0_x.load(), initial_fixed0_x);
+		CHECK_GT(settings.powermap_fixed0_y.load(), initial_fixed0_y);
+
 		// Test button down on fixed1 (yellow point, center)
 		button_down.x = 139; // 7 + 6 + 126
 		button_down.y = 150; // 7 + 143
 		canvas->buttonEvent(&button_down);
-		CHECK_UNARY(&power != nullptr);
+
+		// Drag fixed1 to a new position
+		move_event.x = 180;
+		move_event.y = 100;
+		canvas->mouseMoveEvent(&move_event);
+
+		button_up.x = 180;
+		button_up.y = 100;
+		canvas->buttonEvent(&button_up);
+
+		// Verify fixed1 position changed after drag
+		CHECK_NE(settings.powermap_fixed1_x.load(), initial_fixed1_x);
+		CHECK_NE(settings.powermap_fixed1_y.load(), initial_fixed1_y);
 
 		// Test button down on fixed2 (red point, upper-right)
 		button_down.x = 239; // 7 + 6 + 226
 		button_down.y = 40;  // 7 + ~33
 		canvas->buttonEvent(&button_down);
-		CHECK_UNARY(&power != nullptr);
+
+		// Drag fixed2 to a new position
+		move_event.x = 50;
+		move_event.y = 250;
+		canvas->mouseMoveEvent(&move_event);
+
+		button_up.x = 50;
+		button_up.y = 250;
+		canvas->buttonEvent(&button_up);
+
+		// Verify fixed2 position changed after drag
+		CHECK_NE(settings.powermap_fixed2_x.load(), initial_fixed2_x);
+		CHECK_NE(settings.powermap_fixed2_y.load(), initial_fixed2_y);
 	}
 
 	SUBCASE("powerwidget_button_event_outside_control_points")
