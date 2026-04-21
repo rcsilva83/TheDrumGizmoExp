@@ -42,6 +42,7 @@ public:
 	virtual void process(jack_nframes_t num_frames) = 0;
 	virtual void jackLatencyCallback(jack_latency_callback_mode_t /*mode*/)
 	{
+		// Default empty implementation - subclasses override if needed
 	}
 };
 

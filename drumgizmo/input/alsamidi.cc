@@ -124,7 +124,8 @@ void AlsaMidiInputEngine::pre()
 {
 }
 
-void AlsaMidiInputEngine::run(size_t, size_t, std::vector<event_t>& events)
+void AlsaMidiInputEngine::run(
+    size_t /*position*/, size_t /*length*/, std::vector<event_t>& events)
 {
 	assert(events.empty());
 	snd_seq_event_t* ev = NULL;

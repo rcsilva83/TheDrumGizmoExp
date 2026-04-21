@@ -46,7 +46,8 @@ public:
 	bool start() override;
 	void stop() override;
 	void pre() override;
-	void run(size_t pos, size_t len, std::vector<event_t>& events) override;
+	void run(
+	    size_t position, size_t length, std::vector<event_t>& events) override;
 	void post() override;
 	bool isFreewheeling() const override;
 

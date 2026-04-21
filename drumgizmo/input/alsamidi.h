@@ -23,15 +23,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
-#include <memory>
 #include <alsa/asoundlib.h>
+#include <memory>
 
 #include "audioinputenginemidi.h"
-#include "midimapper.h"
 #include "midimapparser.h"
+#include "midimapper.h"
 
-class AlsaMidiInputEngine
-	: public AudioInputEngineMidi
+class AlsaMidiInputEngine : public AudioInputEngineMidi
 {
 public:
 	AlsaMidiInputEngine();
@@ -43,7 +42,8 @@ public:
 	bool start() override;
 	void stop() override;
 	void pre() override;
-	void run(size_t pos, size_t len, std::vector<event_t>& events) override;
+	void run(
+	    size_t position, size_t length, std::vector<event_t>& events) override;
 	void post() override;
 	bool isFreewheeling() const override;
 

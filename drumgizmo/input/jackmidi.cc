@@ -88,7 +88,8 @@ void JackMidiInputEngine::pre()
 {
 }
 
-void JackMidiInputEngine::run(size_t, size_t, std::vector<event_t>& events)
+void JackMidiInputEngine::run(
+    size_t /*position*/, size_t /*length*/, std::vector<event_t>& events)
 {
 	assert(events.empty());
 	std::swap(events, this->events);
