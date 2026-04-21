@@ -46,135 +46,139 @@
 
 struct CommandResult
 {
-  int exit_code;
-  std::string output;
+	int exit_code;
+	std::string output;
 };
 
 static std::string shellEscape(const std::string& arg)
 {
 #ifndef _WIN32
-  std::string escaped = "'";
-  for(const auto ch : arg)
-  {
-    if(ch == '\'')
-    {
-      escaped += "'\\''";
-    }
-    else
-    {
-      escaped += ch;
-    }
-  }
-  escaped += "'";
-  return escaped;
+	std::string escaped = "'";
+	for(const auto ch : arg)
+	{
+		if(ch == '\'')
+		{
+			escaped += "'\\''";
+		}
+		else
+		{
+			escaped += ch;
+		}
+	}
+	escaped += "'";
+	return escaped;
 #else
-  std::string escaped = "\"";
-  for(const auto ch : arg)
-  {
-    if(ch == '"')
-    {
-      escaped += "\\\"";
-    }
-    else
-    {
-      escaped += ch;
-    }
-  }
-  escaped += "\"";
-  return escaped;
+	std::string escaped = "\"";
+	for(const auto ch : arg)
+	{
+		if(ch == '"')
+		{
+			escaped += "\\\"";
+		}
+		else
+		{
+			escaped += ch;
+		}
+	}
+	escaped += "\"";
+	return escaped;
 #endif
 }
 
 static CommandResult runDgvalidator(const std::vector<std::string>& args)
 {
-  std::string command = shellEscape(DGVALIDATOR_BIN);
-  for(const auto& arg : args)
-  {
-    command += " ";
-    command += shellEscape(arg);
-  }
+	std::string command = shellEscape(DGVALIDATOR_BIN);
+	for(const auto& arg : args)
+	{
+		command += " ";
+		command += shellEscape(arg);
+	}
 
-  ScopedFile output_file("");
-  command += " >";
-  command += shellEscape(output_file.filename());
-  command += " 2>&1";
+	ScopedFile output_file("");
+	command += " >";
+	command += shellEscape(output_file.filename());
+	command += " 2>&1";
 
-  auto status = std::system(command.c_str());
-  int exit_code = status;
+	auto status = std::system(command.c_str());
+	int exit_code = status;
 #ifndef _WIN32
-  if(WIFEXITED(status))
-  {
-    exit_code = WEXITSTATUS(status);
-  }
+	if(WIFEXITED(status))
+	{
+		exit_code = WEXITSTATUS(status);
+	}
 #endif
 
-  std::ifstream stream(output_file.filename());
-  std::string output((std::istreambuf_iterator<char>(stream)),
-      std::istreambuf_iterator<char>());
+	std::ifstream stream(output_file.filename());
+	std::string output((std::istreambuf_iterator<char>(stream)),
+	    std::istreambuf_iterator<char>());
 
-  return {exit_code, output};
+	return {exit_code, output};
 }
 
 struct DgvalidatorFixture
 {
-  DgvalidatorFixture()
-  {
-    kitfile = drumkit_creator.createStdKit("validator_kit");
-  }
+	DgvalidatorFixture()
+	{
+		kitfile = drumkit_creator.createStdKit("validator_kit");
+	}
 
-  DrumkitCreator drumkit_creator;
-  std::string kitfile;
+	DrumkitCreator drumkit_creator;
+	std::string kitfile;
 };
 
 TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 {
-  SUBCASE("helpPrintsUsage")
-  {
-    auto result = runDgvalidator({"--help"});
-    CHECK_EQ(0, result.exit_code);
-    CHECK_NE(std::string::npos, result.output.find("Usage:"));
-    CHECK_NE(std::string::npos, result.output.find("Options:"));
-  }
+	SUBCASE("helpPrintsUsage")
+	{
+		auto result = runDgvalidator({"--help"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Usage:"));
+		CHECK_NE(std::string::npos, result.output.find("Options:"));
+	}
 
-  SUBCASE("versionPrintsVersion")
-  {
-    auto result = runDgvalidator({"--version"});
-    CHECK_EQ(0, result.exit_code);
-    CHECK_NE(std::string::npos, result.output.find("DGValidator v"));
-  }
+	SUBCASE("versionPrintsVersion")
+	{
+		auto result = runDgvalidator({"--version"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("DGValidator v"));
+	}
 
-  SUBCASE("missingKitfileReturnsError")
-  {
-    auto result = runDgvalidator({});
-    CHECK_EQ(1, result.exit_code);
-    CHECK_NE(std::string::npos, result.output.find("Missing kitfile."));
-  }
+	SUBCASE("missingKitfileReturnsError")
+	{
+		auto result = runDgvalidator({});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Missing kitfile."));
+	}
 
-  SUBCASE("missingKitfileOnDiskReturnsError")
-  {
-    // Generate a unique non-existent path using process ID and timestamp
-    auto time_val = static_cast<long>(time(nullptr));
-    auto pid_val = static_cast<long>(getpid());
-    std::string nonexistent_path = "/tmp/dgvalidator-test-nonexistent-" +
-        std::to_string(pid_val) + "-" + std::to_string(time_val) + ".xml";
-    // Ensure file does not exist (in case of collision, though extremely unlikely)
-    (void)unlink(nonexistent_path.c_str());
-    auto result = runDgvalidator({nonexistent_path});
-    CHECK_EQ(1, result.exit_code);
-    std::string expected_error = "XML parse error in '" + nonexistent_path + "'";
-    CHECK_NE(std::string::npos, result.output.find(expected_error));
-  }
+	SUBCASE("missingKitfileOnDiskReturnsError")
+	{
+		// Generate a unique non-existent path using process ID and timestamp
+		auto time_val = static_cast<long>(time(nullptr));
+		auto pid_val = static_cast<long>(getpid());
+		std::string nonexistent_path = "/tmp/dgvalidator-test-nonexistent-" +
+		                               std::to_string(pid_val) + "-" +
+		                               std::to_string(time_val) + ".xml";
+		// Ensure file does not exist (in case of collision, though extremely
+		// unlikely)
+		(void)unlink(nonexistent_path.c_str());
+		auto result = runDgvalidator({nonexistent_path});
+		CHECK_EQ(1, result.exit_code);
+		std::string expected_error =
+		    "XML parse error in '" + nonexistent_path + "'";
+		CHECK_NE(std::string::npos, result.output.find(expected_error));
+	}
 
-  SUBCASE("validKitWithNoAudioReturnsSuccess")
-  {
-    auto result = runDgvalidator({"--no-audio", kitfile});
-    CHECK_EQ(0, result.exit_code);
-  }
+	SUBCASE("validKitWithNoAudioReturnsSuccess")
+	{
+		auto result = runDgvalidator({"--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+	}
 
-  SUBCASE("pedanticTreatsMissingMetadataAsError")
-  {
-    auto result = runDgvalidator({"--no-audio", "--pedantic", kitfile});
-    CHECK_EQ(1, result.exit_code);
-    CHECK_NE(std::string::npos, result.output.find("Missing version field."));
-  }
+	SUBCASE("pedanticTreatsMissingMetadataAsError")
+	{
+		auto result = runDgvalidator({"--no-audio", "--pedantic", kitfile});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("Missing version field."));
+	}
 }
