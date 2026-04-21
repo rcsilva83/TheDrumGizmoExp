@@ -170,7 +170,6 @@ TEST_CASE_FIXTURE(FileBrowserTempDirFixture, "FileBrowserSetPathTest")
 	SUBCASE("setPath_with_empty_string_uses_cwd")
 	{
 		FileBrowser browser(&window);
-		std::string cwd = Directory::cwd();
 
 		browser.setPath("");
 
