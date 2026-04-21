@@ -3,7 +3,7 @@
  *            jackaudio.cc
  *
  *  Fr 22. Jan 09:43:30 CET 2016
- *  Copyright 2016 Christian Glï¿½ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -25,13 +25,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include <cassert>
-#include <cstring>
 #include <iostream>
+#include <cstring>
 
 #include "jackaudio.h"
 
 JackAudioOutputEngine::JackAudioOutputEngine(JackClient& client)
-    : AudioOutputEngine{}, client(client), channels{}, latency{0}
+	: AudioOutputEngine{}
+	, client(client)
+	, channels{}
+	, latency{0}
 {
 	client.add(*this);
 }
@@ -65,8 +68,7 @@ bool JackAudioOutputEngine::init(const Channels& data)
 	return true;
 }
 
-void JackAudioOutputEngine::setParm(
-    const std::string& /*parm*/, const std::string& /*value*/)
+void JackAudioOutputEngine::setParm(const std::string& parm, const std::string& value)
 {
 }
 
@@ -98,7 +100,7 @@ void JackAudioOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 	}
 }
 
-void JackAudioOutputEngine::post(size_t /*nsamples*/)
+void JackAudioOutputEngine::post(size_t nsamples)
 {
 	sema.wait();
 }
@@ -109,8 +111,7 @@ void JackAudioOutputEngine::process(jack_nframes_t num_frames)
 
 	for(auto& channel : channels)
 	{
-		auto ptr = static_cast<jack_default_audio_sample_t*>(
-		    jack_port_get_buffer(channel.port.port, num_frames));
+		auto ptr = static_cast<jack_default_audio_sample_t*>(jack_port_get_buffer(channel.port.port, num_frames));
 		for(auto i = 0u; i < num_frames; ++i)
 		{
 			ptr[i] = channel.samples[i];
@@ -139,38 +140,40 @@ void JackAudioOutputEngine::onLatencyChange(std::size_t latency)
 	this->latency = latency;
 }
 
-JackAudioOutputEngine::Channel::Channel(
-    JackClient& client, const std::string& name, std::size_t buffer_size)
-    : port{client, name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput}, samples{}
+JackAudioOutputEngine::Channel::Channel(JackClient& client,
+                                        const std::string& name,
+                                        std::size_t buffer_size)
+	: port{client, name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput}
+	, samples{}
 {
 	samples.resize(buffer_size);
 }
 
-void JackAudioOutputEngine::jackLatencyCallback(
-    jack_latency_callback_mode_t mode)
+void JackAudioOutputEngine::jackLatencyCallback(jack_latency_callback_mode_t mode)
 {
 	jack_latency_range_t range;
 	switch(mode)
 	{
 	case JackCaptureLatency:
 		// We do not have any audio input ports. Use this for when we do...
-		//		jack_port_get_latency_range(port_feeding_input_port,
-		//		                            JackPlaybackLatency,
-		//		                            &range);
-		//		range.min += 0;
-		//		range.max += 0;
-		//		jack_port_set_latency_range(input_port, JackPlaybackLatency,
-		//&range);
+//		jack_port_get_latency_range(port_feeding_input_port,
+//		                            JackPlaybackLatency,
+//		                            &range);
+//		range.min += 0;
+//		range.max += 0;
+//		jack_port_set_latency_range(input_port, JackPlaybackLatency, &range);
 		break;
 	case JackPlaybackLatency:
 		for(auto& channel : channels)
 		{
-			jack_port_get_latency_range(
-			    channel.port.port, JackPlaybackLatency, &range);
+			jack_port_get_latency_range(channel.port.port,
+			                            JackPlaybackLatency,
+			                            &range);
 			range.min += latency;
 			range.max += latency;
-			jack_port_set_latency_range(
-			    channel.port.port, JackPlaybackLatency, &range);
+			jack_port_set_latency_range(channel.port.port,
+			                            JackPlaybackLatency,
+			                            &range);
 		}
 		break;
 	}

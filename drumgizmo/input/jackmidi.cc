@@ -3,7 +3,7 @@
  *            jackmidi.cc
  *
  *  Mo 25. Jan 11:26:06 CET 2016
- *  Copyright 2016 Christian Glï¿½ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -24,19 +24,19 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-#include <cassert>
 #include <iostream>
+#include <cassert>
 
 #include "cpp11fix.h" // required for c++11
 #include "jackmidi.h"
 
 JackMidiInputEngine::JackMidiInputEngine(JackClient& client)
-    : AudioInputEngineMidi{}
-    , JackProcess{}
-    , client(client)
-    , port{nullptr}
-    , pos{0u}
-    , events{}
+	: AudioInputEngineMidi{}
+	, JackProcess{}
+	, client(client)
+	, port{nullptr}
+	, pos{0u}
+	, events{}
 {
 	client.add(*this);
 }
@@ -54,13 +54,13 @@ bool JackMidiInputEngine::init(const Instruments& instruments)
 		          << midimap_file << "'\n";
 		return false;
 	}
-	port = std::make_unique<JackPort>(
-	    client, "drumgizmo_midiin", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput);
+	port = std::make_unique<JackPort>(client, "drumgizmo_midiin",
+	                                  JACK_DEFAULT_MIDI_TYPE,
+	                                  JackPortIsInput);
 	return true;
 }
 
-void JackMidiInputEngine::setParm(
-    const std::string& parm, const std::string& value)
+void JackMidiInputEngine::setParm(const std::string& parm, const std::string& value)
 {
 	if(parm == "midimap")
 	{
@@ -88,7 +88,8 @@ void JackMidiInputEngine::pre()
 {
 }
 
-void JackMidiInputEngine::run(size_t, size_t, std::vector<event_t>& events)
+void JackMidiInputEngine::run(size_t pos, size_t len,
+                              std::vector<event_t>& events)
 {
 	assert(events.empty());
 	std::swap(events, this->events);

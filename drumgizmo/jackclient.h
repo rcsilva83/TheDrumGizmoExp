@@ -25,9 +25,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
-#include <list>
-#include <string>
 #include <vector>
+#include <string>
+#include <list>
 
 #include <jack/jack.h>
 
@@ -40,11 +40,7 @@ class JackProcess
 public:
 	virtual ~JackProcess() = default;
 	virtual void process(jack_nframes_t num_frames) = 0;
-	//! Default empty implementation - subclasses override if latency reporting
-	//! is needed
-	virtual void jackLatencyCallback(jack_latency_callback_mode_t /*mode*/)
-	{
-	}
+	virtual void jackLatencyCallback(jack_latency_callback_mode_t mode) {}
 };
 
 // --------------------------------------------------------------------
@@ -53,7 +49,7 @@ public:
 struct JackPort
 {
 	JackPort(JackClient& client, const std::string& name, const char* type,
-	    JackPortFlags flags);
+	         JackPortFlags flags);
 	~JackPort();
 
 	jack_client_t* const client;
@@ -83,7 +79,7 @@ private:
 	bool dirty{false};
 	struct JackProcessContainer
 	{
-		JackProcess* process;
+		JackProcess *process;
 		bool active{true};
 	};
 	std::list<JackProcessContainer> processes;
