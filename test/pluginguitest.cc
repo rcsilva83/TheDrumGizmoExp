@@ -614,16 +614,18 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Initialize powermap with known positions for control points
 		// Canvas is at (7,7) with size 263x286, border=6
 		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
-		settings.powermap_fixed0_x.store(0.1f);  // ~31px from left of canvas + 6px border
-		settings.powermap_fixed0_y.store(0.1f);  // ~27px from bottom of canvas + 6px border
-		settings.powermap_fixed1_x.store(0.5f);  // ~132px from left
-		settings.powermap_fixed1_y.store(0.5f);  // ~143px from bottom
-		settings.powermap_fixed2_x.store(0.9f);  // ~232px from left
-		settings.powermap_fixed2_y.store(0.9f);  // ~253px from bottom
+		settings.powermap_fixed0_x.store(
+		    0.1f); // ~31px from left of canvas + 6px border
+		settings.powermap_fixed0_y.store(
+		    0.1f); // ~27px from bottom of canvas + 6px border
+		settings.powermap_fixed1_x.store(0.5f); // ~132px from left
+		settings.powermap_fixed1_y.store(0.5f); // ~143px from bottom
+		settings.powermap_fixed2_x.store(0.9f); // ~232px from left
+		settings.powermap_fixed2_y.store(0.9f); // ~253px from bottom
 		settings_notifier.enable_powermap(true);
 
-		// Access the canvas directly - PowerWidget doesn't override these handlers
-		// Canvas is at (7,7), so find it there
+		// Access the canvas directly - PowerWidget doesn't override these
+		// handlers Canvas is at (7,7), so find it there
 		auto* canvas = power.find(10, 10);
 		REQUIRE_UNARY(canvas != nullptr);
 
@@ -652,14 +654,14 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		canvas->buttonEvent(&button_up);
 
 		// Test button down on fixed1 (yellow point, center)
-		button_down.x = 139;  // 7 + 6 + 126
-		button_down.y = 150;  // 7 + 143
+		button_down.x = 139; // 7 + 6 + 126
+		button_down.y = 150; // 7 + 143
 		canvas->buttonEvent(&button_down);
 		CHECK_UNARY(&power != nullptr);
 
 		// Test button down on fixed2 (red point, upper-right)
-		button_down.x = 239;  // 7 + 6 + 226
-		button_down.y = 40;   // 7 + ~33
+		button_down.x = 239; // 7 + 6 + 226
+		button_down.y = 40;  // 7 + ~33
 		canvas->buttonEvent(&button_down);
 		CHECK_UNARY(&power != nullptr);
 	}
@@ -708,9 +710,10 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		// Initialize powermap with known position for fixed0
 		// Canvas is at (7,7) with size 263x286, border=6
 		// width0 = 263 - 12 = 251, height0 = 286 - 12 = 274
-		// fixed0 at (0.05, 0.05) -> canvas x=6+12.5=18.5, y=6+13=19 (near top-left of drawing area)
-		// Canvas y is inverted, so 0.05 Y means near the bottom of drawing area
-		// Drawing area y: height0 - 0.05*height0 = 274-13.7 = 260.3, +6 border = 266.3
+		// fixed0 at (0.05, 0.05) -> canvas x=6+12.5=18.5, y=6+13=19 (near
+		// top-left of drawing area) Canvas y is inverted, so 0.05 Y means near
+		// the bottom of drawing area Drawing area y: height0 - 0.05*height0 =
+		// 274-13.7 = 260.3, +6 border = 266.3
 		settings.powermap_fixed0_x.store(0.05f);
 		settings.powermap_fixed0_y.store(0.05f);
 		settings_notifier.enable_powermap(true);
@@ -720,7 +723,8 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		REQUIRE_UNARY(canvas != nullptr);
 
 		// First, simulate button down on fixed0
-		// Canvas coords: x ~ 6 + 0.05*251 = 18.55, y ~ 6 + 274 - 0.05*274 = 266.3
+		// Canvas coords: x ~ 6 + 0.05*251 = 18.55, y ~ 6 + 274 - 0.05*274 =
+		// 266.3
 		dggui::ButtonEvent button_down;
 		button_down.direction = dggui::Direction::down;
 		button_down.button = dggui::MouseButton::left;
@@ -872,13 +876,14 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		CHECK_EQ(initial_x, doctest::Approx(0.5f));
 		CHECK_EQ(initial_y, doctest::Approx(0.5f));
 
-		// Try to drag outside the widget far left/bottom (should be clamped to 0)
-		// Y is inverted: my0 = (height - y - y0) / height0
-		// Large negative Y canvas coord -> large positive normalized value
-		// Large positive Y canvas coord -> small/negative normalized value
+		// Try to drag outside the widget far left/bottom (should be clamped to
+		// 0) Y is inverted: my0 = (height - y - y0) / height0 Large negative Y
+		// canvas coord -> large positive normalized value Large positive Y
+		// canvas coord -> small/negative normalized value
 		dggui::MouseMoveEvent move_event;
-		move_event.x = -1000; // Far outside left boundary -> mx0 negative -> clamped to 0
-		move_event.y = 5000;  // Far below canvas -> small my0 -> clamped to 0
+		move_event.x =
+		    -1000; // Far outside left boundary -> mx0 negative -> clamped to 0
+		move_event.y = 5000; // Far below canvas -> small my0 -> clamped to 0
 		canvas->mouseMoveEvent(&move_event);
 
 		// Verify values are clamped to 0.0 (minimum)
@@ -886,7 +891,7 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		CHECK_EQ(settings.powermap_fixed1_y.load(), doctest::Approx(0.0f));
 
 		// Try to drag beyond right/top boundaries (should be clamped to 1)
-		move_event.x = 5000; // Far beyond right -> mx0 > 1 -> clamped to 1
+		move_event.x = 5000;  // Far beyond right -> mx0 > 1 -> clamped to 1
 		move_event.y = -1000; // Far above canvas -> my0 > 1 -> clamped to 1
 		canvas->mouseMoveEvent(&move_event);
 
