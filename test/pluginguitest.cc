@@ -589,14 +589,15 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 	{
 		GUI::PowerWidget power(&window, settings, settings_notifier);
 
-		// Test repaint with very small dimensions
-		power.resize(10, 10);
+		// Test repaint with zero-sized canvas to trigger early return
+		// The guard in repaintEvent checks: width() < 1 || height() < 1
+		power.resize(0, 0);
 
 		dggui::RepaintEvent repaint_event;
 		repaint_event.x = 0;
 		repaint_event.y = 0;
-		repaint_event.width = 10;
-		repaint_event.height = 10;
+		repaint_event.width = 0;
+		repaint_event.height = 0;
 
 		// This should early return due to width/height < 1 check
 		power.repaintEvent(&repaint_event);
@@ -839,10 +840,23 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "PowerWidgetTest")
 		move_event.y = -100; // Outside top boundary
 		power.mouseMoveEvent(&move_event);
 
+		// Verify values are clamped to valid range [0.0, 1.0]
+		// The clamping is implemented in PowerWidget::Canvas::mouseMoveEvent
+		CHECK_GE(settings.powermap_fixed1_x.load(), 0.0f);
+		CHECK_LE(settings.powermap_fixed1_x.load(), 1.0f);
+		CHECK_GE(settings.powermap_fixed1_y.load(), 0.0f);
+		CHECK_LE(settings.powermap_fixed1_y.load(), 1.0f);
+
 		// Try to drag beyond right/bottom boundaries
 		move_event.x = 500; // Beyond right
 		move_event.y = 400; // Beyond bottom
 		power.mouseMoveEvent(&move_event);
+
+		// Verify values remain clamped after dragging beyond bounds
+		CHECK_GE(settings.powermap_fixed1_x.load(), 0.0f);
+		CHECK_LE(settings.powermap_fixed1_x.load(), 1.0f);
+		CHECK_GE(settings.powermap_fixed1_y.load(), 0.0f);
+		CHECK_LE(settings.powermap_fixed1_y.load(), 1.0f);
 
 		// Release
 		dggui::ButtonEvent button_up;
