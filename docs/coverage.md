@@ -134,6 +134,60 @@ These files require complex GUI interaction or drumkit file loading:
 **Note:** The new pluginguitest runs under Xvfb in the CI environment, exercising
 all widget construction paths and settings notification handlers.
 
+### Additional zero-coverage files (outside top 20)
+
+The top-20 list focuses on the largest absolute branch gaps. Several other
+source files have **0% line and branch coverage** but are smaller and therefore
+rank below the cutoff. They are documented here for completeness.
+
+#### `dggui/` — GUI widgets requiring rendering
+
+These widgets are not instantiated by the current Xvfb-based test suite because
+they are not part of the plugingui widget tree exercised by `pluginguitest.cc`:
+
+| File | Lines | Branches | Testability |
+| ---- | ----: | -------: | ----------- |
+| `dggui/led.cc` | 46 | 38 | Requires Xvfb + paint events |
+| `dggui/listboxthin.cc` | 37 | 16 | Requires Xvfb + paint events |
+
+#### `drumgizmo/` — Audio I/O drivers requiring external services
+
+These drivers are excluded from the CI test build because they require system
+audio services (ALSA, JACK) that are not available in the headless runner:
+
+| File | Lines | Branches | Required service |
+| ---- | ----: | -------: | ---------------- |
+| `drumgizmo/output/jackaudio.cc` | 77 | 38 | JACK audio server |
+| `drumgizmo/jackclient.cc` | 71 | 29 | JACK audio server |
+| `drumgizmo/input/jackmidi.cc` | 48 | 14 | JACK MIDI server |
+| `drumgizmo/output/wavfile.cc` | 59 | 34 | File I/O (WAV writing) |
+
+### Low-coverage files with testable potential
+
+These files have some line coverage but large remaining gaps, indicating that
+the code is reached but many conditional paths are not exercised:
+
+| File | Line % | Uncovered lines | Uncovered branches | Primary gap |
+| ---- | -----: | --------------: | -----------------: | ----------- |
+| `dggui/toggle.cc` | 27.5% | 29 | 12 | Toggle state-change logic needs GUI events |
+| `dggui/button_base.cc` | 31.1% | 31 | 18 | Constructor/destructor covered; `buttonEvent()` branches untouched |
+| `src/grid.h` | 26.7% | 11 | 6 | Template header; only trivial paths instantiated in tests |
+
+### Summary of untested surface area
+
+| Category | Files | Uncovered lines | Uncovered branches |
+| -------- | ----: | --------------: | -----------------: |
+| Top-20 gap files | 20 | 1,876 | 1,974 |
+| Additional zero-coverage files (.cc only) | 6 | 338 | 169 |
+| Low-coverage files (< 30% line) | 3 | 71 | 36 |
+| **Total outside top 20** | **9** | **409** | **205** |
+
+The nine additional files represent **~409 uncovered lines and ~205 uncovered
+branches** on top of the top-20 gap list. Most are blocked by infrastructure
+dependencies (X11 display, ALSA/JACK services). The file-I/O drivers
+(`wavfile.cc`) and standalone tool (`dgvalidator.cc`, rank 1 in top 20) are
+candidates for future unit-test integration.
+
 ---
 
 ## Baseline (2026-04-11) — branch-coverage push
@@ -451,11 +505,6 @@ cycles are historical reference only.
 |    16 |       86% |          |
 |    17 |       88% |          |
 |    18 |       90% | **current/target** |
-|    14 |       82% |          |
-|    15 |       84% |          |
-|    16 |       86% |          |
-|    17 |       88% |          |
-|    18 |       90% | **target** |
 
 ### Updating thresholds
 
