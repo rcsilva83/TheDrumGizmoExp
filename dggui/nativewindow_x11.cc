@@ -225,6 +225,11 @@ void NativeWindowX11::resize(std::size_t width, std::size_t height)
 
 std::pair<std::size_t, std::size_t> NativeWindowX11::getSize() const
 {
+	if(display == nullptr)
+	{
+		return {1, 1};
+	}
+
 //	XWindowAttributes attributes;
 //	XGetWindowAttributes(display, xwindow, &attributes);
 //	return std::make_pair(attributes.width, attributes.height);
@@ -252,6 +257,11 @@ void NativeWindowX11::move(int x, int y)
 
 std::pair<int, int> NativeWindowX11::getPosition() const
 {
+	if(display == nullptr)
+	{
+		return {0, 0};
+	}
+
 	::Window root_window;
 	::Window child_window;
 	int x, y;
@@ -341,6 +351,11 @@ void NativeWindowX11::grabMouse(bool grab)
 
 EventQueue NativeWindowX11::getEvents()
 {
+	if(display == nullptr)
+	{
+		return EventQueue{};
+	}
+
 	while(XPending(display))
 	{
 		XEvent xEvent;
@@ -360,6 +375,11 @@ void* NativeWindowX11::getNativeWindowHandle() const
 
 Point NativeWindowX11::translateToScreen(const Point& point)
 {
+	if(display == nullptr)
+	{
+		return point;
+	}
+
 	::Window child_window;
 	Point p;
 	XTranslateCoordinates(display, xwindow, DefaultRootWindow(display),
