@@ -130,6 +130,14 @@ static std::vector<std::string> runArgs(const std::string& kitfile)
 	    "1", kitfile};
 }
 
+static std::vector<std::string> runArgsWithEngines(
+    const std::string& input_engine, const std::string& output_engine,
+    const std::string& kitfile)
+{
+	return {"--inputengine", input_engine, "--outputengine", output_engine,
+	    "--endpos", "1", kitfile};
+}
+
 // Prepend extra options before the common run args.
 static std::vector<std::string> prependArgs(
     const std::vector<std::string>& prefix, const std::string& kitfile)
@@ -252,6 +260,58 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
+
+#ifdef HAVE_INPUT_TEST
+	SUBCASE("testInputEngineIsRecognized")
+	{
+		auto result =
+		    runDrumgizmoCli(runArgsWithEngines("test", "dummy", kitfile));
+		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
+		CHECK_EQ(std::string::npos, result.output.find("Invalid input engine"));
+	}
+#endif
+
+#ifdef HAVE_INPUT_MIDIFILE
+	SUBCASE("midifileInputEngineIsRecognized")
+	{
+		auto result =
+		    runDrumgizmoCli(runArgsWithEngines("midifile", "dummy", kitfile));
+		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
+		CHECK_EQ(std::string::npos, result.output.find("Invalid input engine"));
+	}
+#endif
+
+#ifdef HAVE_INPUT_ALSAMIDI
+	SUBCASE("alsamidiInputEngineIsRecognized")
+	{
+		auto result =
+		    runDrumgizmoCli(runArgsWithEngines("alsamidi", "dummy", kitfile));
+		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
+		CHECK_EQ(std::string::npos, result.output.find("Invalid input engine"));
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_WAVFILE
+	SUBCASE("wavfileOutputEngineIsRecognized")
+	{
+		auto result =
+		    runDrumgizmoCli(runArgsWithEngines("dummy", "wavfile", kitfile));
+		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
+		CHECK_EQ(
+		    std::string::npos, result.output.find("Invalid output engine"));
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_ALSA
+	SUBCASE("alsaOutputEngineIsRecognized")
+	{
+		auto result =
+		    runDrumgizmoCli(runArgsWithEngines("dummy", "alsa", kitfile));
+		CHECK_NE(std::string::npos, result.output.find("Using kitfile:"));
+		CHECK_EQ(
+		    std::string::npos, result.output.find("Invalid output engine"));
+	}
+#endif
 
 	SUBCASE("asyncLoadRunSucceeds")
 	{

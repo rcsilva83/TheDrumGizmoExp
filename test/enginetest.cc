@@ -608,6 +608,7 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		AudioInputEngineDummy ie;
 
 		auto previous_home = getenv("HOME");
+		auto had_home = previous_home != nullptr;
 		std::string old_home = previous_home ? previous_home : "";
 		std::string temp_home = "/tmp/dg-home-" + std::to_string(getpid());
 		std::string config_dir = temp_home + "/.drumgizmo";
@@ -631,7 +632,14 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 		std::remove(config_file.c_str());
 		rmdir(config_dir.c_str());
 		rmdir(temp_home.c_str());
-		setenv("HOME", old_home.c_str(), 1);
+		if(had_home)
+		{
+			setenv("HOME", old_home.c_str(), 1);
+		}
+		else
+		{
+			unsetenv("HOME");
+		}
 	}
 
 	SUBCASE("setSamplerateQualityClamping")
