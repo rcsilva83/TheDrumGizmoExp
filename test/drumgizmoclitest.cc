@@ -584,4 +584,46 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		    result.output.find("Invalid endpos size not-a-number"));
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
+
+	SUBCASE("inputParmsSetsParameters")
+	{
+		auto result = runDrumgizmoCli({"--inputengine", "dummy",
+		    "--inputparms", "foo=bar", "--outputengine", "dummy",
+		    "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("outputParmsSetsParameters")
+	{
+		auto result = runDrumgizmoCli({"--inputengine", "dummy",
+		    "--outputengine", "dummy", "--outputparms", "foo=bar",
+		    "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("testInputEngineRunSucceeds")
+	{
+		auto result = runDrumgizmoCli({"--inputengine", "test",
+		    "--outputengine", "dummy", "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("invalidOptionReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--not-a-real-option"});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+#ifndef DISABLE_HUGIN
+	SUBCASE("debugOptionRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"--debug", "drumgizmo"},
+		    kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+#endif // DISABLE_HUGIN
 }

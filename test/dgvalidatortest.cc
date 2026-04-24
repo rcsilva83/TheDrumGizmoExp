@@ -181,4 +181,54 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_NE(
 		    std::string::npos, result.output.find("Missing version field."));
 	}
+
+	SUBCASE("quietSuppressesOutput")
+	{
+		auto result = runDgvalidator({"--quiet", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_EQ(std::string::npos, result.output.find("[Info]"));
+		CHECK_EQ(std::string::npos, result.output.find("[Warning]"));
+	}
+
+	SUBCASE("verboseIncreasesOutput")
+	{
+		// Two --verbose flags are needed because Info messages require
+		// verbosity >= 3 (default is 1 and each --verbose increments by 1).
+		auto result = runDgvalidator(
+		    {"--verbose", "--verbose", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("[Info]"));
+	}
+
+	SUBCASE("validKitWithAudioFilesSucceeds")
+	{
+		// createStdKit creates actual wav files, so validation without
+		// --no-audio should exercise the audio file loading path.
+		auto result = runDgvalidator({kitfile});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("brokenXmlReturnsError")
+	{
+		ScopedFile broken_xml("this is not xml at all");
+		auto result = runDgvalidator({"--no-audio", broken_xml.filename()});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+	SUBCASE("missingInstrumentFileReturnsError")
+	{
+		ScopedFile kit_xml(
+		    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		    "<drumkit name=\"test\" version=\"2.0\">\n"
+		    "  <channels><channel name=\"ch0\"/></channels>\n"
+		    "  <instruments>\n"
+		    "    <instrument name=\"inst1\" "
+		    "file=\"nonexistent_instrument.xml\">\n"
+		    "      <channelmap in=\"ch0\" out=\"ch0\"/>\n"
+		    "    </instrument>\n"
+		    "  </instruments>\n"
+		    "</drumkit>\n");
+		auto result = runDgvalidator({"--no-audio", kit_xml.filename()});
+		CHECK_EQ(1, result.exit_code);
+	}
 }

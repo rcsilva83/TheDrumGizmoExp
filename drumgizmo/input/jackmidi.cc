@@ -3,7 +3,7 @@
  *            jackmidi.cc
  *
  *  Mo 25. Jan 11:26:06 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -91,6 +91,8 @@ void JackMidiInputEngine::pre()
 void JackMidiInputEngine::run(size_t pos, size_t len,
                               std::vector<event_t>& events)
 {
+	(void)pos;
+	(void)len;
 	assert(events.empty());
 	std::swap(events, this->events);
 }
