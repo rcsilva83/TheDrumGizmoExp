@@ -27,8 +27,8 @@
 #include <doctest/doctest.h>
 
 #include <chrono>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -622,8 +622,10 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 
 		{
 			DrumGizmo dg(settings, oe, ie);
-			CHECK_EQ(settings.midimap_file.load(), std::string("/tmp/default.midimap"));
-			CHECK_EQ(settings.drumkit_file.load(), std::string("/tmp/default.kit"));
+			CHECK_EQ(settings.midimap_file.load(),
+			    std::string("/tmp/default.midimap"));
+			CHECK_EQ(
+			    settings.drumkit_file.load(), std::string("/tmp/default.kit"));
 		}
 
 		std::remove(config_file.c_str());
