@@ -25,10 +25,23 @@
  */
 #include <doctest/doctest.h>
 
+#include <X11/Xlib.h>
+
 #include <dggui/button.h>
 #include <dggui/label.h>
 #include <dggui/widget.h>
 #include <dggui/window.h>
+
+static bool isX11Available()
+{
+	Display* display = XOpenDisplay(nullptr);
+	if(display)
+	{
+		XCloseDisplay(display);
+		return true;
+	}
+	return false;
+}
 
 TEST_CASE("WidgetBasicTest")
 {
@@ -314,6 +327,12 @@ TEST_CASE("ButtonWidgetTest")
 
 TEST_CASE("WindowWidgetTest")
 {
+	if(!isX11Available())
+	{
+		// Skip test when X11 display is not available
+		return;
+	}
+
 	SUBCASE("window_constructor_default_size")
 	{
 		dggui::Window window;

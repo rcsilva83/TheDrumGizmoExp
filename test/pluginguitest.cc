@@ -25,7 +25,20 @@
  */
 #include <doctest/doctest.h>
 
+#include <X11/Xlib.h>
+
 #include <dggui/window.h>
+
+static bool isX11Available()
+{
+	Display* display = XOpenDisplay(nullptr);
+	if(display)
+	{
+		XCloseDisplay(display);
+		return true;
+	}
+	return false;
+}
 
 #include <settings.h>
 
@@ -1124,6 +1137,12 @@ TEST_CASE_FIXTURE(PluginGUIFixture, "MainTabTest")
 
 TEST_CASE("MainWindowTest")
 {
+	if(!isX11Available())
+	{
+		// Skip test when X11 display is not available
+		return;
+	}
+
 	Settings settings;
 	SettingsNotifier settings_notifier{settings};
 	GUI::Config config;
