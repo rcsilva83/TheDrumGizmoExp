@@ -27,10 +27,14 @@
 #include <doctest/doctest.h>
 
 #include <chrono>
+#include <cstdlib>
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 #include <drumgizmo.h>
@@ -595,6 +599,37 @@ TEST_CASE_FIXTURE(test_engineFixture, "test_engine")
 			settings.drumkit_file.store(kit2_file);
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+	}
+
+	SUBCASE("constructorAppliesDefaultConfigWhenSettingsAreUnset")
+	{
+		Settings settings;
+		AudioOutputEngineDummy oe;
+		AudioInputEngineDummy ie;
+
+		auto previous_home = getenv("HOME");
+		std::string old_home = previous_home ? previous_home : "";
+		std::string temp_home = "/tmp/dg-home-" + std::to_string(getpid());
+		std::string config_dir = temp_home + "/.drumgizmo";
+		std::string config_file = config_dir + "/drumgizmo.conf";
+		mkdir(temp_home.c_str(), 0755);
+		mkdir(config_dir.c_str(), 0755);
+		std::ofstream config(config_file);
+		config << "defaultMidimap = \"/tmp/default.midimap\"\n";
+		config << "defaultKit = \"/tmp/default.kit\"\n";
+		config.close();
+		setenv("HOME", temp_home.c_str(), 1);
+
+		{
+			DrumGizmo dg(settings, oe, ie);
+			CHECK_EQ(settings.midimap_file.load(), std::string("/tmp/default.midimap"));
+			CHECK_EQ(settings.drumkit_file.load(), std::string("/tmp/default.kit"));
+		}
+
+		std::remove(config_file.c_str());
+		rmdir(config_dir.c_str());
+		rmdir(temp_home.c_str());
+		setenv("HOME", old_home.c_str(), 1);
 	}
 
 	SUBCASE("setSamplerateQualityClamping")
