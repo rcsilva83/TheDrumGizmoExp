@@ -83,6 +83,7 @@ void DrumGizmoPlugin::onFramesizeChange(size_t framesize)
 
 void DrumGizmoPlugin::onActiveChange(bool active)
 {
+	(void)active;
 }
 
 std::string DrumGizmoPlugin::onStateSave()
@@ -159,6 +160,9 @@ void DrumGizmoPlugin::process(size_t pos,
                               const std::vector<float*>& output_samples,
                               size_t count)
 {
+	(void)pos;
+	(void)output_events;
+	(void)input_samples;
 	setLatency(drumgizmo->getLatency());
 
 	this->input_events = &input_events;
@@ -366,6 +370,8 @@ bool DrumGizmoPlugin::Input::init(const Instruments &instruments)
 
 void DrumGizmoPlugin::Input::setParm(const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Input::start()
@@ -383,6 +389,8 @@ void DrumGizmoPlugin::Input::pre()
 
 void DrumGizmoPlugin::Input::run(size_t pos, size_t len, std::vector<event_t>& events)
 {
+	(void)pos;
+	(void)len;
 	assert(events.empty());
 	assert(plugin.input_events);
 
@@ -446,11 +454,14 @@ DrumGizmoPlugin::Output::Output(DrumGizmoPlugin& plugin)
 
 bool DrumGizmoPlugin::Output::init(const Channels& channels)
 {
+	(void)channels;
 	return true;
 }
 
 void DrumGizmoPlugin::Output::setParm(const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Output::start()
@@ -500,6 +511,7 @@ void DrumGizmoPlugin::Output::run(int ch, sample_t* samples, size_t nsamples)
 
 void DrumGizmoPlugin::Output::post(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 sample_t* DrumGizmoPlugin::Output::getBuffer(int ch) const
