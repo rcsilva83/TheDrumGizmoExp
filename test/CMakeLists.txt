@@ -695,6 +695,7 @@ endif()
 if(DG_ENABLE_CLI)
 	set(DG_DRUMGIZMO_TEST_SOURCES
 		"${CMAKE_SOURCE_DIR}/test/drumgizmotest.cc"
+		"${CMAKE_SOURCE_DIR}/drumgizmo/enginefactory.cc"
 	)
 	set(DG_DRUMGIZMO_TEST_INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}"
@@ -716,6 +717,18 @@ if(DG_ENABLE_CLI)
 	if(DG_ENABLE_INPUT_TEST)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/input/test.cc")
+	endif()
+
+	if(DG_ENABLE_INPUT_MIDIFILE)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/input/midifile.cc"
+			"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+			"${CMAKE_SOURCE_DIR}/src/midimapparser.cc")
+		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES
+			dg_smf
+			PkgConfig::GLIB2)
+		list(APPEND DG_DRUMGIZMO_TEST_INCLUDE_DIRS
+			"${DG_SMF_SOURCE_DIR}/src")
 	endif()
 
 	if(DG_ENABLE_OUTPUT_DUMMY)

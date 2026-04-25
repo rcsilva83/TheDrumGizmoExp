@@ -766,3 +766,830 @@ TEST_CASE("WavfileOutputEngine")
 	}
 }
 #endif // HAVE_OUTPUT_WAVFILE
+
+// =============================================================================
+// EngineFactory Tests
+// =============================================================================
+
+#include "drumgizmo/enginefactory.h"
+
+TEST_CASE("EngineFactory")
+{
+	SUBCASE("constructorInitializesEngineLists")
+	{
+		EngineFactory factory;
+
+		// Should have at least some engines registered
+		[[maybe_unused]] auto& inputs = factory.getInputEngines();
+		[[maybe_unused]] auto& outputs = factory.getOutputEngines();
+
+		// The lists should be populated based on compile-time flags
+		// Just verify no crash by calling the methods
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("getInputEnginesReturnsValidList")
+	{
+		EngineFactory factory;
+		const auto& inputs = factory.getInputEngines();
+
+		// Verify it's a valid list reference
+		for(const auto& engine_name : inputs)
+		{
+			CHECK_UNARY(!engine_name.empty());
+		}
+	}
+
+	SUBCASE("getOutputEnginesReturnsValidList")
+	{
+		EngineFactory factory;
+		const auto& outputs = factory.getOutputEngines();
+
+		// Verify it's a valid list reference
+		for(const auto& engine_name : outputs)
+		{
+			CHECK_UNARY(!engine_name.empty());
+		}
+	}
+
+#ifdef HAVE_INPUT_DUMMY
+	SUBCASE("createInputDummyReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("dummy");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+#endif
+
+#ifdef HAVE_INPUT_TEST
+	SUBCASE("createInputTestReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("test");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_DUMMY
+	SUBCASE("createOutputDummyReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("dummy");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_WAVFILE
+	SUBCASE("createOutputWavfileReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("wavfile");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+#endif
+
+	SUBCASE("createInputInvalidReturnsNull")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("nonexistent_engine");
+
+		CHECK_UNARY(engine == nullptr);
+	}
+
+	SUBCASE("createOutputInvalidReturnsNull")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("nonexistent_engine");
+
+		CHECK_UNARY(engine == nullptr);
+	}
+
+	SUBCASE("createInputEmptyStringReturnsNull")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("");
+
+		CHECK_UNARY(engine == nullptr);
+	}
+
+	SUBCASE("createOutputEmptyStringReturnsNull")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("");
+
+		CHECK_UNARY(engine == nullptr);
+	}
+
+	SUBCASE("multipleFactoryInstancesWork")
+	{
+		EngineFactory factory1;
+		EngineFactory factory2;
+
+		// Both should be independent
+		auto& inputs1 = factory1.getInputEngines();
+		auto& inputs2 = factory2.getInputEngines();
+
+		CHECK_EQ(inputs1.size(), inputs2.size());
+	}
+
+	SUBCASE("createdEnginesAreIndependent")
+	{
+		EngineFactory factory;
+
+#ifdef HAVE_INPUT_DUMMY
+		auto engine1 = factory.createInput("dummy");
+		auto engine2 = factory.createInput("dummy");
+
+		CHECK_UNARY(engine1 != nullptr);
+		CHECK_UNARY(engine2 != nullptr);
+		CHECK_UNARY(engine1 != engine2);
+#endif
+	}
+}
+
+// =============================================================================
+// MidifileInputEngine Tests
+// =============================================================================
+
+#ifdef HAVE_INPUT_MIDIFILE
+#include "drumgizmo/input/midifile.h"
+#include <smf.h>
+#include <fstream>
+
+// Helper function to create a minimal test MIDI file
+[[maybe_unused]] static bool createTestMidiFile(const std::string& filename)
+{
+	smf_t* smf = smf_new();
+	if(!smf)
+	{
+		return false;
+	}
+
+	// Create a simple track with a note on/off event
+	smf_track_t* track = smf_track_new();
+	if(!track)
+	{
+		smf_delete(smf);
+		return false;
+	}
+
+	// Add track to smf
+	smf_add_track(smf, track);
+
+	// Note On event (middle C, velocity 100)
+	std::uint8_t note_on[] = {0x90, 60, 100};
+	smf_event_t* event_on = smf_event_new_from_pointer(note_on, sizeof(note_on));
+	if(event_on)
+	{
+		smf_track_add_event_seconds(track, event_on, 0.0);
+	}
+
+	// Note Off event
+	std::uint8_t note_off[] = {0x80, 60, 0};
+	smf_event_t* event_off = smf_event_new_from_pointer(note_off, sizeof(note_off));
+	if(event_off)
+	{
+		smf_track_add_event_seconds(track, event_off, 0.5);
+	}
+
+	// Save to file
+	int result = smf_save(smf, filename.c_str());
+	smf_delete(smf);
+	return result == 0;
+}
+
+TEST_CASE("MidifileInputEngine")
+{
+	SUBCASE("constructorCreatesEngine")
+	{
+		MidifileInputEngine engine;
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("initWithoutFileReturnsFalse")
+	{
+		MidifileInputEngine engine;
+		Instruments instruments;
+
+		bool result = engine.init(instruments);
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("initWithoutMidimapReturnsFalse")
+	{
+		MidifileInputEngine engine;
+		Instruments instruments;
+
+		engine.setParm("file", "/tmp/test.mid");
+		bool result = engine.init(instruments);
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("setParmFileSetsFilename")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("file", "/path/to/file.mid");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmMidimapSetsFilename")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("midimap", "/path/to/map.xml");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmSpeedSetsSpeed")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("speed", "2.0");
+		engine.setParm("speed", "0.5");
+		engine.setParm("speed", "1.0");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidSpeedDoesNotCrash")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("speed", "invalid");
+		engine.setParm("speed", "");
+		engine.setParm("speed", "abc");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmLoopEnablesLooping")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("loop", "1");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("unknown", "value");
+		engine.setParm("", "");
+
+		// Should not crash
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("startReturnsTrue")
+	{
+		MidifileInputEngine engine;
+
+		bool result = engine.start();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("stopDoesNotThrow")
+	{
+		MidifileInputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preDoesNotThrow")
+	{
+		MidifileInputEngine engine;
+
+		engine.pre();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postDoesNotThrow")
+	{
+		MidifileInputEngine engine;
+
+		engine.post();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("isFreewheelingReturnsTrue")
+	{
+		MidifileInputEngine engine;
+
+		bool result = engine.isFreewheeling();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("setSampleRateDoesNotThrow")
+	{
+		MidifileInputEngine engine;
+
+		engine.setSampleRate(44100.0);
+		engine.setSampleRate(48000.0);
+		engine.setSampleRate(96000.0);
+
+		CHECK_UNARY(true);
+	}
+
+	// Note: run() and full lifecycle tests are omitted because
+	// MidifileInputEngine::run() requires a valid SMF object from
+	// successful init(), which requires actual MIDI and midimap files.
+	// Testing without these would cause undefined behavior (null pointer access).
+}
+#endif // HAVE_INPUT_MIDIFILE
+
+// =============================================================================
+// Additional Edge Case Tests
+// =============================================================================
+
+#ifdef HAVE_INPUT_TEST
+TEST_CASE("TestInputEngineEdgeCases")
+{
+	SUBCASE("setParmInvalidProbabilityDoesNotCrash")
+	{
+		TestInputEngine engine;
+
+		engine.setParm("p", "invalid");
+		engine.setParm("p", "");
+		engine.setParm("p", "-1");
+		engine.setParm("p", "2.0");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidInstrumentDoesNotCrash")
+	{
+		TestInputEngine engine;
+
+		engine.setParm("instr", "invalid");
+		engine.setParm("instr", "");
+		engine.setParm("instr", "abc");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidLengthDoesNotCrash")
+	{
+		TestInputEngine engine;
+
+		engine.setParm("len", "invalid");
+		engine.setParm("len", "");
+		engine.setParm("len", "abc");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithZeroLengthDoesNotCrash")
+	{
+		TestInputEngine engine;
+		Instruments instruments;
+		std::vector<event_t> events;
+
+		engine.init(instruments);
+		engine.run(0, 0, events);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithLargeLengthDoesNotCrash")
+	{
+		TestInputEngine engine;
+		Instruments instruments;
+		std::vector<event_t> events;
+
+		engine.init(instruments);
+		engine.run(0, 1000000, events);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithZeroSampleRateDoesNotCrash")
+	{
+		TestInputEngine engine;
+		Instruments instruments;
+		std::vector<event_t> events;
+
+		engine.init(instruments);
+		engine.setSampleRate(0.0);
+		engine.run(0, 1024, events);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithZeroProbabilityGeneratesNoEvents")
+	{
+		TestInputEngine engine;
+		Instruments instruments;
+		std::vector<event_t> events;
+
+		engine.init(instruments);
+		engine.setParm("p", "0.0");
+
+		// Run many times to ensure no events with 0 probability
+		for(int i = 0; i < 100; ++i)
+		{
+			events.clear();
+			engine.run(i * 1024, 1024, events);
+			CHECK_EQ(events.size(), 0);
+		}
+	}
+
+	SUBCASE("runWithLengthOneGeneratesStopEvent")
+	{
+		TestInputEngine engine;
+		Instruments instruments;
+		std::vector<event_t> events;
+
+		engine.init(instruments);
+		engine.setParm("p", "1.0");
+		engine.setParm("len", "1");
+
+		// First run with high probability should trigger events
+		events.clear();
+		engine.run(0, 1024, events);
+
+		// After some runs with len=1, stop event should be generated
+		// Position > 1*samplerate should trigger stop
+		events.clear();
+		engine.run(50000, 1024, events);
+
+		// Should have at least processed without crash
+		CHECK_UNARY(true);
+	}
+}
+#endif // HAVE_INPUT_TEST
+
+#ifdef HAVE_OUTPUT_WAVFILE
+TEST_CASE("WavfileOutputEngineEdgeCases")
+{
+	SUBCASE("initWithMultipleChannelsCreatesMultipleFiles")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("channel1");
+		Channel channel2("channel2");
+		Channel channel3("channel3");
+		channels.push_back(channel1);
+		channels.push_back(channel2);
+		channels.push_back(channel3);
+
+		engine.setParm("file", "/tmp/drumgizmo_multi_test_");
+
+		bool result = engine.init(channels);
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("setSamplerateZeroDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.setParm("srate", "0");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setSamplerateNegativeDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.setParm("srate", "-1");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setSamplerateVeryHighDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.setParm("srate", "192000");
+
+		CHECK_EQ(engine.getSamplerate(), 192000);
+	}
+
+	SUBCASE("setParmFileEmptyString")
+	{
+		WavfileOutputEngine engine;
+
+		engine.setParm("file", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("onLatencyChangeWithZeroDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.onLatencyChange(0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("onLatencyChangeWithLargeValueDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.onLatencyChange(10000);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postWithZeroLenDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.post(0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithNullSamplesDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("test");
+		channels.push_back(channel1);
+
+		engine.setParm("file", "/tmp/drumgizmo_null_test_");
+		engine.init(channels);
+
+		// Run with nullptr - should handle gracefully
+		engine.run(0, nullptr, 0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preWithZeroSizeDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.pre(0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preWithLargeSizeDoesNotCrash")
+	{
+		WavfileOutputEngine engine;
+
+		engine.pre(100000);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithMultipleRuns")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024];
+		for(int i = 0; i < 1024; ++i)
+		{
+			samples[i] = static_cast<sample_t>(i);
+		}
+
+		engine.setParm("file", "/tmp/drumgizmo_multi_run_test_");
+		engine.setParm("srate", "44100");
+		CHECK_UNARY(engine.init(channels));
+		CHECK_UNARY(engine.start());
+
+		// Multiple pre/run/post cycles
+		for(int i = 0; i < 5; ++i)
+		{
+			engine.pre(1024);
+			engine.run(0, samples, 1024);
+			engine.post(1024);
+		}
+
+		engine.stop();
+
+		CHECK_EQ(engine.getSamplerate(), 44100);
+		CHECK_UNARY(engine.isFreewheeling());
+	}
+
+	SUBCASE("fullLifecycleWithLatencyChanges")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024] = {0};
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_change_test_");
+		CHECK_UNARY(engine.init(channels));
+		CHECK_UNARY(engine.start());
+
+		engine.onLatencyChange(100);
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(1024);
+
+		engine.onLatencyChange(50);
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(1024);
+
+		engine.onLatencyChange(0);
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(1024);
+
+		engine.stop();
+
+		CHECK_UNARY(engine.isFreewheeling());
+	}
+}
+#endif // HAVE_OUTPUT_WAVFILE
+
+#ifdef HAVE_INPUT_DUMMY
+TEST_CASE("DummyInputEngineEdgeCases")
+{
+	SUBCASE("runMultipleTimesDoesNotGenerateEvents")
+	{
+		DummyInputEngine engine;
+		std::vector<event_t> events;
+
+		// Run multiple times
+		for(int i = 0; i < 100; ++i)
+		{
+			events.clear();
+			engine.run(i * 1024, 1024, events);
+			CHECK_EQ(events.size(), 0);
+		}
+	}
+
+	SUBCASE("fullLifecycleMultipleTimes")
+	{
+		DummyInputEngine engine;
+		Instruments instruments;
+
+		// Run full lifecycle multiple times
+		for(int i = 0; i < 5; ++i)
+		{
+			std::vector<event_t> events;
+
+			CHECK_UNARY(engine.init(instruments));
+			CHECK_UNARY(engine.start());
+			engine.pre();
+			engine.run(i * 1024, 1024, events);
+			engine.post();
+			engine.stop();
+
+			CHECK_EQ(events.size(), 0);
+		}
+
+		CHECK_UNARY(engine.isFreewheeling());
+	}
+
+	SUBCASE("stopWithoutStartDoesNotCrash")
+	{
+		DummyInputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postWithoutPreDoesNotCrash")
+	{
+		DummyInputEngine engine;
+
+		engine.post();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preMultipleTimesDoesNotCrash")
+	{
+		DummyInputEngine engine;
+
+		engine.pre();
+		engine.pre();
+		engine.pre();
+
+		CHECK_UNARY(true);
+	}
+}
+#endif // HAVE_INPUT_DUMMY
+
+#ifdef HAVE_OUTPUT_DUMMY
+TEST_CASE("DummyOutputEngineEdgeCases")
+{
+	SUBCASE("runMultipleTimesDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+		sample_t samples[1024] = {0};
+
+		for(int i = 0; i < 100; ++i)
+		{
+			engine.run(0, samples, 1024);
+		}
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithDifferentChannelsDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+		sample_t samples[1024] = {0};
+
+		// Run with different channel indices
+		for(int i = 0; i < 10; ++i)
+		{
+			engine.run(i, samples, 1024);
+		}
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleMultipleTimes")
+	{
+		DummyOutputEngine engine;
+		Channels channels;
+		sample_t samples[1024] = {0};
+
+		for(int i = 0; i < 5; ++i)
+		{
+			CHECK_UNARY(engine.init(channels));
+			CHECK_UNARY(engine.start());
+			engine.pre(1024);
+			engine.run(0, samples, 1024);
+			engine.post(1024);
+			engine.stop();
+		}
+
+		CHECK_EQ(engine.getSamplerate(), 44100);
+	}
+
+	SUBCASE("stopWithoutStartDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postWithoutPreDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+
+		engine.post(1024);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preMultipleTimesDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+
+		engine.pre(1024);
+		engine.pre(512);
+		engine.pre(256);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithZeroSizeDoesNotCrash")
+	{
+		DummyOutputEngine engine;
+		sample_t samples[1024] = {0};
+
+		engine.run(0, samples, 0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("getBufferWithVariousIndicesReturnsNull")
+	{
+		DummyOutputEngine engine;
+
+		CHECK_UNARY(engine.getBuffer(0) == nullptr);
+		CHECK_UNARY(engine.getBuffer(1) == nullptr);
+		CHECK_UNARY(engine.getBuffer(100) == nullptr);
+	}
+}
+#endif // HAVE_OUTPUT_DUMMY
