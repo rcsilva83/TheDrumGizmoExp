@@ -245,4 +245,143 @@ TEST_CASE_FIXTURE(test_configtestFixture, "test_configtest")
 		CHECK_EQ(false, cf.load());
 		CHECK_EQ(std::string(""), cf.getValue("stale"));
 	}
+
+	SUBCASE("getvalue_nonexistent_key")
+	{
+		writeFile("a:b");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string(""), cf.getValue("nonexistent"));
+	}
+
+	SUBCASE("setvalue_getvalue")
+	{
+		TestConfigFile cf;
+		cf.setValue("mykey", "myvalue");
+		CHECK_EQ(std::string("myvalue"), cf.getValue("mykey"));
+	}
+
+	SUBCASE("save_load_roundtrip")
+	{
+		TestConfigFile cf;
+		cf.setValue("key1", "value1");
+		cf.setValue("key2", "value 2");
+		cf.setValue("key3", "value#3");
+		CHECK_EQ(true, cf.save());
+
+		TestConfigFile cf2;
+		CHECK_EQ(true, cf2.load());
+		CHECK_EQ(std::string("value1"), cf2.getValue("key1"));
+		CHECK_EQ(std::string("value 2"), cf2.getValue("key2"));
+		CHECK_EQ(std::string("value#3"), cf2.getValue("key3"));
+	}
+
+	SUBCASE("save_overwrites_existing_keys")
+	{
+		writeFile("key1:old");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("old"), cf.getValue("key1"));
+
+		cf.setValue("key1", "new");
+		CHECK_EQ(true, cf.save());
+
+		TestConfigFile cf2;
+		CHECK_EQ(true, cf2.load());
+		CHECK_EQ(std::string("new"), cf2.getValue("key1"));
+	}
+
+	SUBCASE("key_with_colon_separator")
+	{
+		writeFile("key:value");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("value"), cf.getValue("key"));
+	}
+
+	SUBCASE("loading_key_with_equals_sign")
+	{
+		writeFile("a=b");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("b"), cf.getValue("a"));
+	}
+
+	SUBCASE("loading_value_starts_with_equals_sign")
+	{
+		writeFile("a:=b");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("=b"), cf.getValue("a"));
+	}
+
+	SUBCASE("loading_only_comment_line")
+	{
+		writeFile("# just a comment", false);
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+	}
+
+	SUBCASE("loading_multiple_empty_and_comment_lines")
+	{
+		writeFile("# header comment\n\na: 1\n\n# mid comment\n\nb: 2\n\n", false);
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("1"), cf.getValue("a"));
+		CHECK_EQ(std::string("2"), cf.getValue("b"));
+	}
+
+	SUBCASE("loading_value_containing_hash_in_quotes")
+	{
+		writeFile("a:\"#value#\" ");
+
+		TestConfigFile cf;
+		CHECK(cf.load());
+		CHECK_EQ(std::string("#value#"), cf.getValue("a"));
+	}
+
+	SUBCASE("loading_value_containing_hash_in_single_quotes")
+	{
+		writeFile("a:'#value#' ");
+
+		TestConfigFile cf;
+		CHECK(cf.load());
+		CHECK_EQ(std::string("#value#"), cf.getValue("a"));
+	}
+
+	SUBCASE("loading_multiple_values")
+	{
+		writeFile("a: first\nb: second\nc: third");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("first"), cf.getValue("a"));
+		CHECK_EQ(std::string("second"), cf.getValue("b"));
+		CHECK_EQ(std::string("third"), cf.getValue("c"));
+	}
+
+	SUBCASE("loading_empty_line_at_start")
+	{
+		writeFile("\na:b");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("b"), cf.getValue("a"));
+	}
+
+	SUBCASE("loading_empty_line_at_end")
+	{
+		writeFile("a:b\n");
+
+		TestConfigFile cf;
+		CHECK_EQ(true, cf.load());
+		CHECK_EQ(std::string("b"), cf.getValue("a"));
+	}
 }

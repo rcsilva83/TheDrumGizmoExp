@@ -214,6 +214,7 @@ void OSSOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 
 void OSSOutputEngine::post(size_t nsamples)
 {
+	(void)nsamples;
 	auto data_size = data.size() * sizeof(*data.data());
 	auto size_written = write(fd, data.data(), data_size);
 	if(size_written != data_size)

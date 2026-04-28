@@ -134,6 +134,8 @@ void AlsaMidiInputEngine::pre()
 void AlsaMidiInputEngine::run(size_t pos, size_t len,
                               std::vector<event_t>& events)
 {
+	(void)pos;
+	(void)len;
 	assert(events.empty());
 	snd_seq_event_t* ev = NULL;
 	if ( snd_seq_event_input(seq_handle, &ev) >= 0 )

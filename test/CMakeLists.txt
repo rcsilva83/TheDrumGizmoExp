@@ -153,6 +153,18 @@ dg_add_doctest_test(framesizetest
 		SndFile::sndfile
 )
 
+dg_add_doctest_test(drumkittest
+	SOURCES
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/test/drumkittest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+	LINK_LIBRARIES
+		dg_core
+		Threads::Threads
+		SndFile::sndfile
+)
+
 dg_add_doctest_test(enginetest
 	SOURCES
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
@@ -183,12 +195,29 @@ if(TARGET dg_dggui AND TARGET dg_plugingui_resource_data)
 	)
 endif()
 
+dg_add_doctest_test(pathtest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/path.cc"
+		"${CMAKE_SOURCE_DIR}/test/pathtest.cc"
+)
+
 dg_add_doctest_test(configfile
 	SOURCES
 		"${CMAKE_SOURCE_DIR}/src/configfile.cc"
 		"${CMAKE_SOURCE_DIR}/src/directory.cc"
 		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
 		"${CMAKE_SOURCE_DIR}/test/configtest.cc"
+	INCLUDE_DIRS
+		"${DG_HUGIN_SOURCE_DIR}"
+)
+
+dg_add_doctest_test(drumgizmoconftest
+	SOURCES
+		"${CMAKE_SOURCE_DIR}/src/configfile.cc"
+		"${CMAKE_SOURCE_DIR}/src/directory.cc"
+		"${DG_HUGIN_SOURCE_DIR}/hugin.c"
+		"${CMAKE_SOURCE_DIR}/src/drumgizmoconf.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumgizmoconftest.cc"
 	INCLUDE_DIRS
 		"${DG_HUGIN_SOURCE_DIR}"
 )

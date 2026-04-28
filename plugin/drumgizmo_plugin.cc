@@ -366,6 +366,8 @@ bool DrumGizmoPlugin::Input::init(const Instruments &instruments)
 
 void DrumGizmoPlugin::Input::setParm(const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Input::start()
@@ -451,6 +453,8 @@ bool DrumGizmoPlugin::Output::init(const Channels& channels)
 
 void DrumGizmoPlugin::Output::setParm(const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Output::start()
@@ -500,6 +504,7 @@ void DrumGizmoPlugin::Output::run(int ch, sample_t* samples, size_t nsamples)
 
 void DrumGizmoPlugin::Output::post(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 sample_t* DrumGizmoPlugin::Output::getBuffer(int ch) const
