@@ -60,9 +60,15 @@ _SOURCE_EXTS = {".c", ".cc", ".cpp", ".cxx"}
 # Prefixes that identify non-test source modules
 _SOURCE_PREFIXES = ("src/", "dggui/", "plugingui/", "plugin/", "drumgizmo/")
 
-# GUI file prefixes that are excluded from the changed-file coverage floor check
-# These files require a display server and cannot be meaningfully unit tested
-_GUI_PREFIXES = ("dggui/", "plugingui/")
+# Specific GUI files excluded from the changed-file coverage floor check.
+# Only X11-specific native code that cannot be meaningfully unit tested in a
+# headless environment should be listed here. The blanket prefix exemption for
+# all dggui/ and plugingui/ files was removed because the CI now runs tests
+# under Xvfb, making the vast majority of GUI code testable.
+_GUI_EXEMPT_FILES = {
+    # dggui/ - X11-specific native code that directly calls Xlib
+    "dggui/nativewindow_x11.cc",
+}
 
 # Files modified only for static analysis fixes (void casts, comments) that
 # don't add testable functional code. These are excluded from the floor check.
@@ -100,9 +106,9 @@ def is_source_file(path):
     return any(path.startswith(prefix) for prefix in _SOURCE_PREFIXES)
 
 
-def is_gui_file(path):
-    """Return True if *path* is a GUI file excluded from floor check."""
-    return any(path.startswith(prefix) for prefix in _GUI_PREFIXES)
+def is_gui_exempt_file(path):
+    """Return True if *path* is a specific GUI file excluded from floor check."""
+    return path in _GUI_EXEMPT_FILES
 
 
 def is_static_analysis_fix(path):
@@ -156,10 +162,10 @@ def main(argv=None):
             # File not in coverage report (not instrumented or header-only) — skip
             continue
         pct = percent(cov, tot)
-        # GUI files and static analysis fixes are excluded from the floor check
-        if is_gui_file(path):
-            ok = True  # GUI files always pass the floor check
-            exempt_type = "GUI"
+        # Specific GUI files and static analysis fixes are excluded from the floor check
+        if is_gui_exempt_file(path):
+            ok = True  # Specific GUI file always passes the floor check
+            exempt_type = "GUI-exempt"
         elif is_static_analysis_fix(path):
             ok = True  # Static analysis fixes don't add testable code
             exempt_type = "static-analysis"
@@ -187,14 +193,14 @@ def main(argv=None):
                 f"(configured in `.coverage-thresholds.json` → `changed_file_min`).\n\n"
             )
             fh.write(
-                "*Note: GUI files (`dggui/`, `plugingui/`) and static analysis fixes are "
+                "*Note: X11-specific native code (`dggui/nativewindow_x11.cc`) and static analysis fixes are "
                 "excluded from the floor check.*\n\n"
             )
             fh.write("| File | Lines covered | Line % | Floor | Status |\n")
             fh.write("| ---- | ---: | ---: | ---: | :---: |\n")
             for path, pct, fl, ok, cov, tot, exempt_type in results:
-                if exempt_type == "GUI":
-                    status = "✅ exempt (GUI)"
+                if exempt_type == "GUI-exempt":
+                    status = "✅ exempt (X11)"
                 elif exempt_type == "static-analysis":
                     status = "✅ exempt (static analysis)"
                 else:
@@ -210,7 +216,7 @@ def main(argv=None):
             else:
                 fh.write(
                     f"\n> ✅ All changed source files meet the {floor:.0f}% coverage floor "
-                    "(GUI files and static analysis fixes exempted).\n"
+                    "(X11 native code and static analysis fixes exempted).\n"
                 )
 
     # Console output
@@ -219,8 +225,8 @@ def main(argv=None):
     print(header)
     print("-" * len(header))
     for path, pct, fl, ok, cov, tot, exempt_type in results:
-        if exempt_type == "GUI":
-            status = "EXEMPT (GUI)"
+        if exempt_type == "GUI-exempt":
+            status = "EXEMPT (X11)"
         elif exempt_type == "static-analysis":
             status = "EXEMPT (static-analysis)"
         else:
@@ -236,7 +242,7 @@ def main(argv=None):
         )
         sys.exit(1)
 
-    print(f"\n\u2705 Changed-file coverage check PASSED ({floor:.0f}% floor, GUI and static analysis files exempted).")
+    print(f"\n\u2705 Changed-file coverage check PASSED ({floor:.0f}% floor, X11 native code and static analysis files exempted).")
 
 
 if __name__ == "__main__":

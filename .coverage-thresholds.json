@@ -15,6 +15,14 @@
     "src": {
       "line_min": 90,
       "note": "Reached 90% target on 2026-04-20 (actual: 92.0%)"
+    },
+    "dggui": {
+      "line_min": 60,
+      "note": "Set on 2026-05-03 after blanket GUI exemption removal (actual: 60.5%)"
+    },
+    "plugingui": {
+      "line_min": 65,
+      "note": "Set on 2026-05-03 after blanket GUI exemption removal (actual: 69.4%)"
     }
   }
 }
