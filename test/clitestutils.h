@@ -79,8 +79,8 @@ static std::string shellEscape(const std::string& arg)
 #endif
 }
 
-static CommandResult runCommand(const std::string& binary,
-                                const std::vector<std::string>& args)
+static CommandResult runCommand(
+    const std::string& binary, const std::vector<std::string>& args)
 {
 	std::string command = shellEscape(binary);
 	for(const auto& arg : args)
@@ -105,7 +105,7 @@ static CommandResult runCommand(const std::string& binary,
 
 	std::ifstream stream(output_file.filename());
 	std::string output((std::istreambuf_iterator<char>(stream)),
-	                   std::istreambuf_iterator<char>());
+	    std::istreambuf_iterator<char>());
 
 	return {exit_code, output};
 }

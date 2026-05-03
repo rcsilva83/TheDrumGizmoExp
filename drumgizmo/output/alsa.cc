@@ -35,9 +35,7 @@ struct AlsaInitError
 	int const code;
 	const std::string msg;
 
-	AlsaInitError(int op_code, const std::string& msg)
-		: code{op_code}
-		, msg{msg}
+	AlsaInitError(int op_code, const std::string& msg) : code{op_code}, msg{msg}
 	{
 	}
 
@@ -51,14 +49,14 @@ struct AlsaInitError
 };
 
 AlsaOutputEngine::AlsaOutputEngine()
-	: handle{nullptr}
-	, params{nullptr}
-	, data{}
-	, num_channels{0u}
-	, dev{"default"}
-	, srate{44100}
-	, frames{32}
-	, periods{3}
+    : handle{nullptr}
+    , params{nullptr}
+    , data{}
+    , num_channels{0u}
+    , dev{"default"}
+    , srate{44100}
+    , frames{32}
+    , periods{3}
 {
 }
 
@@ -105,8 +103,7 @@ bool AlsaOutputEngine::init(const Channels& channels)
 		value =
 		    snd_pcm_hw_params_set_period_size_near(handle, params, &frames, 0);
 		AlsaInitError::test(value, "snd_pcm_hw_params_set_period_size_near");
-		value =
-		    snd_pcm_hw_params_set_periods_near(handle, params, &periods, 0);
+		value = snd_pcm_hw_params_set_periods_near(handle, params, &periods, 0);
 		AlsaInitError::test(value, "snd_pcm_hw_params_set_periods_near");
 		value = snd_pcm_hw_params(handle, params);
 		AlsaInitError::test(value, "snd_pcm_hw_params");
@@ -124,7 +121,8 @@ bool AlsaOutputEngine::init(const Channels& channels)
 	return true;
 }
 
-void AlsaOutputEngine::setParm(const std::string& parm, const std::string& value)
+void AlsaOutputEngine::setParm(
+    const std::string& parm, const std::string& value)
 {
 	if(parm == "dev")
 	{
@@ -153,8 +151,8 @@ void AlsaOutputEngine::setParm(const std::string& parm, const std::string& value
 		}
 		catch(...)
 		{
-			std::cerr << "[AlsaOutputEngine] Invalid number of periods " << value
-			          << "\n";
+			std::cerr << "[AlsaOutputEngine] Invalid number of periods "
+			          << value << "\n";
 		}
 	}
 	else if(parm == "srate")

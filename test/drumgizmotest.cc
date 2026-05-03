@@ -59,13 +59,12 @@
 #include <instrument.h>
 
 #ifdef HAVE_OUTPUT_WAVFILE
-static void cleanupWavFiles(const std::string& prefix,
-                            const Channels& channels)
+static void cleanupWavFiles(const std::string& prefix, const Channels& channels)
 {
 	for(size_t i = 0; i < channels.size(); ++i)
 	{
-		std::string fname = prefix + channels[i].name + "-" +
-		                    std::to_string(i) + ".wav";
+		std::string fname =
+		    prefix + channels[i].name + "-" + std::to_string(i) + ".wav";
 		std::remove(fname.c_str());
 	}
 }
@@ -938,10 +937,10 @@ TEST_CASE("EngineFactory")
 #ifdef HAVE_INPUT_MIDIFILE
 #include "drumgizmo/input/midifile.h"
 #include "scopedfile.h"
-#include <smf.h>
 #include <fstream>
 #include <random.h>
 #include <settings.h>
+#include <smf.h>
 
 // Helper function to create a minimal test MIDI file
 [[maybe_unused]] static bool createTestMidiFile(const std::string& filename)
@@ -965,7 +964,8 @@ TEST_CASE("EngineFactory")
 
 	// Note On event (middle C, velocity 100)
 	std::uint8_t note_on[] = {0x90, 60, 100};
-	smf_event_t* event_on = smf_event_new_from_pointer(note_on, sizeof(note_on));
+	smf_event_t* event_on =
+	    smf_event_new_from_pointer(note_on, sizeof(note_on));
 	if(event_on)
 	{
 		smf_track_add_event_seconds(track, event_on, 0.0);
@@ -973,7 +973,8 @@ TEST_CASE("EngineFactory")
 
 	// Note Off event
 	std::uint8_t note_off[] = {0x80, 60, 0};
-	smf_event_t* event_off = smf_event_new_from_pointer(note_off, sizeof(note_off));
+	smf_event_t* event_off =
+	    smf_event_new_from_pointer(note_off, sizeof(note_off));
 	if(event_off)
 	{
 		smf_track_add_event_seconds(track, event_off, 0.5);
@@ -1141,11 +1142,10 @@ TEST_CASE("MidifileInputEngine")
 	{
 		MidifileInputEngine engine;
 		Instruments instruments;
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		engine.setParm("file", "/nonexistent/path/test.mid");
 		engine.setParm("midimap", midimap_file.filename());
@@ -1167,8 +1167,7 @@ TEST_CASE("MidifileInputEngine")
 			std::uint8_t note[] = {0x90, 60, 100};
 			smf_event_t* ev = smf_event_new_from_pointer(note, sizeof(note));
 			smf_track_add_event_seconds(track, ev, 0.0);
-			int save_res = smf_save(smf,
-			                        midi_file.filename().c_str());
+			int save_res = smf_save(smf, midi_file.filename().c_str());
 			(void)save_res;
 			smf_delete(smf);
 		}
@@ -1187,41 +1186,33 @@ TEST_CASE("MidifileInputEngine")
 
 // Minimal MIDI file: Format 0, 1 track, 96 ticks/quarter.
 // Contains a Note On (note=60, vel=100) at time 0.
-static const unsigned char kMinimalMidi[] = {
-	'M', 'T', 'h', 'd',
-	0x00, 0x00, 0x00, 0x06,
-	0x00, 0x00,
-	0x00, 0x01,
-	0x00, 0x60,
-	'M', 'T', 'r', 'k',
-	0x00, 0x00, 0x00, 0x14,
-	// Event: delta=0, Note On ch=0 note=60 vel=100
-	0x00, 0x90, 0x3C, 0x64,
-	// Event: delta=96, Note Off ch=0 note=60 vel=0
-	0x60, 0x80, 0x3C, 0x00,
-	// Event: delta=0, Note On ch=0 note=64 vel=80
-	0x00, 0x90, 0x40, 0x50,
-	// Event: delta=96, Note Off ch=0 note=64 vel=0
-	0x60, 0x80, 0x40, 0x00,
-	// End of track
-	0x00, 0xFF, 0x2F, 0x00
-};
+static const unsigned char kMinimalMidi[] = {'M', 'T', 'h', 'd', 0x00, 0x00,
+    0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x60, 'M', 'T', 'r', 'k', 0x00,
+    0x00, 0x00, 0x14,
+    // Event: delta=0, Note On ch=0 note=60 vel=100
+    0x00, 0x90, 0x3C, 0x64,
+    // Event: delta=96, Note Off ch=0 note=60 vel=0
+    0x60, 0x80, 0x3C, 0x00,
+    // Event: delta=0, Note On ch=0 note=64 vel=80
+    0x00, 0x90, 0x40, 0x50,
+    // Event: delta=96, Note Off ch=0 note=64 vel=0
+    0x60, 0x80, 0x40, 0x00,
+    // End of track
+    0x00, 0xFF, 0x2F, 0x00};
 
 TEST_CASE("MidifileInputEngineRun")
 {
 	SUBCASE("fullLifecycleGeneratesStopEvent")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "\t<map note=\"64\" instr=\"Snare\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "\t<map note=\"64\" instr=\"Snare\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -1241,7 +1232,7 @@ TEST_CASE("MidifileInputEngineRun")
 		if(events.size() > 0)
 		{
 			CHECK_EQ(static_cast<int>(events.back().type),
-		           	 static_cast<int>(EventType::Stop));
+			    static_cast<int>(EventType::Stop));
 		}
 
 		engine.stop();
@@ -1263,15 +1254,13 @@ TEST_CASE("MidifileInputEngineRun")
 	SUBCASE("fullLifecycleWithLoopDoesNotGenerateStop")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -1309,15 +1298,13 @@ TEST_CASE("MidifileInputEngineRun")
 	SUBCASE("fullLifecycleMultiplePositions")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -1347,15 +1334,13 @@ TEST_CASE("MidifileInputEngineRun")
 	SUBCASE("setSampleRateAffectsTiming")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -1380,15 +1365,13 @@ TEST_CASE("MidifileInputEngineRun")
 	SUBCASE("setParmSpeedAffectsTiming")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -2103,11 +2086,10 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 
 	SUBCASE("fullLifecycleWithInvalidSmfFileReturnsFalse")
 	{
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", "/tmp/drumgizmo_nonexistent_midi.mid");
@@ -2122,15 +2104,13 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 	SUBCASE("fullLifecycleReinitAfterStop")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());
@@ -2165,15 +2145,13 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 	SUBCASE("runWithSmallChunkSizes")
 	{
 		std::string midi_data(
-		    reinterpret_cast<const char*>(kMinimalMidi),
-		    sizeof(kMinimalMidi));
+		    reinterpret_cast<const char*>(kMinimalMidi), sizeof(kMinimalMidi));
 		ScopedFile midi_file(midi_data);
 
-		ScopedFile midimap_file(
-		    "<?xml version='1.0' encoding='UTF-8'?>\n"
-		    "<midimap>\n"
-		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
-		    "</midimap>");
+		ScopedFile midimap_file("<?xml version='1.0' encoding='UTF-8'?>\n"
+		                        "<midimap>\n"
+		                        "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		                        "</midimap>");
 
 		MidifileInputEngine engine;
 		engine.setParm("file", midi_file.filename());

@@ -29,8 +29,8 @@
 
 #include <config.h>
 
-#include "drumkit_creator.h"
 #include "clitestutils.h"
+#include "drumkit_creator.h"
 
 #include <string>
 #include <vector>
@@ -514,11 +514,11 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 
 	SUBCASE("emptyOutputEngineReturnsError")
 	{
-		auto result = runDrumgizmoCli(
-		    {"--inputengine", "dummy", "--outputengine", ""});
+		auto result =
+		    runDrumgizmoCli({"--inputengine", "dummy", "--outputengine", ""});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("Missing output engine"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("Missing output engine"));
 	}
 
 	SUBCASE("emptyInputEngineReturnsError")
@@ -526,15 +526,14 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		auto result =
 		    runDrumgizmoCli({"--inputengine", "", "--outputengine", "dummy"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("Missing input engine"));
+		CHECK_NE(std::string::npos, result.output.find("Missing input engine"));
 	}
 
 	SUBCASE("inputparmsOptionRunSucceeds")
 	{
-		auto result = runDrumgizmoCli({"--inputengine", "test",
-		    "--inputparms", "p=0.5,instr=1,len=1", "--outputengine", "dummy",
-		    "--endpos", "1", kitfile});
+		auto result = runDrumgizmoCli(
+		    {"--inputengine", "test", "--inputparms", "p=0.5,instr=1,len=1",
+		        "--outputengine", "dummy", "--endpos", "1", kitfile});
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
@@ -542,8 +541,8 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 	SUBCASE("outputparmsOptionRunSucceeds")
 	{
 		auto result = runDrumgizmoCli({"--inputengine", "dummy",
-		    "--outputengine", "wavfile", "--outputparms", "file=/tmp/dg_cli_testout,srate=48000",
-		    "--endpos", "1", kitfile});
+		    "--outputengine", "wavfile", "--outputparms",
+		    "file=/tmp/dg_cli_testout,srate=48000", "--endpos", "1", kitfile});
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 		// Cleanup test output files (4 channels from std kit)
@@ -559,8 +558,8 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		auto result =
 		    runDrumgizmoCli({"--velocity-humanizerparms", "attack=-1"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("attack range is [0, 1]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("attack range is [0, 1]"));
 	}
 
 	SUBCASE("velocityHumanizerparmsReleaseNegativeReturnsError")
@@ -568,8 +567,8 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		auto result =
 		    runDrumgizmoCli({"--velocity-humanizerparms", "release=-1"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("release range is [0, 1]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("release range is [0, 1]"));
 	}
 
 	SUBCASE("velocityHumanizerparmsStddevNegativeReturnsError")
@@ -577,16 +576,15 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		auto result =
 		    runDrumgizmoCli({"--velocity-humanizerparms", "stddev=-1"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("stddev range is [0, 4.5]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("stddev range is [0, 4.5]"));
 	}
 
 	SUBCASE("voiceLimitparmsMaxTooHighReturnsError")
 	{
 		auto result = runDrumgizmoCli({"--voice-limitparms", "max=31"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("max range is [1, 30]"));
+		CHECK_NE(std::string::npos, result.output.find("max range is [1, 30]"));
 	}
 
 	SUBCASE("voiceLimitparmsRampdownTooLowReturnsError")
@@ -601,24 +599,24 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 	{
 		auto result = runDrumgizmoCli({"--parameters", "close=-1"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("close range is [0, 1]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("close range is [0, 1]"));
 	}
 
 	SUBCASE("parametersDiverseTooHighReturnsError")
 	{
 		auto result = runDrumgizmoCli({"--parameters", "diverse=2"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("diverse range is [0, 1]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("diverse range is [0, 1]"));
 	}
 
 	SUBCASE("parametersRandomNegativeReturnsError")
 	{
 		auto result = runDrumgizmoCli({"--parameters", "random=-1"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("random range is [0, 1]"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("random range is [0, 1]"));
 	}
 
 	SUBCASE("timingHumanizerparmsLaidbackTooLowReturnsError")
@@ -626,14 +624,13 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		auto result =
 		    runDrumgizmoCli({"--timing-humanizerparms", "laidback=-200"});
 		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(std::string::npos,
-		    result.output.find("laidback range is +/- 100"));
+		CHECK_NE(
+		    std::string::npos, result.output.find("laidback range is +/- 100"));
 	}
 
 	SUBCASE("streamingparmsLimitByteSizeZeroReturnsError")
 	{
-		auto result =
-		    runDrumgizmoCli({"--streamingparms", "limit=0G"});
+		auto result = runDrumgizmoCli({"--streamingparms", "limit=0G"});
 		CHECK_EQ(1, result.exit_code);
 		CHECK_NE(std::string::npos,
 		    result.output.find("Invalid argument for streamparms limit"));
@@ -641,17 +638,17 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 
 	SUBCASE("parametersMultipleCommaSeparatedRunSucceeds")
 	{
-		auto result = runDrumgizmoCli(
-		    prependArgs({"--parameters", "close=0.5,diverse=0.3,random=0.1"}, kitfile));
+		auto result = runDrumgizmoCli(prependArgs(
+		    {"--parameters", "close=0.5,diverse=0.3,random=0.1"}, kitfile));
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
 	SUBCASE("inputparmsMultipleCommaSeparatedRunSucceeds")
 	{
-		auto result = runDrumgizmoCli({"--inputengine", "test",
-		    "--inputparms", "p=0.5,instr=1,len=1", "--outputengine", "dummy",
-		    "--endpos", "1", kitfile});
+		auto result = runDrumgizmoCli(
+		    {"--inputengine", "test", "--inputparms", "p=0.5,instr=1,len=1",
+		        "--outputengine", "dummy", "--endpos", "1", kitfile});
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}

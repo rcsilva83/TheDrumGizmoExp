@@ -29,8 +29,8 @@
 
 #include <config.h>
 
-#include "drumkit_creator.h"
 #include "clitestutils.h"
+#include "drumkit_creator.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -154,8 +154,7 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_EQ(1, result.exit_code);
 		// Missing metadata (e.g. version) is logged as warning in non-pedantic,
 		// but as error in pedantic mode.
-		CHECK_NE(std::string::npos,
-		    result.output.find("Validator found errors."));
+		CHECK_NE(
+		    std::string::npos, result.output.find("Validator found errors."));
 	}
-
 }
