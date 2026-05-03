@@ -3,7 +3,7 @@
  *            wavfile.cc
  *
  *  Mi 20. Jan 16:57:16 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 

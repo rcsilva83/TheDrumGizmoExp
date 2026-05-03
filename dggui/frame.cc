@@ -3,7 +3,7 @@
  *            frame.cc
  *
  *  Tue Feb  7 21:07:56 CET 2017
- *  Copyright 2017 Andr� Nusser
+ *  Copyright 2017 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 

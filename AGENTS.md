@@ -73,11 +73,36 @@ Available test targets: `resource`, `enginetest`, `paintertest`, `configfile`,
 
 ## Mandatory Pre-Commit Verification
 
-Before every **code-affecting** commit, run all four stages below in order.
+Before every **code-affecting** commit, run all five stages below in order.
 If any stage fails, fix the issues and re-run before committing.
 
 Docs-only commits (changes only to `*.md` or documentation files, no C/C++
 source changes) are exempt from this mandatory verification.
+
+### Stage 0 — Encoding check
+
+Check every changed source file for UTF-8 replacement characters (`U+FFFD`)
+that indicate encoding corruption:
+
+```sh
+python3 -c "
+import sys
+exit_code = 0
+for f in sys.argv[1:]:
+    with open(f, 'rb') as fh:
+        data = fh.read()
+    if b'\xef\xbf\xbd' in data:
+        pos = data.index(b'\xef\xbf\xbd')
+        lineno = data[:pos].count(b'\n') + 1
+        print('ENCODING CORRUPTION: {}:{} contains U+FFFD replacement character'.format(f, lineno))
+        exit_code = 1
+sys.exit(exit_code)
+" path/to/changed_file.cc path/to/changed_file.h
+```
+
+If this check finds `U+FFFD` replacement characters, the file has been corrupted
+by an encoding misread/miswrite. Revert the file and re-edit it without
+re-encoding its multi-byte UTF-8 content.
 
 ### Stage 1 — clang-format
 
@@ -232,9 +257,35 @@ To avoid SonarCloud warnings and errors, follow these additional guidelines:
 
 ## Text Encoding
 
-- Save source and documentation files as **UTF-8** (without BOM)
-- Preserve author names exactly as written in license headers (do not transliterate)
-- If a file contains non-ASCII characters (for example `ö`), keep them intact and avoid mojibake replacements
+All source and documentation files MUST be **UTF-8** (without BOM).
+
+### For Coding Agents (CRITICAL)
+
+When editing files with Read and Edit tools, the tool infrastructure can corrupt
+multi-byte UTF-8 characters. This happens when a Read tool returns text that has
+already lost the original byte sequence, and an Edit tool writes back corrupted
+content. The most common sign of corruption is the **U+FFFD replacement character**
+appearing in place of accented characters.
+
+**Before every edit to a file with non-ASCII content:**
+1. Read the file and verify author names like `Glöckner` and `André Nusser`
+   appear correctly (not garbled with replacement characters).
+2. If the tools corrupt characters on read, **do not write the file back** --
+   find another method to make the edit without re-encoding through the tool.
+3. After any edit touching non-ASCII content, run the encoding check
+   (Stage 0) to confirm no corruption was introduced.
+
+### Known non-ASCII author names
+
+The following names appear in license headers and must be preserved exactly:
+
+| Name                  | Common corruption                            |
+|-----------------------|----------------------------------------------|
+| `Christian Glöckner`  | `ö` replaced by U+FFFD replacement character |
+| `André Nusser`        | `é` replaced by U+FFFD replacement character |
+
+If you see a question mark or replacement symbol instead of `ö` or `é` in any
+file, encoding corruption has occurred and the file must be reverted.
 
 ## Naming Conventions
 

@@ -3,7 +3,7 @@
  *            atomic.cc
  *
  *  Wed Mar 23 09:17:12 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
