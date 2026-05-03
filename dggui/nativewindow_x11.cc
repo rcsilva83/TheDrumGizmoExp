@@ -260,7 +260,8 @@ std::pair<int, int> NativeWindowX11::getPosition() const
 
 	::Window root_window;
 	::Window child_window;
-	int x, y;
+	int x;
+	int y;
 	unsigned int width;
 	unsigned int height;
 	unsigned int border;

@@ -156,14 +156,7 @@ void JackAudioOutputEngine::jackLatencyCallback(
 	switch(mode)
 	{
 	case JackCaptureLatency:
-		// We do not have any audio input ports. Use this for when we do...
-		//		jack_port_get_latency_range(port_feeding_input_port,
-		//		                            JackPlaybackLatency,
-		//		                            &range);
-		//		range.min += 0;
-		//		range.max += 0;
-		//		jack_port_set_latency_range(input_port, JackPlaybackLatency,
-		//&range);
+		// We do not have any audio input ports.
 		break;
 	case JackPlaybackLatency:
 		for(auto& channel : channels)

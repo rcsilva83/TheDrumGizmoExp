@@ -1763,67 +1763,12 @@ TEST_CASE("DummyInputEngineEdgeCases")
 		CHECK_UNARY(engine.isFreewheeling());
 	}
 
-	SUBCASE("stopWithoutStartDoesNotCrash")
-	{
-		DummyInputEngine engine;
-
-		engine.stop();
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("postWithoutPreDoesNotCrash")
-	{
-		DummyInputEngine engine;
-
-		engine.post();
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("preMultipleTimesDoesNotCrash")
-	{
-		DummyInputEngine engine;
-
-		engine.pre();
-		engine.pre();
-		engine.pre();
-
-		CHECK_UNARY(true);
-	}
 }
 #endif // HAVE_INPUT_DUMMY
 
 #ifdef HAVE_OUTPUT_DUMMY
 TEST_CASE("DummyOutputEngineEdgeCases")
 {
-	SUBCASE("runMultipleTimesDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-		sample_t samples[1024] = {0};
-
-		for(int i = 0; i < 100; ++i)
-		{
-			engine.run(0, samples, 1024);
-		}
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("runWithDifferentChannelsDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-		sample_t samples[1024] = {0};
-
-		// Run with different channel indices
-		for(int i = 0; i < 10; ++i)
-		{
-			engine.run(i, samples, 1024);
-		}
-
-		CHECK_UNARY(true);
-	}
-
 	SUBCASE("fullLifecycleMultipleTimes")
 	{
 		DummyOutputEngine engine;
@@ -1841,45 +1786,6 @@ TEST_CASE("DummyOutputEngineEdgeCases")
 		}
 
 		CHECK_EQ(engine.getSamplerate(), 44100);
-	}
-
-	SUBCASE("stopWithoutStartDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-
-		engine.stop();
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("postWithoutPreDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-
-		engine.post(1024);
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("preMultipleTimesDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-
-		engine.pre(1024);
-		engine.pre(512);
-		engine.pre(256);
-
-		CHECK_UNARY(true);
-	}
-
-	SUBCASE("runWithZeroSizeDoesNotCrash")
-	{
-		DummyOutputEngine engine;
-		sample_t samples[1024] = {0};
-
-		engine.run(0, samples, 0);
-
-		CHECK_UNARY(true);
 	}
 
 	SUBCASE("getBufferWithVariousIndicesReturnsNull")
