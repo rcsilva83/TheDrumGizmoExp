@@ -257,7 +257,7 @@ void DrumGizmoPlugin::onInlineRedraw(
 		context.height = height;
 		assert(context.width * context.height <= sizeof(inlineDisplayBuffer));
 
-		context.data = (unsigned char*)inlineDisplayBuffer;
+		context.data = reinterpret_cast<unsigned char*>(inlineDisplayBuffer);
 		InlineCanvas canvas(context);
 		dggui::Painter painter(canvas);
 
@@ -307,7 +307,7 @@ void DrumGizmoPlugin::onInlineRedraw(
 		for(std::size_t i = 0; i < context.height * context.width; ++i)
 		{
 			std::uint32_t pixel = inlineDisplayBuffer[i];
-			unsigned char* p = (unsigned char*)&pixel;
+			auto* p = reinterpret_cast<unsigned char*>(&pixel);
 			inlineDisplayBuffer[i] = pgzRGBA(p[0], p[1], p[2], p[3]);
 		}
 	}

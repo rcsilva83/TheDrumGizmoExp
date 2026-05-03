@@ -300,7 +300,7 @@ TEST_CASE("TestInputEngine")
 		engine.setParm("p", "1.0"); // 100% probability
 
 		// Run multiple times to ensure events are generated
-		for(int i = 0; i < 10; ++i)
+		for(size_t i = 0; i < 10; ++i)
 		{
 			events.clear();
 			engine.run(i * 1024, 1024, events);
@@ -320,7 +320,7 @@ TEST_CASE("TestInputEngine")
 		engine.init(instruments);
 		engine.setParm("p", "0.0"); // 0% probability
 
-		for(int i = 0; i < 10; ++i)
+		for(size_t i = 0; i < 10; ++i)
 		{
 			events.clear();
 			engine.run(i * 1024, 1024, events);
@@ -362,7 +362,7 @@ TEST_CASE("TestInputEngine")
 		engine.run(0, 1024, events);
 
 		// Should have a stop event due to len=0 and pos > len*samplerate
-		CHECK_UNARY(events.size() > 0);
+		CHECK_UNARY(!events.empty());
 	}
 
 	SUBCASE("fullLifecycleWorks")
@@ -1228,8 +1228,8 @@ TEST_CASE("MidifileInputEngineRun")
 		engine.run(0, 44100, events);
 		engine.post();
 
-		CHECK_UNARY(events.size() >= 1);
-		if(events.size() > 0)
+		CHECK_UNARY(!events.empty());
+		if(!events.empty())
 		{
 			CHECK_EQ(static_cast<int>(events.back().type),
 			    static_cast<int>(EventType::Stop));
@@ -1274,7 +1274,7 @@ TEST_CASE("MidifileInputEngineRun")
 
 		// Run multiple times - with loop enabled, no Stop event should appear
 		bool saw_stop = false;
-		for(int i = 0; i < 3; ++i)
+		for(size_t i = 0; i < 3; ++i)
 		{
 			std::vector<event_t> events;
 			engine.pre();
@@ -1317,7 +1317,7 @@ TEST_CASE("MidifileInputEngineRun")
 
 		// Run through the file in chunks
 		size_t total_events = 0;
-		for(size_t pos = 0; pos < 44100 * 5; pos += 1024)
+		for(size_t pos = 0; pos < static_cast<size_t>(44100) * 5; pos += 1024)
 		{
 			std::vector<event_t> events;
 			engine.pre();
@@ -1357,7 +1357,7 @@ TEST_CASE("MidifileInputEngineRun")
 		engine.run(0, 48000, events);
 		engine.post();
 
-		CHECK_UNARY(events.size() >= 1);
+		CHECK_UNARY(!events.empty());
 
 		engine.stop();
 	}
@@ -1390,7 +1390,7 @@ TEST_CASE("MidifileInputEngineRun")
 
 		// With double speed, events are processed in half the time.
 		// The Stop event should be generated once the MIDI file ends.
-		CHECK_UNARY(events.size() >= 1);
+		CHECK_UNARY(!events.empty());
 
 		engine.stop();
 	}
@@ -1485,7 +1485,7 @@ TEST_CASE("TestInputEngineEdgeCases")
 		engine.setParm("p", "0.0");
 
 		// Run many times to ensure no events with 0 probability
-		for(int i = 0; i < 100; ++i)
+		for(size_t i = 0; i < 100; ++i)
 		{
 			events.clear();
 			engine.run(i * 1024, 1024, events);
@@ -1732,7 +1732,7 @@ TEST_CASE("DummyInputEngineEdgeCases")
 		std::vector<event_t> events;
 
 		// Run multiple times
-		for(int i = 0; i < 100; ++i)
+		for(size_t i = 0; i < 100; ++i)
 		{
 			events.clear();
 			engine.run(i * 1024, 1024, events);
@@ -1746,7 +1746,7 @@ TEST_CASE("DummyInputEngineEdgeCases")
 		Instruments instruments;
 
 		// Run full lifecycle multiple times
-		for(int i = 0; i < 5; ++i)
+		for(size_t i = 0; i < 5; ++i)
 		{
 			std::vector<event_t> events;
 
@@ -2134,8 +2134,8 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 		engine.post();
 		engine.stop();
 
-		CHECK_UNARY(events.size() >= 1);
-		if(events.size() > 0)
+		CHECK_UNARY(!events.empty());
+		if(!events.empty())
 		{
 			CHECK_EQ(static_cast<int>(events.back().type),
 			    static_cast<int>(EventType::Stop));
@@ -2162,7 +2162,7 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 		CHECK_UNARY(engine.start());
 
 		size_t total_events = 0;
-		for(size_t pos = 0; pos < 44100 * 5; pos += 16)
+		for(size_t pos = 0; pos < static_cast<size_t>(44100) * 5; pos += 16)
 		{
 			std::vector<event_t> events;
 			engine.pre();

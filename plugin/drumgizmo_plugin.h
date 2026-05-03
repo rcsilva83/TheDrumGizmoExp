@@ -38,22 +38,22 @@
 #include <pluginvst.h>
 #endif
 
-#include <drumgizmo.h>
 #include <audioinputenginemidi.h>
 #include <audiooutputengine.h>
+#include <drumgizmo.h>
 #include <mainwindow.h>
 
-#include <dggui/uitranslation.h>
-#include <dggui/texturedbox.h>
-#include <dggui/imagecache.h>
 #include <dggui/image.h>
+#include <dggui/imagecache.h>
+#include <dggui/texturedbox.h>
+#include <dggui/uitranslation.h>
 
 class DrumGizmoPlugin
 #ifdef LV2
-	: public PluginLV2
+    : public PluginLV2
 #endif
 #ifdef VST
-	: public PluginVST
+    : public PluginVST
 #endif
 {
 public:
@@ -87,26 +87,23 @@ public:
 	std::string getHomepage() override;
 	PluginCategory getPluginCategory() override;
 
-	void process(size_t pos,
-	             const std::vector<MidiEvent>& input_events,
-	             std::vector<MidiEvent>& output_events,
-	             const std::vector<const float*>& input_samples,
-	             const std::vector<float*>& output_samples,
-	             size_t count) override;
+	void process(size_t pos, const std::vector<MidiEvent>& input_events,
+	    std::vector<MidiEvent>& output_events,
+	    const std::vector<const float*>& input_samples,
+	    const std::vector<float*>& output_samples, size_t count) override;
 
 	//
 	// Inline GUI
 	//
 	bool hasInlineGUI() override;
-	void onInlineRedraw(std::size_t width,
-	                    std::size_t max_height,
-	                    InlineDrawContext& context) override;
+	void onInlineRedraw(std::size_t width, std::size_t max_height,
+	    InlineDrawContext& context) override;
 
 	//
 	// GUI
 	//
 	bool hasGUI() override;
-	void* createWindow(void *parent) override;
+	void* createWindow(void* parent) override;
 	void onDestroyWindow() override;
 	void onShowWindow() override;
 	void onHideWindow() override;
@@ -114,16 +111,15 @@ public:
 	void closeWindow() override;
 
 private:
-
-	class Input
-		: public AudioInputEngineMidi
+	class Input : public AudioInputEngineMidi
 	{
 	public:
 		Input(DrumGizmoPlugin& plugin);
 
 		bool init(const Instruments& instruments) override;
 
-		void setParm(const std::string& parm, const std::string& value) override;
+		void setParm(
+		    const std::string& parm, const std::string& value) override;
 
 		bool start() override;
 		void stop() override;
@@ -134,31 +130,32 @@ private:
 
 		bool isFreewheeling() const override;
 
-		bool loadMidiMap(const std::string& file, const Instruments& i) override;
+		bool loadMidiMap(
+		    const std::string& file, const Instruments& i) override;
 
 	protected:
 		DrumGizmoPlugin& plugin;
 		const Instruments* instruments{nullptr};
 	};
 
-	class Output
-		: public AudioOutputEngine
+	class Output : public AudioOutputEngine
 	{
 	public:
 		Output(DrumGizmoPlugin& plugin);
 
 		bool init(const Channels& channels) override;
 
-		void setParm(const std::string& parm, const std::string& value) override;
+		void setParm(
+		    const std::string& parm, const std::string& value) override;
 
 		bool start() override;
 		void stop() override;
 
 		void pre(size_t nsamples) override;
-		void run(int ch, sample_t *samples, size_t nsamples) override;
+		void run(int ch, sample_t* samples, size_t nsamples) override;
 		void post(size_t nsamples) override;
 
-		sample_t *getBuffer(int ch) const override;
+		sample_t* getBuffer(int ch) const override;
 		std::size_t getBufferSize() const override;
 		std::size_t getSamplerate() const override;
 		bool isFreewheeling() const override;
@@ -174,6 +171,7 @@ private:
 
 		std::string get();
 		bool set(std::string config_string);
+
 	private:
 		Settings& settings;
 	};
@@ -189,30 +187,30 @@ private:
 	SettingsGetter settingsGetter{settings};
 
 	dggui::ImageCache imageCache;
-	dggui::TexturedBox box{imageCache, ":resources/progress.png",
-			0, 0, // atlas offset (x, y)
-			6, 1, 6, // dx1, dx2, dx3
-			11, 0, 0}; // dy1, dy2, dy3
+	dggui::TexturedBox box{imageCache, ":resources/progress.png", 0,
+	    0,         // atlas offset (x, y)
+	    6, 1, 6,   // dx1, dx2, dx3
+	    11, 0, 0}; // dy1, dy2, dy3
 
-	dggui::TexturedBox bar_red{imageCache, ":resources/progress.png",
-			13, 0, // atlas offset (x, y)
-			2, 1, 2, // dx1, dx2, dx3
-			11, 0, 0}; // dy1, dy2, dy3
+	dggui::TexturedBox bar_red{imageCache, ":resources/progress.png", 13,
+	    0,         // atlas offset (x, y)
+	    2, 1, 2,   // dx1, dx2, dx3
+	    11, 0, 0}; // dy1, dy2, dy3
 
-	dggui::TexturedBox bar_green{imageCache, ":resources/progress.png",
-			18, 0, // atlas offset (x, y)
-			2, 1, 2, // dx1, dx2, dx3
-			11, 0, 0}; // dy1, dy2, dy3
+	dggui::TexturedBox bar_green{imageCache, ":resources/progress.png", 18,
+	    0,         // atlas offset (x, y)
+	    2, 1, 2,   // dx1, dx2, dx3
+	    11, 0, 0}; // dy1, dy2, dy3
 
-	dggui::TexturedBox bar_blue{imageCache, ":resources/progress.png",
-			23, 0, // atlas offset (x, y)
-			2, 1, 2, // dx1, dx2, dx3
-			11, 0, 0}; // dy1, dy2, dy3
+	dggui::TexturedBox bar_blue{imageCache, ":resources/progress.png", 23,
+	    0,         // atlas offset (x, y)
+	    2, 1, 2,   // dx1, dx2, dx3
+	    11, 0, 0}; // dy1, dy2, dy3
 
 	std::shared_ptr<GUI::MainWindow> plugin_gui;
 	std::shared_ptr<DrumGizmo> drumgizmo;
 
-	std::uint32_t inlineDisplayBuffer[1024*1024];
+	std::uint32_t inlineDisplayBuffer[1024 * 1024]{};
 	dggui::Image inline_display_image{":resources/logo.png"};
 	bool inline_image_first_draw{true};
 
