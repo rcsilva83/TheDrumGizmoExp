@@ -181,4 +181,50 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_NE(
 		    std::string::npos, result.output.find("Missing version field."));
 	}
+
+	SUBCASE("quietWithMissingKitfileReturnsError")
+	{
+		auto result = runDgvalidator({"--quiet"});
+		CHECK_EQ(1, result.exit_code);
+		// The direct cerr "Missing kitfile." should still appear
+		CHECK_NE(std::string::npos, result.output.find("Missing kitfile."));
+	}
+
+	SUBCASE("quietOptionWithNoAudioValidKit")
+	{
+		auto result = runDgvalidator({"--quiet", "--no-audio", kitfile});
+		// With --quiet, no logger output, but no-audio skips audio checks.
+		// Metadata warnings are suppressed by quiet.
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("verboseOptionShowsWarningsAndInfo")
+	{
+		// -v increments verbosity to 2, -vv to 3
+		auto result = runDgvalidator({"-v", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		// With -v (verbosity=2), warnings become visible
+		CHECK_NE(std::string::npos, result.output.find("[Warning]"));
+	}
+
+	SUBCASE("verboseTwiceShowsInfoMessages")
+	{
+		auto result = runDgvalidator({"-v", "-v", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		// With -vv (verbosity=3), info messages become visible
+		CHECK_NE(std::string::npos, result.output.find("[Info]"));
+	}
+
+	SUBCASE("verboseAndPedanticTreatsWarningsAsErrors")
+	{
+		// -v shows warnings, -p makes warnings errors
+		auto result =
+		    runDgvalidator({"-v", "--pedantic", "--no-audio", kitfile});
+		CHECK_EQ(1, result.exit_code);
+		// Missing metadata (e.g. version) is logged as warning in non-pedantic,
+		// but as error in pedantic mode.
+		CHECK_NE(std::string::npos,
+		    result.output.find("Validator found errors."));
+	}
+
 }

@@ -3,7 +3,7 @@
  *            alsa.cc
  *
  *  Do 21. Jan 16:48:32 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian Glï¿½ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -187,6 +187,7 @@ void AlsaOutputEngine::stop()
 
 void AlsaOutputEngine::pre(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 void AlsaOutputEngine::run(int ch, sample_t* samples, size_t nsamples)

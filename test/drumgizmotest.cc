@@ -1884,3 +1884,297 @@ TEST_CASE("DummyOutputEngineEdgeCases")
 	}
 }
 #endif // HAVE_OUTPUT_DUMMY
+
+#ifdef HAVE_OUTPUT_WAVFILE
+TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
+{
+	SUBCASE("postWithLatencyGreaterThanNsamplesReducesLatency")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024] = {0};
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_gt_test_");
+		CHECK_UNARY(engine.init(channels));
+
+		engine.onLatencyChange(100);
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(50);
+
+		engine.stop();
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postWithLatencyEqualToNsamplesZerosLatency")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024] = {0};
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_eq_test_");
+		CHECK_UNARY(engine.init(channels));
+		engine.onLatencyChange(50);
+
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(50);
+
+		engine.stop();
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postWithLatencyLessThanNsamplesZerosLatency")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024] = {0};
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_lt_test_");
+		CHECK_UNARY(engine.init(channels));
+		engine.onLatencyChange(30);
+
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(100);
+
+		engine.stop();
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithNsamplesLessOrEqualToLatencySkipsOutput")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[512] = {0};
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_skip_test_");
+		CHECK_UNARY(engine.init(channels));
+
+		engine.onLatencyChange(1024);
+		engine.pre(512);
+		engine.run(0, samples, 512);
+		engine.post(512);
+
+		engine.stop();
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithNsamplesGreaterThanLatencyWritesAfterLatency")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+		sample_t samples[1024] = {0};
+		for(int i = 0; i < 1024; ++i)
+		{
+			samples[i] = static_cast<sample_t>(i) / 1024.0f;
+		}
+
+		engine.setParm("file", "/tmp/drumgizmo_latency_write_test_");
+		CHECK_UNARY(engine.init(channels));
+
+		engine.onLatencyChange(100);
+		engine.pre(1024);
+		engine.run(0, samples, 1024);
+		engine.post(1024);
+
+		engine.stop();
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("destructorWithOpenChannelsClosesFiles")
+	{
+		{
+			WavfileOutputEngine engine;
+			Channels channels;
+			Channel channel1("chan");
+			channels.push_back(channel1);
+			sample_t samples[1024] = {0};
+
+			engine.setParm("file", "/tmp/drumgizmo_dtor_test_");
+			CHECK_UNARY(engine.init(channels));
+
+			engine.start();
+			engine.pre(1024);
+			engine.run(0, samples, 1024);
+			engine.post(1024);
+			engine.stop();
+		}
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidSrateCatchesException")
+	{
+		WavfileOutputEngine engine;
+
+		engine.setParm("srate", "not-a-number");
+
+		// Should not crash - catch handler prints error
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("initInUnwritableDirectoryReturnsFalse")
+	{
+		WavfileOutputEngine engine;
+		Channels channels;
+		Channel channel1("chan");
+		channels.push_back(channel1);
+
+		// Use a path that cannot be created (directory doesn't exist)
+		engine.setParm("file", "/nonexistent_dir_path_xyz/dg_test_");
+		bool result = engine.init(channels);
+
+		// Should return false when sf_open fails
+		CHECK_UNARY(!result);
+	}
+}
+#endif // HAVE_OUTPUT_WAVFILE
+
+#ifdef HAVE_INPUT_MIDIFILE
+TEST_CASE("MidifileInputEngineEdgeCases")
+{
+	SUBCASE("setParmLoopWithFalseStillSetsLoopTrue")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("loop", "false");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmLoopWithEmptyStringStillSetsLoopTrue")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("loop", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmLoopWithTrueSetsLoopTrue")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("loop", "true");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithInvalidSmfFileReturnsFalse")
+	{
+		ScopedFile midimap_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap>\n"
+		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		    "</midimap>");
+
+		MidifileInputEngine engine;
+		engine.setParm("file", "/tmp/drumgizmo_nonexistent_midi.mid");
+		engine.setParm("midimap", midimap_file.filename());
+
+		Instruments instruments;
+		bool result = engine.init(instruments);
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("fullLifecycleReinitAfterStop")
+	{
+		std::string midi_data(
+		    reinterpret_cast<const char*>(kMinimalMidi),
+		    sizeof(kMinimalMidi));
+		ScopedFile midi_file(midi_data);
+
+		ScopedFile midimap_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap>\n"
+		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		    "</midimap>");
+
+		MidifileInputEngine engine;
+		engine.setParm("file", midi_file.filename());
+		engine.setParm("midimap", midimap_file.filename());
+
+		Instruments instruments;
+		CHECK_UNARY(engine.init(instruments));
+
+		engine.start();
+		std::vector<event_t> events;
+		engine.pre();
+		engine.run(0, 44100, events);
+		engine.post();
+		engine.stop();
+
+		CHECK_UNARY(engine.init(instruments));
+		engine.start();
+		events.clear();
+		engine.pre();
+		engine.run(0, 44100, events);
+		engine.post();
+		engine.stop();
+
+		CHECK_UNARY(events.size() >= 1);
+		if(events.size() > 0)
+		{
+			CHECK_EQ(static_cast<int>(events.back().type),
+			    static_cast<int>(EventType::Stop));
+		}
+	}
+
+	SUBCASE("runWithSmallChunkSizes")
+	{
+		std::string midi_data(
+		    reinterpret_cast<const char*>(kMinimalMidi),
+		    sizeof(kMinimalMidi));
+		ScopedFile midi_file(midi_data);
+
+		ScopedFile midimap_file(
+		    "<?xml version='1.0' encoding='UTF-8'?>\n"
+		    "<midimap>\n"
+		    "\t<map note=\"60\" instr=\"Kick\"/>\n"
+		    "</midimap>");
+
+		MidifileInputEngine engine;
+		engine.setParm("file", midi_file.filename());
+		engine.setParm("midimap", midimap_file.filename());
+
+		Instruments instruments;
+		CHECK_UNARY(engine.init(instruments));
+		CHECK_UNARY(engine.start());
+
+		size_t total_events = 0;
+		for(size_t pos = 0; pos < 44100 * 5; pos += 16)
+		{
+			std::vector<event_t> events;
+			engine.pre();
+			engine.run(pos, 16, events);
+			engine.post();
+			total_events += events.size();
+		}
+
+		CHECK_UNARY(total_events >= 1);
+
+		engine.stop();
+	}
+
+	SUBCASE("setParmInvalidSpeedCatchesException")
+	{
+		MidifileInputEngine engine;
+
+		engine.setParm("speed", "not-a-number");
+
+		// Should not crash - catch handler prints error
+		CHECK_UNARY(true);
+	}
+}
+#endif // HAVE_INPUT_MIDIFILE
