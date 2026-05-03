@@ -732,6 +732,16 @@ if(DG_ENABLE_CLI)
 			"${DG_SMF_SOURCE_DIR}/src")
 	endif()
 
+	if(DG_ENABLE_INPUT_JACKMIDI)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/input/jackmidi.cc")
+	endif()
+
+	if(DG_ENABLE_INPUT_ALSAMIDI)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/input/alsamidi.cc")
+	endif()
+
 	if(DG_ENABLE_OUTPUT_DUMMY)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/outputdummy.cc")
@@ -740,6 +750,29 @@ if(DG_ENABLE_CLI)
 	if(DG_ENABLE_OUTPUT_WAVFILE)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/wavfile.cc")
+	endif()
+
+	if(DG_ENABLE_OUTPUT_ALSA)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/output/alsa.cc")
+	endif()
+
+	if(DG_ENABLE_OUTPUT_JACKAUDIO)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/output/jackaudio.cc")
+	endif()
+
+	if(DG_ENABLE_INPUT_JACKMIDI OR DG_ENABLE_OUTPUT_JACKAUDIO)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/jackclient.cc")
+	endif()
+
+	if(DG_JACK_REQUIRED)
+		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES PkgConfig::JACK)
+	endif()
+
+	if(DG_ALSA_REQUIRED)
+		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES PkgConfig::ALSA)
 	endif()
 
 	dg_add_doctest_test(drumgizmotest
