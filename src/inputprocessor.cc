@@ -3,7 +3,7 @@
  *            inputprocessor.cc
  *
  *  Sat Apr 23 20:39:30 CEST 2016
- *  Copyright 2016 Andr� Nusser
+ *  Copyright 2016 André Nusser
  *  andre.nusser@googlemail.com
  ****************************************************************************/
 
