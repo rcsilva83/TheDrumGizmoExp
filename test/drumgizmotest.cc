@@ -1762,7 +1762,6 @@ TEST_CASE("DummyInputEngineEdgeCases")
 
 		CHECK_UNARY(engine.isFreewheeling());
 	}
-
 }
 #endif // HAVE_INPUT_DUMMY
 
