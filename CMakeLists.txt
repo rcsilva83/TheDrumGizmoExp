@@ -773,7 +773,7 @@ if(DG_NEED_PLUGIN_GUI)
 			LV2
 			LV2_PLUGIN_URI=\"${DG_LV2_PLUGIN_URI}\"
 		)
-		target_compile_options(drumgizmo_lv2 PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden)
+		target_compile_options(drumgizmo_lv2 PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden -Wno-unused-parameter)
 		target_include_directories(drumgizmo_lv2 PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
 			"${DG_PLUGINGIZMO_INCLUDE_DIR}"
@@ -835,7 +835,7 @@ if(DG_NEED_PLUGIN_GUI)
 			${DG_GUI_COMPILE_DEFINITIONS}
 			VST
 		)
-		target_compile_options(drumgizmo_vst PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden ${DG_VST_COMPILE_OPTIONS})
+		target_compile_options(drumgizmo_vst PRIVATE ${DG_COMMON_COMPILE_OPTIONS} -fvisibility=hidden -Wno-unused-parameter ${DG_VST_COMPILE_OPTIONS})
 		target_include_directories(drumgizmo_vst PRIVATE
 			"${CMAKE_CURRENT_SOURCE_DIR}"
 			"${DG_PLUGINGIZMO_INCLUDE_DIR}"

@@ -29,88 +29,15 @@
 
 #include <config.h>
 
+#include "clitestutils.h"
 #include "drumkit_creator.h"
-#include "scopedfile.h"
 
-#include <cstdlib>
-#include <fstream>
-#include <iterator>
 #include <string>
 #include <vector>
 
-#ifndef _WIN32
-#include <sys/wait.h>
-#endif
-
-struct CommandResult
-{
-	int exit_code;
-	std::string output;
-};
-
-static std::string shellEscape(const std::string& arg)
-{
-#ifndef _WIN32
-	std::string escaped = "'";
-	for(const auto ch : arg)
-	{
-		if(ch == '\'')
-		{
-			escaped += "'\\''";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "'";
-	return escaped;
-#else
-	std::string escaped = "\"";
-	for(const auto ch : arg)
-	{
-		if(ch == '"')
-		{
-			escaped += "\\\"";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "\"";
-	return escaped;
-#endif
-}
-
 static CommandResult runDrumgizmoCli(const std::vector<std::string>& args)
 {
-	std::string command = shellEscape(DRUMGIZMO_CLI_BIN);
-	for(const auto& arg : args)
-	{
-		command += " ";
-		command += shellEscape(arg);
-	}
-
-	ScopedFile output_file("");
-	command += " >";
-	command += shellEscape(output_file.filename());
-	command += " 2>&1";
-
-	auto status = std::system(command.c_str());
-	int exit_code = status;
-#ifndef _WIN32
-	if(WIFEXITED(status))
-	{
-		exit_code = WEXITSTATUS(status);
-	}
-#endif
-
-	std::ifstream stream(output_file.filename());
-	std::string output((std::istreambuf_iterator<char>(stream)),
-	    std::istreambuf_iterator<char>());
-
-	return {exit_code, output};
+	return runCommand(DRUMGIZMO_CLI_BIN, args);
 }
 
 struct DrumgizmoCliFixture
@@ -582,6 +509,156 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos,
 		    result.output.find("Invalid endpos size not-a-number"));
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("emptyOutputEngineReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--inputengine", "dummy", "--outputengine", ""});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("Missing output engine"));
+	}
+
+	SUBCASE("emptyInputEngineReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--inputengine", "", "--outputengine", "dummy"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Missing input engine"));
+	}
+
+	SUBCASE("inputparmsOptionRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    {"--inputengine", "test", "--inputparms", "p=0.5,instr=1,len=1",
+		        "--outputengine", "dummy", "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("outputparmsOptionRunSucceeds")
+	{
+		auto result = runDrumgizmoCli({"--inputengine", "dummy",
+		    "--outputengine", "wavfile", "--outputparms",
+		    "file=/tmp/dg_cli_testout,srate=48000", "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+		// Cleanup test output files (4 channels from std kit)
+		unlink("/tmp/dg_cli_testoutch0-0.wav");
+		unlink("/tmp/dg_cli_testoutch1-1.wav");
+		unlink("/tmp/dg_cli_testoutch2-2.wav");
+		unlink("/tmp/dg_cli_testoutch3-3.wav");
+	}
+
+#ifdef HAVE_WORDEXP
+	SUBCASE("velocityHumanizerparmsAttackNegativeReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--velocity-humanizerparms", "attack=-1"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("attack range is [0, 1]"));
+	}
+
+	SUBCASE("velocityHumanizerparmsReleaseNegativeReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--velocity-humanizerparms", "release=-1"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("release range is [0, 1]"));
+	}
+
+	SUBCASE("velocityHumanizerparmsStddevNegativeReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--velocity-humanizerparms", "stddev=-1"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("stddev range is [0, 4.5]"));
+	}
+
+	SUBCASE("voiceLimitparmsMaxTooHighReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--voice-limitparms", "max=31"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("max range is [1, 30]"));
+	}
+
+	SUBCASE("voiceLimitparmsRampdownTooLowReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--voice-limitparms", "rampdown=0"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos,
+		    result.output.find("rampdown range is [0.01, 2.0]"));
+	}
+
+	SUBCASE("parametersCloseNegativeReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--parameters", "close=-1"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("close range is [0, 1]"));
+	}
+
+	SUBCASE("parametersDiverseTooHighReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--parameters", "diverse=2"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("diverse range is [0, 1]"));
+	}
+
+	SUBCASE("parametersRandomNegativeReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--parameters", "random=-1"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("random range is [0, 1]"));
+	}
+
+	SUBCASE("timingHumanizerparmsLaidbackTooLowReturnsError")
+	{
+		auto result =
+		    runDrumgizmoCli({"--timing-humanizerparms", "laidback=-200"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("laidback range is +/- 100"));
+	}
+
+	SUBCASE("streamingparmsLimitByteSizeZeroReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--streamingparms", "limit=0G"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos,
+		    result.output.find("Invalid argument for streamparms limit"));
+	}
+
+	SUBCASE("parametersMultipleCommaSeparatedRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs(
+		    {"--parameters", "close=0.5,diverse=0.3,random=0.1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("inputparmsMultipleCommaSeparatedRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    {"--inputengine", "test", "--inputparms", "p=0.5,instr=1,len=1",
+		        "--outputengine", "dummy", "--endpos", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+#endif // HAVE_WORDEXP
+
+	SUBCASE("timingHumanizerparmsLaidbackValidRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "laidback=50"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 }

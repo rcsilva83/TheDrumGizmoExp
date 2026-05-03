@@ -26,14 +26,14 @@
  */
 #include "nativewindow_x11.h"
 
-//http://www.mesa3d.org/brianp/xshm.c
+// http://www.mesa3d.org/brianp/xshm.c
 
 #include <X11/Xutil.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+#include <cassert>
 #include <cerrno>
 #include <cstring>
-#include <cassert>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #include <chrono>
 
@@ -44,10 +44,10 @@
 namespace dggui
 {
 
-#define _NET_WM_STATE_REMOVE        0    // remove/unset property
-#define _NET_WM_STATE_ADD           1    // add/set property
+#define _NET_WM_STATE_REMOVE 0 // remove/unset property
+#define _NET_WM_STATE_ADD 1    // add/set property
 
-void setWindowFront(Display *disp, ::Window wind, bool enable)
+void setWindowFront(Display* disp, ::Window wind, bool enable)
 {
 	Atom wm_state, wm_state_above;
 	XEvent event;
@@ -57,19 +57,20 @@ void setWindowFront(Display *disp, ::Window wind, bool enable)
 		return;
 	}
 
-	if((wm_state_above = XInternAtom(disp, "_NET_WM_STATE_ABOVE", False)) == None)
+	if((wm_state_above = XInternAtom(disp, "_NET_WM_STATE_ABOVE", False)) ==
+	    None)
 	{
 		return;
 	}
 	//
-	//window  = the respective client window
-	//message_type = _NET_WM_STATE
-	//format = 32
-	//data.l[0] = the action, as listed below
-	//data.l[1] = first property to alter
-	//data.l[2] = second property to alter
-	//data.l[3] = source indication (0-unk,1-normal app,2-pager)
-	//other data.l[] elements = 0
+	// window  = the respective client window
+	// message_type = _NET_WM_STATE
+	// format = 32
+	// data.l[0] = the action, as listed below
+	// data.l[1] = first property to alter
+	// data.l[2] = second property to alter
+	// data.l[3] = source indication (0-unk,1-normal app,2-pager)
+	// other data.l[] elements = 0
 	//
 
 	// sending a ClientMessage
@@ -94,8 +95,7 @@ void setWindowFront(Display *disp, ::Window wind, bool enable)
 	event.xclient.format = 32;
 
 	// 0 is _NET_WM_STATE_REMOVE, 1 is _NET_WM_STATE_ADD
-	event.xclient.data.l[0] =
-		enable ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
+	event.xclient.data.l[0] = enable ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
 
 	// the atom being added
 	event.xclient.data.l[1] = wm_state_above;
@@ -107,14 +107,14 @@ void setWindowFront(Display *disp, ::Window wind, bool enable)
 
 	// actually send the event
 	XSendEvent(disp, DefaultRootWindow(disp), False,
-	           SubstructureRedirectMask | SubstructureNotifyMask, &event);
+	    SubstructureRedirectMask | SubstructureNotifyMask, &event);
 }
 
 NativeWindowX11::NativeWindowX11(void* native_window, Window& window)
-	: window(window)
+    : window(window)
 {
 	display = XOpenDisplay(nullptr);
-	if(display  == nullptr)
+	if(display == nullptr)
 	{
 		ERR(X11, "XOpenDisplay failed");
 		return;
@@ -126,7 +126,7 @@ NativeWindowX11::NativeWindowX11(void* native_window, Window& window)
 
 	if(native_window)
 	{
-		parent_window = (::Window)native_window;
+		parent_window = reinterpret_cast<::Window>(native_window);
 
 		// Track size changes on the parent window
 		XSelectInput(display, parent_window, StructureNotifyMask);
@@ -139,36 +139,28 @@ NativeWindowX11::NativeWindowX11(void* native_window, Window& window)
 	// Create the window
 	XSetWindowAttributes swa;
 	swa.backing_store = Always;
-	xwindow = XCreateWindow(display,
-	                        parent_window,
-	                        0, 0, //window.x(), window.y(),
-	                        1, 1, //window.width(), window.height(),
-	                        0, // border
-	                        CopyFromParent, // depth
-	                        CopyFromParent, // class
-	                        CopyFromParent, // visual
-	                        0,//CWBackingStore,
-	                        &swa);
+	xwindow =
+	    XCreateWindow(display, parent_window, 0, 0, // window.x(), window.y(),
+	        1, 1,           // window.width(), window.height(),
+	        0,              // border
+	        CopyFromParent, // depth
+	        CopyFromParent, // class
+	        CopyFromParent, // visual
+	        0,              // CWBackingStore,
+	        &swa);
 
-	long mask = (StructureNotifyMask |
-	             PointerMotionMask |
-	             ButtonPressMask |
-	             ButtonReleaseMask |
-	             KeyPressMask |
-	             KeyReleaseMask|
-	             ExposureMask |
-	             StructureNotifyMask |
-	             SubstructureNotifyMask |
-	             EnterWindowMask |
-	             LeaveWindowMask);
+	long mask = (StructureNotifyMask | PointerMotionMask | ButtonPressMask |
+	             ButtonReleaseMask | KeyPressMask | KeyReleaseMask |
+	             ExposureMask | StructureNotifyMask | SubstructureNotifyMask |
+	             EnterWindowMask | LeaveWindowMask);
 	XSelectInput(display, xwindow, mask);
 
 	// Register the delete window message:
 	wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", false);
 
-	Atom protocols[] = { wmDeleteMessage };
-	XSetWMProtocols(display, xwindow, protocols,
-	                sizeof(protocols) / sizeof(*protocols));
+	Atom protocols[] = {wmDeleteMessage};
+	XSetWMProtocols(
+	    display, xwindow, protocols, sizeof(protocols) / sizeof(*protocols));
 
 	// Create a "Graphics Context"
 	gc = XCreateGC(display, xwindow, 0, nullptr);
@@ -201,7 +193,7 @@ void NativeWindowX11::setFixedSize(std::size_t width, std::size_t height)
 	XSizeHints size_hints;
 	memset(&size_hints, 0, sizeof(size_hints));
 
-	size_hints.flags = PMinSize|PMaxSize;
+	size_hints.flags = PMinSize | PMaxSize;
 	size_hints.min_width = size_hints.max_width = (int)width;
 	size_hints.min_height = size_hints.max_height = (int)height;
 
@@ -210,6 +202,11 @@ void NativeWindowX11::setFixedSize(std::size_t width, std::size_t height)
 
 void NativeWindowX11::setAlwaysOnTop(bool always_on_top)
 {
+	if(display == nullptr)
+	{
+		return;
+	}
+
 	setWindowFront(display, xwindow, always_on_top);
 }
 
@@ -225,17 +222,21 @@ void NativeWindowX11::resize(std::size_t width, std::size_t height)
 
 std::pair<std::size_t, std::size_t> NativeWindowX11::getSize() const
 {
-//	XWindowAttributes attributes;
-//	XGetWindowAttributes(display, xwindow, &attributes);
-//	return std::make_pair(attributes.width, attributes.height);
+	if(display == nullptr)
+	{
+		return {1, 1};
+	}
 
 	::Window root_window;
-	int x, y;
-	unsigned int width, height, border, depth;
+	int x;
+	int y;
+	unsigned int width;
+	unsigned int height;
+	unsigned int border;
+	unsigned int win_depth;
 
-	XGetGeometry(display, xwindow, &root_window,
-	             &x, &y,
-	             &width, &height, &border, &depth);
+	XGetGeometry(display, xwindow, &root_window, &x, &y, &width, &height,
+	    &border, &win_depth);
 
 	return {width, height};
 }
@@ -252,17 +253,25 @@ void NativeWindowX11::move(int x, int y)
 
 std::pair<int, int> NativeWindowX11::getPosition() const
 {
+	if(display == nullptr)
+	{
+		return {0, 0};
+	}
+
 	::Window root_window;
 	::Window child_window;
-	int x, y;
-	unsigned int width, height, border, depth;
+	int x;
+	int y;
+	unsigned int width;
+	unsigned int height;
+	unsigned int border;
+	unsigned int win_depth;
 
-	XGetGeometry(display, xwindow, &root_window,
-	             &x, &y,
-	             &width, &height, &border, &depth);
+	XGetGeometry(display, xwindow, &root_window, &x, &y, &width, &height,
+	    &border, &win_depth);
 
-	XTranslateCoordinates(display, xwindow, root_window,
-	                      0, 0, &x, &y, &child_window);
+	XTranslateCoordinates(
+	    display, xwindow, root_window, 0, 0, &x, &y, &child_window);
 
 	return std::make_pair(x, y);
 }
@@ -318,12 +327,12 @@ void NativeWindowX11::redraw(const Rect& dirty_rect)
 	updateImageFromBuffer(x1, y1, x2, y2);
 
 	XShmPutImage(display, xwindow, gc, image, x1, y1, x1, y1,
-	             std::min((std::size_t)image->width, (x2 - x1)),
-	             std::min((std::size_t)image->height, (y2 - y1)), false);
+	    std::min((std::size_t)image->width, (x2 - x1)),
+	    std::min((std::size_t)image->height, (y2 - y1)), false);
 	XFlush(display);
 }
 
-void NativeWindowX11::setCaption(const std::string &caption)
+void NativeWindowX11::setCaption(const std::string& caption)
 {
 	if(display == nullptr)
 	{
@@ -341,6 +350,11 @@ void NativeWindowX11::grabMouse(bool grab)
 
 EventQueue NativeWindowX11::getEvents()
 {
+	if(display == nullptr)
+	{
+		return EventQueue{};
+	}
+
 	while(XPending(display))
 	{
 		XEvent xEvent;
@@ -355,15 +369,20 @@ EventQueue NativeWindowX11::getEvents()
 
 void* NativeWindowX11::getNativeWindowHandle() const
 {
-	return (void*)xwindow;
+	return reinterpret_cast<void*>(xwindow);
 }
 
 Point NativeWindowX11::translateToScreen(const Point& point)
 {
+	if(display == nullptr)
+	{
+		return point;
+	}
+
 	::Window child_window;
 	Point p;
-	XTranslateCoordinates(display, xwindow, DefaultRootWindow(display),
-	                      point.x, point.y, &p.x, &p.y, &child_window);
+	XTranslateCoordinates(display, xwindow, DefaultRootWindow(display), point.x,
+	    point.y, &p.x, &p.y, &child_window);
 	return p;
 }
 
@@ -372,7 +391,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 	switch(xevent.type)
 	{
 	case MotionNotify:
-		//DEBUG(x11, "MotionNotify");
+		// DEBUG(x11, "MotionNotify");
 		{
 			auto mouseMoveEvent = std::make_shared<MouseMoveEvent>();
 			mouseMoveEvent->x = xevent.xmotion.x;
@@ -382,7 +401,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 		break;
 
 	case Expose:
-		//DEBUG(x11, "Expose");
+		// DEBUG(x11, "Expose");
 		if(xevent.xexpose.count == 0)
 		{
 			auto repaintEvent = std::make_shared<RepaintEvent>();
@@ -402,9 +421,10 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 		break;
 
 	case ConfigureNotify:
-		//DEBUG(x11, "ConfigureNotify");
+		// DEBUG(x11, "ConfigureNotify");
 
-		// The parent window size changed, reflect the new size in our own window.
+		// The parent window size changed, reflect the new size in our own
+		// window.
 		if(xevent.xconfigure.window == parent_window)
 		{
 			resize(xevent.xconfigure.width, xevent.xconfigure.height);
@@ -413,7 +433,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 
 		{
 			if((window.width() != (std::size_t)xevent.xconfigure.width) ||
-			   (window.height() != (std::size_t)xevent.xconfigure.height))
+			    (window.height() != (std::size_t)xevent.xconfigure.height))
 			{
 				auto resizeEvent = std::make_shared<ResizeEvent>();
 				resizeEvent->width = xevent.xconfigure.width;
@@ -422,7 +442,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 			}
 
 			if((window.x() != xevent.xconfigure.x) ||
-			   (window.y() != xevent.xconfigure.y))
+			    (window.y() != xevent.xconfigure.y))
 			{
 				auto moveEvent = std::make_shared<MoveEvent>();
 				moveEvent->x = xevent.xconfigure.x;
@@ -434,7 +454,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 
 	case ButtonPress:
 	case ButtonRelease:
-		//DEBUG(x11, "ButtonPress");
+		// DEBUG(x11, "ButtonPress");
 		{
 			if((xevent.xbutton.button == 4) || (xevent.xbutton.button == 5))
 			{
@@ -444,11 +464,13 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 					auto scrollEvent = std::make_shared<ScrollEvent>();
 					scrollEvent->x = xevent.xbutton.x;
 					scrollEvent->y = xevent.xbutton.y;
-					scrollEvent->delta = scroll * ((xevent.xbutton.button == 4) ? -1 : 1);
+					scrollEvent->delta =
+					    scroll * ((xevent.xbutton.button == 4) ? -1 : 1);
 					event_queue.push_back(scrollEvent);
 				}
 			}
-			else if ((xevent.xbutton.button == 6) || (xevent.xbutton.button == 7))
+			else if((xevent.xbutton.button == 6) ||
+			        (xevent.xbutton.button == 7))
 			{
 				// Horizontal scrolling case
 				// FIXME Introduce horizontal scrolling event to handle this.
@@ -458,7 +480,8 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 				auto buttonEvent = std::make_shared<ButtonEvent>();
 				buttonEvent->x = xevent.xbutton.x;
 				buttonEvent->y = xevent.xbutton.y;
-				switch(xevent.xbutton.button) {
+				switch(xevent.xbutton.button)
+				{
 				case 1:
 					buttonEvent->button = MouseButton::left;
 					break;
@@ -469,28 +492,32 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 					buttonEvent->button = MouseButton::right;
 					break;
 				default:
-					WARN(X11, "Unknown button %d, setting to MouseButton::left\n",
-					     xevent.xbutton.button);
+					WARN(X11,
+					    "Unknown button %d, setting to MouseButton::left\n",
+					    xevent.xbutton.button);
 					buttonEvent->button = MouseButton::left;
 					break;
 				}
 
-				buttonEvent->direction =
-					(xevent.type == ButtonPress) ?
-					Direction::down : Direction::up;
+				buttonEvent->direction = (xevent.type == ButtonPress)
+				                             ? Direction::down
+				                             : Direction::up;
 
 				// This is a fix for hosts (e.g. those using JUCE) that set the
 				// event time to '0'.
 				if(xevent.xbutton.time == 0)
 				{
-					auto now = std::chrono::system_clock::now().time_since_epoch();
+					auto now =
+					    std::chrono::system_clock::now().time_since_epoch();
 					xevent.xbutton.time =
-						std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+					    std::chrono::duration_cast<std::chrono::milliseconds>(
+					        now)
+					        .count();
 				}
 
 				buttonEvent->doubleClick =
-					(xevent.type == ButtonPress) &&
-					((xevent.xbutton.time - last_click) < 200);
+				    (xevent.type == ButtonPress) &&
+				    ((xevent.xbutton.time - last_click) < 200);
 
 				if(xevent.type == ButtonPress)
 				{
@@ -503,28 +530,53 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 
 	case KeyPress:
 	case KeyRelease:
-		//DEBUG(x11, "KeyPress");
+		// DEBUG(x11, "KeyPress");
 		{
 			auto keyEvent = std::make_shared<KeyEvent>();
 
-			switch(xevent.xkey.keycode) {
-			case 113: keyEvent->keycode = Key::left; break;
-			case 114: keyEvent->keycode = Key::right; break;
-			case 111: keyEvent->keycode = Key::up; break;
-			case 116: keyEvent->keycode = Key::down; break;
-			case 119: keyEvent->keycode = Key::deleteKey; break;
-			case 22:  keyEvent->keycode = Key::backspace; break;
-			case 110: keyEvent->keycode = Key::home; break;
-			case 115: keyEvent->keycode = Key::end; break;
-			case 117: keyEvent->keycode = Key::pageDown; break;
-			case 112: keyEvent->keycode = Key::pageUp; break;
-			case 36:  keyEvent->keycode = Key::enter; break;
-			default:  keyEvent->keycode = Key::unknown; break;
+			switch(xevent.xkey.keycode)
+			{
+			case 113:
+				keyEvent->keycode = Key::left;
+				break;
+			case 114:
+				keyEvent->keycode = Key::right;
+				break;
+			case 111:
+				keyEvent->keycode = Key::up;
+				break;
+			case 116:
+				keyEvent->keycode = Key::down;
+				break;
+			case 119:
+				keyEvent->keycode = Key::deleteKey;
+				break;
+			case 22:
+				keyEvent->keycode = Key::backspace;
+				break;
+			case 110:
+				keyEvent->keycode = Key::home;
+				break;
+			case 115:
+				keyEvent->keycode = Key::end;
+				break;
+			case 117:
+				keyEvent->keycode = Key::pageDown;
+				break;
+			case 112:
+				keyEvent->keycode = Key::pageUp;
+				break;
+			case 36:
+				keyEvent->keycode = Key::enter;
+				break;
+			default:
+				keyEvent->keycode = Key::unknown;
+				break;
 			}
 
 			char stringBuffer[1024];
 			int size = XLookupString(&xevent.xkey, stringBuffer,
-		                         sizeof(stringBuffer), nullptr, nullptr);
+			    sizeof(stringBuffer), nullptr, nullptr);
 			if(size && keyEvent->keycode == Key::unknown)
 			{
 				keyEvent->keycode = Key::character;
@@ -533,14 +585,14 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 			keyEvent->text.append(stringBuffer, size);
 
 			keyEvent->direction =
-				(xevent.type == KeyPress) ? Direction::down : Direction::up;
+			    (xevent.type == KeyPress) ? Direction::down : Direction::up;
 
 			event_queue.push_back(keyEvent);
 		}
 		break;
 
 	case ClientMessage:
-		//DEBUG(x11, "ClientMessage");
+		// DEBUG(x11, "ClientMessage");
 		if(((unsigned int)xevent.xclient.data.l[0] == wmDeleteMessage))
 		{
 			auto closeEvent = std::make_shared<CloseEvent>();
@@ -549,7 +601,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 		break;
 
 	case EnterNotify:
-		//DEBUG(x11, "EnterNotify");
+		// DEBUG(x11, "EnterNotify");
 		{
 			auto enterEvent = std::make_shared<MouseEnterEvent>();
 			enterEvent->x = xevent.xcrossing.x;
@@ -559,7 +611,7 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 		break;
 
 	case LeaveNotify:
-		//DEBUG(x11, "LeaveNotify");
+		// DEBUG(x11, "LeaveNotify");
 		{
 			auto leaveEvent = std::make_shared<MouseLeaveEvent>();
 			leaveEvent->x = xevent.xcrossing.x;
@@ -570,8 +622,8 @@ void NativeWindowX11::translateXMessage(XEvent& xevent)
 
 	case MapNotify:
 	case MappingNotify:
-		//DEBUG(x11, "EnterNotify");
-		// There's nothing to do here atm.
+		// DEBUG(x11, "EnterNotify");
+		//  There's nothing to do here atm.
 		break;
 
 	default:
@@ -595,9 +647,8 @@ void NativeWindowX11::allocateShmImage(std::size_t width, std::size_t height)
 		return;
 	}
 
-	image = XShmCreateImage(display, visual, depth,
-	                        ZPixmap, nullptr, &shm_info,
-	                        width, height);
+	image = XShmCreateImage(
+	    display, visual, depth, ZPixmap, nullptr, &shm_info, width, height);
 	if(image == nullptr)
 	{
 		ERR(x11, "XShmCreateImage failed!\n");
@@ -607,7 +658,7 @@ void NativeWindowX11::allocateShmImage(std::size_t width, std::size_t height)
 	std::size_t byte_size = image->bytes_per_line * image->height;
 
 	// Allocate shm buffer
-	int shm_id = shmget(IPC_PRIVATE, byte_size, IPC_CREAT|0777);
+	int shm_id = shmget(IPC_PRIVATE, byte_size, IPC_CREAT | 0777);
 	if(shm_id == -1)
 	{
 		ERR(x11, "shmget failed: %s", strerror(errno));
@@ -650,19 +701,18 @@ void NativeWindowX11::deallocateShmImage()
 	shmdt(shm_info.shmaddr);
 }
 
-void NativeWindowX11::updateImageFromBuffer(std::size_t x1, std::size_t y1,
-                                            std::size_t x2, std::size_t y2)
+void NativeWindowX11::updateImageFromBuffer(
+    std::size_t x1, std::size_t y1, std::size_t x2, std::size_t y2)
 {
-	//DEBUG(x11, "depth: %d", depth);
+	// DEBUG(x11, "depth: %d", depth);
 
 	auto width = window.wpixbuf.width;
 	auto height = window.wpixbuf.height;
 
 	// If image hasn't been allocated yet or if the image backbuffer is
 	// too small, (re)allocate with a suitable size.
-	if((image == nullptr) ||
-	   ((int)width > image->width) ||
-	   ((int)height > image->height))
+	if((image == nullptr) || ((int)width > image->width) ||
+	    ((int)height > image->height))
 	{
 		constexpr std::size_t step_size = 128; // size increments
 		std::size_t new_width = ((width / step_size) + 1) * step_size;
@@ -706,10 +756,11 @@ void NativeWindowX11::updateImageFromBuffer(std::size_t x1, std::size_t y1,
 				const std::uint8_t red = pixel_buffer[pin * 3];
 				const std::uint8_t green = pixel_buffer[pin * 3 + 1];
 				const std::uint8_t blue = pixel_buffer[pin * 3 + 2];
-				shm_addr[pout] = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+				shm_addr[pout] =
+				    ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
 			}
 		}
 	}
 }
 
-} // dggui::
+} // namespace dggui

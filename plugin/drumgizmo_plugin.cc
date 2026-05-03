@@ -28,8 +28,8 @@
 
 #include <config.h>
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 #include <string>
 
 #include <midievent.h>
@@ -55,12 +55,13 @@ AudioEffect* createEffectInstance(audioMasterCallback audioMaster)
 }
 
 DrumGizmoPlugin::DrumGizmoPlugin(audioMasterCallback audioMaster)
-	: PluginVST(audioMaster),
+    : PluginVST(audioMaster)
+    ,
 #else
 DrumGizmoPlugin::DrumGizmoPlugin()
-	:
+    :
 #endif
-	config_string_io(settings)
+    config_string_io(settings)
 {
 	init();
 
@@ -83,6 +84,7 @@ void DrumGizmoPlugin::onFramesizeChange(size_t framesize)
 
 void DrumGizmoPlugin::onActiveChange(bool active)
 {
+	(void)active;
 }
 
 std::string DrumGizmoPlugin::onStateSave()
@@ -150,15 +152,18 @@ PluginCategory DrumGizmoPlugin::getPluginCategory()
 	return PluginCategory::Synth;
 }
 
-static float g_samples[NUM_CHANNELS *  4096];
+static float g_samples[NUM_CHANNELS * 4096];
 
 void DrumGizmoPlugin::process(size_t pos,
-                              const std::vector<MidiEvent>& input_events,
-                              std::vector<MidiEvent>& output_events,
-                              const std::vector<const float*>& input_samples,
-                              const std::vector<float*>& output_samples,
-                              size_t count)
+    const std::vector<MidiEvent>& input_events,
+    std::vector<MidiEvent>& output_events,
+    const std::vector<const float*>& input_samples,
+    const std::vector<float*>& output_samples, size_t count)
 {
+	(void)pos;
+	(void)output_events;
+	(void)input_samples;
+	(void)count;
 	setLatency(drumgizmo->getLatency());
 
 	this->input_events = &input_events;
@@ -175,8 +180,7 @@ bool DrumGizmoPlugin::hasInlineGUI()
 	return true;
 }
 
-class InlinePixelBufferAlpha
-	: public dggui::PixelBufferAlpha
+class InlinePixelBufferAlpha : public dggui::PixelBufferAlpha
 {
 public:
 	InlinePixelBufferAlpha(Plugin::InlineDrawContext& context)
@@ -189,12 +193,10 @@ public:
 	}
 };
 
-class InlineCanvas
-	: public dggui::Canvas
+class InlineCanvas : public dggui::Canvas
 {
 public:
-	InlineCanvas(Plugin::InlineDrawContext& context)
-		: pixbuf(context)
+	InlineCanvas(Plugin::InlineDrawContext& context) : pixbuf(context)
 	{
 	}
 
@@ -208,12 +210,12 @@ private:
 	InlinePixelBufferAlpha pixbuf;
 };
 
-void DrumGizmoPlugin::onInlineRedraw(std::size_t width,
-                                     std::size_t max_height,
-                                     InlineDrawContext& context)
+void DrumGizmoPlugin::onInlineRedraw(
+    std::size_t width, std::size_t max_height, InlineDrawContext& context)
 {
 	std::size_t bar_height = bar_red.height();
-	std::size_t image_height = ((double)width / inline_display_image.width()) * inline_display_image.height();
+	std::size_t image_height = ((double)width / inline_display_image.width()) *
+	                           inline_display_image.height();
 
 	bool show_bar{false};
 	bool show_image{false};
@@ -235,33 +237,33 @@ void DrumGizmoPlugin::onInlineRedraw(std::size_t width,
 	bool nofl_changed = settingsGetter.number_of_files_loaded.hasChanged();
 	bool dls_changed = settingsGetter.drumkit_load_status.hasChanged();
 
-	bool in_progress =
-		settingsGetter.number_of_files_loaded.getValue() <
-		settingsGetter.number_of_files.getValue();
+	bool in_progress = settingsGetter.number_of_files_loaded.getValue() <
+	                   settingsGetter.number_of_files.getValue();
 
 	bool context_needs_update =
 	    !context.data || context.width != width || context.height != height;
 	bool bar_needs_update =
-		nof_changed || nofl_changed || dls_changed || context_needs_update |
-		in_progress; // Always update while loading to prevent flickering.
+	    nof_changed || nofl_changed || dls_changed ||
+	    context_needs_update |
+	        in_progress; // Always update while loading to prevent flickering.
 	bool image_needs_update = inline_image_first_draw || context_needs_update;
 	// TODO: settingsGetter.inline_image_filename.hasChanged();
 	bool something_needs_update =
 	    context_needs_update || bar_needs_update || image_needs_update;
 
-	if (something_needs_update)
+	if(something_needs_update)
 	{
 		context.width = width;
 		context.height = height;
 		assert(context.width * context.height <= sizeof(inlineDisplayBuffer));
 
-		context.data = (unsigned char*)inlineDisplayBuffer;
+		context.data = reinterpret_cast<unsigned char*>(inlineDisplayBuffer);
 		InlineCanvas canvas(context);
 		dggui::Painter painter(canvas);
 
 		double progress =
-			(double)settingsGetter.number_of_files_loaded.getValue() /
-			(double)settingsGetter.number_of_files.getValue();
+		    (double)settingsGetter.number_of_files_loaded.getValue() /
+		    (double)settingsGetter.number_of_files.getValue();
 
 		if(show_bar && bar_needs_update)
 		{
@@ -297,14 +299,15 @@ void DrumGizmoPlugin::onInlineRedraw(std::size_t width,
 
 			painter.setColour(.5);
 			painter.drawFilledRectangle(0, 0, width, image_height);
-			painter.drawImageStretched(0, 0, inline_display_image, width, image_height);
+			painter.drawImageStretched(
+			    0, 0, inline_display_image, width, image_height);
 		}
 
 		// Convert to correct pixel format
 		for(std::size_t i = 0; i < context.height * context.width; ++i)
 		{
 			std::uint32_t pixel = inlineDisplayBuffer[i];
-			unsigned char* p = (unsigned char*)&pixel;
+			auto* p = reinterpret_cast<unsigned char*>(&pixel);
 			inlineDisplayBuffer[i] = pgzRGBA(p[0], p[1], p[2], p[3]);
 		}
 	}
@@ -348,24 +351,25 @@ void DrumGizmoPlugin::closeWindow()
 {
 }
 
-
 //
 // Input Engine
 //
 
-DrumGizmoPlugin::Input::Input(DrumGizmoPlugin& plugin)
-	: plugin(plugin)
+DrumGizmoPlugin::Input::Input(DrumGizmoPlugin& plugin) : plugin(plugin)
 {
 }
 
-bool DrumGizmoPlugin::Input::init(const Instruments &instruments)
+bool DrumGizmoPlugin::Input::init(const Instruments& instruments)
 {
 	this->instruments = &instruments;
 	return true;
 }
 
-void DrumGizmoPlugin::Input::setParm(const std::string& parm, const std::string& value)
+void DrumGizmoPlugin::Input::setParm(
+    const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Input::start()
@@ -381,8 +385,11 @@ void DrumGizmoPlugin::Input::pre()
 {
 }
 
-void DrumGizmoPlugin::Input::run(size_t pos, size_t len, std::vector<event_t>& events)
+void DrumGizmoPlugin::Input::run(
+    size_t pos, size_t len, std::vector<event_t>& events)
 {
+	(void)pos;
+	(void)len;
 	assert(events.empty());
 	assert(plugin.input_events);
 
@@ -391,7 +398,7 @@ void DrumGizmoPlugin::Input::run(size_t pos, size_t len, std::vector<event_t>& e
 	for(auto& event : *plugin.input_events)
 	{
 		processNote((const std::uint8_t*)event.getData(), event.getSize(),
-		            event.getTime(), events);
+		    event.getTime(), events);
 	}
 }
 
@@ -404,8 +411,8 @@ bool DrumGizmoPlugin::Input::isFreewheeling() const
 	return plugin.getFreeWheel();
 }
 
-bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
-                                         const Instruments& i)
+bool DrumGizmoPlugin::Input::loadMidiMap(
+    const std::string& file, const Instruments& i)
 {
 	bool result = AudioInputEngineMidi::loadMidiMap(file, i);
 	std::vector<std::pair<int, std::string>> midnam;
@@ -414,7 +421,8 @@ bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
 	std::map<int, std::string> map;
 	for(const auto& entry : midimap)
 	{
-		// in case of multiple instruments mapped to one note, use '/' as separator
+		// in case of multiple instruments mapped to one note, use '/' as
+		// separator
 		if(!map[entry.note_id].empty())
 		{
 			map[entry.note_id] += "/";
@@ -439,18 +447,21 @@ bool DrumGizmoPlugin::Input::loadMidiMap(const std::string& file,
 // Output Engine
 //
 
-DrumGizmoPlugin::Output::Output(DrumGizmoPlugin& plugin)
-	: plugin(plugin)
+DrumGizmoPlugin::Output::Output(DrumGizmoPlugin& plugin) : plugin(plugin)
 {
 }
 
 bool DrumGizmoPlugin::Output::init(const Channels& channels)
 {
+	(void)channels;
 	return true;
 }
 
-void DrumGizmoPlugin::Output::setParm(const std::string& parm, const std::string& value)
+void DrumGizmoPlugin::Output::setParm(
+    const std::string& parm, const std::string& value)
 {
+	(void)parm;
+	(void)value;
 }
 
 bool DrumGizmoPlugin::Output::start()
@@ -494,12 +505,14 @@ void DrumGizmoPlugin::Output::run(int ch, sample_t* samples, size_t nsamples)
 	// We are not running directly on the internal buffer: do a copy.
 	if((*plugin.output_samples)[ch] != samples)
 	{
-		memcpy((*plugin.output_samples)[ch], samples, nsamples * sizeof(sample_t));
+		memcpy(
+		    (*plugin.output_samples)[ch], samples, nsamples * sizeof(sample_t));
 	}
 }
 
 void DrumGizmoPlugin::Output::post(size_t nsamples)
 {
+	(void)nsamples;
 }
 
 sample_t* DrumGizmoPlugin::Output::getBuffer(int ch) const
@@ -546,7 +559,7 @@ std::string float2str(float a)
 
 std::string bool2str(bool a)
 {
-	return a?"true":"false";
+	return a ? "true" : "false";
 }
 
 std::string int2str(int a)
@@ -593,83 +606,116 @@ long long str2ll(std::string a)
 } // end anonymous namespace
 
 DrumGizmoPlugin::ConfigStringIO::ConfigStringIO(Settings& settings)
-	: settings(settings)
+    : settings(settings)
 {
-
 }
 
 std::string DrumGizmoPlugin::ConfigStringIO::get()
 {
-	return
-		"<config version=\"1.0\">\n"
-		"  <value name=\"drumkitfile\">" + settings.drumkit_file.load() + "</value>\n"
-		"  <value name=\"midimapfile\">" + settings.midimap_file.load() + "</value>\n"
-		"  <value name=\"enable_velocity_modifier\">" +
-		bool2str(settings.enable_velocity_modifier.load()) + "</value>\n"
-		"  <value name=\"velocity_modifier_falloff\">" +
-		float2str(settings.velocity_modifier_falloff.load()) + "</value>\n"
-		"  <value name=\"velocity_modifier_weight\">" +
-		float2str(settings.velocity_modifier_weight.load()) + "</value>\n"
-		"  <value name=\"velocity_stddev\">" +
-		float2str(settings.velocity_stddev.load()) + "</value>\n"
-		"  <value name=\"sample_selection_f_close\">" +
-		float2str(settings.sample_selection_f_close.load()) + "</value>\n"
-		"  <value name=\"sample_selection_f_diverse\">" +
-		float2str(settings.sample_selection_f_diverse.load()) + "</value>\n"
-		"  <value name=\"sample_selection_f_random\">" +
-		float2str(settings.sample_selection_f_random.load()) + "</value>\n"
-		"  <value name=\"enable_velocity_randomiser\">" +
-		bool2str(settings.enable_velocity_randomiser.load()) + "</value>\n"
-		"  <value name=\"velocity_randomiser_weight\">" +
-		float2str(settings.velocity_randomiser_weight.load()) + "</value>\n"
-		"  <value name=\"enable_resampling\">" +
-		bool2str(settings.enable_resampling.load()) + "</value>\n"
-		"  <value name=\"resampling_quality\">" +
-		float2str(settings.resampling_quality.load()) + "</value>\n"
-		"  <value name=\"disk_cache_upper_limit\">" +
-		int2str(settings.disk_cache_upper_limit.load()) + "</value>\n"
-		"  <value name=\"disk_cache_chunk_size\">" +
-		int2str(settings.disk_cache_chunk_size.load()) + "</value>\n"
-		"  <value name=\"disk_cache_enable\">" +
-		bool2str(settings.disk_cache_enable.load()) + "</value>\n"
-		"  <value name=\"enable_bleed_control\">" +
-		bool2str(settings.enable_bleed_control.load()) + "</value>\n"
-		"  <value name=\"master_bleed\">" +
-		float2str(settings.master_bleed.load()) + "</value>\n"
-		"  <value name=\"enable_latency_modifier\">" +
-		bool2str(settings.enable_latency_modifier.load()) + "</value>\n"
-		// Do not store/reload this value
-		//"  <value name=\"latency_max\">" +
-		//int2str(settings.latency_max.load()) + "</value>\n"
-		"  <value name=\"latency_laid_back_ms\">" +
-		float2str(settings.latency_laid_back_ms.load()) + "</value>\n"
-		"  <value name=\"latency_stddev\">" +
-		float2str(settings.latency_stddev.load()) + "</value>\n"
-		"  <value name=\"latency_regain\">" +
-		float2str(settings.latency_regain.load()) + "</value>\n"
-		"  <value name=\"enable_powermap\">" +
-		bool2str(settings.enable_powermap.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed0_x\">" +
-		float2str(settings.powermap_fixed0_x.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed0_y\">" +
-		float2str(settings.powermap_fixed0_y.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed1_x\">" +
-		float2str(settings.powermap_fixed1_x.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed1_y\">" +
-		float2str(settings.powermap_fixed1_y.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed2_x\">" +
-		float2str(settings.powermap_fixed2_x.load()) + "</value>\n"
-		"  <value name=\"powermap_fixed2_y\">" +
-		float2str(settings.powermap_fixed2_y.load()) + "</value>\n"
-		"  <value name=\"powermap_shelf\">" +
-		bool2str(settings.powermap_shelf.load()) + "</value>\n"
-		"  <value name=\"enable_voice_limit\">" +
-		bool2str(settings.enable_voice_limit.load()) + "</value>\n"
-		"  <value name=\"voice_limit_max\">" +
-		int2str(settings.voice_limit_max.load()) + "</value>\n"
-		"  <value name=\"voice_limit_rampdown\">" +
-		float2str(settings.voice_limit_rampdown.load()) + "</value>\n"
-		"</config>";
+	return "<config version=\"1.0\">\n"
+	       "  <value name=\"drumkitfile\">" +
+	       settings.drumkit_file.load() +
+	       "</value>\n"
+	       "  <value name=\"midimapfile\">" +
+	       settings.midimap_file.load() +
+	       "</value>\n"
+	       "  <value name=\"enable_velocity_modifier\">" +
+	       bool2str(settings.enable_velocity_modifier.load()) +
+	       "</value>\n"
+	       "  <value name=\"velocity_modifier_falloff\">" +
+	       float2str(settings.velocity_modifier_falloff.load()) +
+	       "</value>\n"
+	       "  <value name=\"velocity_modifier_weight\">" +
+	       float2str(settings.velocity_modifier_weight.load()) +
+	       "</value>\n"
+	       "  <value name=\"velocity_stddev\">" +
+	       float2str(settings.velocity_stddev.load()) +
+	       "</value>\n"
+	       "  <value name=\"sample_selection_f_close\">" +
+	       float2str(settings.sample_selection_f_close.load()) +
+	       "</value>\n"
+	       "  <value name=\"sample_selection_f_diverse\">" +
+	       float2str(settings.sample_selection_f_diverse.load()) +
+	       "</value>\n"
+	       "  <value name=\"sample_selection_f_random\">" +
+	       float2str(settings.sample_selection_f_random.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_velocity_randomiser\">" +
+	       bool2str(settings.enable_velocity_randomiser.load()) +
+	       "</value>\n"
+	       "  <value name=\"velocity_randomiser_weight\">" +
+	       float2str(settings.velocity_randomiser_weight.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_resampling\">" +
+	       bool2str(settings.enable_resampling.load()) +
+	       "</value>\n"
+	       "  <value name=\"resampling_quality\">" +
+	       float2str(settings.resampling_quality.load()) +
+	       "</value>\n"
+	       "  <value name=\"disk_cache_upper_limit\">" +
+	       int2str(settings.disk_cache_upper_limit.load()) +
+	       "</value>\n"
+	       "  <value name=\"disk_cache_chunk_size\">" +
+	       int2str(settings.disk_cache_chunk_size.load()) +
+	       "</value>\n"
+	       "  <value name=\"disk_cache_enable\">" +
+	       bool2str(settings.disk_cache_enable.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_bleed_control\">" +
+	       bool2str(settings.enable_bleed_control.load()) +
+	       "</value>\n"
+	       "  <value name=\"master_bleed\">" +
+	       float2str(settings.master_bleed.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_latency_modifier\">" +
+	       bool2str(settings.enable_latency_modifier.load()) +
+	       "</value>\n"
+	       // Do not store/reload this value
+	       //"  <value name=\"latency_max\">" +
+	       // int2str(settings.latency_max.load()) + "</value>\n"
+	       "  <value name=\"latency_laid_back_ms\">" +
+	       float2str(settings.latency_laid_back_ms.load()) +
+	       "</value>\n"
+	       "  <value name=\"latency_stddev\">" +
+	       float2str(settings.latency_stddev.load()) +
+	       "</value>\n"
+	       "  <value name=\"latency_regain\">" +
+	       float2str(settings.latency_regain.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_powermap\">" +
+	       bool2str(settings.enable_powermap.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed0_x\">" +
+	       float2str(settings.powermap_fixed0_x.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed0_y\">" +
+	       float2str(settings.powermap_fixed0_y.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed1_x\">" +
+	       float2str(settings.powermap_fixed1_x.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed1_y\">" +
+	       float2str(settings.powermap_fixed1_y.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed2_x\">" +
+	       float2str(settings.powermap_fixed2_x.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_fixed2_y\">" +
+	       float2str(settings.powermap_fixed2_y.load()) +
+	       "</value>\n"
+	       "  <value name=\"powermap_shelf\">" +
+	       bool2str(settings.powermap_shelf.load()) +
+	       "</value>\n"
+	       "  <value name=\"enable_voice_limit\">" +
+	       bool2str(settings.enable_voice_limit.load()) +
+	       "</value>\n"
+	       "  <value name=\"voice_limit_max\">" +
+	       int2str(settings.voice_limit_max.load()) +
+	       "</value>\n"
+	       "  <value name=\"voice_limit_rampdown\">" +
+	       float2str(settings.voice_limit_rampdown.load()) +
+	       "</value>\n"
+	       "</config>";
 }
 
 bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
@@ -685,17 +731,20 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("enable_velocity_modifier") != "")
 	{
-		settings.enable_velocity_modifier.store(p.value("enable_velocity_modifier") == "true");
+		settings.enable_velocity_modifier.store(
+		    p.value("enable_velocity_modifier") == "true");
 	}
 
 	if(p.value("velocity_modifier_falloff") != "")
 	{
-		settings.velocity_modifier_falloff.store(str2float(p.value("velocity_modifier_falloff")));
+		settings.velocity_modifier_falloff.store(
+		    str2float(p.value("velocity_modifier_falloff")));
 	}
 
 	if(p.value("velocity_modifier_weight") != "")
 	{
-		settings.velocity_modifier_weight.store(str2float(p.value("velocity_modifier_weight")));
+		settings.velocity_modifier_weight.store(
+		    str2float(p.value("velocity_modifier_weight")));
 	}
 
 	if(p.value("velocity_stddev") != "")
@@ -705,57 +754,68 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("sample_selection_f_close") != "")
 	{
-		settings.sample_selection_f_close.store(str2float(p.value("sample_selection_f_close")));
+		settings.sample_selection_f_close.store(
+		    str2float(p.value("sample_selection_f_close")));
 	}
 
 	if(p.value("sample_selection_f_diverse") != "")
 	{
-		settings.sample_selection_f_diverse.store(str2float(p.value("sample_selection_f_diverse")));
+		settings.sample_selection_f_diverse.store(
+		    str2float(p.value("sample_selection_f_diverse")));
 	}
 
 	if(p.value("sample_selection_f_random") != "")
 	{
-		settings.sample_selection_f_random.store(str2float(p.value("sample_selection_f_random")));
+		settings.sample_selection_f_random.store(
+		    str2float(p.value("sample_selection_f_random")));
 	}
 
 	if(p.value("enable_velocity_randomiser") != "")
 	{
-		settings.enable_velocity_randomiser.store(p.value("enable_velocity_randomiser") == "true");
+		settings.enable_velocity_randomiser.store(
+		    p.value("enable_velocity_randomiser") == "true");
 	}
 
 	if(p.value("velocity_randomiser_weight") != "")
 	{
-		settings.velocity_randomiser_weight.store(str2float(p.value("velocity_randomiser_weight")));
+		settings.velocity_randomiser_weight.store(
+		    str2float(p.value("velocity_randomiser_weight")));
 	}
 
 	if(p.value("enable_resampling") != "")
 	{
-		settings.enable_resampling.store(p.value("enable_resampling") == "true");
+		settings.enable_resampling.store(
+		    p.value("enable_resampling") == "true");
 	}
 
 	if(p.value("resampling_quality") != "")
 	{
-		settings.resampling_quality.store(str2float(p.value("resampling_quality")));
+		settings.resampling_quality.store(
+		    str2float(p.value("resampling_quality")));
 	}
 
 	if(p.value("disk_cache_upper_limit") != "")
 	{
-		settings.disk_cache_upper_limit.store(str2ll(p.value("disk_cache_upper_limit")));
+		settings.disk_cache_upper_limit.store(
+		    str2ll(p.value("disk_cache_upper_limit")));
 	}
 
 	if(p.value("disk_cache_chunk_size") != "")
 	{
-		settings.disk_cache_chunk_size.store(str2int(p.value("disk_cache_chunk_size")));
+		settings.disk_cache_chunk_size.store(
+		    str2int(p.value("disk_cache_chunk_size")));
 	}
 
 	if(p.value("disk_cache_enable") != "")
 	{
-		settings.disk_cache_enable.store(p.value("disk_cache_enable") == "true");
+		settings.disk_cache_enable.store(
+		    p.value("disk_cache_enable") == "true");
 	}
 
 	if(p.value("enable_bleed_control") != "")
 	{
-		settings.enable_bleed_control.store(p.value("enable_bleed_control") == "true");
+		settings.enable_bleed_control.store(
+		    p.value("enable_bleed_control") == "true");
 	}
 
 	if(p.value("master_bleed") != "")
@@ -765,18 +825,20 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("enable_latency_modifier") != "")
 	{
-		settings.enable_latency_modifier.store(p.value("enable_latency_modifier") == "true");
+		settings.enable_latency_modifier.store(
+		    p.value("enable_latency_modifier") == "true");
 	}
 
 	// Do not store/reload this value
-	//if(p.value("latency_max") != "")
+	// if(p.value("latency_max") != "")
 	//{
 	//	settings.latency_max.store(str2int(p.value("latency_max")));
 	//}
 
 	if(p.value("latency_laid_back_ms") != "")
 	{
-		settings.latency_laid_back_ms.store(str2float(p.value("latency_laid_back_ms")));
+		settings.latency_laid_back_ms.store(
+		    str2float(p.value("latency_laid_back_ms")));
 	}
 
 	if(p.value("latency_stddev") != "")
@@ -796,32 +858,38 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("powermap_fixed0_x") != "")
 	{
-		settings.powermap_fixed0_x.store(str2float(p.value("powermap_fixed0_x")));
+		settings.powermap_fixed0_x.store(
+		    str2float(p.value("powermap_fixed0_x")));
 	}
 
 	if(p.value("powermap_fixed0_y") != "")
 	{
-		settings.powermap_fixed0_y.store(str2float(p.value("powermap_fixed0_y")));
+		settings.powermap_fixed0_y.store(
+		    str2float(p.value("powermap_fixed0_y")));
 	}
 
 	if(p.value("powermap_fixed1_x") != "")
 	{
-		settings.powermap_fixed1_x.store(str2float(p.value("powermap_fixed1_x")));
+		settings.powermap_fixed1_x.store(
+		    str2float(p.value("powermap_fixed1_x")));
 	}
 
 	if(p.value("powermap_fixed1_y") != "")
 	{
-		settings.powermap_fixed1_y.store(str2float(p.value("powermap_fixed1_y")));
+		settings.powermap_fixed1_y.store(
+		    str2float(p.value("powermap_fixed1_y")));
 	}
 
 	if(p.value("powermap_fixed2_x") != "")
 	{
-		settings.powermap_fixed2_x.store(str2float(p.value("powermap_fixed2_x")));
+		settings.powermap_fixed2_x.store(
+		    str2float(p.value("powermap_fixed2_x")));
 	}
 
 	if(p.value("powermap_fixed2_y") != "")
 	{
-		settings.powermap_fixed2_y.store(str2float(p.value("powermap_fixed2_y")));
+		settings.powermap_fixed2_y.store(
+		    str2float(p.value("powermap_fixed2_y")));
 	}
 
 	if(p.value("powermap_shelf") != "")
@@ -831,7 +899,8 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("enable_voice_limit") != "")
 	{
-		settings.enable_voice_limit.store(p.value("enable_voice_limit") == "true");
+		settings.enable_voice_limit.store(
+		    p.value("enable_voice_limit") == "true");
 	}
 
 	if(p.value("voice_limit_max") != "")
@@ -841,7 +910,8 @@ bool DrumGizmoPlugin::ConfigStringIO::set(std::string config_string)
 
 	if(p.value("voice_limit_rampdown") != "")
 	{
-		settings.voice_limit_rampdown.store(str2float(p.value("voice_limit_rampdown")));
+		settings.voice_limit_rampdown.store(
+		    str2float(p.value("voice_limit_rampdown")));
 	}
 
 	std::string newkit = p.value("drumkitfile");

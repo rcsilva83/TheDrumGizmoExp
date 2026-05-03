@@ -29,90 +29,21 @@
 
 #include <config.h>
 
+#include "clitestutils.h"
 #include "drumkit_creator.h"
-#include "scopedfile.h"
 
 #include <cstdlib>
 #include <ctime>
-#include <fstream>
-#include <iterator>
 #include <string>
 #include <vector>
 
 #ifndef _WIN32
-#include <sys/wait.h>
 #include <unistd.h>
 #endif
 
-struct CommandResult
-{
-	int exit_code;
-	std::string output;
-};
-
-static std::string shellEscape(const std::string& arg)
-{
-#ifndef _WIN32
-	std::string escaped = "'";
-	for(const auto ch : arg)
-	{
-		if(ch == '\'')
-		{
-			escaped += "'\\''";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "'";
-	return escaped;
-#else
-	std::string escaped = "\"";
-	for(const auto ch : arg)
-	{
-		if(ch == '"')
-		{
-			escaped += "\\\"";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "\"";
-	return escaped;
-#endif
-}
-
 static CommandResult runDgvalidator(const std::vector<std::string>& args)
 {
-	std::string command = shellEscape(DGVALIDATOR_BIN);
-	for(const auto& arg : args)
-	{
-		command += " ";
-		command += shellEscape(arg);
-	}
-
-	ScopedFile output_file("");
-	command += " >";
-	command += shellEscape(output_file.filename());
-	command += " 2>&1";
-
-	auto status = std::system(command.c_str());
-	int exit_code = status;
-#ifndef _WIN32
-	if(WIFEXITED(status))
-	{
-		exit_code = WEXITSTATUS(status);
-	}
-#endif
-
-	std::ifstream stream(output_file.filename());
-	std::string output((std::istreambuf_iterator<char>(stream)),
-	    std::istreambuf_iterator<char>());
-
-	return {exit_code, output};
+	return runCommand(DGVALIDATOR_BIN, args);
 }
 
 struct DgvalidatorFixture
@@ -180,5 +111,50 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_EQ(1, result.exit_code);
 		CHECK_NE(
 		    std::string::npos, result.output.find("Missing version field."));
+	}
+
+	SUBCASE("quietWithMissingKitfileReturnsError")
+	{
+		auto result = runDgvalidator({"--quiet"});
+		CHECK_EQ(1, result.exit_code);
+		// The direct cerr "Missing kitfile." should still appear
+		CHECK_NE(std::string::npos, result.output.find("Missing kitfile."));
+	}
+
+	SUBCASE("quietOptionWithNoAudioValidKit")
+	{
+		auto result = runDgvalidator({"--quiet", "--no-audio", kitfile});
+		// With --quiet, no logger output, but no-audio skips audio checks.
+		// Metadata warnings are suppressed by quiet.
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("verboseOptionShowsWarningsAndInfo")
+	{
+		// -v increments verbosity to 2, -vv to 3
+		auto result = runDgvalidator({"-v", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		// With -v (verbosity=2), warnings become visible
+		CHECK_NE(std::string::npos, result.output.find("[Warning]"));
+	}
+
+	SUBCASE("verboseTwiceShowsInfoMessages")
+	{
+		auto result = runDgvalidator({"-v", "-v", "--no-audio", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		// With -vv (verbosity=3), info messages become visible
+		CHECK_NE(std::string::npos, result.output.find("[Info]"));
+	}
+
+	SUBCASE("verboseAndPedanticTreatsWarningsAsErrors")
+	{
+		// -v shows warnings, -p makes warnings errors
+		auto result =
+		    runDgvalidator({"-v", "--pedantic", "--no-audio", kitfile});
+		CHECK_EQ(1, result.exit_code);
+		// Missing metadata (e.g. version) is logged as warning in non-pedantic,
+		// but as error in pedantic mode.
+		CHECK_NE(
+		    std::string::npos, result.output.find("Validator found errors."));
 	}
 }
