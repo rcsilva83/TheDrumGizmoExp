@@ -261,10 +261,13 @@ std::pair<int, int> NativeWindowX11::getPosition() const
 	::Window root_window;
 	::Window child_window;
 	int x, y;
-	unsigned int width, height, border, depth;
+	unsigned int width;
+	unsigned int height;
+	unsigned int border;
+	unsigned int win_depth;
 
 	XGetGeometry(display, xwindow, &root_window, &x, &y, &width, &height,
-	    &border, &depth);
+	    &border, &win_depth);
 
 	XTranslateCoordinates(
 	    display, xwindow, root_window, 0, 0, &x, &y, &child_window);
