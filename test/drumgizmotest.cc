@@ -31,7 +31,9 @@
 
 #include "drumkit_creator.h"
 
+#include <cstdio>
 #include <memory>
+#include <string>
 #include <vector>
 
 // Include input engines
@@ -55,6 +57,19 @@
 // Include channel and instrument definitions
 #include <channel.h>
 #include <instrument.h>
+
+#ifdef HAVE_OUTPUT_WAVFILE
+static void cleanupWavFiles(const std::string& prefix,
+                            const Channels& channels)
+{
+	for(size_t i = 0; i < channels.size(); ++i)
+	{
+		std::string fname = prefix + channels[i].name + "-" +
+		                    std::to_string(i) + ".wav";
+		std::remove(fname.c_str());
+	}
+}
+#endif
 
 // =============================================================================
 // DummyInputEngine Tests
@@ -562,6 +577,8 @@ TEST_CASE("WavfileOutputEngine")
 		bool result = engine.init(channels);
 
 		CHECK_UNARY(result);
+
+		cleanupWavFiles("/tmp/drumgizmo_test_", channels);
 	}
 
 	SUBCASE("setParmFileSetsFilename")
@@ -724,6 +741,7 @@ TEST_CASE("WavfileOutputEngine")
 		engine.run(0, samples, 100);
 
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_test_", channels);
 	}
 
 	SUBCASE("runWithLatencyEqualToNsamplesSkipsAll")
@@ -742,6 +760,7 @@ TEST_CASE("WavfileOutputEngine")
 		engine.run(0, samples, 100);
 
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_test2_", channels);
 	}
 
 	SUBCASE("fullLifecycleWorks")
@@ -763,6 +782,7 @@ TEST_CASE("WavfileOutputEngine")
 
 		CHECK_EQ(engine.getSamplerate(), 48000);
 		CHECK_UNARY(engine.isFreewheeling());
+		cleanupWavFiles("/tmp/drumgizmo_full_test_", channels);
 	}
 }
 #endif // HAVE_OUTPUT_WAVFILE
@@ -1227,14 +1247,14 @@ TEST_CASE("MidifileInputEngineRun")
 		engine.stop();
 	}
 
-	SUBCASE("runWithoutInitDoesNotCrash")
+	SUBCASE("lifecycleMethodsWorkWithoutInit")
 	{
 		MidifileInputEngine engine;
 		std::vector<event_t> events;
 
-		// Calling run() without init does NOT check for null smf;
-		// it would crash, so we skip the actual run call.
-		// Instead, verify the engine exists and lifecycle methods work.
+		// The engine's lifecycle methods (isFreewheeling, start, stop)
+		// work without calling init(). Calling run() without init
+		// would crash because the internal smf pointer is null.
 		CHECK_UNARY(engine.isFreewheeling());
 		CHECK_UNARY(engine.start());
 		engine.stop();
@@ -1534,6 +1554,7 @@ TEST_CASE("WavfileOutputEngineEdgeCases")
 		bool result = engine.init(channels);
 
 		CHECK_UNARY(result);
+		cleanupWavFiles("/tmp/drumgizmo_multi_test_", channels);
 	}
 
 	SUBCASE("setSamplerateZeroDoesNotCrash")
@@ -1613,6 +1634,7 @@ TEST_CASE("WavfileOutputEngineEdgeCases")
 		engine.run(0, nullptr, 0);
 
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_null_test_", channels);
 	}
 
 	SUBCASE("runWithNegativeChannelIndexDoesNotCrash")
@@ -1630,6 +1652,7 @@ TEST_CASE("WavfileOutputEngineEdgeCases")
 		engine.run(-1, samples, 1024);
 
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_neg_chan_test_", channels);
 	}
 
 	SUBCASE("preWithZeroSizeDoesNotCrash")
@@ -1679,6 +1702,7 @@ TEST_CASE("WavfileOutputEngineEdgeCases")
 
 		CHECK_EQ(engine.getSamplerate(), 44100);
 		CHECK_UNARY(engine.isFreewheeling());
+		cleanupWavFiles("/tmp/drumgizmo_multi_run_test_", channels);
 	}
 
 	SUBCASE("fullLifecycleWithLatencyChanges")
@@ -1711,6 +1735,7 @@ TEST_CASE("WavfileOutputEngineEdgeCases")
 		engine.stop();
 
 		CHECK_UNARY(engine.isFreewheeling());
+		cleanupWavFiles("/tmp/drumgizmo_latency_change_test_", channels);
 	}
 }
 #endif // HAVE_OUTPUT_WAVFILE
@@ -1906,6 +1931,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 
 		engine.stop();
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_gt_test_", channels);
 	}
 
 	SUBCASE("postWithLatencyEqualToNsamplesZerosLatency")
@@ -1926,6 +1952,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 
 		engine.stop();
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_eq_test_", channels);
 	}
 
 	SUBCASE("postWithLatencyLessThanNsamplesZerosLatency")
@@ -1946,6 +1973,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 
 		engine.stop();
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_lt_test_", channels);
 	}
 
 	SUBCASE("runWithNsamplesLessOrEqualToLatencySkipsOutput")
@@ -1966,6 +1994,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 
 		engine.stop();
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_skip_test_", channels);
 	}
 
 	SUBCASE("runWithNsamplesGreaterThanLatencyWritesAfterLatency")
@@ -1990,6 +2019,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 
 		engine.stop();
 		CHECK_UNARY(true);
+		cleanupWavFiles("/tmp/drumgizmo_latency_write_test_", channels);
 	}
 
 	SUBCASE("destructorWithOpenChannelsClosesFiles")
@@ -2011,6 +2041,7 @@ TEST_CASE("WavfileOutputEngineLatencyEdgeCases")
 			engine.stop();
 		}
 		CHECK_UNARY(true);
+		unlink("/tmp/drumgizmo_dtor_test_chan-0.wav");
 	}
 
 	SUBCASE("setParmInvalidSrateCatchesException")

@@ -38,6 +38,7 @@ test/uitests/benchmarktest_resource_data.cc
 drumgizmo-*.tar.gz
 tst
 test/*.log
+testoutch*.wav
 test/*.trs
 tools/valgrind_test/*.log
 tools/performance_test/*.log

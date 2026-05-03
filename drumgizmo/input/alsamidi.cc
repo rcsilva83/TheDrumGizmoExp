@@ -137,7 +137,7 @@ void AlsaMidiInputEngine::run(size_t pos, size_t len,
 	(void)pos;
 	(void)len;
 	assert(events.empty());
-	snd_seq_event_t* ev = NULL;
+	snd_seq_event_t* ev = nullptr;
 	if ( snd_seq_event_input(seq_handle, &ev) >= 0 )
 	{
 		// TODO Better solution needed: The ALSA MIDI event structure does

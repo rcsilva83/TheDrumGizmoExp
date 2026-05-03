@@ -210,6 +210,11 @@ void NativeWindowX11::setFixedSize(std::size_t width, std::size_t height)
 
 void NativeWindowX11::setAlwaysOnTop(bool always_on_top)
 {
+	if(display == nullptr)
+	{
+		return;
+	}
+
 	setWindowFront(display, xwindow, always_on_top);
 }
 

@@ -30,87 +30,14 @@
 #include <config.h>
 
 #include "drumkit_creator.h"
-#include "scopedfile.h"
+#include "clitestutils.h"
 
-#include <cstdlib>
-#include <fstream>
-#include <iterator>
 #include <string>
 #include <vector>
 
-#ifndef _WIN32
-#include <sys/wait.h>
-#endif
-
-struct CommandResult
-{
-	int exit_code;
-	std::string output;
-};
-
-static std::string shellEscape(const std::string& arg)
-{
-#ifndef _WIN32
-	std::string escaped = "'";
-	for(const auto ch : arg)
-	{
-		if(ch == '\'')
-		{
-			escaped += "'\\''";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "'";
-	return escaped;
-#else
-	std::string escaped = "\"";
-	for(const auto ch : arg)
-	{
-		if(ch == '"')
-		{
-			escaped += "\\\"";
-		}
-		else
-		{
-			escaped += ch;
-		}
-	}
-	escaped += "\"";
-	return escaped;
-#endif
-}
-
 static CommandResult runDrumgizmoCli(const std::vector<std::string>& args)
 {
-	std::string command = shellEscape(DRUMGIZMO_CLI_BIN);
-	for(const auto& arg : args)
-	{
-		command += " ";
-		command += shellEscape(arg);
-	}
-
-	ScopedFile output_file("");
-	command += " >";
-	command += shellEscape(output_file.filename());
-	command += " 2>&1";
-
-	auto status = std::system(command.c_str());
-	int exit_code = status;
-#ifndef _WIN32
-	if(WIFEXITED(status))
-	{
-		exit_code = WEXITSTATUS(status);
-	}
-#endif
-
-	std::ifstream stream(output_file.filename());
-	std::string output((std::istreambuf_iterator<char>(stream)),
-	    std::istreambuf_iterator<char>());
-
-	return {exit_code, output};
+	return runCommand(DRUMGIZMO_CLI_BIN, args);
 }
 
 struct DrumgizmoCliFixture
@@ -615,10 +542,15 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 	SUBCASE("outputparmsOptionRunSucceeds")
 	{
 		auto result = runDrumgizmoCli({"--inputengine", "dummy",
-		    "--outputengine", "wavfile", "--outputparms", "file=testout,srate=48000",
+		    "--outputengine", "wavfile", "--outputparms", "file=/tmp/dg_cli_testout,srate=48000",
 		    "--endpos", "1", kitfile});
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
+		// Cleanup test output files (4 channels from std kit)
+		unlink("/tmp/dg_cli_testoutch0-0.wav");
+		unlink("/tmp/dg_cli_testoutch1-1.wav");
+		unlink("/tmp/dg_cli_testoutch2-2.wav");
+		unlink("/tmp/dg_cli_testoutch3-3.wav");
 	}
 
 #ifdef HAVE_WORDEXP
