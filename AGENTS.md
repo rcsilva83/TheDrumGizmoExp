@@ -152,9 +152,9 @@ changed source files that include them must pass clang-tidy.
 ### Stage 3 — Build with compiler warnings-as-errors
 
 Debug builds enable `-Wall -Werror -Wextra`. The build must complete with zero
-warnings:
+warnings. Reuse the build directory from Stage 2 (already configured with
+`-DDG_WITH_DEBUG=ON`):
 ```sh
-cmake -S . -B build -DDG_WITH_DEBUG=ON
 cmake --build build -j$(nproc)
 ```
 
