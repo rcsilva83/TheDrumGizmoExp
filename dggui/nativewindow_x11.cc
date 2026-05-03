@@ -126,7 +126,7 @@ NativeWindowX11::NativeWindowX11(void* native_window, Window& window)
 
 	if(native_window)
 	{
-		parent_window = (::Window)native_window;
+		parent_window = reinterpret_cast<::Window>(native_window);
 
 		// Track size changes on the parent window
 		XSelectInput(display, parent_window, StructureNotifyMask);
@@ -235,17 +235,17 @@ std::pair<std::size_t, std::size_t> NativeWindowX11::getSize() const
 		return {1, 1};
 	}
 
-//	XWindowAttributes attributes;
-//	XGetWindowAttributes(display, xwindow, &attributes);
-//	return std::make_pair(attributes.width, attributes.height);
-
 	::Window root_window;
-	int x, y;
-	unsigned int width, height, border, depth;
+	int x;
+	int y;
+	unsigned int width;
+	unsigned int height;
+	unsigned int border;
+	unsigned int win_depth;
 
 	XGetGeometry(display, xwindow, &root_window,
 	             &x, &y,
-	             &width, &height, &border, &depth);
+	             &width, &height, &border, &win_depth);
 
 	return {width, height};
 }
@@ -375,7 +375,7 @@ EventQueue NativeWindowX11::getEvents()
 
 void* NativeWindowX11::getNativeWindowHandle() const
 {
-	return (void*)xwindow;
+	return reinterpret_cast<void*>(xwindow);
 }
 
 Point NativeWindowX11::translateToScreen(const Point& point)
