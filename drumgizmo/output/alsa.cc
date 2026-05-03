@@ -3,7 +3,7 @@
  *            alsa.cc
  *
  *  Do 21. Jan 16:48:32 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 

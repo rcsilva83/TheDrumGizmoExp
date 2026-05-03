@@ -3,7 +3,7 @@
  *            jackaudio.cc
  *
  *  Fr 22. Jan 09:43:30 CET 2016
- *  Copyright 2016 Christian Gl�ckner
+ *  Copyright 2016 Christian Glöckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
