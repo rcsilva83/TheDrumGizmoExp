@@ -723,7 +723,8 @@ if(DG_ENABLE_CLI)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/input/midifile.cc"
 			"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
-			"${CMAKE_SOURCE_DIR}/src/midimapparser.cc")
+			"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc")
 		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES
 			dg_smf
 			PkgConfig::GLIB2)
