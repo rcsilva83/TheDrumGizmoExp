@@ -20,9 +20,9 @@ git submodules in this repository.
 
 ## Build Commands
 
-### CMake (preferred)
+### Configure and Build
 ```sh
-cmake -S . -B build
+cmake -S . -B build -DDG_WITH_DEBUG=ON
 cmake --build build -j$(nproc)
 ```
 
@@ -47,15 +47,9 @@ Notes:
 - LV2/VST builds require the `plugin/plugingizmo` dependency fetched by CPM.
 - GUI/plugin builds require `getoptpp` and `lodepng`; pugl backends also require `pugl` (all fetched by CPM).
 
-### CMake install
+### Install
 ```sh
 cmake --install build --prefix "$PWD/install"
-```
-
-### Build
-```sh
-cmake -S . -B build
-cmake --build build -j$(nproc)
 ```
 
 ### Run All Tests
@@ -65,7 +59,6 @@ ctest --test-dir build --output-on-failure
 
 ### Run a Single Test
 ```sh
-# CMake:
 ctest --test-dir build -R <testname> --output-on-failure
 # Example:
 ctest --test-dir build -R randomtest --output-on-failure
@@ -78,34 +71,135 @@ Available test targets: `resource`, `enginetest`, `paintertest`, `configfile`,
 `dgxmlparsertest`, `domloadertest`, `configparsertest`, `midimapparsertest`,
 `eventsdstest`, `powermaptest`, `midimappertest`, `nativewindow_x11`.
 
-### Formatting
-```sh
-clang-format -i <file>      # Format a single file per .clang-format
-```
-
-There is no dedicated lint command. Debug builds use `-Wall -Werror -Wextra`.
-
 ## Mandatory Pre-Commit Verification
 
-Before every **code-affecting** commit, run and verify all three stages below.
+Before every **code-affecting** commit, run all four stages below in order.
+If any stage fails, fix the issues and re-run before committing.
 
-Docs-only commits are exempt from this mandatory verification (optional but encouraged).
+Docs-only commits (changes only to `*.md` or documentation files, no C/C++
+source changes) are exempt from this mandatory verification.
 
-1. **Static analysis** (no dedicated lint target; use strict debug warnings as analysis):
-   ```sh
-   cmake -S . -B build -DDG_WITH_DEBUG=ON
-   cmake --build build -j$(nproc)
-   ```
-2. **Build** (must complete successfully):
-   ```sh
-   cmake --build build -j$(nproc)
-   ```
-3. **Tests** (must pass):
-   ```sh
-   ctest --test-dir build --output-on-failure
-   ```
+### Stage 1 — clang-format
 
-If any required step fails, do **not** commit until it is fixed or intentionally skipped with a documented reason in the commit message/PR description.
+Format every changed or newly added C/C++ file (`.c`, `.cc`, `.cpp`, `.h`,
+`.hh`, `.hpp`) according to `.clang-format`:
+
+```sh
+clang-format -i path/to/changed_file.cc path/to/changed_file.h
+```
+
+Run in dry-run mode first to preview changes:
+```sh
+clang-format --dry-run --Werror path/to/changed_file.cc
+```
+
+### Stage 2 — Static analysis (cppcheck + clang-tidy)
+
+First, (re)configure the build with `compile_commands.json` required by
+clang-tidy:
+```sh
+cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DDG_WITH_DEBUG=ON
+```
+
+Then run **cppcheck** on every changed/new C/C++ file:
+```sh
+cppcheck \
+  --error-exitcode=1 \
+  --enable=warning,style,performance,portability \
+  --language=c++ \
+  --std=c++11 \
+  --suppress=missingIncludeSystem \
+  --suppress=toomanyconfigs \
+  --suppress=unusedStructMember \
+  --suppress=noExplicitConstructor \
+  --suppress=missingOverride \
+  --suppress=passedByValue \
+  --suppress=constParameterReference \
+  --suppress=constVariableReference \
+  --suppress=shadowFunction \
+  --suppress=shadowVariable \
+  --suppress=duplicateExpression \
+  --suppress=useStlAlgorithm \
+  --suppress=knownConditionTrueFalse \
+  --suppress=unreadVariable \
+  --suppress=uselessCallsSubstr \
+  --suppress=useInitializationList \
+  --suppress=stlcstrParam \
+  --suppress=uselessOverride \
+  --suppress=virtualCallInConstructor \
+  --suppress=funcArgOrderDifferent \
+  --suppress=signConversion \
+  --suppress=selfAssignment \
+  --suppress=ignoredReturnValue \
+  --suppress=redundantAssignment \
+  --suppress=shiftTooManyBitsSigned \
+  --suppress=uninitvar \
+  --suppress=constVariablePointer \
+  --inline-suppr \
+  path/to/changed_file.cc
+```
+
+For C files, use `--language=c --std=c11` and omit C++-only suppressions.
+
+Then run **clang-tidy** on every changed/new source file (`.c`, `.cc`, `.cpp`)
+that appears in `build/compile_commands.json`:
+```sh
+clang-tidy -p build path/to/changed_file.cc
+```
+Note: Header-only changes do not need a separate clang-tidy pass, but the
+changed source files that include them must pass clang-tidy.
+
+### Stage 3 — Build with compiler warnings-as-errors
+
+Debug builds enable `-Wall -Werror -Wextra`. The build must complete with zero
+warnings. Reuse the build directory from Stage 2 (already configured with
+`-DDG_WITH_DEBUG=ON`):
+```sh
+cmake --build build -j$(nproc)
+```
+
+### Stage 4 — Tests
+
+```sh
+ctest --test-dir build --output-on-failure
+```
+
+If any required stage fails, do **not** commit until it is fixed.
+
+## SonarCloud Best Practices
+
+The CI pipeline runs SonarCloud analysis on every push and pull request.
+To avoid SonarCloud warnings and errors, follow these additional guidelines:
+
+- **Initialize all member variables** — Use C++11 in-class initializers or
+  constructor initializer lists for every member:
+  ```cpp
+  int count{0};
+  std::string name;
+  ```
+- **Use `override`** — Every virtual function that overrides a base class
+  function must be explicitly marked `override`.
+- **Prefer `= default` and `= delete`** over empty or private-unimplemented
+  special member functions.
+- **Use `nullptr`** — Never use `NULL` or `0` for null pointers.
+- **Use `explicit`** on single-argument constructors and conversion operators:
+  ```cpp
+  explicit MyClass(int value);
+  ```
+- **No commented-out code** — Remove dead/commented-out code before committing.
+- **Use `empty()` instead of `size() == 0`** on STL containers.
+- **Use range-based for loops** when iterating over entire containers.
+- **Avoid C-style casts** — Use `static_cast<>`, `const_cast<>`, etc.
+- **Mark member functions `const`** where possible.
+- **Prefer `emplace_back()` over `push_back()`** when constructing in place.
+- **Do not use `m_` prefix** on member variables — use the snake_case
+  convention defined in this project.
+- **Avoid `goto` and unconditional `break`/`continue`** where structured
+  alternatives exist.
+- **No public data members** — Use accessor functions.
+- **Return values from all non-void functions** on all code paths.
+- **Ensure names are consistent** — for example `assert()` argument order
+  should match the natural expression being tested.
 
 ## Code Style (enforced by .clang-format)
 
