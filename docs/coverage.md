@@ -329,14 +329,19 @@ Any changed `.c`/`.cc`/`.cpp`/`.cxx` file in `src/`, `dggui/`, `plugingui/`,
 
 **Exceptions:** 
 
-1. **GUI files** in `dggui/` and `plugingui/` are excluded from the
-changed-file floor check because they require a display server (X11) and cannot
-be meaningfully unit tested in a headless environment.
+1. **X11-specific native code** (`dggui/nativewindow_x11.cc`) is excluded from the
+changed-file floor check because it directly calls Xlib functions and cannot be
+meaningfully unit tested in a headless environment.
 
 2. **Static analysis fixes** — Files modified only to fix compiler warnings
 (e.g., adding `(void)` casts for unused parameters, explanatory comments for
 empty methods) are excluded from the floor check. These changes add executable
 lines that are not testable functional code.
+
+The previous blanket exemption for all `dggui/` and `plugingui/` files was
+removed on 2026-05-03 because the CI now runs tests under Xvfb, making the vast
+majority of GUI code testable. Instead, GUI modules are tracked with their own
+per-module thresholds (see table below).
 
 These exempted files are still reported in the coverage summary but do not
 cause the check to fail.
@@ -356,6 +361,8 @@ buffer to tolerate natural measurement variation:
 | -------- | ---------: | ----------------------------------------- |
 | Overall  |        81% | Advanced 2026-04-20 (actual: 81.7%)       |
 | `src/`   |        90% | At target 2026-04-20 (actual: 92.0%)      |
+| `dggui/` |        60% | Set 2026-05-03 after exemption removal (actual: 60.5%) |
+| `plugingui/` |    65% | Set 2026-05-03 after exemption removal (actual: 69.4%) |
 
 ---
 
