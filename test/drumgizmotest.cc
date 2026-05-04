@@ -928,6 +928,58 @@ TEST_CASE("EngineFactory")
 		CHECK_UNARY(engine1 != engine2);
 #endif
 	}
+
+#ifdef HAVE_INPUT_OSSMIDI
+	SUBCASE("createInputOssmidiReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("ossmidi");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getInputEnginesContainsOssmidi")
+	{
+		EngineFactory factory;
+		const auto& inputs = factory.getInputEngines();
+
+		bool found = false;
+		for(const auto& name : inputs)
+		{
+			if(name == "ossmidi")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_OSS
+	SUBCASE("createOutputOssReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("oss");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getOutputEnginesContainsOss")
+	{
+		EngineFactory factory;
+		const auto& outputs = factory.getOutputEngines();
+
+		bool found = false;
+		for(const auto& name : outputs)
+		{
+			if(name == "oss")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
 }
 
 // =============================================================================
@@ -2092,3 +2144,535 @@ TEST_CASE("MidifileInputEngineEdgeCases")
 	}
 }
 #endif // HAVE_INPUT_MIDIFILE
+
+// =============================================================================
+// AlsaMidiInputEngine Tests
+// =============================================================================
+
+#ifdef HAVE_INPUT_ALSAMIDI
+#include "drumgizmo/input/alsamidi.h"
+
+TEST_CASE("AlsaMidiInputEngine")
+{
+	SUBCASE("constructorCreatesEngine")
+	{
+		AlsaMidiInputEngine engine;
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("isFreewheelingReturnsTrue")
+	{
+		AlsaMidiInputEngine engine;
+
+		bool result = engine.isFreewheeling();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("startReturnsTrue")
+	{
+		AlsaMidiInputEngine engine;
+
+		bool result = engine.start();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("stopDoesNotThrow")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preDoesNotThrow")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.pre();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postDoesNotThrow")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.post();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmMidimapSetsFilename")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.setParm("midimap", "/path/to/map.xml");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.setParm("unknown", "value");
+		engine.setParm("", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setSampleRateDoesNotThrow")
+	{
+		AlsaMidiInputEngine engine;
+
+		engine.setSampleRate(44100.0);
+		engine.setSampleRate(48000.0);
+		engine.setSampleRate(96000.0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithoutInitDoesNotCrash")
+	{
+		AlsaMidiInputEngine engine;
+
+		CHECK_UNARY(engine.start());
+		engine.pre();
+		engine.post();
+		engine.stop();
+
+		CHECK_UNARY(engine.isFreewheeling());
+	}
+}
+#endif // HAVE_INPUT_ALSAMIDI
+
+// =============================================================================
+// AlsaOutputEngine Tests
+// =============================================================================
+
+#ifdef HAVE_OUTPUT_ALSA
+#include "drumgizmo/output/alsa.h"
+
+TEST_CASE("AlsaOutputEngine")
+{
+	SUBCASE("constructorCreatesEngineWithDefaults")
+	{
+		AlsaOutputEngine engine;
+
+		CHECK_EQ(engine.getSamplerate(), 44100);
+		CHECK_EQ(engine.getBufferSize(), 32);
+	}
+
+	SUBCASE("isFreewheelingReturnsFalse")
+	{
+		AlsaOutputEngine engine;
+
+		bool result = engine.isFreewheeling();
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("startReturnsTrue")
+	{
+		AlsaOutputEngine engine;
+
+		bool result = engine.start();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("stopDoesNotThrow")
+	{
+		AlsaOutputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preDoesNotThrow")
+	{
+		AlsaOutputEngine engine;
+
+		engine.pre(1024);
+		engine.pre(0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmDevSetsDevice")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("dev", "hw:0");
+		engine.setParm("dev", "default");
+		engine.setParm("dev", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmFramesSetsFrames")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("frames", "64");
+		CHECK_EQ(engine.getBufferSize(), 64);
+
+		engine.setParm("frames", "128");
+		CHECK_EQ(engine.getBufferSize(), 128);
+	}
+
+	SUBCASE("setParmInvalidFramesDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("frames", "invalid");
+		engine.setParm("frames", "");
+
+		CHECK_EQ(engine.getBufferSize(), 32); // default unchanged
+	}
+
+	SUBCASE("setParmPeriodsDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("periods", "2");
+		engine.setParm("periods", "4");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidPeriodsDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("periods", "invalid");
+		engine.setParm("periods", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmSrateSetsSamplerate")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("srate", "48000");
+		CHECK_EQ(engine.getSamplerate(), 48000);
+
+		engine.setParm("srate", "44100");
+		CHECK_EQ(engine.getSamplerate(), 44100);
+
+		engine.setParm("srate", "96000");
+		CHECK_EQ(engine.getSamplerate(), 96000);
+	}
+
+	SUBCASE("setParmInvalidSrateDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("srate", "invalid");
+		engine.setParm("srate", "");
+		engine.setParm("srate", "-1");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		engine.setParm("unknown", "value");
+		engine.setParm("", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithoutInitDoesNotCrash")
+	{
+		AlsaOutputEngine engine;
+
+		CHECK_UNARY(engine.start());
+		engine.pre(1024);
+		engine.stop();
+
+		CHECK_UNARY(!engine.isFreewheeling());
+		CHECK_EQ(engine.getSamplerate(), 44100);
+	}
+}
+#endif // HAVE_OUTPUT_ALSA
+
+// =============================================================================
+// OSSInputEngine Tests
+// =============================================================================
+
+#ifdef HAVE_INPUT_OSSMIDI
+#include "drumgizmo/input/ossmidi.h"
+
+TEST_CASE("OSSInputEngine")
+{
+	SUBCASE("constructorCreatesEngine")
+	{
+		OSSInputEngine engine;
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("isFreewheelingReturnsFalse")
+	{
+		OSSInputEngine engine;
+
+		bool result = engine.isFreewheeling();
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("startReturnsTrue")
+	{
+		OSSInputEngine engine;
+
+		bool result = engine.start();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("stopDoesNotThrow")
+	{
+		OSSInputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preDoesNotThrow")
+	{
+		OSSInputEngine engine;
+
+		engine.pre();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postDoesNotThrow")
+	{
+		OSSInputEngine engine;
+
+		engine.post();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmDevSetsDevice")
+	{
+		OSSInputEngine engine;
+
+		engine.setParm("dev", "/dev/midi1");
+		engine.setParm("dev", "/dev/umidi0");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmMidimapSetsFilename")
+	{
+		OSSInputEngine engine;
+
+		engine.setParm("midimap", "/path/to/map.xml");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	{
+		OSSInputEngine engine;
+
+		engine.setParm("unknown", "value");
+		engine.setParm("", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithoutInitDoesNotCrash")
+	{
+		OSSInputEngine engine;
+
+		CHECK_UNARY(engine.start());
+		engine.pre();
+		engine.post();
+		engine.stop();
+
+		CHECK_UNARY(!engine.isFreewheeling());
+	}
+}
+#endif // HAVE_INPUT_OSSMIDI
+
+// =============================================================================
+// OSSOutputEngine Tests
+// =============================================================================
+
+#ifdef HAVE_OUTPUT_OSS
+#include "drumgizmo/output/oss.h"
+
+TEST_CASE("OSSOutputEngine")
+{
+	SUBCASE("constructorCreatesEngineWithDefaults")
+	{
+		OSSOutputEngine engine;
+
+		CHECK_EQ(engine.getSamplerate(), 44100);
+		CHECK_EQ(engine.getBufferSize(), 1024);
+	}
+
+	SUBCASE("isFreewheelingReturnsFalse")
+	{
+		OSSOutputEngine engine;
+
+		bool result = engine.isFreewheeling();
+
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("startReturnsTrue")
+	{
+		OSSOutputEngine engine;
+
+		bool result = engine.start();
+
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("stopDoesNotThrow")
+	{
+		OSSOutputEngine engine;
+
+		engine.stop();
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("preDoesNotThrow")
+	{
+		OSSOutputEngine engine;
+
+		engine.pre(1024);
+		engine.pre(0);
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmDevSetsDevice")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("dev", "/dev/dsp1");
+		engine.setParm("dev", "/dev/dsp");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmSrateSetsSamplerate")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("srate", "48000");
+		CHECK_EQ(engine.getSamplerate(), 48000);
+
+		engine.setParm("srate", "44100");
+		CHECK_EQ(engine.getSamplerate(), 44100);
+	}
+
+	SUBCASE("setParmInvalidSrateDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("srate", "invalid");
+		engine.setParm("srate", "");
+		engine.setParm("srate", "-1");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmMaxFragmentsDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("max_fragments", "2");
+		engine.setParm("max_fragments", "8");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidMaxFragmentsDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("max_fragments", "invalid");
+		engine.setParm("max_fragments", "-1");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmFragmentSizeDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("fragment_size", "4");
+		engine.setParm("fragment_size", "64");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmInvalidFragmentSizeDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("fragment_size", "invalid");
+		engine.setParm("fragment_size", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmFragmentSizeClampsMin")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("fragment_size", "1");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmFragmentSizeClampsMax")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("fragment_size", "999999");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		engine.setParm("unknown", "value");
+		engine.setParm("", "");
+
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("fullLifecycleWithoutInitDoesNotCrash")
+	{
+		OSSOutputEngine engine;
+
+		CHECK_UNARY(engine.start());
+		engine.pre(1024);
+		engine.stop();
+
+		CHECK_UNARY(!engine.isFreewheeling());
+		CHECK_EQ(engine.getSamplerate(), 44100);
+	}
+}
+#endif // HAVE_OUTPUT_OSS

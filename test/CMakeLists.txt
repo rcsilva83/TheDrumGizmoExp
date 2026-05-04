@@ -742,6 +742,16 @@ if(DG_ENABLE_CLI)
 			"${CMAKE_SOURCE_DIR}/drumgizmo/input/alsamidi.cc")
 	endif()
 
+	if(DG_ENABLE_INPUT_OSSMIDI)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/input/ossmidi.cc"
+			"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+			"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc")
+		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES
+			dg_pugi)
+	endif()
+
 	if(DG_ENABLE_OUTPUT_DUMMY)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/outputdummy.cc")
@@ -755,6 +765,11 @@ if(DG_ENABLE_CLI)
 	if(DG_ENABLE_OUTPUT_ALSA)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/alsa.cc")
+	endif()
+
+	if(DG_ENABLE_OUTPUT_OSS)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/output/oss.cc")
 	endif()
 
 	if(DG_ENABLE_OUTPUT_JACKAUDIO)

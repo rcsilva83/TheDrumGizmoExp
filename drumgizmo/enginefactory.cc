@@ -53,7 +53,7 @@ EngineFactory::EngineFactory()
 	input.push_back("alsamidi");
 #endif
 #ifdef HAVE_INPUT_OSS
-	input.push_back("oss");
+	input.push_back("ossmidi");
 #endif
 
 // list available output engines
