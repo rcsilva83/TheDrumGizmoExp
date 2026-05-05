@@ -695,11 +695,14 @@ endif()
 if(DG_ENABLE_CLI)
 	set(DG_DRUMGIZMO_TEST_SOURCES
 		"${CMAKE_SOURCE_DIR}/test/drumgizmotest.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumgizmointegrationtest.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
 		"${CMAKE_SOURCE_DIR}/drumgizmo/enginefactory.cc"
 	)
 	set(DG_DRUMGIZMO_TEST_INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}"
 		"${CMAKE_SOURCE_DIR}/src"
+		"${CMAKE_SOURCE_DIR}/test"
 		"${DG_HUGIN_SOURCE_DIR}"
 		"${CMAKE_BINARY_DIR}"
 	)
