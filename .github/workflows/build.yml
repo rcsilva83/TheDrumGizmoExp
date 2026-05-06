@@ -41,6 +41,8 @@ jobs:
             -DDG_WITH_NLS=OFF \
             -DDG_ENABLE_LV2=ON \
             -DDG_ENABLE_VST=OFF \
+            -DDG_ENABLE_INPUT_OSSMIDI=ON \
+            -DDG_ENABLE_OUTPUT_OSS=ON \
             -DDG_GUI_BACKEND=x11 \
             -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_C_FLAGS='--coverage -O0 -g' \
@@ -288,6 +290,8 @@ jobs:
             -DDG_WITH_NLS=ON \
             -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
+            -DDG_ENABLE_INPUT_OSSMIDI=ON \
+            -DDG_ENABLE_OUTPUT_OSS=ON \
             -DDG_GUI_BACKEND=x11
 
       - name: Run cppcheck, clang-format, and clang-tidy
@@ -452,6 +456,8 @@ jobs:
             -DDG_WITH_NLS=OFF \
             -DDG_ENABLE_LV2=OFF \
             -DDG_ENABLE_VST=OFF \
+            -DDG_ENABLE_INPUT_OSSMIDI=ON \
+            -DDG_ENABLE_OUTPUT_OSS=ON \
             -DDG_GUI_BACKEND=x11
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
       - name: SonarQube Scan

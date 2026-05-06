@@ -25,24 +25,17 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include "oss.h"
-#include <sys/soundcard.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <iostream>
 #include <cstring>
+#include <fcntl.h>
+#include <iostream>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <sys/soundcard.h>
+#include <unistd.h>
 
 #include <config.h>
 
 OSSOutputEngine::OSSOutputEngine()
-	: dev{"/dev/dsp"}
-	, num_channels{NUM_CHANNELS}
-	, srate{44100}
-	, format{AFMT_S32_NE}
-	, data{}
-	, max_fragments{4}
-	, fragment_size{8}
-	, buffer_size{1024}
 {
 	data.clear();
 	data.resize(1024 * num_channels);
@@ -50,12 +43,14 @@ OSSOutputEngine::OSSOutputEngine()
 
 bool OSSOutputEngine::init(const Channels& channels)
 {
-	std::size_t tmp, mode = O_WRONLY, fragments;
+	std::size_t tmp, fragments;
+	int mode = O_WRONLY;
 	num_channels = channels.size();
 
-	if((fd = open(dev.data(), mode, 0)) == -1)
+	fd = open(dev.data(), mode, 0);
+	if(fd == -1)
 	{
-		std::cerr << dev.data() << ' ' << std::strerror(errno) << std::endl;
+		std::cerr << dev.data() << ' ' << std::strerror(errno) << '\n';
 		return false;
 	}
 
@@ -64,32 +59,32 @@ bool OSSOutputEngine::init(const Channels& channels)
 	if(ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &tmp) == -1)
 	{
 		std::cerr << "Can not set buffer size: ";
-		std::cerr << std::strerror(errno) << std::endl;
+		std::cerr << std::strerror(errno) << '\n';
 		return false;
 	}
 	if(tmp != fragments)
 	{
 		std::size_t real_fragment_size = fragments & 0xffff;
 		std::size_t real_max_fragments = (fragments - real_fragment_size) >> 16;
-		std::cerr << "Values corrected to:" << std::endl;
-		std::cerr << "  fragment_size: " << real_fragment_size << std::endl;
-		std::cerr << "  max_fragments: " << real_max_fragments << std::endl;
+		std::cerr << "Values corrected to:" << '\n';
+		std::cerr << "  fragment_size: " << real_fragment_size << '\n';
+		std::cerr << "  max_fragments: " << real_max_fragments << '\n';
 	}
 
 	audio_buf_info info;
 	if(ioctl(fd, SNDCTL_DSP_GETOSPACE, &info) == -1)
 	{
 		std::cerr << "Can not get buffer info: ";
-		std::cerr << std::strerror(errno) << std::endl;
+		std::cerr << std::strerror(errno) << '\n';
 		return false;
 	}
-	buffer_size = info.bytes / sizeof(decltype (data)::value_type);
+	buffer_size = info.bytes / sizeof(decltype(data)::value_type);
 
 	tmp = format;
 	if(ioctl(fd, SNDCTL_DSP_SETFMT, &tmp) == -1 || tmp != format)
 	{
 		std::cerr << "Setting audio format failed " << std::strerror(errno);
-		std::cerr << std::endl;
+		std::cerr << '\n';
 		return false;
 	}
 
@@ -97,7 +92,7 @@ bool OSSOutputEngine::init(const Channels& channels)
 	if(ioctl(fd, SNDCTL_DSP_CHANNELS, &tmp) == -1 || tmp != num_channels)
 	{
 		std::cerr << "Can not set number of channels to " << num_channels;
-		std::cerr << ": " << std::strerror(errno) << std::endl;
+		std::cerr << ": " << std::strerror(errno) << '\n';
 		return false;
 	}
 
@@ -105,7 +100,7 @@ bool OSSOutputEngine::init(const Channels& channels)
 	if(ioctl(fd, SNDCTL_DSP_SPEED, &tmp) == -1 || tmp != srate)
 	{
 		std::cerr << "Can not set sampling frequency to " << srate << ": ";
-		std::cerr << std::strerror(errno) << std::endl;
+		std::cerr << std::strerror(errno) << '\n';
 		return false;
 	}
 
@@ -127,7 +122,7 @@ void OSSOutputEngine::setParm(const std::string& parm, const std::string& value)
 		catch(...)
 		{
 			std::cerr << "[OSSOutputEngine] Invalid samplerate ";
-			std::cerr << value << std::endl;
+			std::cerr << value << '\n';
 		}
 	}
 	else if(parm == "max_fragments")
@@ -139,12 +134,12 @@ void OSSOutputEngine::setParm(const std::string& parm, const std::string& value)
 		catch(...)
 		{
 			std::cerr << "[OSSOutputEngine] Invalid max_fragments ";
-			std::cerr << value << std::endl;
+			std::cerr << value << '\n';
 		}
 		if(max_fragments < 2)
 		{
 			std::cerr << "[OSSoutputEngine] max_fragments must be at least 2\n";
-			std::cerr << "Setting max_fragments to 2" << std::endl;
+			std::cerr << "Setting max_fragments to 2" << '\n';
 			max_fragments = 2;
 		}
 	}
@@ -157,29 +152,29 @@ void OSSOutputEngine::setParm(const std::string& parm, const std::string& value)
 		catch(...)
 		{
 			std::cerr << "[OSSOutputEngine] Invalid fragment_size ";
-			std::cerr << value << std::endl;
+			std::cerr << value << '\n';
 		}
 		if(fragment_size < 4)
 		{
 			fragment_size = 4;
 			std::cerr << "[OSSoutputEngine] fragment_size must be at least ";
-			std::cerr << fragment_size << std::endl;
+			std::cerr << fragment_size << '\n';
 			std::cerr << "Setting fragment_size to ";
-			std::cerr << fragment_size << std::endl;
+			std::cerr << fragment_size << '\n';
 		}
 		else if(fragment_size > 0xffff)
 		{
 			fragment_size = 0xffff;
 			std::cerr << "[OSSoutputEngine] fragment_size must be at most ";
-			std::cerr << fragment_size << std::endl;
+			std::cerr << fragment_size << '\n';
 			std::cerr << "Setting fragment_size to ";
-			std::cerr << fragment_size << std::endl;
+			std::cerr << fragment_size << '\n';
 		}
 	}
 	else
 	{
 		std::cerr << "[OSSOutputEngine] Unsupported parameter '";
-		std::cerr << parm << std::endl;
+		std::cerr << parm << '\n';
 	}
 }
 
@@ -206,7 +201,7 @@ void OSSOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 		}
 		else
 		{
-			sample = samples[i] * INT32_MAX;
+			sample = static_cast<std::int32_t>(samples[i] * INT32_MAX);
 		}
 		data[i * num_channels + ch] = sample;
 	}
@@ -214,11 +209,12 @@ void OSSOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 
 void OSSOutputEngine::post(size_t nsamples)
 {
+	(void)nsamples;
 	auto data_size = data.size() * sizeof(*data.data());
 	auto size_written = write(fd, data.data(), data_size);
-	if(size_written != data_size)
+	if(static_cast<std::size_t>(size_written) != data_size)
 	{
-		std::cerr << "Audio write: " << std::strerror(errno) << std::endl;
+		std::cerr << "Audio write: " << std::strerror(errno) << '\n';
 	}
 }
 

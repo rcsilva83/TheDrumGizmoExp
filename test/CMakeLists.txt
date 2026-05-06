@@ -695,11 +695,14 @@ endif()
 if(DG_ENABLE_CLI)
 	set(DG_DRUMGIZMO_TEST_SOURCES
 		"${CMAKE_SOURCE_DIR}/test/drumgizmotest.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumgizmointegrationtest.cc"
+		"${CMAKE_SOURCE_DIR}/test/drumkit_creator.cc"
 		"${CMAKE_SOURCE_DIR}/drumgizmo/enginefactory.cc"
 	)
 	set(DG_DRUMGIZMO_TEST_INCLUDE_DIRS
 		"${CMAKE_SOURCE_DIR}"
 		"${CMAKE_SOURCE_DIR}/src"
+		"${CMAKE_SOURCE_DIR}/test"
 		"${DG_HUGIN_SOURCE_DIR}"
 		"${CMAKE_BINARY_DIR}"
 	)
@@ -742,6 +745,16 @@ if(DG_ENABLE_CLI)
 			"${CMAKE_SOURCE_DIR}/drumgizmo/input/alsamidi.cc")
 	endif()
 
+	if(DG_ENABLE_INPUT_OSSMIDI)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/input/ossmidi.cc"
+			"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+			"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+			"${CMAKE_SOURCE_DIR}/test/scopedfile.cc")
+		list(APPEND DG_DRUMGIZMO_TEST_LINK_LIBRARIES
+			dg_pugi)
+	endif()
+
 	if(DG_ENABLE_OUTPUT_DUMMY)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/outputdummy.cc")
@@ -755,6 +768,11 @@ if(DG_ENABLE_CLI)
 	if(DG_ENABLE_OUTPUT_ALSA)
 		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
 			"${CMAKE_SOURCE_DIR}/drumgizmo/output/alsa.cc")
+	endif()
+
+	if(DG_ENABLE_OUTPUT_OSS)
+		list(APPEND DG_DRUMGIZMO_TEST_SOURCES
+			"${CMAKE_SOURCE_DIR}/drumgizmo/output/oss.cc")
 	endif()
 
 	if(DG_ENABLE_OUTPUT_JACKAUDIO)
@@ -783,6 +801,152 @@ if(DG_ENABLE_CLI)
 		LINK_LIBRARIES
 			${DG_DRUMGIZMO_TEST_LINK_LIBRARIES}
 	)
+
+	# --- Individual engine test targets ---
+
+	if(DG_ENABLE_INPUT_DUMMY)
+		dg_add_doctest_test(dummyinputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/input/inputdummy.cc"
+				"${CMAKE_SOURCE_DIR}/test/dummyinputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+		)
+	endif()
+
+	if(DG_ENABLE_INPUT_TEST)
+		dg_add_doctest_test(testinputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/input/test.cc"
+				"${CMAKE_SOURCE_DIR}/test/testinputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+		)
+	endif()
+
+	if(DG_ENABLE_OUTPUT_DUMMY)
+		dg_add_doctest_test(dummyoutputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/output/outputdummy.cc"
+				"${CMAKE_SOURCE_DIR}/test/dummyoutputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+		)
+	endif()
+
+	if(DG_ENABLE_OUTPUT_WAVFILE)
+		dg_add_doctest_test(wavfileoutputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/output/wavfile.cc"
+				"${CMAKE_SOURCE_DIR}/test/wavfileoutputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+				SndFile::sndfile
+		)
+	endif()
+
+	if(DG_ENABLE_INPUT_MIDIFILE)
+		dg_add_doctest_test(midifileinputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/input/midifile.cc"
+				"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+				"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+				"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
+				"${CMAKE_SOURCE_DIR}/test/midifileinputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+				"${DG_SMF_SOURCE_DIR}/src"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+				dg_smf
+				PkgConfig::GLIB2
+				dg_pugi
+		)
+	endif()
+
+	if(DG_ENABLE_INPUT_ALSAMIDI)
+		set(DG_ALSAMIDIINPUTTEST_LINK_LIBS dg_core dg_hugin)
+		if(DG_ALSA_REQUIRED)
+			list(APPEND DG_ALSAMIDIINPUTTEST_LINK_LIBS PkgConfig::ALSA)
+		endif()
+		dg_add_doctest_test(alsamidiinputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/input/alsamidi.cc"
+				"${CMAKE_SOURCE_DIR}/test/alsamidiinputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				${DG_ALSAMIDIINPUTTEST_LINK_LIBS}
+		)
+	endif()
+
+	if(DG_ENABLE_OUTPUT_ALSA)
+		set(DG_ALSAOUTPUTTEST_LINK_LIBS dg_core dg_hugin)
+		if(DG_ALSA_REQUIRED)
+			list(APPEND DG_ALSAOUTPUTTEST_LINK_LIBS PkgConfig::ALSA)
+		endif()
+		dg_add_doctest_test(alsaoutputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/output/alsa.cc"
+				"${CMAKE_SOURCE_DIR}/test/alsaoutputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				${DG_ALSAOUTPUTTEST_LINK_LIBS}
+		)
+	endif()
+
+	if(DG_ENABLE_INPUT_OSSMIDI)
+		dg_add_doctest_test(ossinputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/input/ossmidi.cc"
+				"${CMAKE_SOURCE_DIR}/src/audioinputenginemidi.cc"
+				"${CMAKE_SOURCE_DIR}/src/midimapparser.cc"
+				"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
+				"${CMAKE_SOURCE_DIR}/test/ossinputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+				dg_pugi
+		)
+	endif()
+
+	if(DG_ENABLE_OUTPUT_OSS)
+		dg_add_doctest_test(ossoutputenginetest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/output/oss.cc"
+				"${CMAKE_SOURCE_DIR}/test/ossoutputenginetest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+		)
+	endif()
 endif()
 
 if(DG_ENABLE_LV2)
