@@ -47,8 +47,20 @@ struct AlsaMidiInitError
 	}
 };
 
+static RealAlsaSeqWrapper real_seq_wrapper;
+
 AlsaMidiInputEngine::AlsaMidiInputEngine()
-    : AudioInputEngineMidi{}, in_port(0), seq_handle{nullptr}, pos{0u}, events{}
+    : AlsaMidiInputEngine(real_seq_wrapper)
+{
+}
+
+AlsaMidiInputEngine::AlsaMidiInputEngine(AlsaSeqWrapper& wrapper)
+    : AudioInputEngineMidi{}
+    , seq_wrapper(wrapper)
+    , in_port(0)
+    , seq_handle{nullptr}
+    , pos{0u}
+    , events{}
 {
 }
 
@@ -56,7 +68,7 @@ AlsaMidiInputEngine::~AlsaMidiInputEngine()
 {
 	if(seq_handle != nullptr)
 	{
-		snd_seq_close(seq_handle);
+		seq_wrapper.close(seq_handle);
 	}
 }
 
@@ -74,14 +86,14 @@ bool AlsaMidiInputEngine::init(const Instruments& instruments)
 	{
 		// it is not allowed to block in the run() function, therefore we
 		// have to use a non-blocking mode
-		int value = snd_seq_open(
+		int value = seq_wrapper.open(
 		    &seq_handle, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
 		AlsaMidiInitError::test(value, "snd_seq_open");
 
-		value = snd_seq_set_client_name(seq_handle, "drumgizmo");
+		value = seq_wrapper.set_client_name(seq_handle, "drumgizmo");
 		AlsaMidiInitError::test(value, "snd_seq_set_client_name");
 
-		in_port = snd_seq_create_simple_port(seq_handle, "listen:in",
+		in_port = seq_wrapper.create_simple_port(seq_handle, "listen:in",
 		    SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
 		    SND_SEQ_PORT_TYPE_APPLICATION);
 		AlsaMidiInitError::test(in_port, "snd_seq_create_simple_port");
@@ -89,7 +101,8 @@ bool AlsaMidiInputEngine::init(const Instruments& instruments)
 	catch(AlsaMidiInitError const& error)
 	{
 		std::cerr << "[AlsaMidiInputEngine] " << error.msg
-		          << " failed: " << snd_strerror(error.code) << std::endl;
+		          << " failed: " << seq_wrapper.strerror(error.code)
+		          << std::endl;
 		return false;
 	}
 
@@ -131,7 +144,7 @@ void AlsaMidiInputEngine::run(
 	(void)len;
 	assert(events.empty());
 	snd_seq_event_t* ev = nullptr;
-	if(snd_seq_event_input(seq_handle, &ev) >= 0)
+	if(seq_wrapper.event_input(seq_handle, &ev) >= 0)
 	{
 		// TODO Better solution needed: The ALSA MIDI event structure does
 		// not seem to contain the raw MIDI data, therefore we have to re-create
@@ -178,7 +191,7 @@ void AlsaMidiInputEngine::run(
 			processNote(midi_buffer.data(), midi_buffer.size(), 0, events);
 		}
 	}
-	snd_seq_free_event(ev);
+	seq_wrapper.free_event(ev);
 }
 
 void AlsaMidiInputEngine::post()

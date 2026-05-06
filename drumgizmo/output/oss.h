@@ -31,11 +31,13 @@
 #include <sys/soundcard.h>
 
 #include "audiooutputengine.h"
+#include "../osswrapper.h"
 
 class OSSOutputEngine : public AudioOutputEngine
 {
 public:
 	OSSOutputEngine();
+	explicit OSSOutputEngine(OssWrapper& wrapper);
 	~OSSOutputEngine() override = default;
 
 	// based on AudioOutputEngine
@@ -57,6 +59,8 @@ public:
 	std::size_t getSamplerate() const override;
 
 private:
+	OssWrapper& oss_wrapper;
+
 	std::string dev{"/dev/dsp"};
 	int fd{-1};
 	std::size_t num_channels{NUM_CHANNELS};

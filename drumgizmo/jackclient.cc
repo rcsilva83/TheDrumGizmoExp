@@ -169,3 +169,29 @@ bool JackClient::isFreewheeling() const
 {
 	return is_freewheeling;
 }
+
+#ifdef DG_ENABLE_TESTS
+JackClient::JackClient(jack_client_t* test_client)
+    : client{test_client}
+    , dirty{false}
+    , processes{}
+    , is_active{false}
+    , is_freewheeling{false}
+{
+}
+
+void JackClient::test_process(jack_nframes_t num_frames)
+{
+	process(num_frames);
+}
+
+void JackClient::test_latency_callback(jack_latency_callback_mode_t mode)
+{
+	jackLatencyCallback(mode);
+}
+
+void JackClient::test_freewheel_callback(bool freewheeling)
+{
+	jackFreewheelCallback(freewheeling);
+}
+#endif

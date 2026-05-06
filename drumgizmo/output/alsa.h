@@ -3,7 +3,7 @@
  *            alsa.h
  *
  *  Do 21. Jan 16:48:32 CET 2016
- *  Copyright 2016 Christian Glöckner
+ *  Copyright 2016 Christian GlÃ¶ckner
  *  cgloeckner@freenet.de
  ****************************************************************************/
 
@@ -33,12 +33,14 @@
 #include <alsa/asoundlib.h>
 
 #include "audiooutputengine.h"
+#include "../alsapcmwrapper.h"
 
 class AlsaOutputEngine
 	: public AudioOutputEngine
 {
 public:
 	AlsaOutputEngine();
+	explicit AlsaOutputEngine(AlsaPcmWrapper& wrapper);
 	~AlsaOutputEngine();
 
 	// based on AudioOutputEngine
@@ -54,8 +56,9 @@ public:
 	bool isFreewheeling() const override;
 
 private:
+	AlsaPcmWrapper& pcm_wrapper;
+
 	snd_pcm_t* handle;
-	snd_pcm_hw_params_t* params;
 	std::vector<sample_t> data;
 	size_t num_channels;
 

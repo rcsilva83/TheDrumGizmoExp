@@ -30,11 +30,14 @@
 #include "midimapper.h"
 #include "midimapparser.h"
 
+#include "../alsaseqwrapper.h"
+
 class AlsaMidiInputEngine
 	: public AudioInputEngineMidi
 {
 public:
 	AlsaMidiInputEngine();
+	explicit AlsaMidiInputEngine(AlsaSeqWrapper& wrapper);
 	~AlsaMidiInputEngine();
 
 	// based on AudioInputEngineMidi
@@ -48,6 +51,8 @@ public:
 	bool isFreewheeling() const override;
 
 private:
+	AlsaSeqWrapper& seq_wrapper;
+
 	int in_port;
 	snd_seq_t* seq_handle;
 

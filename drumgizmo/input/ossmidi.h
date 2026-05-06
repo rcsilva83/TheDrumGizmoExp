@@ -26,11 +26,13 @@
  */
 #pragma once
 #include "audioinputenginemidi.h"
+#include "../osswrapper.h"
 
 class OSSInputEngine : public AudioInputEngineMidi
 {
 public:
 	OSSInputEngine();
+	explicit OSSInputEngine(OssWrapper& wrapper);
 	~OSSInputEngine() override;
 
 	// based on AudioInputEngine
@@ -44,6 +46,8 @@ public:
 	bool isFreewheeling() const override;
 
 private:
+	OssWrapper& oss_wrapper;
+
 	int fd{-1};
 	std::string dev;
 	std::size_t pos{0};
