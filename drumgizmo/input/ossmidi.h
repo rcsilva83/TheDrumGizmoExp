@@ -44,9 +44,9 @@ public:
 	bool isFreewheeling() const override;
 
 private:
-	int fd;
+	int fd{-1};
 	std::string dev;
-	std::size_t pos;
+	std::size_t pos{0};
 	std::vector<event_t> events;
 	std::string midimap_file;
 };

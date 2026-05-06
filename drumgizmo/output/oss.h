@@ -58,7 +58,7 @@ public:
 
 private:
 	std::string dev{"/dev/dsp"};
-	int fd;
+	int fd{-1};
 	std::size_t num_channels{NUM_CHANNELS};
 	unsigned int srate{44100};
 	unsigned int format{AFMT_S16_NE};
