@@ -25,35 +25,45 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
+
+#include <config.h>
+
+#include <sys/soundcard.h>
+
 #include "audiooutputengine.h"
 
-class OSSOutputEngine
-	: public AudioOutputEngine
+class OSSOutputEngine : public AudioOutputEngine
 {
 public:
 	OSSOutputEngine();
-	~OSSOutputEngine() {};
+	~OSSOutputEngine() override = default;
 
 	// based on AudioOutputEngine
 	bool init(const Channels& chan) override;
 	void setParm(const std::string& parm, const std::string& value) override;
-	bool start() override { return true; };
+	bool start() override
+	{
+		return true;
+	};
 	void stop() override {};
 	void pre(size_t nsamples) override;
 	void run(int ch, sample_t* samples, size_t nsamples) override;
 	void post(size_t nsamples) override;
-	bool isFreewheeling() const override { return false; };
+	bool isFreewheeling() const override
+	{
+		return false;
+	};
 	std::size_t getBufferSize() const override;
 	std::size_t getSamplerate() const override;
 
 private:
-	std::string dev;
+	std::string dev{"/dev/dsp"};
 	int fd;
-	std::size_t num_channels;
-	unsigned int srate;
-	unsigned int format;
-	std::size_t max_fragments;
-	std::size_t fragment_size;
-	std::size_t buffer_size;
+	std::size_t num_channels{NUM_CHANNELS};
+	unsigned int srate{44100};
+	unsigned int format{AFMT_S16_NE};
+	std::size_t max_fragments{4};
+	std::size_t fragment_size{8};
+	std::size_t buffer_size{1024};
 	std::vector<std::int32_t> data;
 };

@@ -127,7 +127,7 @@ protected:
 
 #ifdef USE_JACK
 	// Client that is used by all jack-related engines
-	std::unique_ptr<JackClient> jack;
+	std::unique_ptr<JackClient> jack{nullptr};
 
 	// Utility to initialize jack (once)
 	void prepareJack();

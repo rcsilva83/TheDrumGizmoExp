@@ -27,13 +27,11 @@
 #pragma once
 #include "audioinputenginemidi.h"
 
-
-class OSSInputEngine
-	: public AudioInputEngineMidi
+class OSSInputEngine : public AudioInputEngineMidi
 {
 public:
 	OSSInputEngine();
-	~OSSInputEngine();
+	~OSSInputEngine() override;
 
 	// based on AudioInputEngine
 	bool init(const Instruments& instruments) override;

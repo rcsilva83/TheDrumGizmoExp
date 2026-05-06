@@ -36,13 +36,6 @@
 #include <config.h>
 
 OSSOutputEngine::OSSOutputEngine()
-    : dev{"/dev/dsp"}
-    , num_channels{NUM_CHANNELS}
-    , srate{44100}
-    , format{AFMT_S16_NE}
-    , max_fragments{4}
-    , fragment_size{8}
-    , buffer_size{1024}
 {
 	data.clear();
 	data.resize(1024 * num_channels);

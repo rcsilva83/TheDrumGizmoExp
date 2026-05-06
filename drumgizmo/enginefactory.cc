@@ -30,9 +30,6 @@
 #include "enginefactory.h"
 
 EngineFactory::EngineFactory()
-#ifdef USE_JACK
-    : jack{nullptr}
-#endif
 {
 // list available input engines
 #ifdef HAVE_INPUT_DUMMY
