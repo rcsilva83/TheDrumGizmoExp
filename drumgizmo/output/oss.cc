@@ -26,6 +26,7 @@
  */
 #include "oss.h"
 #include <sys/soundcard.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -38,11 +39,11 @@ OSSOutputEngine::OSSOutputEngine()
 	: dev{"/dev/dsp"}
 	, num_channels{NUM_CHANNELS}
 	, srate{44100}
-	, format{AFMT_S32_NE}
-	, data{}
+	, format{AFMT_S16_NE}
 	, max_fragments{4}
 	, fragment_size{8}
 	, buffer_size{1024}
+	, data{}
 {
 	data.clear();
 	data.resize(1024 * num_channels);
@@ -214,9 +215,10 @@ void OSSOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 
 void OSSOutputEngine::post(size_t nsamples)
 {
+	(void)nsamples;
 	auto data_size = data.size() * sizeof(*data.data());
 	auto size_written = write(fd, data.data(), data_size);
-	if(size_written != data_size)
+	if(static_cast<std::size_t>(size_written) != data_size)
 	{
 		std::cerr << "Audio write: " << std::strerror(errno) << std::endl;
 	}

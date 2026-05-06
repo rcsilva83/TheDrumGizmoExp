@@ -93,6 +93,8 @@ void OSSInputEngine::pre()
 
 void OSSInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 {
+	(void)pos;
+	(void)len;
 	int l;
 	unsigned char buf[128];
 	if ((l = read (fd, buf, sizeof (buf))) != -1)
