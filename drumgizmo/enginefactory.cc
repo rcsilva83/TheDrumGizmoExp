@@ -30,47 +30,45 @@
 #include "enginefactory.h"
 
 EngineFactory::EngineFactory()
-    : input{}
-    , output{}
 #ifdef USE_JACK
-    , jack{nullptr}
+    : jack{nullptr}
 #endif
 {
 // list available input engines
 #ifdef HAVE_INPUT_DUMMY
-	input.push_back("inputdummy");
+	input.emplace_back("inputdummy");
 #endif
 #ifdef HAVE_INPUT_TEST
-	input.push_back("test");
+	input.emplace_back("test");
 #endif
 #ifdef HAVE_INPUT_MIDIFILE
-	input.push_back("midifile");
+	input.emplace_back("midifile");
 #endif
 #ifdef HAVE_INPUT_JACKMIDI
-	input.push_back("jackmidi");
+	input.emplace_back("jackmidi");
 #endif
 #ifdef HAVE_INPUT_ALSAMIDI
-	input.push_back("alsamidi");
+	input.emplace_back("alsamidi");
 #endif
 #ifdef HAVE_INPUT_OSS
-	input.push_back("ossmidi");
+	input.emplace_back("ossmidi");
 #endif
 
 // list available output engines
 #ifdef HAVE_OUTPUT_DUMMY
-	output.push_back("outputdummy");
+	output.emplace_back("outputdummy");
 #endif
 #ifdef HAVE_OUTPUT_WAVFILE
-	output.push_back("wavfile");
+	output.emplace_back("wavfile");
 #endif
 #ifdef HAVE_OUTPUT_ALSA
-	output.push_back("alsa");
+	output.emplace_back("alsa");
 #endif
 #ifdef HAVE_OUTPUT_JACKAUDIO
-	output.push_back("jackaudio");
+	output.emplace_back("jackaudio");
 #endif
 #ifdef HAVE_OUTPUT_OSS
-	output.push_back("oss");
+	output.emplace_back("oss");
 #endif
 }
 

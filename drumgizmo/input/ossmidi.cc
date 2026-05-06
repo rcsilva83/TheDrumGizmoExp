@@ -25,42 +25,35 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #include "ossmidi.h"
-#include <sys/soundcard.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <iostream>
 #include <cstring>
+#include <fcntl.h>
+#include <iostream>
+#include <stdlib.h>
+#include <sys/soundcard.h>
+#include <unistd.h>
 
-
-OSSInputEngine::OSSInputEngine()
-	: AudioInputEngineMidi{}
-	, dev{"/dev/midi"}
+OSSInputEngine::OSSInputEngine() : dev{"/dev/midi"}
 {
 }
 
-
-OSSInputEngine::~OSSInputEngine()
-{
-}
-
+OSSInputEngine::~OSSInputEngine() = default;
 
 bool OSSInputEngine::init(const Instruments& instruments)
 {
 	if(!loadMidiMap(midimap_file, instruments))
 	{
 		std::cerr << "[OSSInputEngine] Failed to parse midimap '"
-		          << midimap_file << std::endl;
+		          << midimap_file << '\n';
 		return false;
 	}
-	if ((fd = open(dev.data(), O_RDONLY | O_NONBLOCK, 0)) == -1)
+	fd = open(dev.data(), O_RDONLY | O_NONBLOCK, 0);
+	if(fd == -1)
 	{
-		std::cerr << dev.data() << ' ' << std::strerror(errno) << std::endl;
+		std::cerr << dev.data() << ' ' << std::strerror(errno) << '\n';
 		return false;
 	}
 	return true;
 }
-
 
 void OSSInputEngine::setParm(const std::string& parm, const std::string& value)
 {
@@ -74,7 +67,6 @@ void OSSInputEngine::setParm(const std::string& parm, const std::string& value)
 	}
 }
 
-
 bool OSSInputEngine::start()
 {
 	return true;
@@ -84,37 +76,34 @@ void OSSInputEngine::stop()
 {
 }
 
-
 void OSSInputEngine::pre()
 {
 	events.clear();
 }
 
-
 void OSSInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 {
 	(void)pos;
 	(void)len;
-	int l;
+	ssize_t l;
 	unsigned char buf[128];
-	if ((l = read (fd, buf, sizeof (buf))) != -1)
+	l = read(fd, buf, sizeof(buf));
+	if(l != -1)
 	{
 		processNote(buf, l,
-		            0, // No time information available? play as soon as possible
-		            events);
+		    0, // No time information available? play as soon as possible
+		    events);
 	}
-	else if (errno != EAGAIN)
+	else if(errno != EAGAIN)
 	{
-		std::cerr << "Error code: " << errno << std::endl;
-		std::cerr << std::strerror(errno) << std::endl;
+		std::cerr << "Error code: " << errno << '\n';
+		std::cerr << std::strerror(errno) << '\n';
 	}
 }
-
 
 void OSSInputEngine::post()
 {
 }
-
 
 bool OSSInputEngine::isFreewheeling() const
 {

@@ -42,15 +42,15 @@
 #include "drumgizmo/enginefactory.h"
 
 #ifdef HAVE_INPUT_MIDIFILE
-#include <smf.h>
 #include "scopedfile.h"
+#include <smf.h>
 #endif
 
 //! Wait for a drumkit to finish loading (or fail).
 static bool waitForDrumkitLoad(Settings& settings, int timeout_ms = 5000)
 {
-	auto deadline =
-	    std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
+	auto deadline = std::chrono::steady_clock::now() +
+	                std::chrono::milliseconds(timeout_ms);
 
 	while(std::chrono::steady_clock::now() < deadline)
 	{
@@ -117,7 +117,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		REQUIRE(gizmo.init());
 		REQUIRE(ie->start());
@@ -161,7 +161,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		REQUIRE(gizmo.init());
 		REQUIRE(ie->start());
@@ -170,7 +170,8 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 		std::size_t nsamples = oe->getBufferSize();
 		std::vector<sample_t> buf(nsamples, 0.0f);
 
-		// Test engine generates OnSet events, so run() should find active events
+		// Test engine generates OnSet events, so run() should find active
+		// events
 		bool saw_active = false;
 		for(int i = 0; i < 10; ++i)
 		{
@@ -247,7 +248,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		REQUIRE(gizmo.init());
 		REQUIRE(ie->start());
@@ -304,7 +305,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		REQUIRE(gizmo.init());
 		REQUIRE(ie->start());
@@ -333,10 +334,11 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 		std::ifstream f3(wav_prefix + "ch3-3.wav");
 
 		// At least one file should have been created and contain data
-		bool any_file_nonempty = (f0.good() && f0.peek() != std::ifstream::traits_type::eof()) ||
-		                         (f1.good() && f1.peek() != std::ifstream::traits_type::eof()) ||
-		                         (f2.good() && f2.peek() != std::ifstream::traits_type::eof()) ||
-		                         (f3.good() && f3.peek() != std::ifstream::traits_type::eof());
+		bool any_file_nonempty =
+		    (f0.good() && f0.peek() != std::ifstream::traits_type::eof()) ||
+		    (f1.good() && f1.peek() != std::ifstream::traits_type::eof()) ||
+		    (f2.good() && f2.peek() != std::ifstream::traits_type::eof()) ||
+		    (f3.good() && f3.peek() != std::ifstream::traits_type::eof());
 
 		CHECK_UNARY(any_file_nonempty);
 
@@ -399,7 +401,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		REQUIRE(gizmo.init());
 		REQUIRE(ie->start());
@@ -422,8 +424,9 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 		std::ifstream f0(wav_prefix + "ch0-0.wav");
 		std::ifstream f1(wav_prefix + "ch1-1.wav");
 
-		bool any_file_nonempty = (f0.good() && f0.peek() != std::ifstream::traits_type::eof()) ||
-		                         (f1.good() && f1.peek() != std::ifstream::traits_type::eof());
+		bool any_file_nonempty =
+		    (f0.good() && f0.peek() != std::ifstream::traits_type::eof()) ||
+		    (f1.good() && f1.peek() != std::ifstream::traits_type::eof());
 
 		CHECK_UNARY(any_file_nonempty);
 
@@ -464,7 +467,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe_c->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe_c->getSamplerate()));
 
 		// init() should return false because ALSA hardware is unavailable
 		bool init_ok = gizmo.init();
@@ -494,7 +497,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		bool init_ok = gizmo.init();
 		CHECK_UNARY(!init_ok);
@@ -527,7 +530,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe_c->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe_c->getSamplerate()));
 
 		bool init_ok = gizmo.init();
 		CHECK_UNARY(!init_ok);
@@ -556,7 +559,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		bool init_ok = gizmo.init();
 		CHECK_UNARY(!init_ok);
@@ -585,7 +588,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe_c->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe_c->getSamplerate()));
 
 		bool init_ok = gizmo.init();
 		CHECK_UNARY(!init_ok);
@@ -614,7 +617,7 @@ TEST_CASE_FIXTURE(DrumGizmoIntegrationFixture, "DrumGizmoIntegration")
 
 		REQUIRE(waitForDrumkitLoad(settings));
 
-		gizmo.setSamplerate(oe->getSamplerate());
+		gizmo.setSamplerate(static_cast<float>(oe->getSamplerate()));
 
 		bool init_ok = gizmo.init();
 		CHECK_UNARY(!init_ok);
