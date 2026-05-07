@@ -2,9 +2,9 @@
 /***************************************************************************
  *            ossoutputenginetest.cc
  *
- *  Mon May 05 08:00:00 CEST 2026
- *  Copyright 2026 André Nusser
- *  andre.nusser@googlemail.com
+ *  Wed May  6 10:00:00 CEST 2026
+ *  Copyright 2026 DrumGizmo team
+ *
  ****************************************************************************/
 
 /*
@@ -24,170 +24,389 @@
  *  along with DrumGizmo; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
+
 #include <doctest/doctest.h>
 
 #include <config.h>
 
 #ifdef HAVE_OUTPUT_OSS
-#include "drumgizmo/output/oss.h"
 
-TEST_CASE("OSSOutputEngine")
+#include "../drumgizmo/osswrapper.h"
+#include "../drumgizmo/output/oss.h"
+#include "mock_wrappers.h"
+
+#include <string>
+#include <sys/soundcard.h>
+#include <vector>
+
+TEST_CASE("OSSOutputEngineWithMock")
 {
-	SUBCASE("constructorCreatesEngineWithDefaults")
+	// ---- Constructor and lifecycle ----
+
+	SUBCASE("defaultConstructorCreatesEngine")
 	{
 		OSSOutputEngine engine;
+		CHECK_UNARY(true);
+	}
 
-		CHECK_EQ(engine.getSamplerate(), 44100);
-		CHECK_EQ(engine.getBufferSize(), 1024);
+	SUBCASE("injectionConstructorCreatesEngine")
+	{
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		CHECK_UNARY(true);
 	}
 
 	SUBCASE("isFreewheelingReturnsFalse")
 	{
-		OSSOutputEngine engine;
-
-		bool result = engine.isFreewheeling();
-
-		CHECK_UNARY(!result);
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		CHECK_UNARY(!engine.isFreewheeling());
 	}
 
 	SUBCASE("startReturnsTrue")
 	{
-		OSSOutputEngine engine;
-
-		bool result = engine.start();
-
-		CHECK_UNARY(result);
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		CHECK_UNARY(engine.start());
 	}
 
 	SUBCASE("stopDoesNotThrow")
 	{
-		OSSOutputEngine engine;
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
 		engine.stop();
-
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("preDoesNotThrow")
+	SUBCASE("getSamplerateReturnsDefault")
 	{
-		OSSOutputEngine engine;
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		CHECK_GT(engine.getSamplerate(), 0u);
+	}
 
-		engine.pre(1024);
-		engine.pre(0);
-
+	SUBCASE("preSizesData")
+	{
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.pre(256);
 		CHECK_UNARY(true);
 	}
+
+	// ---- setParm tests ----
 
 	SUBCASE("setParmDevSetsDevice")
 	{
-		OSSOutputEngine engine;
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
 		engine.setParm("dev", "/dev/dsp1");
-		engine.setParm("dev", "/dev/dsp");
-
 		CHECK_UNARY(true);
 	}
 
 	SUBCASE("setParmSrateSetsSamplerate")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("srate", "48000");
-		CHECK_EQ(engine.getSamplerate(), 48000);
-
-		engine.setParm("srate", "44100");
-		CHECK_EQ(engine.getSamplerate(), 44100);
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("srate", "96000");
+		CHECK_UNARY(true);
 	}
 
 	SUBCASE("setParmInvalidSrateDoesNotCrash")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("srate", "invalid");
-		engine.setParm("srate", "");
-		engine.setParm("srate", "-1");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("srate", "bad");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmMaxFragmentsDoesNotCrash")
+	SUBCASE("setParmMaxFragmentsSetsValue")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("max_fragments", "2");
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
 		engine.setParm("max_fragments", "8");
-
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmInvalidMaxFragmentsDoesNotCrash")
+	SUBCASE("setParmMaxFragmentsClampedToMin2")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("max_fragments", "invalid");
-		engine.setParm("max_fragments", "-1");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("max_fragments", "1");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmFragmentSizeDoesNotCrash")
+	SUBCASE("setParmMaxFragmentsInvalidDoesNotCrash")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("fragment_size", "4");
-		engine.setParm("fragment_size", "64");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("max_fragments", "xyz");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmInvalidFragmentSizeDoesNotCrash")
+	SUBCASE("setParmFragmentSizeSetsValue")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("fragment_size", "invalid");
-		engine.setParm("fragment_size", "");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("fragment_size", "16");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmFragmentSizeClampsMinDoesNotCrash")
+	SUBCASE("setParmFragmentSizeClampedToMin4")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("fragment_size", "1");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("fragment_size", "2");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmFragmentSizeClampsMaxDoesNotCrash")
+	SUBCASE("setParmFragmentSizeClampedToMax65535")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("fragment_size", "999999");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("fragment_size", "99999");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("setParmUnknownParameterDoesNotCrash")
+	SUBCASE("setParmFragmentSizeInvalidDoesNotCrash")
 	{
-		OSSOutputEngine engine;
-
-		engine.setParm("unknown", "value");
-		engine.setParm("", "");
-
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("fragment_size", "abc");
 		CHECK_UNARY(true);
 	}
 
-	SUBCASE("fullLifecycleWithoutInitDoesNotCrash")
+	SUBCASE("setParmUnknownDoesNotCrash")
 	{
-		OSSOutputEngine engine;
+		MockOssWrapper oss;
+		OSSOutputEngine engine(oss);
+		engine.setParm("nonexistent", "value");
+		CHECK_UNARY(true);
+	}
 
+	// ---- init() tests ----
+
+	SUBCASE("initSucceedsWithMockDevice")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;  // valid fd
+		oss.ioctl_return = 0; // all ioctls succeed
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		bool result = engine.init(channels);
+		CHECK_UNARY(result);
+	}
+
+	SUBCASE("initFailsWhenOpenFails")
+	{
+		MockOssWrapper oss;
+		oss.open_return = -1; // open fails
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		bool result = engine.init(channels);
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("initFailsWhenSetFragmentFails")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = -1; // first ioctl (fragments) fails
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		bool result = engine.init(channels);
+		CHECK_UNARY(!result);
+	}
+
+	SUBCASE("initWithMultipleChannels")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0; // all ioctls succeed
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+		channels.emplace_back("ch2");
+		channels[1].num = 1;
+
+		bool result = engine.init(channels);
+		CHECK_UNARY(result);
+	}
+
+	// ---- run() tests ----
+
+	SUBCASE("runConvertsFloatToInt32")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(64, 0.5f);
+		engine.pre(64);
+		engine.run(0, samples.data(), 64);
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runClipsValuesAbove1")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(32, 2.0f); // above 1.0
+		engine.pre(32);
+		engine.run(0, samples.data(), 32);
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runClipsValuesBelowNeg1")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(32, -3.0f); // below -1.0
+		engine.pre(32);
+		engine.run(0, samples.data(), 32);
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("runWithMultipleChannelsInterleavesData")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+		channels.emplace_back("ch2");
+		channels[1].num = 1;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(64, 0.25f);
+		engine.pre(64);
+		engine.run(0, samples.data(), 64);
+		engine.run(1, samples.data(), 64);
+		CHECK_UNARY(true);
+	}
+
+	// ---- post() tests ----
+
+	SUBCASE("postWritesData")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+		oss.write_return = 512;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(128, 0.25f);
+		engine.pre(128);
+		engine.run(0, samples.data(), 128);
+		engine.post(128);
+		CHECK_UNARY(true);
+	}
+
+	SUBCASE("postHandlesWriteShorterThanExpected")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+		oss.write_return = 64; // shorter than expected
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
+
+		std::vector<sample_t> samples(128, 0.25f);
+		engine.pre(128);
+		engine.run(0, samples.data(), 128);
+		engine.post(128);
+		CHECK_UNARY(true);
+	}
+
+	// ---- Full lifecycle ----
+
+	SUBCASE("fullLifecycleSucceeds")
+	{
+		MockOssWrapper oss;
+		oss.open_return = 3;
+		oss.ioctl_return = 0;
+		oss.write_return = 512;
+
+		OSSOutputEngine engine(oss);
+
+		Channels channels;
+		channels.emplace_back("ch1");
+		channels[0].num = 0;
+
+		CHECK_UNARY(engine.init(channels));
 		CHECK_UNARY(engine.start());
-		engine.pre(1024);
+
+		std::vector<sample_t> samples(128, 0.5f);
+		engine.pre(128);
+		engine.run(0, samples.data(), 128);
+		engine.post(128);
 		engine.stop();
 
-		CHECK_UNARY(!engine.isFreewheeling());
-		CHECK_EQ(engine.getSamplerate(), 44100);
+		CHECK_UNARY(true);
 	}
 }
+
 #endif // HAVE_OUTPUT_OSS

@@ -23,18 +23,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
-#include <memory>
 #include <alsa/asoundlib.h>
+#include <memory>
 
 #include "audioinputenginemidi.h"
-#include "midimapper.h"
 #include "midimapparser.h"
+#include "midimapper.h"
 
-class AlsaMidiInputEngine
-	: public AudioInputEngineMidi
+#include "../alsaseqwrapper.h"
+
+class AlsaMidiInputEngine : public AudioInputEngineMidi
 {
 public:
 	AlsaMidiInputEngine();
+	explicit AlsaMidiInputEngine(AlsaSeqWrapper& wrapper);
 	~AlsaMidiInputEngine();
 
 	// based on AudioInputEngineMidi
@@ -48,6 +50,8 @@ public:
 	bool isFreewheeling() const override;
 
 private:
+	AlsaSeqWrapper& seq_wrapper;
+
 	int in_port;
 	snd_seq_t* seq_handle;
 

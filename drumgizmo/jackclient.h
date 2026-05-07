@@ -79,6 +79,13 @@ public:
 	std::size_t getSampleRate() const;
 	bool isFreewheeling() const;
 
+#ifdef DG_ENABLE_TESTS
+	explicit JackClient(jack_client_t* test_client);
+	void test_process(jack_nframes_t num_frames);
+	void test_latency_callback(jack_latency_callback_mode_t mode);
+	void test_freewheel_callback(bool freewheeling);
+#endif
+
 private:
 	jack_client_t* client;
 	bool dirty{false};
