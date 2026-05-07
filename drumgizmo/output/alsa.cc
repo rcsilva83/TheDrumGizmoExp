@@ -50,8 +50,7 @@ struct AlsaInitError
 
 static RealAlsaPcmWrapper real_pcm_wrapper;
 
-AlsaOutputEngine::AlsaOutputEngine()
-    : AlsaOutputEngine(real_pcm_wrapper)
+AlsaOutputEngine::AlsaOutputEngine() : AlsaOutputEngine(real_pcm_wrapper)
 {
 }
 
@@ -187,8 +186,7 @@ void AlsaOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 void AlsaOutputEngine::post(size_t nsamples)
 {
 	// Write the interleaved buffer to the soundcard
-	snd_pcm_sframes_t value =
-	    pcm_wrapper.writei(handle, data.data(), nsamples);
+	snd_pcm_sframes_t value = pcm_wrapper.writei(handle, data.data(), nsamples);
 
 	if(value == -EPIPE) // under-run
 	{

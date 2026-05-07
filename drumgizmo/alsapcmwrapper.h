@@ -34,14 +34,14 @@ class AlsaPcmWrapper
 public:
 	virtual ~AlsaPcmWrapper() = default;
 
-	virtual int open(snd_pcm_t** handle, const char* name, int stream,
-	                 int mode) = 0;
+	virtual int open(
+	    snd_pcm_t** handle, const char* name, int stream, int mode) = 0;
 	virtual void close(snd_pcm_t* handle) = 0;
 	virtual int configure_hw(snd_pcm_t* handle, unsigned int channels,
-	                         unsigned int* srate, snd_pcm_uframes_t* frames,
-	                         unsigned int* periods) = 0;
-	virtual snd_pcm_sframes_t writei(snd_pcm_t* handle, const void* buffer,
-	                                 snd_pcm_uframes_t size) = 0;
+	    unsigned int* srate, snd_pcm_uframes_t* frames,
+	    unsigned int* periods) = 0;
+	virtual snd_pcm_sframes_t writei(
+	    snd_pcm_t* handle, const void* buffer, snd_pcm_uframes_t size) = 0;
 	virtual int prepare(snd_pcm_t* handle) = 0;
 	virtual int resume(snd_pcm_t* handle) = 0;
 	virtual const char* strerror(int errnum) = 0;
@@ -50,8 +50,8 @@ public:
 class RealAlsaPcmWrapper : public AlsaPcmWrapper
 {
 public:
-	int open(snd_pcm_t** handle, const char* name, int stream,
-	         int mode) override
+	int open(
+	    snd_pcm_t** handle, const char* name, int stream, int mode) override
 	{
 		return snd_pcm_open(handle, name, (snd_pcm_stream_t)stream, mode);
 	}
@@ -60,8 +60,8 @@ public:
 		snd_pcm_close(handle);
 	}
 	int configure_hw(snd_pcm_t* handle, unsigned int channels,
-	                 unsigned int* srate, snd_pcm_uframes_t* frames,
-	                 unsigned int* periods) override
+	    unsigned int* srate, snd_pcm_uframes_t* frames,
+	    unsigned int* periods) override
 	{
 		snd_pcm_hw_params_t* params;
 		int value;
@@ -71,14 +71,14 @@ public:
 		{
 			return value;
 		}
-		value = snd_pcm_hw_params_set_access(handle, params,
-		    SND_PCM_ACCESS_RW_INTERLEAVED);
+		value = snd_pcm_hw_params_set_access(
+		    handle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
 		if(value < 0)
 		{
 			return value;
 		}
-		value = snd_pcm_hw_params_set_format(handle, params,
-		    SND_PCM_FORMAT_FLOAT);
+		value =
+		    snd_pcm_hw_params_set_format(handle, params, SND_PCM_FORMAT_FLOAT);
 		if(value < 0)
 		{
 			return value;
@@ -93,14 +93,13 @@ public:
 		{
 			return value;
 		}
-		value = snd_pcm_hw_params_set_period_size_near(
-		    handle, params, frames, 0);
+		value =
+		    snd_pcm_hw_params_set_period_size_near(handle, params, frames, 0);
 		if(value < 0)
 		{
 			return value;
 		}
-		value = snd_pcm_hw_params_set_periods_near(
-		    handle, params, periods, 0);
+		value = snd_pcm_hw_params_set_periods_near(handle, params, periods, 0);
 		if(value < 0)
 		{
 			return value;
@@ -108,8 +107,8 @@ public:
 		value = snd_pcm_hw_params(handle, params);
 		return value;
 	}
-	snd_pcm_sframes_t writei(snd_pcm_t* handle, const void* buffer,
-	                         snd_pcm_uframes_t size) override
+	snd_pcm_sframes_t writei(
+	    snd_pcm_t* handle, const void* buffer, snd_pcm_uframes_t size) override
 	{
 		return snd_pcm_writei(handle, buffer, size);
 	}

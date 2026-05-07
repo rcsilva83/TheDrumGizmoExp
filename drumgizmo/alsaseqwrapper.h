@@ -33,12 +33,12 @@ class AlsaSeqWrapper
 public:
 	virtual ~AlsaSeqWrapper() = default;
 
-	virtual int open(snd_seq_t** seq, const char* name, int streams,
-	                 int mode) = 0;
+	virtual int open(
+	    snd_seq_t** seq, const char* name, int streams, int mode) = 0;
 	virtual void close(snd_seq_t* seq) = 0;
 	virtual int set_client_name(snd_seq_t* seq, const char* name) = 0;
-	virtual int create_simple_port(snd_seq_t* seq, const char* name, int caps,
-	                               int type) = 0;
+	virtual int create_simple_port(
+	    snd_seq_t* seq, const char* name, int caps, int type) = 0;
 	virtual int event_input(snd_seq_t* seq, snd_seq_event_t** ev) = 0;
 	virtual void free_event(snd_seq_event_t* ev) = 0;
 	virtual const char* strerror(int errnum) = 0;
@@ -47,8 +47,7 @@ public:
 class RealAlsaSeqWrapper : public AlsaSeqWrapper
 {
 public:
-	int open(snd_seq_t** seq, const char* name, int streams,
-	         int mode) override
+	int open(snd_seq_t** seq, const char* name, int streams, int mode) override
 	{
 		return snd_seq_open(seq, name, streams, mode);
 	}
@@ -60,8 +59,8 @@ public:
 	{
 		return snd_seq_set_client_name(seq, name);
 	}
-	int create_simple_port(snd_seq_t* seq, const char* name, int caps,
-	                       int type) override
+	int create_simple_port(
+	    snd_seq_t* seq, const char* name, int caps, int type) override
 	{
 		return snd_seq_create_simple_port(seq, name, caps, type);
 	}

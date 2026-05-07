@@ -31,13 +31,13 @@
 
 #ifdef HAVE_OUTPUT_OSS
 
-#include "../drumgizmo/output/oss.h"
 #include "../drumgizmo/osswrapper.h"
+#include "../drumgizmo/output/oss.h"
 #include "mock_wrappers.h"
 
 #include <string>
-#include <vector>
 #include <sys/soundcard.h>
+#include <vector>
 
 TEST_CASE("OSSOutputEngineWithMock")
 {
@@ -188,7 +188,7 @@ TEST_CASE("OSSOutputEngineWithMock")
 	SUBCASE("initSucceedsWithMockDevice")
 	{
 		MockOssWrapper oss;
-		oss.open_return = 3; // valid fd
+		oss.open_return = 3;  // valid fd
 		oss.ioctl_return = 0; // all ioctls succeed
 
 		OSSOutputEngine engine(oss);

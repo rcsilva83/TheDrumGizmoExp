@@ -31,8 +31,8 @@
 
 #ifdef HAVE_OUTPUT_ALSA
 
-#include "../drumgizmo/output/alsa.h"
 #include "../drumgizmo/alsapcmwrapper.h"
+#include "../drumgizmo/output/alsa.h"
 #include "mock_wrappers.h"
 
 #include <string>

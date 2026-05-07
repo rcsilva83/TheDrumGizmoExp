@@ -29,9 +29,9 @@
 #include "jackclient.h"
 
 JackPort::JackPort(JackClient& client, const std::string& name,
-                   const char* type, JackPortFlags flags)
-	: client{client.client} // register jack port for given client
-	, port{jack_port_register(this->client, name.c_str(), type, flags, 0)}
+    const char* type, JackPortFlags flags)
+    : client{client.client} // register jack port for given client
+    , port{jack_port_register(this->client, name.c_str(), type, flags, 0)}
 {
 }
 
@@ -61,10 +61,7 @@ void JackClient::freewheelCallback(int is_freewheeling, void* arg)
 	static_cast<JackClient*>(arg)->jackFreewheelCallback(is_freewheeling);
 }
 
-JackClient::JackClient()
-	: client{nullptr}
-	, processes{}
-	, is_active{false}
+JackClient::JackClient() : client{nullptr}, processes{}, is_active{false}
 {
 	jack_status_t status;
 	client = jack_client_open("DrumGizmo", JackNullOption, &status);

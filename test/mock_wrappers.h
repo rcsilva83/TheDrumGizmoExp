@@ -101,12 +101,12 @@ public:
 	{
 	}
 	int configure_hw(snd_pcm_t*, unsigned int, unsigned int*,
-	                 snd_pcm_uframes_t*, unsigned int*) override
+	    snd_pcm_uframes_t*, unsigned int*) override
 	{
 		return configure_hw_return;
 	}
-	snd_pcm_sframes_t writei(snd_pcm_t*, const void*,
-	                         snd_pcm_uframes_t) override
+	snd_pcm_sframes_t writei(
+	    snd_pcm_t*, const void*, snd_pcm_uframes_t) override
 	{
 		return writei_return;
 	}

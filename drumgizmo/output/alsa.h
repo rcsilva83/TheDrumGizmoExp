@@ -29,14 +29,13 @@
 // Use the newer ALSA API
 #define ALSA_PCM_NEW_HW_PARAMS_API
 
-#include <audiotypes.h>
 #include <alsa/asoundlib.h>
+#include <audiotypes.h>
 
-#include "audiooutputengine.h"
 #include "../alsapcmwrapper.h"
+#include "audiooutputengine.h"
 
-class AlsaOutputEngine
-	: public AudioOutputEngine
+class AlsaOutputEngine : public AudioOutputEngine
 {
 public:
 	AlsaOutputEngine();

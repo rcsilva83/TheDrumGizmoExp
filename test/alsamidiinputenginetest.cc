@@ -31,8 +31,8 @@
 
 #ifdef HAVE_INPUT_ALSAMIDI
 
-#include "../drumgizmo/input/alsamidi.h"
 #include "../drumgizmo/alsaseqwrapper.h"
+#include "../drumgizmo/input/alsamidi.h"
 #include "mock_wrappers.h"
 #include "scopedfile.h"
 
@@ -311,7 +311,7 @@ TEST_CASE("AlsaMidiInputEngineWithMock")
 
 		seq.event_data.type = SND_SEQ_EVENT_CONTROLLER;
 		seq.event_data.data.control.channel = 0;
-		seq.event_data.data.control.param = 7;   // volume
+		seq.event_data.data.control.param = 7; // volume
 		seq.event_data.data.control.value = 127;
 
 		AlsaMidiInputEngine engine(seq);

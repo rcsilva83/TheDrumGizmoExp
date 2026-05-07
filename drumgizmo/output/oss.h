@@ -30,8 +30,8 @@
 
 #include <sys/soundcard.h>
 
-#include "audiooutputengine.h"
 #include "../osswrapper.h"
+#include "audiooutputengine.h"
 
 class OSSOutputEngine : public AudioOutputEngine
 {

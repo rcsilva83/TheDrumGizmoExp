@@ -34,14 +34,12 @@
 
 static RealOssWrapper real_oss_wrapper;
 
-OSSInputEngine::OSSInputEngine()
-    : OSSInputEngine(real_oss_wrapper)
+OSSInputEngine::OSSInputEngine() : OSSInputEngine(real_oss_wrapper)
 {
 }
 
 OSSInputEngine::OSSInputEngine(OssWrapper& wrapper)
-    : oss_wrapper(wrapper)
-    , dev{"/dev/midi"}
+    : oss_wrapper(wrapper), dev{"/dev/midi"}
 {
 }
 
@@ -58,8 +56,8 @@ bool OSSInputEngine::init(const Instruments& instruments)
 	fd = oss_wrapper.open_device(dev.data(), O_RDONLY | O_NONBLOCK, 0);
 	if(fd == -1)
 	{
-		std::cerr << dev.data() << ' '
-		          << oss_wrapper.strerror_device(errno) << '\n';
+		std::cerr << dev.data() << ' ' << oss_wrapper.strerror_device(errno)
+		          << '\n';
 		return false;
 	}
 	return true;
