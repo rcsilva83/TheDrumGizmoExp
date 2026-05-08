@@ -661,4 +661,103 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
+
+#ifndef DISABLE_HUGIN
+	SUBCASE("debugOptionRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-D", "all"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+#endif
+
+	SUBCASE("versionShortFlagPrintsVersion")
+	{
+		auto result = runDrumgizmoCli({"-v"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("DrumGizmo v"));
+		CHECK_NE(std::string::npos, result.output.find("Copyright"));
+	}
+
+	SUBCASE("helpShortFlagPrintsUsage")
+	{
+		auto result = runDrumgizmoCli({"-h"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Usage:"));
+		CHECK_NE(std::string::npos, result.output.find("Options:"));
+	}
+
+	SUBCASE("timingHumanizerShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-t"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-x"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("voiceLimitShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-l"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("noResamplingShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-r"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("streamingShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-s"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("bleedShortFlagRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(prependArgs({"-b", "0.3"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("inputengineShortFlagRunSucceeds")
+	{
+		auto result =
+		    runDrumgizmoCli({"-i", "dummy", "-o", "dummy", "-e", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("outputengineShortFlagRunSucceeds")
+	{
+		auto result =
+		    runDrumgizmoCli({"-i", "dummy", "-o", "dummy", "-e", "1", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("invalidFlagReturnsError")
+	{
+		auto result = runDrumgizmoCli({"--bogus-flag-does-not-exist"});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+#ifdef HAVE_INPUT_MIDIFILE
+	SUBCASE("midifileInputDummyOutputListOfEngines")
+	{
+		auto result = runDrumgizmoCli({"--inputengine", "midifile",
+		    "--outputengine", "dummy", "--endpos", "1", kitfile});
+		// This should fail because we haven't set a midi file or midimap
+		CHECK_EQ(1, result.exit_code);
+	}
+#endif
 }
