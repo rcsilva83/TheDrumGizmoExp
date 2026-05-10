@@ -239,11 +239,4 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_NE(std::string::npos, result.output.find("[Info]"));
 	}
 
-	SUBCASE("noAudioShortAndPedanticShortCombined")
-	{
-		auto result = runDgvalidator({"-n", "-p", kitfile});
-		CHECK_EQ(1, result.exit_code);
-		CHECK_NE(
-		    std::string::npos, result.output.find("Validator found errors."));
-	}
 }

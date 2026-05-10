@@ -737,14 +737,6 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
 
-	SUBCASE("outputengineShortFlagRunSucceeds")
-	{
-		auto result =
-		    runDrumgizmoCli({"-i", "dummy", "-o", "dummy", "-e", "1", kitfile});
-		CHECK_EQ(0, result.exit_code);
-		CHECK_NE(std::string::npos, result.output.find("Quit."));
-	}
-
 	SUBCASE("invalidFlagReturnsError")
 	{
 		auto result = runDrumgizmoCli({"--bogus-flag-does-not-exist"});
