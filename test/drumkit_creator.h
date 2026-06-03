@@ -148,6 +148,19 @@ public:
 	std::string create0000Wav(const std::string& name);
 
 	std::string createStdMidimap(const std::string& name);
+
+	std::string createKitWithMetadata(const std::string& name,
+	    const std::string& version, const std::string& title,
+	    const std::string& license, const std::string& author,
+	    const std::string& email, bool create_image = false,
+	    bool create_image_map = false, bool create_logo = false);
+
+	std::string createKitWithBrokenAudio(const std::string& name);
+
+	std::string createKitWithBrokenInstrument(const std::string& name);
+
+	std::string createValidPng(const std::string& dir, const std::string& name,
+	    std::size_t width = 10, std::size_t height = 10);
 	//@}
 
 private:

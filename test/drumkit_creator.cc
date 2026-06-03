@@ -251,6 +251,237 @@ std::string DrumkitCreator::createStdMidimap(const std::string& name)
 	return filename;
 }
 
+std::string DrumkitCreator::createKitWithMetadata(const std::string& name,
+    const std::string& version, const std::string& title,
+    const std::string& license, const std::string& author,
+    const std::string& email, bool create_image, bool create_image_map,
+    bool create_logo)
+{
+	auto dir = createTemporaryDirectory("metadata_kit");
+
+	std::vector<WavInfo> wav_infos = {WavInfo("instr.wav", 1, 0x1111)};
+
+	std::vector<Audiofile> audiofiles(1, Audiofile{&wav_infos.front(), 1});
+	std::vector<SampleData> sample_data{{"stroke1", std::move(audiofiles)}};
+
+	std::vector<InstrumentData> instruments = {
+	    InstrumentData{"instr1", "instr1.xml", std::move(sample_data)}};
+
+	createWav(wav_infos.front(), 1, dir);
+	createInstrument(instruments.front(), 1, dir);
+
+	std::string image_file;
+	std::string image_map_file;
+	std::string logo_file;
+
+	if(create_image)
+	{
+		image_file = createValidPng(dir, "image.png", 10, 10);
+	}
+	if(create_image_map)
+	{
+		image_map_file = createValidPng(dir, "image_map.png", 10, 10);
+	}
+	if(create_logo)
+	{
+		logo_file = createValidPng(dir, "logo.png", 10, 10);
+	}
+
+	std::string drumkit_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	                          "<drumkit name=\"" +
+	                          name +
+	                          "\" version=\"2.0\""
+	                          " description=\"A drumkit with metadata\">\n"
+	                          "<metadata>\n";
+
+	if(!version.empty())
+	{
+		drumkit_xml += "<version>" + version + "</version>\n";
+	}
+	if(!title.empty())
+	{
+		drumkit_xml += "<title>" + title + "</title>\n";
+	}
+	if(!license.empty())
+	{
+		drumkit_xml += "<license>" + license + "</license>\n";
+	}
+	if(!author.empty())
+	{
+		drumkit_xml += "<author>" + author + "</author>\n";
+	}
+	if(!email.empty())
+	{
+		drumkit_xml += "<email>" + email + "</email>\n";
+	}
+	if(create_image)
+	{
+		drumkit_xml += "<image>image.png</image>\n";
+	}
+	if(create_image_map)
+	{
+		drumkit_xml += "<image_map>image_map.png</image_map>\n";
+	}
+	if(create_logo)
+	{
+		drumkit_xml += "<logo>logo.png</logo>\n";
+	}
+
+	drumkit_xml += "</metadata>\n";
+	drumkit_xml += "<channels>\n<channel name=\"ch0\"/>\n</channels>\n";
+	drumkit_xml += "<instruments>\n";
+	drumkit_xml += "<instrument name=\"instr1\" file=\"instr1.xml\">\n";
+	drumkit_xml += "<channelmap in=\"ch0\" out=\"ch0\"/>\n";
+	drumkit_xml += "</instrument>\n";
+	drumkit_xml += "</instruments>\n";
+	drumkit_xml += "</drumkit>\n";
+
+	std::string filename = dir + "/" + name + ".xml";
+	std::ofstream file;
+	file.open(filename);
+	if(file.is_open())
+	{
+		created_files.push_back(filename);
+		file << drumkit_xml;
+	}
+	else
+	{
+		throw std::runtime_error("File could not be opened");
+	}
+	file.close();
+
+	return filename;
+}
+
+std::string DrumkitCreator::createKitWithBrokenAudio(const std::string& name)
+{
+	auto dir = createTemporaryDirectory("broken_audio_kit");
+
+	std::string drumkit_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	                          "<drumkit name=\"" +
+	                          name +
+	                          "\" version=\"2.0\""
+	                          " description=\"A drumkit with broken audio\">\n"
+	                          "<channels>\n<channel name=\"ch0\"/>\n</channels>\n"
+	                          "<instruments>\n"
+	                          "<instrument name=\"instr1\" file=\"instr1.xml\">\n"
+	                          "<channelmap in=\"ch0\" out=\"ch0\"/>\n"
+	                          "</instrument>\n"
+	                          "</instruments>\n"
+	                          "</drumkit>\n";
+
+	std::string instrument_xml =
+	    "<?xml version='1.0' encoding='UTF-8'?>\n"
+	    "<instrument name=\"instr1\" version=\"2.0\">\n"
+	    "  <samples>\n"
+	    "    <sample name=\"stroke1\" power=\"1.0\">\n"
+	    "      <audiofile channel=\"ch0\" file=\"nonexistent.wav\" "
+	    "filechannel=\"1\"/>\n"
+	    "    </sample>\n"
+	    "  </samples>\n"
+	    "</instrument>\n";
+
+	std::string drumkit_filename = dir + "/" + name + ".xml";
+	std::string instrument_filename = dir + "/instr1.xml";
+
+	std::ofstream drumkit_file;
+	drumkit_file.open(drumkit_filename);
+	if(drumkit_file.is_open())
+	{
+		created_files.push_back(drumkit_filename);
+		drumkit_file << drumkit_xml;
+	}
+	else
+	{
+		throw std::runtime_error("Drumkit file could not be opened");
+	}
+	drumkit_file.close();
+
+	std::ofstream instrument_file;
+	instrument_file.open(instrument_filename);
+	if(instrument_file.is_open())
+	{
+		created_files.push_back(instrument_filename);
+		instrument_file << instrument_xml;
+	}
+	else
+	{
+		throw std::runtime_error("Instrument file could not be opened");
+	}
+	instrument_file.close();
+
+	return drumkit_filename;
+}
+
+std::string DrumkitCreator::createKitWithBrokenInstrument(
+    const std::string& name)
+{
+	auto dir = createTemporaryDirectory("broken_instr_kit");
+
+	std::string drumkit_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	                          "<drumkit name=\"" +
+	                          name +
+	                          "\" version=\"2.0\""
+	                          " description=\"A drumkit with broken instrument\">\n"
+	                          "<channels>\n<channel name=\"ch0\"/>\n</channels>\n"
+	                          "<instruments>\n"
+	                          "<instrument name=\"instr1\" "
+	                          "file=\"nonexistent_instr.xml\">\n"
+	                          "<channelmap in=\"ch0\" out=\"ch0\"/>\n"
+	                          "</instrument>\n"
+	                          "</instruments>\n"
+	                          "</drumkit>\n";
+
+	std::string filename = dir + "/" + name + ".xml";
+	std::ofstream file;
+	file.open(filename);
+	if(file.is_open())
+	{
+		created_files.push_back(filename);
+		file << drumkit_xml;
+	}
+	else
+	{
+		throw std::runtime_error("File could not be opened");
+	}
+	file.close();
+
+	return filename;
+}
+
+std::string DrumkitCreator::createValidPng(const std::string& dir,
+    const std::string& name, std::size_t /*width*/, std::size_t /*height*/)
+{
+	std::string filename = dir + "/" + name;
+
+	// Minimal 1x1 red pixel PNG (pre-generated)
+	// This is a valid PNG file with a single red pixel
+	const unsigned char png_data[] = {
+	    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
+	    0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+	    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 pixels
+	    0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, // 8-bit RGB
+	    0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, // IDAT chunk
+	    0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00, // compressed data
+	    0x00, 0x00, 0x02, 0x00, 0x01, 0xe2, 0x21, 0xbc,
+	    0x33, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, // IEND chunk
+	    0x44, 0xae, 0x42, 0x60, 0x82};
+
+	std::ofstream file(filename, std::ios::binary);
+	if(file.is_open())
+	{
+		created_files.push_back(filename);
+		file.write(reinterpret_cast<const char*>(png_data), sizeof(png_data));
+	}
+	else
+	{
+		throw std::runtime_error("PNG file could not be opened");
+	}
+	file.close();
+
+	return filename;
+}
+
 //
 // private member functions
 //

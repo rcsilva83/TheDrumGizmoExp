@@ -661,4 +661,198 @@ TEST_CASE_FIXTURE(DrumgizmoCliFixture, "DrumgizmoCli")
 		CHECK_EQ(0, result.exit_code);
 		CHECK_NE(std::string::npos, result.output.find("Quit."));
 	}
+
+	SUBCASE("timingHumanizerparmsLaidbackBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "laidback=-100"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("timingHumanizerparmsLaidbackBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "laidback=100"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("timingHumanizerparmsTightnessBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "tightness=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("timingHumanizerparmsTightnessBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "tightness=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("timingHumanizerparmsRegainBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "regain=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("timingHumanizerparmsRegainBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--timing-humanizerparms", "regain=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsAttackBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "attack=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsAttackBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "attack=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsReleaseBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "release=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsReleaseBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "release=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsStddevBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "stddev=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("velocityHumanizerparmsStddevBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--velocity-humanizerparms", "stddev=4.5"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("voiceLimitparmsMaxBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--voice-limitparms", "max=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("voiceLimitparmsMaxBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--voice-limitparms", "max=30"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("voiceLimitparmsRampdownBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--voice-limitparms", "rampdown=0.01"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("voiceLimitparmsRampdownBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--voice-limitparms", "rampdown=2.0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersCloseBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "close=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersCloseBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "close=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersDiverseBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "diverse=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersDiverseBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "diverse=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersRandomBoundaryLowRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "random=0"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("parametersRandomBoundaryHighRunSucceeds")
+	{
+		auto result = runDrumgizmoCli(
+		    prependArgs({"--parameters", "random=1"}, kitfile));
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Quit."));
+	}
+
+	SUBCASE("brokenDrumkitLoadFails")
+	{
+		auto broken_kit =
+		    drumkit_creator.createKitWithBrokenInstrument("broken_cli_kit");
+		auto result = runDrumgizmoCli({"--inputengine", "dummy",
+		    "--outputengine", "dummy", "--endpos", "1", broken_kit});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+	SUBCASE("asyncLoadBrokenDrumkitFails")
+	{
+		auto broken_kit =
+		    drumkit_creator.createKitWithBrokenInstrument("broken_async_kit");
+		auto result = runDrumgizmoCli({"--async-load", "--inputengine", "dummy",
+		    "--outputengine", "dummy", "--endpos", "1", broken_kit});
+		CHECK_EQ(1, result.exit_code);
+	}
 }

@@ -157,4 +157,99 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_NE(
 		    std::string::npos, result.output.find("Validator found errors."));
 	}
+
+	SUBCASE("validKitWithAudioReturnsSuccess")
+	{
+		auto result = runDgvalidator({kitfile});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithMissingAudioFilesReturnsError")
+	{
+		auto broken_kit = drumkit_creator.createKitWithBrokenAudio("broken_audio");
+		auto result = runDgvalidator({broken_kit});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos,
+		    result.output.find("Error loading audio file"));
+	}
+
+	SUBCASE("kitWithBrokenInstrumentReturnsError")
+	{
+		auto broken_kit =
+		    drumkit_creator.createKitWithBrokenInstrument("broken_instr");
+		auto result = runDgvalidator({"--no-audio", broken_kit});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+	SUBCASE("kitWithAllMetadataReturnsSuccess")
+	{
+		auto metadata_kit = drumkit_creator.createKitWithMetadata("meta_kit",
+		    "1.0", "Test Kit", "CC-BY", "Test Author", "test@example.com");
+		auto result = runDgvalidator({"--no-audio", metadata_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithImageReturnsSuccess")
+	{
+		auto image_kit = drumkit_creator.createKitWithMetadata("image_kit",
+		    "1.0", "Test Kit", "CC-BY", "Test Author", "test@example.com",
+		    true, false, false);
+		auto result = runDgvalidator({"-v", "-v", "--no-audio", image_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithImageMapReturnsSuccess")
+	{
+		auto image_map_kit = drumkit_creator.createKitWithMetadata(
+		    "image_map_kit", "1.0", "Test Kit", "CC-BY", "Test Author",
+		    "test@example.com", false, true, false);
+		auto result =
+		    runDgvalidator({"-v", "-v", "--no-audio", image_map_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithImageAndImageMapReturnsSuccess")
+	{
+		auto both_kit = drumkit_creator.createKitWithMetadata("both_kit", "1.0",
+		    "Test Kit", "CC-BY", "Test Author", "test@example.com", true, true,
+		    false);
+		auto result = runDgvalidator({"-v", "-v", "--no-audio", both_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithLogoReturnsSuccess")
+	{
+		auto logo_kit = drumkit_creator.createKitWithMetadata("logo_kit", "1.0",
+		    "Test Kit", "CC-BY", "Test Author", "test@example.com", false,
+		    false, true);
+		auto result = runDgvalidator({"-v", "-v", "--no-audio", logo_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithMissingMetadataFieldsShowsWarnings")
+	{
+		auto partial_kit = drumkit_creator.createKitWithMetadata("partial_kit",
+		    "", "", "", "", "");
+		auto result = runDgvalidator({"-v", "--no-audio", partial_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("kitWithPartialMetadataShowsSomeWarnings")
+	{
+		auto partial_kit = drumkit_creator.createKitWithMetadata("partial_kit2",
+		    "1.0", "", "CC-BY", "", "test@example.com");
+		auto result = runDgvalidator({"-v", "--no-audio", partial_kit});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("pedanticWithMissingMetadataReturnsError")
+	{
+		auto partial_kit = drumkit_creator.createKitWithMetadata("partial_kit3",
+		    "", "", "", "", "");
+		auto result =
+		    runDgvalidator({"--pedantic", "--no-audio", partial_kit});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("Validator found errors."));
+	}
 }

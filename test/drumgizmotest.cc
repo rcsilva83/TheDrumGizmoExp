@@ -223,4 +223,134 @@ TEST_CASE("EngineFactory")
 		CHECK_UNARY(found);
 	}
 #endif
+
+#ifdef HAVE_INPUT_JACKMIDI
+	SUBCASE("createInputJackmidiReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("jackmidi");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getInputEnginesContainsJackmidi")
+	{
+		EngineFactory factory;
+		const auto& inputs = factory.getInputEngines();
+
+		bool found = false;
+		for(const auto& name : inputs)
+		{
+			if(name == "jackmidi")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
+
+#ifdef HAVE_INPUT_ALSAMIDI
+	SUBCASE("createInputAlsamidiReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("alsamidi");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getInputEnginesContainsAlsamidi")
+	{
+		EngineFactory factory;
+		const auto& inputs = factory.getInputEngines();
+
+		bool found = false;
+		for(const auto& name : inputs)
+		{
+			if(name == "alsamidi")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
+
+#ifdef HAVE_INPUT_MIDIFILE
+	SUBCASE("createInputMidifileReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createInput("midifile");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getInputEnginesContainsMidifile")
+	{
+		EngineFactory factory;
+		const auto& inputs = factory.getInputEngines();
+
+		bool found = false;
+		for(const auto& name : inputs)
+		{
+			if(name == "midifile")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_JACKAUDIO
+	SUBCASE("createOutputJackaudioReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("jackaudio");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getOutputEnginesContainsJackaudio")
+	{
+		EngineFactory factory;
+		const auto& outputs = factory.getOutputEngines();
+
+		bool found = false;
+		for(const auto& name : outputs)
+		{
+			if(name == "jackaudio")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
+
+#ifdef HAVE_OUTPUT_ALSA
+	SUBCASE("createOutputAlsaReturnsValidEngine")
+	{
+		EngineFactory factory;
+		auto engine = factory.createOutput("alsa");
+
+		CHECK_UNARY(engine != nullptr);
+	}
+
+	SUBCASE("getOutputEnginesContainsAlsa")
+	{
+		EngineFactory factory;
+		const auto& outputs = factory.getOutputEngines();
+
+		bool found = false;
+		for(const auto& name : outputs)
+		{
+			if(name == "alsa")
+			{
+				found = true;
+			}
+		}
+		CHECK_UNARY(found);
+	}
+#endif
 }
