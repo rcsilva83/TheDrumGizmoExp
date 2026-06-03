@@ -947,6 +947,31 @@ if(DG_ENABLE_CLI)
 				dg_hugin
 		)
 	endif()
+
+	if(DG_ENABLE_INPUT_JACKMIDI OR DG_ENABLE_OUTPUT_JACKAUDIO)
+		add_library(mock_jack STATIC
+			"${CMAKE_SOURCE_DIR}/test/mock_jack.cc"
+		)
+		target_include_directories(mock_jack PUBLIC
+			"${CMAKE_SOURCE_DIR}/test"
+		)
+		if(DG_JACK_REQUIRED)
+			target_link_libraries(mock_jack PUBLIC PkgConfig::JACK)
+		endif()
+
+		dg_add_doctest_test(jackclienttest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/jackclient.cc"
+				"${CMAKE_SOURCE_DIR}/test/jackclienttest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			LINK_LIBRARIES
+				dg_core
+				dg_hugin
+				mock_jack
+		)
+	endif()
 endif()
 
 if(DG_ENABLE_LV2)
