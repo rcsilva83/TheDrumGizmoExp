@@ -157,4 +157,86 @@ TEST_CASE_FIXTURE(DgvalidatorFixture, "DgvalidatorCli")
 		CHECK_NE(
 		    std::string::npos, result.output.find("Validator found errors."));
 	}
+
+	SUBCASE("invalidOptionReturnsError")
+	{
+		auto result = runDgvalidator({"--bogus-flag-does-not-exist"});
+		CHECK_EQ(1, result.exit_code);
+	}
+
+	SUBCASE("missingKitfileWithNoAudioReturnsError")
+	{
+		auto result = runDgvalidator({"--no-audio"});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Missing kitfile."));
+	}
+
+	SUBCASE("shortNoAudioOptionReturnsSuccess")
+	{
+		auto result = runDgvalidator({"-n", kitfile});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("shortPedanticWithNoAudioReturnsError")
+	{
+		auto result = runDgvalidator({"-n", "-p", kitfile});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("Validator found errors."));
+	}
+
+	SUBCASE("shortQuietWithNoAudioValidKit")
+	{
+		auto result = runDgvalidator({"-q", "-n", kitfile});
+		CHECK_EQ(0, result.exit_code);
+	}
+
+	SUBCASE("versionShortFormPrintsVersion")
+	{
+		auto result = runDgvalidator({"-V"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("DGValidator v"));
+	}
+
+	SUBCASE("helpShortFormPrintsUsage")
+	{
+		auto result = runDgvalidator({"-h"});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("Usage:"));
+		CHECK_NE(std::string::npos, result.output.find("Options:"));
+	}
+
+	SUBCASE("verboseShortFormShowsWarnings")
+	{
+		auto result = runDgvalidator({"-v", "-n", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		CHECK_NE(std::string::npos, result.output.find("[Warning]"));
+	}
+
+	SUBCASE("pedanticWithoutNoAudioTreatsMissingMetadataAsError")
+	{
+		auto result = runDgvalidator({"-p", "-n", kitfile});
+		CHECK_EQ(1, result.exit_code);
+		CHECK_NE(
+		    std::string::npos, result.output.find("Validator found errors."));
+	}
+
+#ifndef DISABLE_HUGIN
+	SUBCASE("debugOptionDoesNotCrash")
+	{
+		// Debug option should not crash even with invalid filter
+		auto result = runDgvalidator({"-D", "all", "-n", kitfile});
+		// Debug does not affect exit code; validator should still pass
+		CHECK_EQ(0, result.exit_code);
+	}
+#endif
+
+	SUBCASE("verboseTripleShowsAllMessages")
+	{
+		auto result = runDgvalidator({"-v", "-v", "-v", "-n", kitfile});
+		CHECK_EQ(0, result.exit_code);
+		// With -vvv (verbosity=4), info messages become visible
+		CHECK_NE(std::string::npos, result.output.find("[Info]"));
+	}
+
 }

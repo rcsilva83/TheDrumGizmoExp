@@ -377,6 +377,9 @@ int main(int argc, char* argv[])
 		        hugin_filter = optarg;
 		        return 0;
 	        });
+#else
+	opt.add("debug", required_argument, 'D',
+	        "Not compiled with hugin support - ignored", [&]() { return 0; });
 #endif /*DISABLE_HUGIN*/
 
 	opt.add("no-resampling", no_argument, 'r',

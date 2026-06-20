@@ -41,4 +41,6 @@ Checks: >-
 
 WarningsAsErrors: ''
 
+ExtraArgs: ['-Wno-ignored-optimization-argument']
+
 HeaderFilterRegex: '(src|dggui|plugingui|plugin|drumgizmo|test)/.*'
