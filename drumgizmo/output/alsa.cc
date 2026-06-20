@@ -48,9 +48,15 @@ struct AlsaInitError
 	}
 };
 
-AlsaOutputEngine::AlsaOutputEngine()
-    : handle{nullptr}
-    , params{nullptr}
+static RealAlsaPcmWrapper real_pcm_wrapper;
+
+AlsaOutputEngine::AlsaOutputEngine() : AlsaOutputEngine(real_pcm_wrapper)
+{
+}
+
+AlsaOutputEngine::AlsaOutputEngine(AlsaPcmWrapper& wrapper)
+    : pcm_wrapper(wrapper)
+    , handle{nullptr}
     , data{}
     , num_channels{0u}
     , dev{"default"}
@@ -62,11 +68,9 @@ AlsaOutputEngine::AlsaOutputEngine()
 
 AlsaOutputEngine::~AlsaOutputEngine()
 {
-	// note: do NOT release `params`, it was allocated by `alloca()`
-
 	if(handle != nullptr)
 	{
-		snd_pcm_close(handle);
+		pcm_wrapper.close(handle);
 	}
 }
 
@@ -76,7 +80,7 @@ bool AlsaOutputEngine::init(const Channels& channels)
 	try
 	{
 		int value =
-		    snd_pcm_open(&handle, dev.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
+		    pcm_wrapper.open(&handle, dev.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
 		AlsaInitError::test(value, "snd_pcm_open");
 		num_channels = channels.size();
 		if(handle == nullptr)
@@ -85,33 +89,15 @@ bool AlsaOutputEngine::init(const Channels& channels)
 			          << "hardware handle\n";
 			return false;
 		}
-		// Allocate and init a hardware parameters object
-		snd_pcm_hw_params_alloca(&params);
-		value = snd_pcm_hw_params_any(handle, params);
-		AlsaInitError::test(value, "snd_pcm_hw_params_any");
-
-		value = snd_pcm_hw_params_set_access(
-		    handle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_access");
-		value =
-		    snd_pcm_hw_params_set_format(handle, params, SND_PCM_FORMAT_FLOAT);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_format");
-		value = snd_pcm_hw_params_set_channels(handle, params, num_channels);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_channels");
-		value = snd_pcm_hw_params_set_rate_near(handle, params, &srate, 0);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_rate_near");
-		value =
-		    snd_pcm_hw_params_set_period_size_near(handle, params, &frames, 0);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_period_size_near");
-		value = snd_pcm_hw_params_set_periods_near(handle, params, &periods, 0);
-		AlsaInitError::test(value, "snd_pcm_hw_params_set_periods_near");
-		value = snd_pcm_hw_params(handle, params);
-		AlsaInitError::test(value, "snd_pcm_hw_params");
+		value = pcm_wrapper.configure_hw(
+		    handle, num_channels, &srate, &frames, &periods);
+		AlsaInitError::test(value, "configure_hw");
 	}
 	catch(AlsaInitError const& error)
 	{
 		std::cerr << "[AlsaOutputEngine] " << error.msg
-		          << " failed: " << snd_strerror(error.code) << std::endl;
+		          << " failed: " << pcm_wrapper.strerror(error.code)
+		          << std::endl;
 		return false;
 	}
 
@@ -200,21 +186,21 @@ void AlsaOutputEngine::run(int ch, sample_t* samples, size_t nsamples)
 void AlsaOutputEngine::post(size_t nsamples)
 {
 	// Write the interleaved buffer to the soundcard
-	snd_pcm_sframes_t value = snd_pcm_writei(handle, data.data(), nsamples);
+	snd_pcm_sframes_t value = pcm_wrapper.writei(handle, data.data(), nsamples);
 
 	if(value == -EPIPE) // under-run
 	{
-		snd_pcm_prepare(handle);
+		pcm_wrapper.prepare(handle);
 	}
 	else if(value == -ESTRPIPE)
 	{
-		while((value = snd_pcm_resume(handle)) == -EAGAIN)
+		while((value = pcm_wrapper.resume(handle)) == -EAGAIN)
 		{
 			sleep(1); // wait until the suspend flag is released
 		}
 		if(value < 0)
 		{
-			snd_pcm_prepare(handle);
+			pcm_wrapper.prepare(handle);
 		}
 	}
 }

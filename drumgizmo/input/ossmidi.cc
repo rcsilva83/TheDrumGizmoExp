@@ -32,7 +32,14 @@
 #include <sys/soundcard.h>
 #include <unistd.h>
 
-OSSInputEngine::OSSInputEngine() : dev{"/dev/midi"}
+static RealOssWrapper real_oss_wrapper;
+
+OSSInputEngine::OSSInputEngine() : OSSInputEngine(real_oss_wrapper)
+{
+}
+
+OSSInputEngine::OSSInputEngine(OssWrapper& wrapper)
+    : oss_wrapper(wrapper), dev{"/dev/midi"}
 {
 }
 
@@ -46,10 +53,11 @@ bool OSSInputEngine::init(const Instruments& instruments)
 		          << midimap_file << '\n';
 		return false;
 	}
-	fd = open(dev.data(), O_RDONLY | O_NONBLOCK, 0);
+	fd = oss_wrapper.open_device(dev.data(), O_RDONLY | O_NONBLOCK, 0);
 	if(fd == -1)
 	{
-		std::cerr << dev.data() << ' ' << std::strerror(errno) << '\n';
+		std::cerr << dev.data() << ' ' << oss_wrapper.strerror_device(errno)
+		          << '\n';
 		return false;
 	}
 	return true;
@@ -87,7 +95,7 @@ void OSSInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 	(void)len;
 	ssize_t l;
 	unsigned char buf[128];
-	l = read(fd, buf, sizeof(buf));
+	l = oss_wrapper.read_device(fd, buf, sizeof(buf));
 	if(l != -1)
 	{
 		processNote(buf, l,
@@ -97,7 +105,7 @@ void OSSInputEngine::run(size_t pos, size_t len, std::vector<event_t>& events)
 	else if(errno != EAGAIN)
 	{
 		std::cerr << "Error code: " << errno << '\n';
-		std::cerr << std::strerror(errno) << '\n';
+		std::cerr << oss_wrapper.strerror_device(errno) << '\n';
 	}
 }
 

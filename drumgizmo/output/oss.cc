@@ -35,7 +35,13 @@
 
 #include <config.h>
 
-OSSOutputEngine::OSSOutputEngine()
+static RealOssWrapper real_oss_output_wrapper;
+
+OSSOutputEngine::OSSOutputEngine() : OSSOutputEngine(real_oss_output_wrapper)
+{
+}
+
+OSSOutputEngine::OSSOutputEngine(OssWrapper& wrapper) : oss_wrapper(wrapper)
 {
 	data.clear();
 	data.resize(1024 * num_channels);
@@ -47,19 +53,20 @@ bool OSSOutputEngine::init(const Channels& channels)
 	int mode = O_WRONLY;
 	num_channels = channels.size();
 
-	fd = open(dev.data(), mode, 0);
+	fd = oss_wrapper.open_device(dev.data(), mode, 0);
 	if(fd == -1)
 	{
-		std::cerr << dev.data() << ' ' << std::strerror(errno) << '\n';
+		std::cerr << dev.data() << ' ' << oss_wrapper.strerror_device(errno)
+		          << '\n';
 		return false;
 	}
 
 	fragments = max_fragments << 16 | fragment_size;
 	tmp = fragments;
-	if(ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &tmp) == -1)
+	if(oss_wrapper.ioctl_device(fd, SNDCTL_DSP_SETFRAGMENT, &tmp) == -1)
 	{
 		std::cerr << "Can not set buffer size: ";
-		std::cerr << std::strerror(errno) << '\n';
+		std::cerr << oss_wrapper.strerror_device(errno) << '\n';
 		return false;
 	}
 	if(tmp != fragments)
@@ -72,35 +79,39 @@ bool OSSOutputEngine::init(const Channels& channels)
 	}
 
 	audio_buf_info info;
-	if(ioctl(fd, SNDCTL_DSP_GETOSPACE, &info) == -1)
+	if(oss_wrapper.ioctl_device(fd, SNDCTL_DSP_GETOSPACE, &info) == -1)
 	{
 		std::cerr << "Can not get buffer info: ";
-		std::cerr << std::strerror(errno) << '\n';
+		std::cerr << oss_wrapper.strerror_device(errno) << '\n';
 		return false;
 	}
 	buffer_size = info.bytes / sizeof(decltype(data)::value_type);
 
 	tmp = format;
-	if(ioctl(fd, SNDCTL_DSP_SETFMT, &tmp) == -1 || tmp != format)
+	if(oss_wrapper.ioctl_device(fd, SNDCTL_DSP_SETFMT, &tmp) == -1 ||
+	    tmp != format)
 	{
-		std::cerr << "Setting audio format failed " << std::strerror(errno);
+		std::cerr << "Setting audio format failed "
+		          << oss_wrapper.strerror_device(errno);
 		std::cerr << '\n';
 		return false;
 	}
 
 	tmp = num_channels;
-	if(ioctl(fd, SNDCTL_DSP_CHANNELS, &tmp) == -1 || tmp != num_channels)
+	if(oss_wrapper.ioctl_device(fd, SNDCTL_DSP_CHANNELS, &tmp) == -1 ||
+	    tmp != num_channels)
 	{
 		std::cerr << "Can not set number of channels to " << num_channels;
-		std::cerr << ": " << std::strerror(errno) << '\n';
+		std::cerr << ": " << oss_wrapper.strerror_device(errno) << '\n';
 		return false;
 	}
 
 	tmp = srate;
-	if(ioctl(fd, SNDCTL_DSP_SPEED, &tmp) == -1 || tmp != srate)
+	if(oss_wrapper.ioctl_device(fd, SNDCTL_DSP_SPEED, &tmp) == -1 ||
+	    tmp != srate)
 	{
 		std::cerr << "Can not set sampling frequency to " << srate << ": ";
-		std::cerr << std::strerror(errno) << '\n';
+		std::cerr << oss_wrapper.strerror_device(errno) << '\n';
 		return false;
 	}
 
@@ -211,10 +222,11 @@ void OSSOutputEngine::post(size_t nsamples)
 {
 	(void)nsamples;
 	auto data_size = data.size() * sizeof(*data.data());
-	auto size_written = write(fd, data.data(), data_size);
+	auto size_written = oss_wrapper.write_device(fd, data.data(), data_size);
 	if(static_cast<std::size_t>(size_written) != data_size)
 	{
-		std::cerr << "Audio write: " << std::strerror(errno) << '\n';
+		std::cerr << "Audio write: " << oss_wrapper.strerror_device(errno)
+		          << '\n';
 	}
 }
 

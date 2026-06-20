@@ -890,12 +890,14 @@ if(DG_ENABLE_CLI)
 		dg_add_doctest_test(alsamidiinputenginetest
 			SOURCES
 				"${CMAKE_SOURCE_DIR}/drumgizmo/input/alsamidi.cc"
+				"${CMAKE_SOURCE_DIR}/test/scopedfile.cc"
 				"${CMAKE_SOURCE_DIR}/test/alsamidiinputenginetest.cc"
 			INCLUDE_DIRS
 				"${CMAKE_SOURCE_DIR}"
 				"${DG_HUGIN_SOURCE_DIR}"
 			LINK_LIBRARIES
 				${DG_ALSAMIDIINPUTTEST_LINK_LIBS}
+				dg_pugi
 		)
 	endif()
 
@@ -945,6 +947,24 @@ if(DG_ENABLE_CLI)
 			LINK_LIBRARIES
 				dg_core
 				dg_hugin
+		)
+	endif()
+
+	if(DG_JACK_REQUIRED)
+		set(DG_JACKCLIENTTEST_LINK_LIBS
+			PkgConfig::JACK
+		)
+		dg_add_doctest_test(jackclienttest
+			SOURCES
+				"${CMAKE_SOURCE_DIR}/drumgizmo/jackclient.cc"
+				"${CMAKE_SOURCE_DIR}/test/jackclienttest.cc"
+			INCLUDE_DIRS
+				"${CMAKE_SOURCE_DIR}"
+				"${DG_HUGIN_SOURCE_DIR}"
+			COMPILE_DEFINITIONS
+				DG_ENABLE_TESTS
+			LINK_LIBRARIES
+				${DG_JACKCLIENTTEST_LINK_LIBS}
 		)
 	endif()
 endif()

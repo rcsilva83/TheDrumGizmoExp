@@ -25,12 +25,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
 #pragma once
+#include "../osswrapper.h"
 #include "audioinputenginemidi.h"
 
 class OSSInputEngine : public AudioInputEngineMidi
 {
 public:
 	OSSInputEngine();
+	explicit OSSInputEngine(OssWrapper& wrapper);
 	~OSSInputEngine() override;
 
 	// based on AudioInputEngine
@@ -44,6 +46,8 @@ public:
 	bool isFreewheeling() const override;
 
 private:
+	OssWrapper& oss_wrapper;
+
 	int fd{-1};
 	std::string dev;
 	std::size_t pos{0};
